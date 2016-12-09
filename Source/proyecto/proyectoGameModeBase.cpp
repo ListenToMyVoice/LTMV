@@ -8,7 +8,7 @@ AproyectoGameModeBase::AproyectoGameModeBase(const class FObjectInitializer& PCI
     PlayerControllerClass = ACharacterController::StaticClass();
 
     static ConstructorHelpers::FObjectFinder<UClass> PlayerPawnBPClass(
-        TEXT("Class'/Game/Character/PlayerCharacter_BP.PlayerCharacter_BP_C'")
+        TEXT("Class'/Game/Meshes/Skeletons/Prototypes/Player/PlayerCharacter_BP.PlayerCharacter_BP_C'")
     );
 
     if (PlayerPawnBPClass.Object != NULL) {

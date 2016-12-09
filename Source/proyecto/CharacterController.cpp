@@ -8,6 +8,8 @@ void ACharacterController::BeginPlay() {
 
 	for (TActorIterator<ACameraActor> It(GetWorld()); It; ++It) {
 		ACameraActor* _mainCamera = *It;
-		this->SetViewTargetWithBlend(_mainCamera);
+        if (_mainCamera->GetName() == "PlayerCamera_0") {
+            this->SetViewTargetWithBlend(_mainCamera);
+        }
 	}
 }

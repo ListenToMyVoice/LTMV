@@ -5,9 +5,6 @@
 #include "GameFramework/PlayerController.h"
 #include "CharacterController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROYECTO_API ACharacterController : public APlayerController
 {

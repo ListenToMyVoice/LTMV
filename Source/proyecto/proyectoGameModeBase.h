@@ -5,9 +5,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "proyectoGameModeBase.generated.h"
 
-/**
- *
- */
 UCLASS()
 class PROYECTO_API AproyectoGameModeBase : public AGameModeBase {
     GENERATED_BODY()
