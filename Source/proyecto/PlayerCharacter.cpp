@@ -12,9 +12,10 @@ APlayerCharacter::APlayerCharacter() {
     BaseLookUpRate = 45.f;
 
     // Create a CameraComponent	
-    FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+    FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPCamera"));
     FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
-    FirstPersonCameraComponent->RelativeLocation = FVector(10.0f, 1.75f, 64.f); // Position the camera
+    FirstPersonCameraComponent->RelativeLocation = FVector(10.f, 1.75f, 64.f);
+    //FirstPersonCameraComponent->RelativeRotation = FRotator(0.f, 0.f, 10.f);
     FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
     // Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
