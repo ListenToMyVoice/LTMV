@@ -10,5 +10,5 @@ class PROYECTO_API AproyectoGameModeBase : public AGameModeBase {
     GENERATED_BODY()
 
 public:
-    AproyectoGameModeBase(const class FObjectInitializer& PCIP);
+    AproyectoGameModeBase(const class FObjectInitializer& OI);
 };

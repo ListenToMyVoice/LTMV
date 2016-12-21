@@ -78,32 +78,3 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
     // calculate delta for this frame from the rate information
     AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
-
-
-
-
-
-
-
-
-
-
-
-//void APlayerCharacter::MoveForward(float Value) {
-//    if ((Controller != NULL) && (Value != 0.0f)) {
-//        const FRotator Rotation = Controller->GetControlRotation();
-//
-//        const FVector Direction = FRotationMatrix(Rotation).GetUnitAxis(EAxis::X);
-//        AddMovementInput(Direction, Value);
-//    }
-//}
-//
-//void APlayerCharacter::MoveRight(float Value) {
-//    if ((Controller != NULL) && (Value != 0.0f)) {
-//        const FRotator Rotation = Controller->GetControlRotation();
-//        const FRotator YawRotation(0, Rotation.Yaw, 0);
-//
-//        const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-//        AddMovementInput(Direction, Value);
-//    }
-//}
