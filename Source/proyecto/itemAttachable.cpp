@@ -3,23 +3,11 @@
 #include "proyecto.h"
 #include "itemAttachable.h"
 
-#ifndef __LIBRARYUTILS_H
-#include "LibraryUtils.h"
-#define __LIBRARYUTILS_H
-#endif
 
 UitemAttachable::UitemAttachable() : Super() {}
 
 void UitemAttachable::BeginPlay() {
     Super::BeginPlay();
-}
-
-void UitemAttachable::TickComponent(float DeltaTime, ELevelTick TickType,
-                                 FActorComponentTickFunction* ThisTickFunction) {
-    if (_isActive) {
-        Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-        ULibraryUtils::Log(TEXT("TICK"), 3);
-    }
 }
 
 void UitemAttachable::activateItem(UPrimitiveComponent* OverlappedComp,
@@ -32,6 +20,8 @@ void UitemAttachable::activateItem(UPrimitiveComponent* OverlappedComp,
                         bFromSweep, SweepResult);
     
     ULibraryUtils::Log(TEXT("Attachable active"));
+    _binding = &OtherActor->InputComponent->BindAction("Take", IE_Released, this,
+                                                       &UitemAttachable::inputCB);
 }
 
 void UitemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
@@ -41,4 +31,9 @@ void UitemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
     Super::deactivateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
 
     ULibraryUtils::Log(TEXT("Attachable deactive"));
+    _binding->ActionDelegate.Unbind();
+}
+
+void UitemAttachable::inputCB() {
+    _actor->TakeItem("CACA");
 }

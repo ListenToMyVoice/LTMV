@@ -4,7 +4,7 @@
 #include "ItemOverlap.h"
 
 UItemOverlap::UItemOverlap() : Super() {
-    PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bCanEverTick = false;
     _isActive = false;
     _actor = nullptr;
 }
@@ -13,10 +13,10 @@ void UItemOverlap::BeginPlay() {
     Super::BeginPlay();
 }
 
-void UItemOverlap::TickComponent(float DeltaTime, ELevelTick TickType,
-                                 FActorComponentTickFunction* ThisTickFunction) {
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
+//void UItemOverlap::TickComponent(float DeltaTime, ELevelTick TickType,
+//                                 FActorComponentTickFunction* ThisTickFunction) {
+//    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+//}
 
 void UItemOverlap::activateItem(UPrimitiveComponent* OverlappedComp,
                                 APlayerCharacter* OtherActor,

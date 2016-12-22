@@ -19,8 +19,8 @@ public:
 
     virtual void BeginPlay() override;
 
-    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-                               FActorComponentTickFunction* ThisTickFunction) override;
+    //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+    //                           FActorComponentTickFunction* ThisTickFunction) override;
 
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,
                               APlayerCharacter* OtherActor,
@@ -32,5 +32,5 @@ public:
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 protected:
     bool _isActive;
-    AActor* _actor;
+    APlayerCharacter* _actor;
 };

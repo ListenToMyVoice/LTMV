@@ -2,6 +2,11 @@
 
 #pragma once
 
+#ifndef __LIBRARYUTILS_H
+#include "LibraryUtils.h"
+#define __LIBRARYUTILS_H
+#endif
+
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -39,27 +44,22 @@ public:
         return FirstPersonCameraComponent; 
     }
 
+    /* OUTSIDE ACTION MAPPINGS */
+    void TakeItem(FString itemName);
 protected:
+    virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
-    /** Handles moving forward/backward */
+    /* ACTION MAPPINGS */
     void MoveForward(float Val);
-
-    /** Handles stafing movement, left and right */
     void MoveRight(float Val);
-
     /**
     * Called via input to turn at a given rate.
     * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
     */
     void TurnAtRate(float Rate);
-
     /**
     * Called via input to turn look up/down at a given rate.
     * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
     */
     void LookUpAtRate(float Rate);
-
-    // APawn interface
-    virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-    // End of APawn interface
 };

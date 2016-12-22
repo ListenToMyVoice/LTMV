@@ -55,26 +55,28 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
     //InputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::Jump);
 }
 
+/* ACTION MAPPINGS */
 void APlayerCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
-        // add movement in that direction
         AddMovementInput(GetActorForwardVector(), Value);
     }
 }
 
 void APlayerCharacter::MoveRight(float Value) {
     if (Value != 0.0f) {
-        // add movement in that direction
         AddMovementInput(GetActorRightVector(), Value);
     }
 }
 
 void APlayerCharacter::TurnAtRate(float Rate) {
-    // calculate delta for this frame from the rate information
     AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerCharacter::LookUpAtRate(float Rate) {
-    // calculate delta for this frame from the rate information
     AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+/* OUTSIDE ACTION MAPPINGS */
+void APlayerCharacter::TakeItem(FString itemName) {
+    ULibraryUtils::Log(itemName, 3);
 }
