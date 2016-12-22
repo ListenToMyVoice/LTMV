@@ -2,9 +2,13 @@
 
 #pragma once
 
+#ifndef __PLAYER_H
+#include "PlayerCharacter.h"
+#define __PLAYER_H
+#endif
+
 #include "Components/ActorComponent.h"
 #include "ItemOverlap.generated.h"
-
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROYECTO_API UItemOverlap : public UActorComponent {
@@ -19,12 +23,12 @@ public:
                                FActorComponentTickFunction* ThisTickFunction) override;
 
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,
-                              AActor* OtherActor,
+                              APlayerCharacter* OtherActor,
                               UPrimitiveComponent* OtherComp,
                               int32 OtherBodyIndex, bool bFromSweep,
                               const FHitResult& SweepResult);
 
-    virtual void deactivateItem(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+    virtual void deactivateItem(UPrimitiveComponent* OverlappedComp, APlayerCharacter* OtherActor,
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 protected:
     bool _isActive;

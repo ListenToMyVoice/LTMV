@@ -2,12 +2,10 @@
 
 #pragma once
 
+#include "ItemOverlap.h"
 #include "Engine/StaticMeshActor.h"
 #include "Item.generated.h"
 
-/**
- *
- */
 UCLASS()
 class PROYECTO_API AItem : public AStaticMeshActor {
     GENERATED_BODY()

@@ -2,14 +2,11 @@
 
 #include "proyecto.h"
 #include "Item.h"
-#include "PlayerCharacter.h"
 
 #ifndef __LIBRARYUTILS_H
 #include "LibraryUtils.h"
 #define __LIBRARYUTILS_H
 #endif
-
-#include "ItemOverlap.h"
 
 AItem::AItem() : Super() {
     boxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("collisionBox"));
@@ -39,7 +36,7 @@ void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
             TArray<UActorComponent*> components = GetComponentsByClass(UItemOverlap::StaticClass());
             for (UActorComponent* component : components) {
                 UItemOverlap* itemOverlap = Cast<UItemOverlap>(component);
-                itemOverlap->activateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex,
+                itemOverlap->activateItem(OverlappedComp, other, OtherComp, OtherBodyIndex,
                                           bFromSweep, SweepResult);
             }
         }
@@ -56,7 +53,7 @@ void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
             TArray<UActorComponent*> components = GetComponentsByClass(UItemOverlap::StaticClass());
             for (UActorComponent* component : components) {
                 UItemOverlap* itemOverlap = Cast<UItemOverlap>(component);
-                itemOverlap->deactivateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
+                itemOverlap->deactivateItem(OverlappedComp, other, OtherComp, OtherBodyIndex);
             }
         }
     }

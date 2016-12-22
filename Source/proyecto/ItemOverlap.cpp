@@ -19,7 +19,7 @@ void UItemOverlap::TickComponent(float DeltaTime, ELevelTick TickType,
 }
 
 void UItemOverlap::activateItem(UPrimitiveComponent* OverlappedComp,
-                                AActor* OtherActor,
+                                APlayerCharacter* OtherActor,
                                 UPrimitiveComponent* OtherComp,
                                 int32 OtherBodyIndex, bool bFromSweep,
                                 const FHitResult& SweepResult) {
@@ -29,8 +29,8 @@ void UItemOverlap::activateItem(UPrimitiveComponent* OverlappedComp,
 }
 
 void UItemOverlap::deactivateItem(UPrimitiveComponent* OverlappedComp,
-                                     AActor* OtherActor, UPrimitiveComponent* OtherComp,
-                                     int32 OtherBodyIndex) {
+                                  APlayerCharacter* OtherActor, UPrimitiveComponent* OtherComp,
+                                  int32 OtherBodyIndex) {
 
     _isActive = false;
     _actor = nullptr;

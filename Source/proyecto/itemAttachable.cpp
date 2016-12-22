@@ -23,10 +23,10 @@ void UitemAttachable::TickComponent(float DeltaTime, ELevelTick TickType,
 }
 
 void UitemAttachable::activateItem(UPrimitiveComponent* OverlappedComp,
-                                AActor* OtherActor,
-                                UPrimitiveComponent* OtherComp,
-                                int32 OtherBodyIndex, bool bFromSweep,
-                                const FHitResult& SweepResult) {
+                                   APlayerCharacter* OtherActor,
+                                   UPrimitiveComponent* OtherComp,
+                                   int32 OtherBodyIndex, bool bFromSweep,
+                                   const FHitResult& SweepResult) {
 
     Super::activateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex,
                         bFromSweep, SweepResult);
@@ -35,8 +35,8 @@ void UitemAttachable::activateItem(UPrimitiveComponent* OverlappedComp,
 }
 
 void UitemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
-                           AActor* OtherActor, UPrimitiveComponent* OtherComp,
-                           int32 OtherBodyIndex) {
+                                     APlayerCharacter* OtherActor, UPrimitiveComponent* OtherComp,
+                                     int32 OtherBodyIndex) {
 
     Super::deactivateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
 
