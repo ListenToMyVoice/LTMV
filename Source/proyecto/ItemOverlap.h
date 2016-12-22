@@ -2,10 +2,7 @@
 
 #pragma once
 
-#ifndef __PLAYER_H
 #include "PlayerCharacter.h"
-#define __PLAYER_H
-#endif
 
 #include "Components/ActorComponent.h"
 #include "ItemOverlap.generated.h"

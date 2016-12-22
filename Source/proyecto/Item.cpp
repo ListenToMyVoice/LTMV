@@ -14,7 +14,6 @@ AItem::AItem() : Super() {
     boxCollision->SetRelativeLocation(FVector(0, 0, boxCollision->GetScaledBoxExtent().Z * 0.5f));
     boxCollision->AttachToComponent(GetStaticMeshComponent(),
                                     FAttachmentTransformRules::KeepRelativeTransform);
-
     boxCollision->bGenerateOverlapEvents = true;
     boxCollision->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnOverlapBegin);
     boxCollision->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);

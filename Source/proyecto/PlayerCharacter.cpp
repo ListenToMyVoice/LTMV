@@ -77,6 +77,8 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 }
 
 /* OUTSIDE ACTION MAPPINGS */
-void APlayerCharacter::TakeItem(FString itemName) {
-    ULibraryUtils::Log(itemName, 3);
+void APlayerCharacter::TakeItem(UStaticMeshComponent* mesh) {
+    mesh->DestroyComponent(true);
+    //mesh->AttachToComponent();
+    //ULibraryUtils::Log(itemName, 3);
 }

@@ -2,10 +2,7 @@
 
 #pragma once
 
-#ifndef __LIBRARYUTILS_H
 #include "LibraryUtils.h"
-#define __LIBRARYUTILS_H
-#endif
 
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
@@ -16,7 +13,7 @@ UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
-    /** Pawn mesh: 1st person view (arms; seen only by self) */
+    /** Pawn mesh: 1st person view */
     UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
     class USkeletalMeshComponent* Mesh1P;
 
@@ -45,7 +42,7 @@ public:
     }
 
     /* OUTSIDE ACTION MAPPINGS */
-    void TakeItem(FString itemName);
+    void TakeItem(UStaticMeshComponent* mesh);
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

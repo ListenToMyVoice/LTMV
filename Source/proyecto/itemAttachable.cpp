@@ -3,7 +3,6 @@
 #include "proyecto.h"
 #include "itemAttachable.h"
 
-
 UitemAttachable::UitemAttachable() : Super() {}
 
 void UitemAttachable::BeginPlay() {
@@ -35,5 +34,8 @@ void UitemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
 }
 
 void UitemAttachable::inputCB() {
-    _actor->TakeItem("CACA");
+    AStaticMeshActor* owner = Cast<AStaticMeshActor>(GetOwner());
+    if (owner != nullptr) {
+        _actor->TakeItem(owner->GetStaticMeshComponent());
+    }
 }
