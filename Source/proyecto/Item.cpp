@@ -3,7 +3,13 @@
 #include "proyecto.h"
 #include "Item.h"
 #include "PlayerCharacter.h"
+
+#ifndef __LIBRARYUTILS_H
 #include "LibraryUtils.h"
+#define __LIBRARYUTILS_H
+#endif
+
+#include "ItemOverlap.h"
 
 AItem::AItem() : Super() {
     boxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("collisionBox"));
@@ -14,6 +20,7 @@ AItem::AItem() : Super() {
 
     boxCollision->bGenerateOverlapEvents = true;
     boxCollision->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnOverlapBegin);
+    boxCollision->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
 }
 
 void AItem::BeginPlay() {
@@ -28,10 +35,29 @@ void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
     if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr)) {
         APlayerCharacter* other = Cast<APlayerCharacter>(OtherActor);
         if (other != nullptr) {
-            ULibraryUtils::Log(GetName(), 1);
+            /* Activate sensed things by the actor */
+            TArray<UActorComponent*> components = GetComponentsByClass(UItemOverlap::StaticClass());
+            for (UActorComponent* component : components) {
+                UItemOverlap* itemOverlap = Cast<UItemOverlap>(component);
+                itemOverlap->activateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex,
+                                          bFromSweep, SweepResult);
+            }
         }
-        else {
-            ULibraryUtils::Log(other->GetName());
+    }
+}
+
+void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
+                         AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
+
+    if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr)) {
+        APlayerCharacter* other = Cast<APlayerCharacter>(OtherActor);
+        if (other != nullptr) {
+            /* Deactivate sensed things by the actor */
+            TArray<UActorComponent*> components = GetComponentsByClass(UItemOverlap::StaticClass());
+            for (UActorComponent* component : components) {
+                UItemOverlap* itemOverlap = Cast<UItemOverlap>(component);
+                itemOverlap->deactivateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
+            }
         }
     }
 }
