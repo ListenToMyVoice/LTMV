@@ -6,11 +6,11 @@
 #include "itemAttachable.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROYECTO_API UitemAttachable : public UItemOverlap {
+class PROYECTO_API UItemAttachable : public UItemOverlap {
     GENERATED_BODY()
 
 public:
-    UitemAttachable();
+    UItemAttachable();
 
     virtual void BeginPlay() override;
 

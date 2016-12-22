@@ -3,13 +3,13 @@
 #include "proyecto.h"
 #include "itemAttachable.h"
 
-UitemAttachable::UitemAttachable() : Super() {}
+UItemAttachable::UItemAttachable() : Super() {}
 
-void UitemAttachable::BeginPlay() {
+void UItemAttachable::BeginPlay() {
     Super::BeginPlay();
 }
 
-void UitemAttachable::activateItem(UPrimitiveComponent* OverlappedComp,
+void UItemAttachable::activateItem(UPrimitiveComponent* OverlappedComp,
                                    APlayerCharacter* OtherActor,
                                    UPrimitiveComponent* OtherComp,
                                    int32 OtherBodyIndex, bool bFromSweep,
@@ -20,10 +20,10 @@ void UitemAttachable::activateItem(UPrimitiveComponent* OverlappedComp,
     
     ULibraryUtils::Log(TEXT("Attachable active"));
     _binding = &OtherActor->InputComponent->BindAction("Take", IE_Released, this,
-                                                       &UitemAttachable::inputCB);
+                                                       &UItemAttachable::inputCB);
 }
 
-void UitemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
+void UItemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
                                      APlayerCharacter* OtherActor, UPrimitiveComponent* OtherComp,
                                      int32 OtherBodyIndex) {
 
@@ -33,7 +33,7 @@ void UitemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
     _binding->ActionDelegate.Unbind();
 }
 
-void UitemAttachable::inputCB() {
+void UItemAttachable::inputCB() {
     AStaticMeshActor* owner = Cast<AStaticMeshActor>(GetOwner());
     if (owner != nullptr) {
         _actor->TakeItem(owner->GetStaticMeshComponent());
