@@ -10,6 +10,11 @@ class PROYECTO_API UItemAttachable : public UItemOverlap {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere)
+    FVector _locationAttach;
+    UPROPERTY(EditAnywhere)
+    FRotator _rotationAttach;
+
     UItemAttachable();
 
     virtual void BeginPlay() override;

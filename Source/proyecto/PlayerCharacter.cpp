@@ -83,16 +83,7 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 }
 
 /* OUTSIDE ACTION MAPPINGS */
-void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor) {
-    //itemMesh->DestroyComponent(true);
-    //mesh->AttachToComponent();
-    
-
-
-
-    //FVector SocketLocationR;
-    //SocketLocationR = GetMesh()->GetSocketLocation("itemHand_r");
-
+void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
     UActorComponent * component = itemActor->GetComponentByClass(UBoxComponent::StaticClass());
     if (component) {
         ULibraryUtils::Log(TEXT("BOX DESTROYED"), 3);
@@ -104,6 +95,15 @@ void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor) {
 
     itemActor->GetStaticMeshComponent()->AttachTo(GetMesh(), TEXT("itemHand_r"),
                                                   EAttachLocation::KeepRelativeOffset, true);
-    itemActor->GetStaticMeshComponent()->RelativeLocation = FVector(0.f, 0.f, 0.f);
-    itemActor->GetStaticMeshComponent()->RelativeRotation = FRotator(0.f, 0.f, 0.f);
+    
+    itemActor->GetStaticMeshComponent()->RelativeLocation = location;
+    itemActor->GetStaticMeshComponent()->RelativeRotation = rotation;
+
+    //itemActor->GetStaticMeshComponent()->RelativeLocation = FVector(0.f, 0.f, 0.f);
+    //itemActor->GetStaticMeshComponent()->RelativeRotation = FRotator(0.f, 0.f, 0.f);
+    
+    //itemActor->GetStaticMeshComponent()->RelativeLocation =
+    //    GetMesh()->GetSocketLocation("itemHand_r");
+    //itemActor->GetStaticMeshComponent()->RelativeRotation =
+    //    GetMesh()->GetSocketRotation("itemHand_r");
 }

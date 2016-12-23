@@ -18,10 +18,6 @@ class PROYECTO_API APlayerCharacter : public ACharacter {
     //class UCameraComponent* FirstPersonCameraComponent;
 
 public:
-    APlayerCharacter();
-
-    virtual void BeginPlay() override;
-
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float BaseTurnRate;
@@ -35,8 +31,12 @@ public:
     //    return FirstPersonCameraComponent; 
     //}
 
+    APlayerCharacter();
+
+    virtual void BeginPlay() override;
+
     /* OUTSIDE ACTION MAPPINGS */
-    void TakeItem(AStaticMeshActor* mesh);
+    void TakeItem(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

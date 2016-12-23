@@ -3,7 +3,8 @@
 #include "proyecto.h"
 #include "itemAttachable.h"
 
-UItemAttachable::UItemAttachable() : Super() {}
+UItemAttachable::UItemAttachable() : Super(), _locationAttach(0.f, 0.f, 0.f),
+                                              _rotationAttach(0.f, 0.f, 0.f) {}
 
 void UItemAttachable::BeginPlay() {
     Super::BeginPlay();
@@ -36,6 +37,6 @@ void UItemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
 void UItemAttachable::inputCB() {
     AStaticMeshActor* owner = Cast<AStaticMeshActor>(GetOwner());
     if (owner != nullptr) {
-        _actor->TakeItem(owner);
+        _actor->TakeItem(owner, _locationAttach, _rotationAttach);
     }
 }
