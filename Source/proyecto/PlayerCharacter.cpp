@@ -80,8 +80,17 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 }
 
 /* OUTSIDE ACTION MAPPINGS */
-void APlayerCharacter::TakeItem(UStaticMeshComponent* mesh) {
-    mesh->DestroyComponent(true);
+void APlayerCharacter::TakeItem(UStaticMeshComponent* itemMesh) {
+    //itemMesh->DestroyComponent(true);
     //mesh->AttachToComponent();
-    //ULibraryUtils::Log(itemName, 3);
+    ULibraryUtils::Log(TEXT("COGER"), 3);
+
+
+
+    //FVector SocketLocationR;
+    //SocketLocationR = GetMesh()->GetSocketLocation("itemHand_r");
+
+    itemMesh->AttachTo(GetMesh(), TEXT("itemHand_r"), EAttachLocation::KeepRelativeOffset, true);
+    itemMesh->RelativeLocation = FVector(-14.192813f, 2.735735f, 7.877548f);
+    itemMesh->RelativeRotation = FRotator(101.871956f, -57.998451f, 82.801353f);
 }
