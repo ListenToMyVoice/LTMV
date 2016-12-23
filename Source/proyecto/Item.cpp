@@ -6,7 +6,8 @@
 AItem::AItem() : Super() {
     boxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("collisionBox"));
     boxCollision->SetBoxExtent(FVector(32.0f, 32.0f, 32.0f));
-    boxCollision->SetRelativeLocation(FVector(0, 0, boxCollision->GetScaledBoxExtent().Z * 0.5f));
+    //boxCollision->SetRelativeLocation(FVector(0, 0, boxCollision->GetScaledBoxExtent().Z * 0.5f));
+    boxCollision->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
     boxCollision->AttachToComponent(GetStaticMeshComponent(),
                                     FAttachmentTransformRules::KeepRelativeTransform);
     boxCollision->bGenerateOverlapEvents = true;
