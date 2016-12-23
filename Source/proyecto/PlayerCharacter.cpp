@@ -11,6 +11,10 @@ APlayerCharacter::APlayerCharacter() {
     BaseTurnRate = 45.f;
     BaseLookUpRate = 45.f;
 
+    bUseControllerRotationYaw = false;
+    GetCharacterMovement()->bOrientRotationToMovement = true;
+    GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); /* (Y,Z,X) */
+
     // Create a CameraComponent	
     //FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPSCamera"));
     //FirstPersonCameraComponent->SetupAttachment(GetMesh(), TEXT("FPVCamera"));
