@@ -36,6 +36,6 @@ void UItemAttachable::deactivateItem(UPrimitiveComponent* OverlappedComp,
 void UItemAttachable::inputCB() {
     AStaticMeshActor* owner = Cast<AStaticMeshActor>(GetOwner());
     if (owner != nullptr) {
-        _actor->TakeItem(owner->GetStaticMeshComponent());
+        _actor->TakeItem(owner);
     }
 }

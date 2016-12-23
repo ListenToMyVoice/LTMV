@@ -36,7 +36,7 @@ public:
     //}
 
     /* OUTSIDE ACTION MAPPINGS */
-    void TakeItem(UStaticMeshComponent* mesh);
+    void TakeItem(AStaticMeshActor* mesh);
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

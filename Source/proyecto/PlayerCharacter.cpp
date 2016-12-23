@@ -11,9 +11,8 @@ APlayerCharacter::APlayerCharacter() {
     BaseTurnRate = 45.f;
     BaseLookUpRate = 45.f;
 
-    bUseControllerRotationYaw = false;
-    GetCharacterMovement()->bOrientRotationToMovement = true;
-    GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); /* (Y,Z,X) */
+    //GetCharacterMovement()->bOrientRotationToMovement = true;
+    //GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); /* (Y,Z,X) */
 
     // Create a CameraComponent	
     //FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPSCamera"));
@@ -84,17 +83,27 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 }
 
 /* OUTSIDE ACTION MAPPINGS */
-void APlayerCharacter::TakeItem(UStaticMeshComponent* itemMesh) {
+void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor) {
     //itemMesh->DestroyComponent(true);
     //mesh->AttachToComponent();
-    ULibraryUtils::Log(TEXT("COGER"), 3);
+    
 
 
 
     //FVector SocketLocationR;
     //SocketLocationR = GetMesh()->GetSocketLocation("itemHand_r");
 
-    itemMesh->AttachTo(GetMesh(), TEXT("itemHand_r"), EAttachLocation::KeepRelativeOffset, true);
-    itemMesh->RelativeLocation = FVector(-14.192813f, 2.735735f, 7.877548f);
-    itemMesh->RelativeRotation = FRotator(101.871956f, -57.998451f, 82.801353f);
+    UActorComponent * component = itemActor->GetComponentByClass(UBoxComponent::StaticClass());
+    if (component) {
+        ULibraryUtils::Log(TEXT("BOX DESTROYED"), 3);
+        component->DestroyComponent(true);
+    }
+    else {
+        ULibraryUtils::Log(TEXT("BOX NOT DESTROYED"), 3);
+    }
+
+    itemActor->GetStaticMeshComponent()->AttachTo(GetMesh(), TEXT("itemHand_r"),
+                                                  EAttachLocation::KeepRelativeOffset, true);
+    itemActor->GetStaticMeshComponent()->RelativeLocation = FVector(0.f, 0.f, 0.f);
+    itemActor->GetStaticMeshComponent()->RelativeRotation = FRotator(0.f, 0.f, 0.f);
 }
