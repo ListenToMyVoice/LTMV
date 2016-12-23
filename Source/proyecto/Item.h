@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "LibraryUtils.h"
 #include "ItemOverlap.h"
 #include "Engine/StaticMeshActor.h"
 #include "Item.generated.h"

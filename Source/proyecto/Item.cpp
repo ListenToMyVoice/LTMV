@@ -3,11 +3,6 @@
 #include "proyecto.h"
 #include "Item.h"
 
-#ifndef __LIBRARYUTILS_H
-#include "LibraryUtils.h"
-#define __LIBRARYUTILS_H
-#endif
-
 AItem::AItem() : Super() {
     boxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("collisionBox"));
     boxCollision->SetBoxExtent(FVector(32.0f, 32.0f, 32.0f));
