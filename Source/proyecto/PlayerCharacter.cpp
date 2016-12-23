@@ -12,20 +12,23 @@ APlayerCharacter::APlayerCharacter() {
     BaseLookUpRate = 45.f;
 
     // Create a CameraComponent	
-    FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPCamera"));
-    FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
-    FirstPersonCameraComponent->RelativeLocation = FVector(10.f, 1.75f, 64.f);
-    //FirstPersonCameraComponent->RelativeRotation = FRotator(0.f, 0.f, 10.f);
-    FirstPersonCameraComponent->bUsePawnControlRotation = true;
+    //FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FPSCamera"));
+    //FirstPersonCameraComponent->SetupAttachment(GetMesh(), TEXT("FPVCamera"));
+
+    //FirstPersonCameraComponent->AttachTo(GetMesh(), TEXT("FPVCamera"), EAttachLocation::KeepRelativeOffset, true);
+
+    //FirstPersonCameraComponent->RelativeLocation = FVector(0.f, 0.f, 0.f);
+    //FirstPersonCameraComponent->RelativeRotation = FRotator(0.f, 0.f, 0.f);
+    //FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
     // Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
-    Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
-    Mesh1P->SetOnlyOwnerSee(true);
-    Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-    Mesh1P->bCastDynamicShadow = false;
-    Mesh1P->CastShadow = false;
-    Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
-    Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
+    //Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
+    //Mesh1P->SetOnlyOwnerSee(true);
+    //Mesh1P->SetupAttachment(FirstPersonCameraComponent);
+    //Mesh1P->bCastDynamicShadow = false;
+    //Mesh1P->CastShadow = false;
+    //Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
+    //Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
 }
 
 void APlayerCharacter::BeginPlay() {

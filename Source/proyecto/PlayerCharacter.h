@@ -13,13 +13,9 @@ UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
-    /** Pawn mesh: 1st person view */
-    UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-    class USkeletalMeshComponent* Mesh1P;
-
     /** First person camera */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    class UCameraComponent* FirstPersonCameraComponent;
+    //UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    //class UCameraComponent* FirstPersonCameraComponent;
 
 public:
     APlayerCharacter();
@@ -34,12 +30,10 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float BaseLookUpRate;
 
-    /** Returns Mesh1P subobject **/
-    FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
     /** Returns FirstPersonCameraComponent subobject **/
-    FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { 
-        return FirstPersonCameraComponent; 
-    }
+    //FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { 
+    //    return FirstPersonCameraComponent; 
+    //}
 
     /* OUTSIDE ACTION MAPPINGS */
     void TakeItem(UStaticMeshComponent* mesh);
