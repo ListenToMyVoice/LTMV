@@ -4,15 +4,15 @@
 #include "Item.h"
 
 AItem::AItem() : Super() {
-    boxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("collisionBox"));
-    boxCollision->SetBoxExtent(FVector(32.0f, 32.0f, 32.0f));
-    //boxCollision->SetRelativeLocation(FVector(0, 0, boxCollision->GetScaledBoxExtent().Z * 0.5f));
-    boxCollision->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-    boxCollision->AttachToComponent(GetStaticMeshComponent(),
+    _boxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("collisionBox"));
+    _boxCollision->SetBoxExtent(FVector(32.0f, 32.0f, 32.0f));
+    //_boxCollision->SetRelativeLocation(FVector(0, 0, boxCollision->GetScaledBoxExtent().Z * 0.5f));
+    _boxCollision->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+    _boxCollision->AttachToComponent(GetStaticMeshComponent(),
                                     FAttachmentTransformRules::KeepRelativeTransform);
-    boxCollision->bGenerateOverlapEvents = true;
-    boxCollision->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnOverlapBegin);
-    boxCollision->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
+    _boxCollision->bGenerateOverlapEvents = true;
+    _boxCollision->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnOverlapBegin);
+    _boxCollision->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
 }
 
 void AItem::BeginPlay() {

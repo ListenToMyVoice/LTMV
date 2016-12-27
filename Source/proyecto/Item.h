@@ -13,11 +13,11 @@ class PROYECTO_API AItem : public AStaticMeshActor {
 public:
 
     UPROPERTY(EditAnywhere)
-    FText name;
+    FText _name;
     UPROPERTY(EditAnywhere)
-    FText description;
+    FText _description;
     UPROPERTY(EditAnywhere)
-    UBoxComponent* boxCollision;
+    UBoxComponent* _boxCollision;
 
     AItem();
     
