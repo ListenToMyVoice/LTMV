@@ -44,4 +44,7 @@ protected:
     * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
     */
     void LookUpAtRate(float Rate);
+
+private:
+    void cleanItem(AStaticMeshActor* itemActor);
 };

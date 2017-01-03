@@ -52,14 +52,7 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 
 /* OUTSIDE ACTION MAPPINGS */
 void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
-    UActorComponent * component = itemActor->GetComponentByClass(UBoxComponent::StaticClass());
-    if (component) {
-        ULibraryUtils::Log(TEXT("BOX DESTROYED"), 3);
-        component->DestroyComponent(true);
-    }
-    else {
-        ULibraryUtils::Log(TEXT("BOX NOT DESTROYED"), 3);
-    }
+    cleanItem(itemActor);
 
     itemActor->GetStaticMeshComponent()->AttachTo(GetMesh(), TEXT("itemHand_r"),
                                                   EAttachLocation::KeepRelativeOffset, true);
@@ -69,5 +62,17 @@ void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor, FVector &location, 
 }
 
 void APlayerCharacter::SaveItem(AStaticMeshActor* itemActor) {
-    
+    cleanItem(itemActor);
+}
+
+/* AUXILIAR */
+void APlayerCharacter::cleanItem(AStaticMeshActor* itemActor) {
+    UActorComponent * component = itemActor->GetComponentByClass(UBoxComponent::StaticClass());
+    if (component) {
+        ULibraryUtils::Log(TEXT("BOX DESTROYED"), 3);
+        component->DestroyComponent(true);
+    }
+    else {
+        ULibraryUtils::Log(TEXT("BOX NOT DESTROYED"), 3);
+    }
 }
