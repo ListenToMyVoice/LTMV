@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "LibraryUtils.h"
-#include "ItemOverlap.h"
+//#include "ItemOverlap.h"
+
 #include "Engine/StaticMeshActor.h"
 #include "Item.generated.h"
 
@@ -20,7 +20,6 @@ public:
     UBoxComponent* _boxCollision;
 
     AItem();
-    
     virtual void BeginPlay() override;
 
 private:

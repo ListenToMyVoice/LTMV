@@ -13,7 +13,6 @@ class PROYECTO_API UItemOverlap : public UActorComponent {
 
 public:
     UItemOverlap();
-
     virtual void BeginPlay() override;
 
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType,

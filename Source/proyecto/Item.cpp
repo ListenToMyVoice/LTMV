@@ -1,5 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "ItemOverlap.h"
+
 #include "proyecto.h"
 #include "Item.h"
 

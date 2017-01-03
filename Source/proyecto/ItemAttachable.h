@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ItemOverlap.h"
+
 #include "itemAttachable.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -16,7 +17,6 @@ public:
     FRotator _rotationAttach;
 
     UItemAttachable();
-
     virtual void BeginPlay() override;
 
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,

@@ -2,7 +2,6 @@
 
 #include "proyecto.h"
 #include "proyectoGameModeBase.h"
-#include "CharacterController.h"
 
 AproyectoGameModeBase::AproyectoGameModeBase(const class FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(

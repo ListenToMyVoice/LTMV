@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "LibraryUtils.h"
+#include "Inventory.h"
 
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
@@ -12,11 +12,6 @@ class UInputComponent;
 UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
-
-    /** First person camera */
-    //UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    //class UCameraComponent* FirstPersonCameraComponent;
-
 public:
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -26,17 +21,13 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float BaseLookUpRate;
 
-    /** Returns FirstPersonCameraComponent subobject **/
-    //FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { 
-    //    return FirstPersonCameraComponent; 
-    //}
-
     APlayerCharacter();
-
     virtual void BeginPlay() override;
 
     /* OUTSIDE ACTION MAPPINGS */
     void TakeItem(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
+    void SaveItem(AStaticMeshActor* itemActor);
+
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

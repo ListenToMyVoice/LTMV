@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "CharacterController.h"
+
 #include "GameFramework/GameModeBase.h"
 #include "proyectoGameModeBase.generated.h"
 
