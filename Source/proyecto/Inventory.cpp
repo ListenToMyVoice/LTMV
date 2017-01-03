@@ -12,7 +12,7 @@ void UInventory::BeginPlay() {
     Super::BeginPlay();
 }
 
-int UInventory::addItem(AItem* item) {
+int UInventory::addItem(AItem* itemActor) {
     _items.Add(item);
     return 0;
 }

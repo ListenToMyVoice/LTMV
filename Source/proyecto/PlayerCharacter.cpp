@@ -63,6 +63,10 @@ void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor, FVector &location, 
 
 void APlayerCharacter::SaveItem(AStaticMeshActor* itemActor) {
     cleanItem(itemActor);
+
+    //itemActor->SetActorHiddenInGame(true);
+    itemActor->SetActorEnableCollision(false);
+    itemActor->SetActorTickEnabled(false);
 }
 
 /* AUXILIAR */
