@@ -46,5 +46,5 @@ protected:
     void LookUpAtRate(float Rate);
 
 private:
-    void cleanItem(AStaticMeshActor* itemActor);
+    void cleanItem(AItem* itemActor);
 };

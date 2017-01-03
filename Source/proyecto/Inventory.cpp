@@ -12,7 +12,17 @@ void UInventory::BeginPlay() {
     Super::BeginPlay();
 }
 
-int UInventory::addItem(AItem* itemActor) {
+int UInventory::AddItem(AItem* item) {
+    item->SetActorHiddenInGame(true);
+    item->SetActorEnableCollision(false);
+    item->SetActorTickEnabled(false);
+
+    item->GetStaticMeshComponent()->AttachToComponent(this,
+        FAttachmentTransformRules::KeepRelativeTransform);
+
+    item->GetStaticMeshComponent()->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
+    item->GetStaticMeshComponent()->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
+
     _items.Add(item);
     return 0;
 }

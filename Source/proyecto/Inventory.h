@@ -4,12 +4,12 @@
 
 #include "Item.h"
 
-#include "Components/ActorComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Inventory.generated.h"
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROYECTO_API UInventory : public UActorComponent {
+class PROYECTO_API UInventory : public UStaticMeshComponent {
     GENERATED_BODY()
 private:
     TArray<AItem*> _items;
@@ -18,7 +18,7 @@ public:
     UInventory();
     virtual void BeginPlay() override;
 
-    int addItem(AItem* item);
+    int AddItem(AItem* item);
 
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
     //                           FActorComponentTickFunction* ThisTickFunction) override;

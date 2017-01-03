@@ -52,25 +52,31 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 
 /* OUTSIDE ACTION MAPPINGS */
 void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
-    cleanItem(itemActor);
+    AItem* item = Cast<AItem>(itemActor);
+    if (item != nullptr) {
+        cleanItem(item);
 
-    itemActor->GetStaticMeshComponent()->AttachTo(GetMesh(), TEXT("itemHand_r"),
-                                                  EAttachLocation::KeepRelativeOffset, true);
-    
-    itemActor->GetStaticMeshComponent()->RelativeLocation = location;
-    itemActor->GetStaticMeshComponent()->RelativeRotation = rotation;
+        item->GetStaticMeshComponent()->AttachToComponent(GetMesh(), 
+            FAttachmentTransformRules::KeepRelativeTransform, TEXT("itemHand_r"));
+
+        item->GetStaticMeshComponent()->RelativeLocation = location;
+        item->GetStaticMeshComponent()->RelativeRotation = rotation;
+    }
 }
 
 void APlayerCharacter::SaveItem(AStaticMeshActor* itemActor) {
-    cleanItem(itemActor);
-
-    //itemActor->SetActorHiddenInGame(true);
-    itemActor->SetActorEnableCollision(false);
-    itemActor->SetActorTickEnabled(false);
+    AItem* item = Cast<AItem>(itemActor);
+    if (item != nullptr) {
+        cleanItem(item);
+        UInventory* inventory = Cast<UInventory>(FindComponentByClass(UInventory::StaticClass()));
+        if (inventory != nullptr) {
+            inventory->AddItem(item);
+        }
+    }
 }
 
 /* AUXILIAR */
-void APlayerCharacter::cleanItem(AStaticMeshActor* itemActor) {
+void APlayerCharacter::cleanItem(AItem* itemActor) {
     UActorComponent * component = itemActor->GetComponentByClass(UBoxComponent::StaticClass());
     if (component) {
         ULibraryUtils::Log(TEXT("BOX DESTROYED"), 3);
