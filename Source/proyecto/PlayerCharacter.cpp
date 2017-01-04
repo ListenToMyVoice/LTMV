@@ -7,8 +7,11 @@ APlayerCharacter::APlayerCharacter() {
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
     // set our turn rates for input
-    BaseTurnRate = 45.f;
-    BaseLookUpRate = 45.f;
+    _baseTurnRate = 45.f;
+    _baseLookUpRate = 45.f;
+
+    _busyLeft = false;
+    _busyRight = false;
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -43,61 +46,56 @@ void APlayerCharacter::MoveRight(float Value) {
 }
 
 void APlayerCharacter::TurnAtRate(float Rate) {
-    AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+    AddControllerYawInput(Rate * _baseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerCharacter::LookUpAtRate(float Rate) {
-    AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+    AddControllerPitchInput(Rate * _baseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 /* OUTSIDE ACTION MAPPINGS */
 void APlayerCharacter::TakeLeft(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
-    AItem* item = Cast<AItem>(itemActor);
-    if (item != nullptr) {
-        cleanItem(item);
-
-        item->GetStaticMeshComponent()->AttachToComponent(GetMesh(), 
+    if (itemActor != nullptr) {
+        itemActor->SetActorEnableCollision(false);
+        itemActor->GetStaticMeshComponent()->AttachToComponent(GetMesh(),
             FAttachmentTransformRules::KeepRelativeTransform, TEXT("itemHand_l"));
 
-        item->GetStaticMeshComponent()->RelativeLocation = location;
-        item->GetStaticMeshComponent()->RelativeRotation = rotation;
+        itemActor->GetStaticMeshComponent()->RelativeLocation = location;
+        itemActor->GetStaticMeshComponent()->RelativeRotation = rotation;
         ULibraryUtils::Log(TEXT("TakeLeft"), 3);
     }
 }
 
 void APlayerCharacter::TakeRight(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
-    AItem* item = Cast<AItem>(itemActor);
-    if (item != nullptr) {
-        cleanItem(item);
-
-        item->GetStaticMeshComponent()->AttachToComponent(GetMesh(),
+    if (!_busyRight && itemActor != nullptr) {
+        itemActor->SetActorEnableCollision(false);
+        itemActor->GetStaticMeshComponent()->AttachToComponent(GetMesh(),
             FAttachmentTransformRules::KeepRelativeTransform, TEXT("itemHand_r"));
 
-        item->GetStaticMeshComponent()->RelativeLocation = location;
-        item->GetStaticMeshComponent()->RelativeRotation = rotation;
+        itemActor->GetStaticMeshComponent()->RelativeLocation = location;
+        itemActor->GetStaticMeshComponent()->RelativeRotation = rotation;
+        
+        _busyRight = true;
         ULibraryUtils::Log(TEXT("TakeRight"), 3);
+    }
+}
+
+void APlayerCharacter::DropRight(AStaticMeshActor* itemActor) {
+    if (_busyRight && itemActor != nullptr) {
+        itemActor->GetStaticMeshComponent()->DetachFromParent();
+        itemActor->SetActorEnableCollision(true);
+
+        _busyRight = false;
+        ULibraryUtils::Log(TEXT("DropRight"), 2);
     }
 }
 
 void APlayerCharacter::SaveItem(AStaticMeshActor* itemActor) {
     AItem* item = Cast<AItem>(itemActor);
     if (item != nullptr) {
-        cleanItem(item);
         UInventory* inventory = Cast<UInventory>(FindComponentByClass(UInventory::StaticClass()));
         if (inventory != nullptr) {
             inventory->AddItem(item);
         }
-    }
-}
-
-/* AUXILIAR */
-void APlayerCharacter::cleanItem(AItem* itemActor) {
-    UActorComponent * component = itemActor->GetComponentByClass(UBoxComponent::StaticClass());
-    if (component) {
-        ULibraryUtils::Log(TEXT("BOX DESTROYED"), 3);
-        component->DestroyComponent(true);
-    }
-    else {
-        ULibraryUtils::Log(TEXT("BOX NOT DESTROYED"), 3);
     }
 }

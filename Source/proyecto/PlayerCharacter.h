@@ -15,11 +15,11 @@ class PROYECTO_API APlayerCharacter : public ACharacter {
 public:
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-    float BaseTurnRate;
+    float _baseTurnRate;
 
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-    float BaseLookUpRate;
+    float _baseLookUpRate;
 
     APlayerCharacter();
     virtual void BeginPlay() override;
@@ -27,6 +27,7 @@ public:
     /* OUTSIDE ACTION MAPPINGS */
     void TakeLeft(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
     void TakeRight(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
+    void DropRight(AStaticMeshActor* itemActor);
     void SaveItem(AStaticMeshActor* itemActor);
 
 protected:
@@ -47,5 +48,6 @@ protected:
     void LookUpAtRate(float Rate);
 
 private:
-    void cleanItem(AItem* itemActor);
+    bool _busyLeft;
+    bool _busyRight;
 };

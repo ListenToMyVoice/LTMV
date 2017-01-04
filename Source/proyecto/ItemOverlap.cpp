@@ -3,10 +3,8 @@
 #include "proyecto.h"
 #include "ItemOverlap.h"
 
-UItemOverlap::UItemOverlap() : Super() {
+UItemOverlap::UItemOverlap() : Super(), _isActive(false), _actor(nullptr) {
     PrimaryComponentTick.bCanEverTick = false;
-    _isActive = false;
-    _actor = nullptr;
 }
 
 void UItemOverlap::BeginPlay() {

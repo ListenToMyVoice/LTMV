@@ -13,9 +13,7 @@ void UInventory::BeginPlay() {
 }
 
 int UInventory::AddItem(AItem* item) {
-    item->SetActorHiddenInGame(true);
-    item->SetActorEnableCollision(false);
-    item->SetActorTickEnabled(false);
+    ULibraryUtils::setActorEnable(item, false);
 
     item->GetStaticMeshComponent()->AttachToComponent(this,
         FAttachmentTransformRules::KeepRelativeTransform);

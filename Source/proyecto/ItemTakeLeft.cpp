@@ -37,6 +37,8 @@ void UItemTakeLeft::deactivateItem(UPrimitiveComponent* OverlappedComp,
 void UItemTakeLeft::inputCB() {
     AStaticMeshActor* owner = Cast<AStaticMeshActor>(GetOwner());
     if (owner != nullptr) {
+        ULibraryUtils::Log(TEXT("Left deactive"));
+        _binding->ActionDelegate.Unbind();
         _actor->TakeLeft(owner, _locationAttach, _rotationAttach);
     }
 }

@@ -32,4 +32,7 @@ public:
 
 private:
     FInputActionBinding* _binding;
+    bool _isAttached;
+
+    void deactivateItem();
 };

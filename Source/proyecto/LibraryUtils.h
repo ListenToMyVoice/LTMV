@@ -35,5 +35,11 @@ public:
                 GEngine->AddOnScreenDebugMessage(-1, displayTime, FColor::Green, msg);
         }
         #endif
-    } 
+    }
+
+    static FORCEINLINE void setActorEnable(AActor* actor, bool enable = true) {
+        actor->SetActorHiddenInGame(!enable);
+        actor->SetActorEnableCollision(enable);
+        actor->SetActorTickEnabled(enable);
+    }
 };
