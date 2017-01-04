@@ -4,10 +4,10 @@
 
 #include "ItemOverlap.h"
 
-#include "itemAttachable.generated.h"
+#include "ItemTakeLeft.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROYECTO_API UItemAttachable : public UItemOverlap {
+class PROYECTO_API UItemTakeLeft : public UItemOverlap {
     GENERATED_BODY()
 
 public:
@@ -16,7 +16,7 @@ public:
     UPROPERTY(EditAnywhere)
     FRotator _rotationAttach;
 
-    UItemAttachable();
+    UItemTakeLeft();
     virtual void BeginPlay() override;
 
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,

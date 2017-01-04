@@ -25,7 +25,8 @@ public:
     virtual void BeginPlay() override;
 
     /* OUTSIDE ACTION MAPPINGS */
-    void TakeItem(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
+    void TakeLeft(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
+    void TakeRight(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
     void SaveItem(AStaticMeshActor* itemActor);
 
 protected:

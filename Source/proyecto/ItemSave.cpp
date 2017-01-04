@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "proyecto.h"
-#include "ItemInventory.h"
+#include "ItemSave.h"
 
-UItemInventory::UItemInventory() : Super(), _weight(0) {}
+UItemSave::UItemSave() : Super(), _weight(0) {}
 
-void UItemInventory::BeginPlay() {
+void UItemSave::BeginPlay() {
     Super::BeginPlay();
 }
 
-void UItemInventory::activateItem(UPrimitiveComponent* OverlappedComp,
+void UItemSave::activateItem(UPrimitiveComponent* OverlappedComp,
                                    APlayerCharacter* OtherActor,
                                    UPrimitiveComponent* OtherComp,
                                    int32 OtherBodyIndex, bool bFromSweep,
@@ -19,21 +19,21 @@ void UItemInventory::activateItem(UPrimitiveComponent* OverlappedComp,
                         bFromSweep, SweepResult);
 
     ULibraryUtils::Log(TEXT("Inventory active"));
-    _binding = &OtherActor->InputComponent->BindAction("Take", IE_Released, this,
-                                                       &UItemInventory::inputCB);
+    _binding = &OtherActor->InputComponent->BindAction("Save", IE_Released, this,
+                                                       &UItemSave::inputCB);
 }
 
-void UItemInventory::deactivateItem(UPrimitiveComponent* OverlappedComp,
+void UItemSave::deactivateItem(UPrimitiveComponent* OverlappedComp,
                                      APlayerCharacter* OtherActor, UPrimitiveComponent* OtherComp,
                                      int32 OtherBodyIndex) {
 
     Super::deactivateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
 
-    ULibraryUtils::Log(TEXT("Attachable deactive"));
+    ULibraryUtils::Log(TEXT("Inventory deactive"));
     _binding->ActionDelegate.Unbind();
 }
 
-void UItemInventory::inputCB() {
+void UItemSave::inputCB() {
     AStaticMeshActor* owner = Cast<AStaticMeshActor>(GetOwner());
     if (owner != nullptr) {
         _actor->SaveItem(owner);

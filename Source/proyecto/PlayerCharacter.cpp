@@ -51,16 +51,31 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 }
 
 /* OUTSIDE ACTION MAPPINGS */
-void APlayerCharacter::TakeItem(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
+void APlayerCharacter::TakeLeft(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
     AItem* item = Cast<AItem>(itemActor);
     if (item != nullptr) {
         cleanItem(item);
 
         item->GetStaticMeshComponent()->AttachToComponent(GetMesh(), 
+            FAttachmentTransformRules::KeepRelativeTransform, TEXT("itemHand_l"));
+
+        item->GetStaticMeshComponent()->RelativeLocation = location;
+        item->GetStaticMeshComponent()->RelativeRotation = rotation;
+        ULibraryUtils::Log(TEXT("TakeLeft"), 3);
+    }
+}
+
+void APlayerCharacter::TakeRight(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
+    AItem* item = Cast<AItem>(itemActor);
+    if (item != nullptr) {
+        cleanItem(item);
+
+        item->GetStaticMeshComponent()->AttachToComponent(GetMesh(),
             FAttachmentTransformRules::KeepRelativeTransform, TEXT("itemHand_r"));
 
         item->GetStaticMeshComponent()->RelativeLocation = location;
         item->GetStaticMeshComponent()->RelativeRotation = rotation;
+        ULibraryUtils::Log(TEXT("TakeRight"), 3);
     }
 }
 

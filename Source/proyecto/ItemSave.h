@@ -4,17 +4,17 @@
 
 #include "ItemOverlap.h"
 
-#include "ItemInventory.generated.h"
+#include "ItemSave.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROYECTO_API UItemInventory : public UItemOverlap {
+class PROYECTO_API UItemSave : public UItemOverlap {
     GENERATED_BODY()
 
 public:
     UPROPERTY(EditAnywhere)
     int _weight;
 
-    UItemInventory();
+    UItemSave();
     virtual void BeginPlay() override;
 
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,

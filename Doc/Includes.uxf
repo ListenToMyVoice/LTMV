@@ -81,7 +81,7 @@ bg=light_gray</panel_attributes>
       <w>160</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>ItemAttachable.h
+    <panel_attributes>ItemTakeLeft.h
 bg=light_gray</panel_attributes>
     <additional_attributes/>
   </element>
@@ -244,7 +244,7 @@ bg=orange</panel_attributes>
       <w>160</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>ItemAttachable.cpp
+    <panel_attributes>ItemTakeLeft.cpp
 bg=orange</panel_attributes>
     <additional_attributes/>
   </element>
@@ -453,11 +453,11 @@ fg=blue</panel_attributes>
     <id>UMLPackage</id>
     <coordinates>
       <x>670</x>
-      <y>620</y>
+      <y>720</y>
       <w>160</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>ItemInventory.h
+    <panel_attributes>ItemSave.h
 bg=light_gray</panel_attributes>
     <additional_attributes/>
   </element>
@@ -465,11 +465,11 @@ bg=light_gray</panel_attributes>
     <id>UMLPackage</id>
     <coordinates>
       <x>900</x>
-      <y>620</y>
+      <y>720</y>
       <w>160</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>ItemInventory.cpp
+    <panel_attributes>ItemSave.cpp
 bg=orange</panel_attributes>
     <additional_attributes/>
   </element>
@@ -477,7 +477,7 @@ bg=orange</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>820</x>
-      <y>650</y>
+      <y>750</y>
       <w>100</w>
       <h>30</h>
     </coordinates>
@@ -490,10 +490,10 @@ bg=orange</panel_attributes>
       <x>1050</x>
       <y>540</y>
       <w>100</w>
-      <h>140</h>
+      <h>240</h>
     </coordinates>
     <panel_attributes/>
-    <additional_attributes>80.0;10.0;80.0;120.0;10.0;120.0</additional_attributes>
+    <additional_attributes>80.0;10.0;80.0;220.0;10.0;220.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -501,10 +501,10 @@ bg=orange</panel_attributes>
       <x>640</x>
       <y>500</y>
       <w>120</w>
-      <h>140</h>
+      <h>240</h>
     </coordinates>
     <panel_attributes/>
-    <additional_attributes>100.0;10.0;10.0;10.0;10.0;100.0;100.0;100.0;100.0;120.0</additional_attributes>
+    <additional_attributes>100.0;10.0;10.0;10.0;10.0;210.0;90.0;210.0;90.0;220.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -538,5 +538,62 @@ bg=orange</panel_attributes>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;100.0;10.0;150.0;470.0;150.0;470.0;10.0;530.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>670</x>
+      <y>620</y>
+      <w>160</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>ItemTakeRight.h
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>900</x>
+      <y>620</y>
+      <w>160</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>ItemTakeRight.cpp
+bg=orange</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>820</x>
+      <y>650</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;80.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>640</x>
+      <y>590</y>
+      <w>110</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;90.0;20.0;90.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1050</x>
+      <y>640</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>80.0;20.0;10.0;20.0</additional_attributes>
   </element>
 </diagram>
