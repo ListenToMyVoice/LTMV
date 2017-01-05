@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Item.h"
+#include "ItemActor.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Inventory.generated.h"
@@ -12,13 +12,13 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROYECTO_API UInventory : public UStaticMeshComponent {
     GENERATED_BODY()
 private:
-    TArray<AItem*> _items;
+    TArray<AItemActor*> _items;
 
 public:
     UInventory();
     virtual void BeginPlay() override;
 
-    int AddItem(AItem* item);
+    int AddItem(AItemActor* item);
 
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
     //                           FActorComponentTickFunction* ThisTickFunction) override;

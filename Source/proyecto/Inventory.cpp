@@ -4,7 +4,6 @@
 #include "Inventory.h"
 
 UInventory::UInventory() {
-    //PrimaryComponentTick.bCanEverTick = true;
     _items = {};
 }
 
@@ -12,7 +11,7 @@ void UInventory::BeginPlay() {
     Super::BeginPlay();
 }
 
-int UInventory::AddItem(AItem* item) {
+int UInventory::AddItem(AItemActor* item) {
     ULibraryUtils::setActorEnable(item, false);
 
     item->GetStaticMeshComponent()->AttachToComponent(this,

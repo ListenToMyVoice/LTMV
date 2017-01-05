@@ -7,7 +7,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-class UInputComponent;
+//class UInputComponent;
 
 UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
@@ -21,14 +21,19 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float _baseLookUpRate;
 
+
     APlayerCharacter();
     virtual void BeginPlay() override;
 
+    void ActivateScenaryItem(AItemActor* item);
+    void DeactivateScenaryItem(AItemActor* item);
+
     /* OUTSIDE ACTION MAPPINGS */
-    void TakeLeft(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
-    void TakeRight(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
-    void DropRight(AStaticMeshActor* itemActor);
-    void SaveItem(AStaticMeshActor* itemActor);
+    //bool TakeLeft(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
+    //bool DropLeft(AStaticMeshActor* itemActor);
+
+    //bool TakeRight(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
+    //bool DropRight(AStaticMeshActor* itemActor);
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -47,7 +52,22 @@ protected:
     */
     void LookUpAtRate(float Rate);
 
+    void TakeLeft();
+    void TakeRight();
+
+    void SaveLeft();
+    void SaveRight();
+
 private:
-    bool _busyLeft;
-    bool _busyRight;
+    AItemActor* _itemLeft;
+    AItemActor* _itemRight;
+    AItemActor* _activeScenaryItem;
+
+    void TakeItemLeft();
+    void DropItemLeft();
+
+    void TakeItemRight();
+    void DropItemRight();
+
+    void SaveInventory(AItemActor* itemActor);
 };

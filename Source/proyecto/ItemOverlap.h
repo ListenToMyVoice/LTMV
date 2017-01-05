@@ -15,8 +15,8 @@ public:
     UItemOverlap();
     virtual void BeginPlay() override;
 
-    //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-    //                           FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+                               FActorComponentTickFunction* ThisTickFunction) override;
 
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,
                               APlayerCharacter* OtherActor,
@@ -27,6 +27,5 @@ public:
     virtual void deactivateItem(UPrimitiveComponent* OverlappedComp, APlayerCharacter* OtherActor,
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 protected:
-    bool _isActive;
-    APlayerCharacter* _actor;
+    APlayerCharacter* _player;
 };

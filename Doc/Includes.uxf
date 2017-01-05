@@ -57,7 +57,7 @@ bg=yellow</panel_attributes>
       <w>160</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>Item.h
+    <panel_attributes>ItemActor.h
 bg=green</panel_attributes>
     <additional_attributes/>
   </element>
@@ -256,7 +256,7 @@ bg=orange</panel_attributes>
       <w>160</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>Item.cpp
+    <panel_attributes>ItemActor.cpp
 bg=orange</panel_attributes>
     <additional_attributes/>
   </element>
@@ -453,7 +453,7 @@ fg=blue</panel_attributes>
     <id>UMLPackage</id>
     <coordinates>
       <x>670</x>
-      <y>720</y>
+      <y>760</y>
       <w>160</w>
       <h>70</h>
     </coordinates>
@@ -465,7 +465,7 @@ bg=light_gray</panel_attributes>
     <id>UMLPackage</id>
     <coordinates>
       <x>900</x>
-      <y>720</y>
+      <y>760</y>
       <w>160</w>
       <h>70</h>
     </coordinates>
@@ -477,7 +477,7 @@ bg=orange</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>820</x>
-      <y>750</y>
+      <y>790</y>
       <w>100</w>
       <h>30</h>
     </coordinates>
@@ -490,21 +490,21 @@ bg=orange</panel_attributes>
       <x>1050</x>
       <y>540</y>
       <w>100</w>
-      <h>240</h>
+      <h>280</h>
     </coordinates>
     <panel_attributes/>
-    <additional_attributes>80.0;10.0;80.0;220.0;10.0;220.0</additional_attributes>
+    <additional_attributes>80.0;10.0;80.0;260.0;10.0;260.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>640</x>
+      <x>650</x>
       <y>500</y>
-      <w>120</w>
-      <h>240</h>
+      <w>110</w>
+      <h>140</h>
     </coordinates>
     <panel_attributes/>
-    <additional_attributes>100.0;10.0;10.0;10.0;10.0;210.0;90.0;210.0;90.0;220.0</additional_attributes>
+    <additional_attributes>90.0;10.0;10.0;10.0;10.0;110.0;90.0;110.0;90.0;120.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -577,17 +577,6 @@ bg=orange</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>640</x>
-      <y>590</y>
-      <w>110</w>
-      <h>50</h>
-    </coordinates>
-    <panel_attributes/>
-    <additional_attributes>10.0;20.0;90.0;20.0;90.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
       <x>1050</x>
       <y>640</y>
       <w>100</w>
@@ -595,5 +584,41 @@ bg=orange</panel_attributes>
     </coordinates>
     <panel_attributes/>
     <additional_attributes>80.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>370</y>
+      <w>780</w>
+      <h>540</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fg=blue</panel_attributes>
+    <additional_attributes>200.0;190.0;10.0;190.0;10.0;520.0;760.0;520.0;760.0;10.0;590.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>650</y>
+      <w>220</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fg=blue</panel_attributes>
+    <additional_attributes>200.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>790</y>
+      <w>220</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+fg=blue</panel_attributes>
+    <additional_attributes>200.0;10.0;10.0;10.0</additional_attributes>
   </element>
 </diagram>

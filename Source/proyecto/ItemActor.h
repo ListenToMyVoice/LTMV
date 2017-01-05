@@ -2,13 +2,11 @@
 
 #pragma once
 
-//#include "ItemOverlap.h"
-
 #include "Engine/StaticMeshActor.h"
-#include "Item.generated.h"
+#include "ItemActor.generated.h"
 
 UCLASS()
-class PROYECTO_API AItem : public AStaticMeshActor {
+class PROYECTO_API AItemActor : public AStaticMeshActor {
     GENERATED_BODY()
 public:
 
@@ -19,7 +17,7 @@ public:
     UPROPERTY(EditAnywhere)
     UBoxComponent* _boxCollision;
 
-    AItem();
+    AItemActor();
     virtual void BeginPlay() override;
 
 private:

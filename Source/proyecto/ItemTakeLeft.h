@@ -20,16 +20,11 @@ public:
     virtual void BeginPlay() override;
 
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,
-                              APlayerCharacter* OtherActor,
+                              APlayerCharacter* player,
                               UPrimitiveComponent* OtherComp,
                               int32 OtherBodyIndex, bool bFromSweep,
                               const FHitResult& SweepResult);
-    
-    virtual void deactivateItem(UPrimitiveComponent* OverlappedComp, APlayerCharacter* OtherActor,
+
+    virtual void deactivateItem(UPrimitiveComponent* OverlappedComp, APlayerCharacter* player,
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-    void inputCB();
-
-private:
-    FInputActionBinding* _binding;
 };

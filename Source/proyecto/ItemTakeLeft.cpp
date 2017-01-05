@@ -4,41 +4,31 @@
 #include "ItemTakeLeft.h"
 
 UItemTakeLeft::UItemTakeLeft() : Super(), _locationAttach(0.f, 0.f, 0.f),
-                                              _rotationAttach(0.f, 0.f, 0.f) {}
+                                          _rotationAttach(0.f, 0.f, 0.f) {}
 
 void UItemTakeLeft::BeginPlay() {
     Super::BeginPlay();
 }
 
 void UItemTakeLeft::activateItem(UPrimitiveComponent* OverlappedComp,
-                                   APlayerCharacter* OtherActor,
-                                   UPrimitiveComponent* OtherComp,
-                                   int32 OtherBodyIndex, bool bFromSweep,
-                                   const FHitResult& SweepResult) {
-
-    Super::activateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex,
-                        bFromSweep, SweepResult);
+                                 APlayerCharacter* player,
+                                 UPrimitiveComponent* OtherComp,
+                                 int32 OtherBodyIndex, bool bFromSweep,
+                                 const FHitResult& SweepResult) {
     
-    ULibraryUtils::Log(TEXT("Left active"));
-    _binding = &OtherActor->InputComponent->BindAction("TakeLeft", IE_Released, this,
-                                                       &UItemTakeLeft::inputCB);
+    Super::activateItem(OverlappedComp, player, OtherComp, OtherBodyIndex, bFromSweep,
+                        SweepResult);
+    
+    AItemActor* owner = Cast<AItemActor>(GetOwner());
+    player->ActivateScenaryItem(owner);
 }
 
 void UItemTakeLeft::deactivateItem(UPrimitiveComponent* OverlappedComp,
-                                   APlayerCharacter* OtherActor, UPrimitiveComponent* OtherComp,
+                                   APlayerCharacter* player, UPrimitiveComponent* OtherComp,
                                    int32 OtherBodyIndex) {
 
-    Super::deactivateItem(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
+    Super::deactivateItem(OverlappedComp, player, OtherComp, OtherBodyIndex);
 
-    ULibraryUtils::Log(TEXT("Left deactive"));
-    _binding->ActionDelegate.Unbind();
-}
-
-void UItemTakeLeft::inputCB() {
-    AStaticMeshActor* owner = Cast<AStaticMeshActor>(GetOwner());
-    if (owner != nullptr) {
-        ULibraryUtils::Log(TEXT("Left deactive"));
-        _binding->ActionDelegate.Unbind();
-        _actor->TakeLeft(owner, _locationAttach, _rotationAttach);
-    }
+    AItemActor* owner = Cast<AItemActor>(GetOwner());
+    player->DeactivateScenaryItem(owner);
 }
