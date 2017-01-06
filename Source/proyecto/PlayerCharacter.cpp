@@ -44,6 +44,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
     PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
 
     PlayerInputComponent->BindAction("Help", IE_Released, this, &APlayerCharacter::Help);
+    PlayerInputComponent->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
@@ -123,12 +124,36 @@ void APlayerCharacter::Help() {
     }
 }
 
+void APlayerCharacter::Use() {
+    const TSet <UActorComponent*> set = _activeScenaryItems[_activeScenaryItems.Num()-1]->
+                                            GetComponents();
+
+    UObject* pointerToAnyUObject = nullptr;
+    for (UActorComponent* component : set) {
+        if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+            IItfUsable* itfObject = Cast<IItfUsable>(component);
+            if (itfObject) {
+                itfObject->Execute_Use(pointerToAnyUObject);
+            }
+        }
+    }
+
+
+    //ItemData data = FindItemAndComponents(IItfUsable::StaticClass());
+    ////UItemTakeRight* takeComp = data.actor ? Cast<IItfUsable>(data.components[0]) : nullptr;
+
+    //for (UActorComponent* itemActor : data.components) {
+    //    IItfUsable* useComp = Cast<IItfUsable>(data.components[0]);
+    //    if (useComp) useComp->Execute_Use();
+    //}
+}
+
 /****************************************** ACTIONS **********************************************/
 
 /*** TAKING DROPING ***/
 void APlayerCharacter::TakeItemLeft() {
-    ItemData data = FindComponentUtil(UItemTakeLeft::StaticClass());
-    UItemTakeLeft* takeComp = data.comp ? Cast<UItemTakeLeft>(data.comp) : nullptr;
+    ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
+    UItemTakeLeft* takeComp = data.actor ? Cast<UItemTakeLeft>(data.components[0]) : nullptr;
 
     if (takeComp) {
         _itemLeft = data.actor;
@@ -159,8 +184,8 @@ void APlayerCharacter::DropItemLeft() {
 }
 
 void APlayerCharacter::TakeItemRight() {
-    ItemData data = FindComponentUtil(UItemTakeRight::StaticClass());
-    UItemTakeRight* takeComp = data.comp ? Cast<UItemTakeRight>(data.comp) : nullptr;
+    ItemData data = FindItemAndComponents(UItemTakeRight::StaticClass());
+    UItemTakeRight* takeComp = data.actor ? Cast<UItemTakeRight>(data.components[0]) : nullptr;
 
     if (takeComp) {
         _itemRight = data.actor;
@@ -203,19 +228,18 @@ void APlayerCharacter::SaveInventory(AItemActor* item) {
 /*** OUTSIDE ***/
 void APlayerCharacter::ActivateScenaryItem(AItemActor* item) {
     _activeScenaryItems.AddUnique(item);
-    ULibraryUtils::Log(TEXT("ITEM ADDED"));
 }
 
 void APlayerCharacter::DeactivateScenaryItem(AItemActor* item) {
     _activeScenaryItems.Remove(item);
 }
 
-ItemData APlayerCharacter::FindComponentUtil(const TSubclassOf<UActorComponent> ComponentClass) {
+ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass) {
     ItemData res{};
     int i = _activeScenaryItems.Num() - 1;
-    while(!res.comp && i >= 0) {
-        res.comp = _activeScenaryItems[i]->FindComponentByClass(ComponentClass);
-        if (res.comp) {
+    while(!res.actor && i >= 0) {
+        res.components = _activeScenaryItems[i]->GetComponentsByClass(ComponentClass);
+        if (res.components.Num() > 0) {
             res.actor = _activeScenaryItems[i];
         }
         else {

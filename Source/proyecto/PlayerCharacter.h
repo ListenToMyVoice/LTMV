@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Inventory.h"
+#include "ItfUsable.h"
 
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
@@ -12,7 +13,7 @@
 struct ItemData {
     //GENERATED_USTRUCT_BODY()
     AItemActor* actor;
-    UActorComponent* comp;
+    TArray<UActorComponent*> components;
 };
 
 UCLASS(config = Game)
@@ -33,13 +34,6 @@ public:
 
     void ActivateScenaryItem(AItemActor* item);
     void DeactivateScenaryItem(AItemActor* item);
-
-    /* OUTSIDE ACTION MAPPINGS */
-    //bool TakeLeft(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
-    //bool DropLeft(AStaticMeshActor* itemActor);
-
-    //bool TakeRight(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation);
-    //bool DropRight(AStaticMeshActor* itemActor);
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -65,6 +59,7 @@ protected:
     void SaveRight();
 
     void Help();
+    void Use();
 
 private:
     AItemActor* _itemLeft;
@@ -79,5 +74,5 @@ private:
 
     void SaveInventory(AItemActor* itemActor);
 
-    ItemData FindComponentUtil(const TSubclassOf<UActorComponent> ComponentClass);
+    ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
 };

@@ -3,19 +3,15 @@
 #pragma once
 
 #include "ItemOverlap.h"
-#include "ItemTakeRight.generated.h"
+#include "ItfUsable.h"
+#include "LightOn.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROYECTO_API UItemTakeRight : public UItemOverlap {
+class PROYECTO_API ULightOn : public UItemOverlap, public IItfUsable {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere)
-        FVector _locationAttach;
-    UPROPERTY(EditAnywhere)
-        FRotator _rotationAttach;
-
-    UItemTakeRight();
+    ULightOn();
     virtual void BeginPlay() override;
 
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,
@@ -26,4 +22,8 @@ public:
 
     virtual void deactivateItem(UPrimitiveComponent* OverlappedComp, APlayerCharacter* player,
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
+    int Use();
+    virtual int Use_Implementation() override;
 };
