@@ -17,7 +17,7 @@ APlayerCharacter::APlayerCharacter() {
     _itemLeft = nullptr;
     _itemRight = nullptr;
 
-    _activeScenaryItem = nullptr;
+    _activeScenaryItems = {};
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -42,6 +42,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
     PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
     PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
     PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+
+    PlayerInputComponent->BindAction("Help", IE_Released, this, &APlayerCharacter::Help);
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
@@ -67,32 +69,32 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 }
 
 void APlayerCharacter::TakeLeft() {
-    if (_itemLeft && _activeScenaryItem) {
+    if (_itemLeft && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemLeft();
         TakeItemLeft();
     }
-    else if (_itemLeft && !_activeScenaryItem) {
+    else if (_itemLeft && _activeScenaryItems.Num() <= 0) {
         // DROP
         DropItemLeft();
     }
-    else if (!_itemLeft && _activeScenaryItem) {
+    else if (!_itemLeft && _activeScenaryItems.Num() > 0) {
         // TAKE
         TakeItemLeft();
     }
 }
 
 void APlayerCharacter::TakeRight() {
-    if (_itemRight && _activeScenaryItem) {
+    if (_itemRight && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemRight();
         TakeItemRight();
     }
-    else if (_itemRight && !_activeScenaryItem) {
+    else if (_itemRight && _activeScenaryItems.Num() <= 0) {
         // DROP
         DropItemRight();
     }
-    else if (!_itemRight && _activeScenaryItem) {
+    else if (!_itemRight && _activeScenaryItems.Num() > 0) {
         // TAKE
         TakeItemRight();
     }
@@ -114,16 +116,23 @@ void APlayerCharacter::SaveRight() {
     }
 }
 
-/****************************************** AUXILIAR FUNCTIONS ***********************************/
+void APlayerCharacter::Help() {
+    ULibraryUtils::Log(TEXT("ACTIVE ITEMS:"), 3);
+    for (AItemActor* itemActor : _activeScenaryItems) {
+        ULibraryUtils::Log(itemActor->_name.ToString(), 3);
+    }
+}
+
+/****************************************** ACTIONS **********************************************/
 
 /*** TAKING DROPING ***/
 void APlayerCharacter::TakeItemLeft() {
-    UActorComponent* comp = _activeScenaryItem->FindComponentByClass(UItemTakeLeft::StaticClass());
-    UItemTakeLeft* takeComp = Cast<UItemTakeLeft>(comp);
+    ItemData data = FindComponentUtil(UItemTakeLeft::StaticClass());
+    UItemTakeLeft* takeComp = data.comp ? Cast<UItemTakeLeft>(data.comp) : nullptr;
 
     if (takeComp) {
-        _itemLeft = _activeScenaryItem;
-        UStaticMeshComponent* mesh = _activeScenaryItem->GetStaticMeshComponent();
+        _itemLeft = data.actor;
+        UStaticMeshComponent* mesh = _itemLeft->GetStaticMeshComponent();
         if (mesh) {
             mesh->SetSimulatePhysics(false);
 
@@ -135,7 +144,7 @@ void APlayerCharacter::TakeItemLeft() {
             mesh->RelativeRotation = takeComp->_rotationAttach;
         }
         _itemLeft->SetActorEnableCollision(false);
-        _activeScenaryItem = nullptr;
+        _activeScenaryItems.Remove(data.actor);
     }
 }
 
@@ -150,12 +159,12 @@ void APlayerCharacter::DropItemLeft() {
 }
 
 void APlayerCharacter::TakeItemRight() {
-    UActorComponent* comp = _activeScenaryItem->FindComponentByClass(UItemTakeRight::StaticClass());
-    UItemTakeRight* takeComp = Cast<UItemTakeRight>(comp);
+    ItemData data = FindComponentUtil(UItemTakeRight::StaticClass());
+    UItemTakeRight* takeComp = data.comp ? Cast<UItemTakeRight>(data.comp) : nullptr;
 
     if (takeComp) {
-        _itemRight = _activeScenaryItem;
-        UStaticMeshComponent* mesh = _activeScenaryItem->GetStaticMeshComponent();
+        _itemRight = data.actor;
+        UStaticMeshComponent* mesh = _itemRight->GetStaticMeshComponent();
         if (mesh) {
             mesh->SetSimulatePhysics(false);
 
@@ -167,7 +176,7 @@ void APlayerCharacter::TakeItemRight() {
             mesh->RelativeRotation = takeComp->_rotationAttach;
         }
         _itemRight->SetActorEnableCollision(false);
-        _activeScenaryItem = nullptr;
+        _activeScenaryItems.Remove(data.actor);
     }
 }
 
@@ -183,90 +192,35 @@ void APlayerCharacter::DropItemRight() {
 
 /*** SAVING ***/
 void APlayerCharacter::SaveInventory(AItemActor* item) {
-    //UActorComponent* comp = item->FindComponentByClass(UItemSave::StaticClass());
-    //UItemSave* takeComp = Cast<UItemSave>(comp);
-
     UInventory* inventory = Cast<UInventory>(FindComponentByClass(UInventory::StaticClass()));
     if (inventory && item->FindComponentByClass(UItemSave::StaticClass())) {
         inventory->AddItem(item);
     }
 }
 
+/****************************************** AUXILIAR FUNCTIONS ***********************************/
+
 /*** OUTSIDE ***/
 void APlayerCharacter::ActivateScenaryItem(AItemActor* item) {
-    if (_activeScenaryItem != item) {
-        _activeScenaryItem = item;
-        ULibraryUtils::Log(item->_name.ToString());
-    }
+    _activeScenaryItems.AddUnique(item);
+    ULibraryUtils::Log(TEXT("ITEM ADDED"));
 }
 
 void APlayerCharacter::DeactivateScenaryItem(AItemActor* item) {
-    if (_activeScenaryItem == item) {
-        _activeScenaryItem = nullptr;
-        ULibraryUtils::Log(item->_name.ToString(), 2);
-    }
+    _activeScenaryItems.Remove(item);
 }
 
-/* OUTSIDE ACTION MAPPINGS */
-//bool APlayerCharacter::TakeLeft(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
-//    if (!_busyLeft && itemActor != nullptr) {
-//        itemActor->GetStaticMeshComponent()->SetSimulatePhysics(false);
-//        itemActor->SetActorEnableCollision(false);
-//        //itemActor->SetActorTickEnabled(false);
-//        
-//        itemActor->GetStaticMeshComponent()->AttachToComponent(GetMesh(),
-//            FAttachmentTransformRules::KeepRelativeTransform, TEXT("itemHand_l"));
-//
-//        itemActor->GetStaticMeshComponent()->RelativeLocation = location;
-//        itemActor->GetStaticMeshComponent()->RelativeRotation = rotation;
-//
-//        _busyLeft = true;
-//        ULibraryUtils::Log(TEXT("TakeLeft"), 3);
-//        return true;
-//    }
-//    return false;
-//}
-//
-//bool APlayerCharacter::DropLeft(AStaticMeshActor* itemActor) {
-//    if (_busyLeft && itemActor != nullptr) {
-//        itemActor->GetStaticMeshComponent()->DetachFromParent();
-//        itemActor->SetActorEnableCollision(true);
-//        itemActor->GetStaticMeshComponent()->SetSimulatePhysics(true);
-//
-//        _busyLeft = false;
-//        ULibraryUtils::Log(TEXT("DropLeft"), 2);
-//        return true;
-//    }
-//    return false;
-//}
-//
-//bool APlayerCharacter::TakeRight(AStaticMeshActor* itemActor, FVector &location, FRotator &rotation) {
-//    if (!_busyRight && itemActor != nullptr) {
-//        itemActor->GetStaticMeshComponent()->SetSimulatePhysics(false);
-//        itemActor->SetActorEnableCollision(false);
-//
-//        itemActor->GetStaticMeshComponent()->AttachToComponent(GetMesh(),
-//            FAttachmentTransformRules::KeepRelativeTransform, TEXT("itemHand_r"));
-//
-//        itemActor->GetStaticMeshComponent()->RelativeLocation = location;
-//        itemActor->GetStaticMeshComponent()->RelativeRotation = rotation;
-//        
-//        _busyRight = true;
-//        ULibraryUtils::Log(TEXT("TakeRight"), 3);
-//        return true;
-//    }
-//    return false;
-//}
-//
-//bool APlayerCharacter::DropRight(AStaticMeshActor* itemActor) {
-//    if (_busyRight && itemActor != nullptr) {
-//        itemActor->GetStaticMeshComponent()->DetachFromParent();
-//        itemActor->SetActorEnableCollision(true);
-//        itemActor->GetStaticMeshComponent()->SetSimulatePhysics(true);
-//
-//        _busyRight = false;
-//        ULibraryUtils::Log(TEXT("DropRight"), 2);
-//        return true;
-//    }
-//    return false;
-//}
+ItemData APlayerCharacter::FindComponentUtil(const TSubclassOf<UActorComponent> ComponentClass) {
+    ItemData res{};
+    int i = _activeScenaryItems.Num() - 1;
+    while(!res.comp && i >= 0) {
+        res.comp = _activeScenaryItems[i]->FindComponentByClass(ComponentClass);
+        if (res.comp) {
+            res.actor = _activeScenaryItems[i];
+        }
+        else {
+            i--;
+        }
+    }
+    return res;
+}

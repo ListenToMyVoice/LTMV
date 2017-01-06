@@ -9,6 +9,12 @@
 
 //class UInputComponent;
 
+struct ItemData {
+    //GENERATED_USTRUCT_BODY()
+    AItemActor* actor;
+    UActorComponent* comp;
+};
+
 UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
@@ -58,10 +64,12 @@ protected:
     void SaveLeft();
     void SaveRight();
 
+    void Help();
+
 private:
     AItemActor* _itemLeft;
     AItemActor* _itemRight;
-    AItemActor* _activeScenaryItem;
+    TArray<AItemActor*> _activeScenaryItems;
 
     void TakeItemLeft();
     void DropItemLeft();
@@ -70,4 +78,6 @@ private:
     void DropItemRight();
 
     void SaveInventory(AItemActor* itemActor);
+
+    ItemData FindComponentUtil(const TSubclassOf<UActorComponent> ComponentClass);
 };
