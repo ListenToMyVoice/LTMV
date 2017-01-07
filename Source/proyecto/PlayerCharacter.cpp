@@ -125,27 +125,19 @@ void APlayerCharacter::Help() {
 }
 
 void APlayerCharacter::Use() {
-    const TSet <UActorComponent*> set = _activeScenaryItems[_activeScenaryItems.Num()-1]->
-                                            GetComponents();
+    bool found = false;
+    int i = _activeScenaryItems.Num() - 1;
+    while (!found && i >= 0) {
+        const TSet <UActorComponent*> set = _activeScenaryItems[i]->GetComponents();
 
-    UObject* pointerToAnyUObject = nullptr;
-    for (UActorComponent* component : set) {
-        if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-            IItfUsable* itfObject = Cast<IItfUsable>(component);
-            if (itfObject) {
-                itfObject->Execute_Use(pointerToAnyUObject);
+        for (UActorComponent* component : set) {
+            if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                IItfUsable* itfObject = Cast<IItfUsable>(component);
+                if (itfObject) itfObject->Execute_Use(component);
             }
         }
+        i--;
     }
-
-
-    //ItemData data = FindItemAndComponents(IItfUsable::StaticClass());
-    ////UItemTakeRight* takeComp = data.actor ? Cast<IItfUsable>(data.components[0]) : nullptr;
-
-    //for (UActorComponent* itemActor : data.components) {
-    //    IItfUsable* useComp = Cast<IItfUsable>(data.components[0]);
-    //    if (useComp) useComp->Execute_Use();
-    //}
 }
 
 /****************************************** ACTIONS **********************************************/
@@ -176,7 +168,7 @@ void APlayerCharacter::TakeItemLeft() {
 void APlayerCharacter::DropItemLeft() {
     UStaticMeshComponent* mesh = _itemLeft->GetStaticMeshComponent();
     if (mesh) {
-        mesh->DetachFromParent();
+        mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         mesh->SetSimulatePhysics(true);
     }
     _itemLeft->SetActorEnableCollision(true);
@@ -208,7 +200,7 @@ void APlayerCharacter::TakeItemRight() {
 void APlayerCharacter::DropItemRight() {
     UStaticMeshComponent* mesh = _itemRight->GetStaticMeshComponent();
     if (mesh) {
-        mesh->DetachFromParent();
+        mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         mesh->SetSimulatePhysics(true);
     }
     _itemRight->SetActorEnableCollision(true);
