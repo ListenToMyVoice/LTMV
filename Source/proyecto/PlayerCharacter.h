@@ -2,13 +2,10 @@
 
 #pragma once
 
-#include "Inventory.h"
-#include "ItfUsable.h"
-
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-//class UInputComponent;
+class AItemActor;
 
 struct ItemData {
     //GENERATED_USTRUCT_BODY()

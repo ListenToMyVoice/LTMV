@@ -2,6 +2,8 @@
 
 #include "proyecto.h"
 #include "ItemTakeRight.h"
+#include "ItemActor.h"
+#include "PlayerCharacter.h"
 
 UItemTakeRight::UItemTakeRight() : Super(), _locationAttach(0.f, 0.f, 0.f),
                                             _rotationAttach(0.f, 0.f, 0.f) {}

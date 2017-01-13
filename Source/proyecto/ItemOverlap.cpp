@@ -3,6 +3,8 @@
 #include "proyecto.h"
 #include "ItemOverlap.h"
 
+#include "PlayerCharacter.h"
+
 UItemOverlap::UItemOverlap() : Super(), _player(nullptr) {
     PrimaryComponentTick.bCanEverTick = true;
     SetComponentTickEnabled(false);

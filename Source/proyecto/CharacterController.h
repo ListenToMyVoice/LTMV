@@ -6,10 +6,9 @@
 #include "CharacterController.generated.h"
 
 UCLASS()
-class PROYECTO_API ACharacterController : public APlayerController
-{
-	GENERATED_BODY()
-	
+class PROYECTO_API ACharacterController : public APlayerController {
+    GENERATED_BODY()
+
 public:
     virtual void BeginPlay() override;
 };

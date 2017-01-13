@@ -6,6 +6,9 @@
 #include "ItemTakeLeft.h"
 #include "ItemTakeRight.h"
 #include "ItemSave.h"
+#include "Inventory.h"
+#include "ItfUsable.h"
+#include "ItemActor.h"
 
 APlayerCharacter::APlayerCharacter() {
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);

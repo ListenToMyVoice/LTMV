@@ -4,6 +4,7 @@
 
 #include "ItemOverlap.h"
 #include "ItfUsable.h"
+
 #include "LightOn.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))

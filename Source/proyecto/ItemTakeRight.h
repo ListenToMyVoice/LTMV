@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ItemOverlap.h"
+
 #include "ItemTakeRight.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))

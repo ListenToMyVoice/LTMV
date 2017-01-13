@@ -2,8 +2,8 @@
 
 #include "proyecto.h"
 #include "ItemActor.h"
-
 #include "ItemOverlap.h"
+#include "PlayerCharacter.h"
 
 AItemActor::AItemActor() : Super() {
     _boxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("collisionBox"));

@@ -2,7 +2,8 @@
 
 #include "proyecto.h"
 #include "LightOn.h"
-
+#include "ItemActor.h"
+#include "PlayerCharacter.h"
 
 ULightOn::ULightOn() : Super() {}
 

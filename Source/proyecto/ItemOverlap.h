@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "PlayerCharacter.h"
-
 #include "Components/ActorComponent.h"
 #include "ItemOverlap.generated.h"
+
+class APlayerCharacter;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROYECTO_API UItemOverlap : public UActorComponent {
