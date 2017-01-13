@@ -11,6 +11,9 @@
 #include "ItemActor.h"
 
 APlayerCharacter::APlayerCharacter() {
+    bReplicates = true;
+    bReplicateMovement = true;
+
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
     // set our turn rates for input
@@ -27,31 +30,42 @@ void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
 }
 
-void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {
-    check(PlayerInputComponent);
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    PlayerInputComponent->BindAction("TakeLeft", IE_Released, this, &APlayerCharacter::TakeLeft);
-    PlayerInputComponent->BindAction("TakeRight", IE_Released, this, &APlayerCharacter::TakeRight);
-    
-    PlayerInputComponent->BindAction("SaveLeft", IE_Released, this, &APlayerCharacter::SaveLeft);
-    PlayerInputComponent->BindAction("SaveRight", IE_Released, this, &APlayerCharacter::SaveRight);
+    //DOREPLIFETIME(APlayerCharacter, R_TakeLeft);
+    DOREPLIFETIME(APlayerCharacter, R_TakeRight);
+    DOREPLIFETIME(APlayerCharacter, R_SaveLeft);
+    DOREPLIFETIME(APlayerCharacter, R_SaveRight);
+    DOREPLIFETIME(APlayerCharacter, R_Help);
+    DOREPLIFETIME(APlayerCharacter, R_Use);
+}
 
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-    PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-    PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
+void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
+    check(playerInput);
 
-    PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-    PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
-    PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-    PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+    /* MOVEMENT */
+    playerInput->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+    playerInput->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+    playerInput->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
+    playerInput->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
-    PlayerInputComponent->BindAction("Help", IE_Released, this, &APlayerCharacter::Help);
-    PlayerInputComponent->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
+    playerInput->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+    playerInput->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
+    playerInput->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+    playerInput->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+
+    /* SERVER */
+    //playerInput->BindAction("TakeLeft", IE_Released, this, &APlayerCharacter::SERVER_TakeLeft);
+    playerInput->BindAction("TakeRight", IE_Released, this, &APlayerCharacter::SERVER_TakeRight);
+    playerInput->BindAction("SaveLeft", IE_Released, this, &APlayerCharacter::SERVER_SaveLeft);
+    playerInput->BindAction("SaveRight", IE_Released, this, &APlayerCharacter::SERVER_SaveRight);
+    playerInput->BindAction("Help", IE_Released, this, &APlayerCharacter::SERVER_Help);
+    playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::SERVER_Use);
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
-
+/*********** MOVEMENT ***********/
 void APlayerCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
         AddMovementInput(GetActorForwardVector(), Value);
@@ -72,6 +86,61 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
     AddControllerPitchInput(Rate * _baseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
+/************ SERVER ************/
+//bool APlayerCharacter::SERVER_TakeLeft_Validate() { return true; }
+bool APlayerCharacter::SERVER_TakeRight_Validate() { return true; }
+bool APlayerCharacter::SERVER_SaveLeft_Validate() { return true; }
+bool APlayerCharacter::SERVER_SaveRight_Validate() { return true; }
+bool APlayerCharacter::SERVER_Help_Validate() { return true; }
+bool APlayerCharacter::SERVER_Use_Validate() { return true; }
+
+//void APlayerCharacter::SERVER_TakeLeft_Implementation() {
+//    R_TakeLeft = !R_TakeLeft;
+//    OnRep_TakeLeft();
+//}
+
+void APlayerCharacter::SERVER_TakeRight_Implementation() {
+    R_TakeRight = !R_TakeRight;
+    OnRep_TakeRight();
+}
+
+void APlayerCharacter::SERVER_SaveLeft_Implementation() {
+    R_SaveLeft = !R_SaveLeft;
+    OnRep_SaveLeft();
+}
+
+void APlayerCharacter::SERVER_SaveRight_Implementation() {
+    R_SaveRight = !R_SaveRight;
+    OnRep_SaveRight();
+}
+
+void APlayerCharacter::SERVER_Help_Implementation() {
+    R_Help = !R_Help;
+    OnRep_Help();
+}
+
+void APlayerCharacter::SERVER_Use_Implementation() {
+    R_Use = !R_Use;
+    OnRep_Use();
+}
+
+/************ CLIENT ************/
+//void APlayerCharacter::OnRep_TakeLeft() {
+//    if (_itemLeft && _activeScenaryItems.Num() > 0) {
+//        // REPLACE
+//        DropItemLeft();
+//        TakeItemLeft();
+//    }
+//    else if (_itemLeft && _activeScenaryItems.Num() <= 0) {
+//        // DROP
+//        DropItemLeft();
+//    }
+//    else if (!_itemLeft && _activeScenaryItems.Num() > 0) {
+//        // TAKE
+//        TakeItemLeft();
+//    }
+//}
+
 void APlayerCharacter::TakeLeft() {
     if (_itemLeft && _activeScenaryItems.Num() > 0) {
         // REPLACE
@@ -88,7 +157,7 @@ void APlayerCharacter::TakeLeft() {
     }
 }
 
-void APlayerCharacter::TakeRight() {
+void APlayerCharacter::OnRep_TakeRight() {
     if (_itemRight && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemRight();
@@ -104,7 +173,7 @@ void APlayerCharacter::TakeRight() {
     }
 }
 
-void APlayerCharacter::SaveLeft() {
+void APlayerCharacter::OnRep_SaveLeft() {
     if (_itemLeft) {
         // SAVE
         SaveInventory(_itemLeft);
@@ -112,7 +181,7 @@ void APlayerCharacter::SaveLeft() {
     }
 }
 
-void APlayerCharacter::SaveRight() {
+void APlayerCharacter::OnRep_SaveRight() {
     if (_itemRight) {
         // SAVE
         SaveInventory(_itemRight);
@@ -120,14 +189,14 @@ void APlayerCharacter::SaveRight() {
     }
 }
 
-void APlayerCharacter::Help() {
+void APlayerCharacter::OnRep_Help() {
     ULibraryUtils::Log(TEXT("ACTIVE ITEMS:"), 3);
     for (AItemActor* itemActor : _activeScenaryItems) {
         ULibraryUtils::Log(itemActor->_name.ToString(), 3);
     }
 }
 
-void APlayerCharacter::Use() {
+void APlayerCharacter::OnRep_Use() {
     bool found = false;
     int i = _activeScenaryItems.Num() - 1;
     while (!found && i >= 0) {
@@ -149,7 +218,6 @@ void APlayerCharacter::Use() {
 void APlayerCharacter::TakeItemLeft() {
     ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
     UItemTakeLeft* takeComp = data.actor ? Cast<UItemTakeLeft>(data.components[0]) : nullptr;
-
     if (takeComp) {
         _itemLeft = data.actor;
         UStaticMeshComponent* mesh = _itemLeft->GetStaticMeshComponent();
@@ -181,7 +249,6 @@ void APlayerCharacter::DropItemLeft() {
 void APlayerCharacter::TakeItemRight() {
     ItemData data = FindItemAndComponents(UItemTakeRight::StaticClass());
     UItemTakeRight* takeComp = data.actor ? Cast<UItemTakeRight>(data.components[0]) : nullptr;
-
     if (takeComp) {
         _itemRight = data.actor;
         UStaticMeshComponent* mesh = _itemRight->GetStaticMeshComponent();
@@ -203,6 +270,8 @@ void APlayerCharacter::TakeItemRight() {
 void APlayerCharacter::DropItemRight() {
     UStaticMeshComponent* mesh = _itemRight->GetStaticMeshComponent();
     if (mesh) {
+        //FDetachmentTransformRules rules(EDetachmentRule::KeepWorld, true);
+        //mesh->DetachFromComponent(rules);
         mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         mesh->SetSimulatePhysics(true);
     }
@@ -232,7 +301,7 @@ void APlayerCharacter::DeactivateScenaryItem(AItemActor* item) {
 ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass) {
     ItemData res{};
     int i = _activeScenaryItems.Num() - 1;
-    while(!res.actor && i >= 0) {
+    while (!res.actor && i >= 0) {
         res.components = _activeScenaryItems[i]->GetComponentsByClass(ComponentClass);
         if (res.components.Num() > 0) {
             res.actor = _activeScenaryItems[i];

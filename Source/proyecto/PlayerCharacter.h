@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Net/UnrealNetwork.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -32,33 +33,66 @@ public:
     void ActivateScenaryItem(AItemActor* item);
     void DeactivateScenaryItem(AItemActor* item);
 
+
+
+    void TakeLeft();
+
+
+
+
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
-    /* ACTION MAPPINGS */
+    /********************************** ACTION MAPPINGS ******************************************/
+    /* MOVEMENT */
     void MoveForward(float Val);
     void MoveRight(float Val);
-    /**
-    * Called via input to turn at a given rate.
-    * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-    */
     void TurnAtRate(float Rate);
-    /**
-    * Called via input to turn look up/down at a given rate.
-    * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-    */
     void LookUpAtRate(float Rate);
 
-    void TakeLeft();
-    void TakeRight();
+    /* SERVER */
+    //UFUNCTION(Server, Reliable, WithValidation)
+    //void SERVER_TakeLeft();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_TakeRight();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveLeft();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveRight();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_Help();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_Use();
 
-    void SaveLeft();
-    void SaveRight();
-
-    void Help();
-    void Use();
+    /* CLIENT */
+    //UFUNCTION()
+    //void OnRep_TakeLeft();
+    UFUNCTION()
+    void OnRep_TakeRight();
+    UFUNCTION()
+    void OnRep_SaveLeft();
+    UFUNCTION()
+    void OnRep_SaveRight();
+    UFUNCTION()
+    void OnRep_Use();
+    UFUNCTION()
+    void OnRep_Help();
 
 private:
+    /* REPLICATED VARIABLES */
+    //UPROPERTY(ReplicatedUsing = OnRep_TakeLeft)
+    //bool R_TakeLeft;
+    UPROPERTY(ReplicatedUsing = OnRep_TakeRight)
+    bool R_TakeRight;
+    UPROPERTY(ReplicatedUsing = OnRep_SaveLeft)
+    bool R_SaveLeft;
+    UPROPERTY(ReplicatedUsing = OnRep_SaveRight)
+    bool R_SaveRight;
+    UPROPERTY(ReplicatedUsing = OnRep_Help)
+    bool R_Help;
+    UPROPERTY(ReplicatedUsing = OnRep_Use)
+    bool R_Use;
+
     AItemActor* _itemLeft;
     AItemActor* _itemRight;
     TArray<AItemActor*> _activeScenaryItems;
