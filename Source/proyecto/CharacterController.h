@@ -13,13 +13,4 @@ public:
 
     ACharacterController();
     virtual void BeginPlay() override;
-
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeLeft();
-
-    UFUNCTION(NetMulticast, Reliable)
-    void TakeLeft();
-
-protected:
-    virtual void SetupInputComponent() override;
 };

@@ -33,7 +33,7 @@ void APlayerCharacter::BeginPlay() {
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    //DOREPLIFETIME(APlayerCharacter, R_TakeLeft);
+    DOREPLIFETIME(APlayerCharacter, R_TakeLeft);
     DOREPLIFETIME(APlayerCharacter, R_TakeRight);
     DOREPLIFETIME(APlayerCharacter, R_SaveLeft);
     DOREPLIFETIME(APlayerCharacter, R_SaveRight);
@@ -56,7 +56,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     playerInput->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
 
     /* SERVER */
-    //playerInput->BindAction("TakeLeft", IE_Released, this, &APlayerCharacter::SERVER_TakeLeft);
+    playerInput->BindAction("TakeLeft", IE_Released, this, &APlayerCharacter::SERVER_TakeLeft);
     playerInput->BindAction("TakeRight", IE_Released, this, &APlayerCharacter::SERVER_TakeRight);
     playerInput->BindAction("SaveLeft", IE_Released, this, &APlayerCharacter::SERVER_SaveLeft);
     playerInput->BindAction("SaveRight", IE_Released, this, &APlayerCharacter::SERVER_SaveRight);
@@ -87,17 +87,17 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 }
 
 /************ SERVER ************/
-//bool APlayerCharacter::SERVER_TakeLeft_Validate() { return true; }
+bool APlayerCharacter::SERVER_TakeLeft_Validate() { return true; }
 bool APlayerCharacter::SERVER_TakeRight_Validate() { return true; }
 bool APlayerCharacter::SERVER_SaveLeft_Validate() { return true; }
 bool APlayerCharacter::SERVER_SaveRight_Validate() { return true; }
 bool APlayerCharacter::SERVER_Help_Validate() { return true; }
 bool APlayerCharacter::SERVER_Use_Validate() { return true; }
 
-//void APlayerCharacter::SERVER_TakeLeft_Implementation() {
-//    R_TakeLeft = !R_TakeLeft;
-//    OnRep_TakeLeft();
-//}
+void APlayerCharacter::SERVER_TakeLeft_Implementation() {
+    R_TakeLeft = !R_TakeLeft;
+    OnRep_TakeLeft();
+}
 
 void APlayerCharacter::SERVER_TakeRight_Implementation() {
     R_TakeRight = !R_TakeRight;
@@ -125,23 +125,7 @@ void APlayerCharacter::SERVER_Use_Implementation() {
 }
 
 /************ CLIENT ************/
-//void APlayerCharacter::OnRep_TakeLeft() {
-//    if (_itemLeft && _activeScenaryItems.Num() > 0) {
-//        // REPLACE
-//        DropItemLeft();
-//        TakeItemLeft();
-//    }
-//    else if (_itemLeft && _activeScenaryItems.Num() <= 0) {
-//        // DROP
-//        DropItemLeft();
-//    }
-//    else if (!_itemLeft && _activeScenaryItems.Num() > 0) {
-//        // TAKE
-//        TakeItemLeft();
-//    }
-//}
-
-void APlayerCharacter::TakeLeft() {
+void APlayerCharacter::OnRep_TakeLeft() {
     if (_itemLeft && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemLeft();

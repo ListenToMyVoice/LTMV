@@ -51,8 +51,8 @@ protected:
     void LookUpAtRate(float Rate);
 
     /* SERVER */
-    //UFUNCTION(Server, Reliable, WithValidation)
-    //void SERVER_TakeLeft();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_TakeLeft();
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_TakeRight();
     UFUNCTION(Server, Reliable, WithValidation)
@@ -65,8 +65,8 @@ protected:
     void SERVER_Use();
 
     /* CLIENT */
-    //UFUNCTION()
-    //void OnRep_TakeLeft();
+    UFUNCTION()
+    void OnRep_TakeLeft();
     UFUNCTION()
     void OnRep_TakeRight();
     UFUNCTION()
@@ -80,8 +80,8 @@ protected:
 
 private:
     /* REPLICATED VARIABLES */
-    //UPROPERTY(ReplicatedUsing = OnRep_TakeLeft)
-    //bool R_TakeLeft;
+    UPROPERTY(ReplicatedUsing = OnRep_TakeLeft)
+    bool R_TakeLeft;
     UPROPERTY(ReplicatedUsing = OnRep_TakeRight)
     bool R_TakeRight;
     UPROPERTY(ReplicatedUsing = OnRep_SaveLeft)
