@@ -30,16 +30,16 @@ void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
 }
 
-void APlayerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
-    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-    DOREPLIFETIME(APlayerCharacter, R_TakeLeft);
-    DOREPLIFETIME(APlayerCharacter, R_TakeRight);
-    DOREPLIFETIME(APlayerCharacter, R_SaveLeft);
-    DOREPLIFETIME(APlayerCharacter, R_SaveRight);
-    DOREPLIFETIME(APlayerCharacter, R_Help);
-    DOREPLIFETIME(APlayerCharacter, R_Use);
-}
+//void APlayerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+//    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+//
+//    DOREPLIFETIME(APlayerCharacter, R_TakeLeft);
+//    DOREPLIFETIME(APlayerCharacter, R_TakeRight);
+//    DOREPLIFETIME(APlayerCharacter, R_SaveLeft);
+//    DOREPLIFETIME(APlayerCharacter, R_SaveRight);
+//    DOREPLIFETIME(APlayerCharacter, R_Help);
+//    DOREPLIFETIME(APlayerCharacter, R_Use);
+//}
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
     check(playerInput);
@@ -95,37 +95,37 @@ bool APlayerCharacter::SERVER_Help_Validate() { return true; }
 bool APlayerCharacter::SERVER_Use_Validate() { return true; }
 
 void APlayerCharacter::SERVER_TakeLeft_Implementation() {
-    R_TakeLeft = !R_TakeLeft;
+    //R_TakeLeft = !R_TakeLeft;
     OnRep_TakeLeft();
 }
 
 void APlayerCharacter::SERVER_TakeRight_Implementation() {
-    R_TakeRight = !R_TakeRight;
+    //R_TakeRight = !R_TakeRight;
     OnRep_TakeRight();
 }
 
 void APlayerCharacter::SERVER_SaveLeft_Implementation() {
-    R_SaveLeft = !R_SaveLeft;
+    //R_SaveLeft = !R_SaveLeft;
     OnRep_SaveLeft();
 }
 
 void APlayerCharacter::SERVER_SaveRight_Implementation() {
-    R_SaveRight = !R_SaveRight;
+    //R_SaveRight = !R_SaveRight;
     OnRep_SaveRight();
 }
 
 void APlayerCharacter::SERVER_Help_Implementation() {
-    R_Help = !R_Help;
+    //R_Help = !R_Help;
     OnRep_Help();
 }
 
 void APlayerCharacter::SERVER_Use_Implementation() {
-    R_Use = !R_Use;
+    //R_Use = !R_Use;
     OnRep_Use();
 }
 
 /************ CLIENT ************/
-void APlayerCharacter::OnRep_TakeLeft() {
+void APlayerCharacter::OnRep_TakeLeft_Implementation() {
     if (_itemLeft && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemLeft();
@@ -141,7 +141,7 @@ void APlayerCharacter::OnRep_TakeLeft() {
     }
 }
 
-void APlayerCharacter::OnRep_TakeRight() {
+void APlayerCharacter::OnRep_TakeRight_Implementation() {
     if (_itemRight && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemRight();
@@ -157,7 +157,7 @@ void APlayerCharacter::OnRep_TakeRight() {
     }
 }
 
-void APlayerCharacter::OnRep_SaveLeft() {
+void APlayerCharacter::OnRep_SaveLeft_Implementation() {
     if (_itemLeft) {
         // SAVE
         SaveInventory(_itemLeft);
@@ -165,7 +165,7 @@ void APlayerCharacter::OnRep_SaveLeft() {
     }
 }
 
-void APlayerCharacter::OnRep_SaveRight() {
+void APlayerCharacter::OnRep_SaveRight_Implementation() {
     if (_itemRight) {
         // SAVE
         SaveInventory(_itemRight);
@@ -173,14 +173,14 @@ void APlayerCharacter::OnRep_SaveRight() {
     }
 }
 
-void APlayerCharacter::OnRep_Help() {
+void APlayerCharacter::OnRep_Help_Implementation() {
     ULibraryUtils::Log(TEXT("ACTIVE ITEMS:"), 3);
     for (AItemActor* itemActor : _activeScenaryItems) {
         ULibraryUtils::Log(itemActor->_name.ToString(), 3);
     }
 }
 
-void APlayerCharacter::OnRep_Use() {
+void APlayerCharacter::OnRep_Use_Implementation() {
     bool found = false;
     int i = _activeScenaryItems.Num() - 1;
     while (!found && i >= 0) {
