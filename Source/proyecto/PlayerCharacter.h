@@ -33,13 +33,6 @@ public:
     void ActivateScenaryItem(AItemActor* item);
     void DeactivateScenaryItem(AItemActor* item);
 
-
-
-    void TakeLeft();
-
-
-
-
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
