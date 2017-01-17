@@ -30,17 +30,6 @@ void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
 }
 
-//void APlayerCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
-//    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-//    DOREPLIFETIME(APlayerCharacter, R_TakeLeft);
-//    DOREPLIFETIME(APlayerCharacter, R_TakeRight);
-//    DOREPLIFETIME(APlayerCharacter, R_SaveLeft);
-//    DOREPLIFETIME(APlayerCharacter, R_SaveRight);
-//    DOREPLIFETIME(APlayerCharacter, R_Help);
-//    DOREPLIFETIME(APlayerCharacter, R_Use);
-//}
-
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
     check(playerInput);
 
@@ -95,32 +84,26 @@ bool APlayerCharacter::SERVER_Help_Validate() { return true; }
 bool APlayerCharacter::SERVER_Use_Validate() { return true; }
 
 void APlayerCharacter::SERVER_TakeLeft_Implementation() {
-    //R_TakeLeft = !R_TakeLeft;
     OnRep_TakeLeft();
 }
 
 void APlayerCharacter::SERVER_TakeRight_Implementation() {
-    //R_TakeRight = !R_TakeRight;
     OnRep_TakeRight();
 }
 
 void APlayerCharacter::SERVER_SaveLeft_Implementation() {
-    //R_SaveLeft = !R_SaveLeft;
     OnRep_SaveLeft();
 }
 
 void APlayerCharacter::SERVER_SaveRight_Implementation() {
-    //R_SaveRight = !R_SaveRight;
     OnRep_SaveRight();
 }
 
 void APlayerCharacter::SERVER_Help_Implementation() {
-    //R_Help = !R_Help;
     OnRep_Help();
 }
 
 void APlayerCharacter::SERVER_Use_Implementation() {
-    //R_Use = !R_Use;
     OnRep_Use();
 }
 

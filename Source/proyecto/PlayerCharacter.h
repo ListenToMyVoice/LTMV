@@ -79,20 +79,6 @@ protected:
     void OnRep_Help();
 
 private:
-    /* REPLICATED VARIABLES */
-    //UPROPERTY(ReplicatedUsing = OnRep_TakeLeft)
-    //bool R_TakeLeft;
-    //UPROPERTY(ReplicatedUsing = OnRep_TakeRight)
-    //bool R_TakeRight;
-    //UPROPERTY(ReplicatedUsing = OnRep_SaveLeft)
-    //bool R_SaveLeft;
-    //UPROPERTY(ReplicatedUsing = OnRep_SaveRight)
-    //bool R_SaveRight;
-    //UPROPERTY(ReplicatedUsing = OnRep_Help)
-    //bool R_Help;
-    //UPROPERTY(ReplicatedUsing = OnRep_Use)
-    //bool R_Use;
-
     AItemActor* _itemLeft;
     AItemActor* _itemRight;
     TArray<AItemActor*> _activeScenaryItems;
