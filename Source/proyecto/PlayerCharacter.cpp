@@ -30,6 +30,19 @@ void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
 }
 
+void APlayerCharacter::Tick(float DeltaTime) {
+    Super::Tick(DeltaTime);
+
+    StartRayCast = this->GetActorLocation();
+    EndRayCast = this->GetActorForwardVector() * 5000.0f + StartRayCast;
+
+    bHitFlag = GetWorld()->LineTraceSingleByChannel(*HitActor, StartRayCast, EndRayCast, ECC_Visibility, *CollisionInfo);
+
+    if (bHitFlag) {
+        // COLISION CHECKS
+    }
+}
+
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
     check(playerInput);
 
@@ -52,6 +65,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     playerInput->BindAction("Help", IE_Released, this, &APlayerCharacter::SERVER_Help);
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::SERVER_Use);
 }
+
+
 
 /****************************************** ACTION MAPPINGS **************************************/
 /*********** MOVEMENT ***********/
