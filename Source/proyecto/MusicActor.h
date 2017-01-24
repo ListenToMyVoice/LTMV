@@ -21,7 +21,7 @@ public:
     FString _mainTrackPath;
     FString _actionTrackPath;
 
-    AMusicActor();
+    AMusicActor(const class FObjectInitializer& OI);
     virtual void BeginPlay() override;
 
     void SetMusic(EMusicType type);

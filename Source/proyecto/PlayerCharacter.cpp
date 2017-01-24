@@ -9,6 +9,7 @@
 #include "Inventory.h"
 #include "ItfUsable.h"
 #include "ItemActor.h"
+#include "GameStateLTMV.h"
 
 APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
@@ -85,6 +86,7 @@ bool APlayerCharacter::SERVER_Use_Validate() { return true; }
 
 void APlayerCharacter::SERVER_TakeLeft_Implementation() {
     OnRep_TakeLeft();
+    ((AGameStateLTMV*)GetWorld()->GetGameState())->ItemTaked();
 }
 
 void APlayerCharacter::SERVER_TakeRight_Implementation() {
