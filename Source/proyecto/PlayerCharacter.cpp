@@ -24,6 +24,8 @@ APlayerCharacter::APlayerCharacter() {
     _itemRight = nullptr;
 
     _activeScenaryItems = {};
+
+    RayParameter = 300.f;
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -31,15 +33,28 @@ void APlayerCharacter::BeginPlay() {
 }
 
 void APlayerCharacter::Tick(float DeltaTime) {
+
     Super::Tick(DeltaTime);
 
-    StartRayCast = this->GetActorLocation();
-    EndRayCast = this->GetActorForwardVector() * 5000.0f + StartRayCast;
+    bool bHitRayCastFlag;
+    FCollisionQueryParams CollisionInfo;
+    FHitResult HitActor;
+    
+    // Poner que el actor sea la cámara.
+    //UCameraComponent CameraComponent;
+    //this->GetComponentByClass(TSubclassOf<UCameraComponent> CameraComponent);
 
-    bHitFlag = GetWorld()->LineTraceSingleByChannel(*HitActor, StartRayCast, EndRayCast, ECC_Visibility, *CollisionInfo);
 
-    if (bHitFlag) {
-        // COLISION CHECKS
+    FVector StartRaycast = this->GetActorLocation();
+    FVector EndRaycast = this->GetActorForwardVector() * RayParameter + StartRaycast;
+
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
+
+    if (bHitRayCastFlag) {
+        // COOL STUFF TO GRAB OBJECTS
     }
 }
 
