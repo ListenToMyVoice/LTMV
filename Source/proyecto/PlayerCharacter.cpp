@@ -14,6 +14,8 @@ APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
     bReplicateMovement = true;
 
+    bHitFlag = false;
+
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
     // set our turn rates for input
@@ -33,14 +35,29 @@ void APlayerCharacter::BeginPlay() {
 void APlayerCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
-    StartRayCast = this->GetActorLocation();
-    EndRayCast = this->GetActorForwardVector() * 5000.0f + StartRayCast;
+    StartRayCast = GetActorLocation();
+    EndRayCast = GetActorForwardVector() * 5000.0f + StartRayCast;
 
-    bHitFlag = GetWorld()->LineTraceSingleByChannel(*HitActor, StartRayCast, EndRayCast, ECC_Visibility, *CollisionInfo);
+    
+    /*
+    FCollisionQueryParams TraceParams(FName(TEXT("MyTrace")), true, this);
+    TraceParams.bTraceAsyncScene = true;
+    TraceParams.bReturnPhysicalMaterial = true;
 
-    if (bHitFlag) {
-        // COLISION CHECKS
-    }
+    FHitResult Hit(ForceInit);
+
+    GetWorld()->LineTraceSingleByObjectType(Hit, StartRayCast, EndRayCast, ECC_Visibility, TraceParams);
+    */
+
+    //bHitFlag = GetWorld()->LineTraceSingleByChannel(Hit, StartRayCast, EndRayCast, ECC_Visibility, Params);
+    //
+    //if (bHitFlag) {
+    //
+    //    // COLISION CHECKS
+    //}
+
+    //DoTrace(&HitCall, &ParamsCall);
+   
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
