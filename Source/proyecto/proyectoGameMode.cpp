@@ -7,7 +7,7 @@
 
 AproyectoGameMode::AproyectoGameMode(const class FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(
-        "/Game/Meshes/Skeletons/Prototypes/Player/PlayerCharacter_BP"));
+        "/Game/Meshes/Skeletons/Prototypes/VRPlayer/VRCharacter_BP"));
     DefaultPawnClass = PlayerPawnClassFinder.Class;
 
     PlayerControllerClass = ACharacterController::StaticClass();
