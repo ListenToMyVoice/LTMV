@@ -29,20 +29,13 @@ public:
 
     APlayerCharacter();
     virtual void BeginPlay() override;
-    virtual void Tick(float DeltaSeconds) override;
-
-    /* RAY CASTING */
-    FVector StartRayCast;
-    FVector EndRayCast;
-
-    bool bHitFlag;
-
-    FCollisionQueryParams *CollisionInfo;
-    FHitResult *HitActor;
-    /* RAY CASTING END*/
+    virtual void Tick(float DeltaTime) override;
 
     void ActivateScenaryItem(AItemActor* item);
     void DeactivateScenaryItem(AItemActor* item);
+
+    UPROPERTY(EditAnywhere, Category="Raycast")
+    float RayParameter;
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;

@@ -26,6 +26,8 @@ APlayerCharacter::APlayerCharacter() {
     _itemRight = nullptr;
 
     _activeScenaryItems = {};
+
+    RayParameter = 300.f;
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -33,31 +35,29 @@ void APlayerCharacter::BeginPlay() {
 }
 
 void APlayerCharacter::Tick(float DeltaTime) {
+
     Super::Tick(DeltaTime);
-
-    StartRayCast = GetActorLocation();
-    EndRayCast = GetActorForwardVector() * 5000.0f + StartRayCast;
-
+	
+    bool bHitRayCastFlag;
+    FCollisionQueryParams CollisionInfo;
+    FHitResult HitActor;
     
-    /*
-    FCollisionQueryParams TraceParams(FName(TEXT("MyTrace")), true, this);
-    TraceParams.bTraceAsyncScene = true;
-    TraceParams.bReturnPhysicalMaterial = true;
+    // Poner que el actor sea la cámara.
+    //UCameraComponent CameraComponent;
+    //this->GetComponentByClass(TSubclassOf<UCameraComponent> CameraComponent);
 
-    FHitResult Hit(ForceInit);
 
-    GetWorld()->LineTraceSingleByObjectType(Hit, StartRayCast, EndRayCast, ECC_Visibility, TraceParams);
-    */
+    FVector StartRaycast = this->GetActorLocation();
+    FVector EndRaycast = this->GetActorForwardVector() * RayParameter + StartRaycast;
 
-    //bHitFlag = GetWorld()->LineTraceSingleByChannel(Hit, StartRayCast, EndRayCast, ECC_Visibility, Params);
-    //
-    //if (bHitFlag) {
-    //
-    //    // COLISION CHECKS
-    //}
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 
-    //DoTrace(&HitCall, &ParamsCall);
-   
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
+
+    if (bHitRayCastFlag) {
+        // COOL STUFF TO GRAB OBJECTS
+    }
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
