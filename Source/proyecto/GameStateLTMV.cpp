@@ -11,8 +11,5 @@ void AGameStateLTMV::BeginPlay() {
     Super::BeginPlay();
     
     _musicActor = GetWorld()->SpawnActor<AMusicActor>(FActorSpawnParameters());
-}
-
-void AGameStateLTMV::ItemTaked() {
-    _musicActor->SetMusic(EMusicType::Action);
+    //_musicActor->SetMusic(EMusicType::Action);
 }

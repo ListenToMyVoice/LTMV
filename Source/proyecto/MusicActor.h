@@ -18,8 +18,8 @@ class PROYECTO_API AMusicActor : public AAmbientSound {
 public:
     EMusicType _playing;
 
-    FString _mainTrackPath;
-    FString _actionTrackPath;
+    USoundWave* _mainTrackPath;
+    USoundWave* _actionTrackPath;
 
     AMusicActor(const class FObjectInitializer& OI);
     virtual void BeginPlay() override;

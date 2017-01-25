@@ -17,6 +17,4 @@ private:
 public:
     AGameStateLTMV(const class FObjectInitializer& OI);
     virtual void BeginPlay() override;
-
-    void ItemTaked();
 };
