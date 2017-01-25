@@ -3,6 +3,7 @@
 #include "proyecto.h"
 #include "proyectoGameMode.h"
 #include "CharacterController.h"
+#include "GameStateLTMV.h"
 
 AproyectoGameMode::AproyectoGameMode(const class FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(
@@ -10,4 +11,5 @@ AproyectoGameMode::AproyectoGameMode(const class FObjectInitializer& OI) : Super
     DefaultPawnClass = PlayerPawnClassFinder.Class;
 
     PlayerControllerClass = ACharacterController::StaticClass();
+    GameStateClass = AGameStateLTMV::StaticClass();
 }

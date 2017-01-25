@@ -9,6 +9,7 @@
 #include "Inventory.h"
 #include "ItfUsable.h"
 #include "ItemActor.h"
+#include "GameStateLTMV.h"
 
 APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
