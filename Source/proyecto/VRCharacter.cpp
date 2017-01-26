@@ -8,7 +8,7 @@
 
 AVRCharacter::AVRCharacter() {
     PrimaryActorTick.bCanEverTick = true;
-    bPositionalHeadTracking = true;
+    bPositionalHeadTracking = false;
 
     VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("VRCameraOrigin"));
     VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -53,25 +53,29 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput)
 
 void AVRCharacter::SetupVROptions() {
     IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    //if (HMD && HMD->IsStereoEnabled()) {
+    HMD->EnableHMD(true);
+    HMD->EnableStereo(true);
+    ULibraryUtils::Log(TEXT("SetupVROptions"));
+    if (HMD && HMD->IsStereoEnabled()) {
         /* Disable/Enable positional movement to pin camera translation */
         HMD->EnablePositionalTracking(bPositionalHeadTracking);
-
+        ULibraryUtils::Log(TEXT("EnablePositionalTracking"));
         /* Remove any translation when disabling positional head tracking */
         if (!bPositionalHeadTracking) {
-            //CameraComp->SetRelativeLocation(FVector(0, 0, 0));
+            CameraComp->SetRelativeLocation(FVector(0, 0, 0));
         }
-    //}
+    }
 }
 
-void AVRCharacter::ResetHMDOrigin() {
+void AVRCharacter::ResetHMDOrigin() {// R
     IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    //if (HMD && HMD->IsStereoEnabled()) {
+    if (HMD && HMD->IsStereoEnabled()) {
+        ULibraryUtils::Log(TEXT("ResetOrientationAndPosition"));
         HMD->ResetOrientationAndPosition();
-    //}
+    }
 }
 
-void AVRCharacter::ToggleTrackingSpace() {
+void AVRCharacter::ToggleTrackingSpace() {// T
     // TODO: Fix module includes for SteamVR
 
     //@todo Make this safe once we can add something to the DeviceType enum.  For now, make the terrible assumption this is a SteamVR device.
