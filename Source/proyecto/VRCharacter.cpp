@@ -31,11 +31,11 @@ void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
     SetupVROptions();
 
-    CameraComp->SetRelativeLocation(FVector(20, 0, 80));
-    CameraComp->SetRelativeRotation(FRotator(-90, 0, 90));
+    CameraComp->SetRelativeLocation(FVector(0, 0, -110));
+    //CameraComp->SetRelativeRotation(FRotator(-90, 0, 90));
 
-    GetMesh()->SetRelativeLocation(FVector(-20, 0, -162));
-    GetMesh()->SetRelativeRotation(FRotator(0, 0, -90));
+    //GetMesh()->SetRelativeLocation(FVector(-20, 0, -162));
+    //GetMesh()->SetRelativeRotation(FRotator(0, 0, -90));
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
