@@ -33,11 +33,17 @@ void AVRCharacter::BeginPlay() {
     SetupVROptions();
 }
 
-void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent) {
-    Super::SetupPlayerInputComponent(InputComponent);
+void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
+    Super::SetupPlayerInputComponent(playerInput);
 
-    InputComponent->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
-    InputComponent->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
+    /* MOVEMENT */
+    //playerInput->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+    //playerInput->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+    playerInput->BindAxis("VRThumbLeft_Y", this, &AVRCharacter::MoveForward);
+    playerInput->BindAxis("VRThumbLeft_X", this, &AVRCharacter::MoveRight);
+
+    playerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
+    playerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 }
 
 void AVRCharacter::SetupVROptions() {
@@ -71,3 +77,27 @@ void AVRCharacter::ToggleTrackingSpace() {
     // 		SteamVRHMD->SetTrackingSpace(TrackingSpace == ESteamVRTrackingSpace::Seated ? ESteamVRTrackingSpace::Standing : ESteamVRTrackingSpace::Seated);
     // 	}
 }
+
+/****************************************** ACTION MAPPINGS **************************************/
+/*********** MOVEMENT ***********/
+void AVRCharacter::MoveForward(float Value) {
+    if (Value != 0.0f) {
+        AddMovementInput(GetActorForwardVector(), Value);
+        //ULibraryUtils::Log(TEXT("MoveForward"));
+    }
+}
+
+void AVRCharacter::MoveRight(float Value) {
+    if (Value != 0.0f) {
+        AddMovementInput(GetActorRightVector(), Value);
+        //ULibraryUtils::Log(TEXT("MoveRight"));
+    }
+}
+
+//void APlayerCharacter::TurnAtRate(float Rate) {
+//    AddControllerYawInput(Rate * _baseTurnRate * GetWorld()->GetDeltaSeconds());
+//}
+//
+//void APlayerCharacter::LookUpAtRate(float Rate) {
+//    AddControllerPitchInput(Rate * _baseLookUpRate * GetWorld()->GetDeltaSeconds());
+//}

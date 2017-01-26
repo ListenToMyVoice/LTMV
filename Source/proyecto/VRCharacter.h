@@ -27,6 +27,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Components")
     class UMotionControllerComponent* RightHandComponent;
 
+    /********************************** ACTION MAPPINGS ******************************************/
+    /* MOVEMENT */
+    void MoveForward(float Val);
+    void MoveRight(float Val);
+    //void TurnAtRate(float Rate);
+    //void LookUpAtRate(float Rate);
+
 public:
     AVRCharacter();
     virtual void BeginPlay() override;
