@@ -10,6 +10,6 @@ AGameStateLTMV::AGameStateLTMV(const class FObjectInitializer& OI) : Super(OI) {
 void AGameStateLTMV::BeginPlay() {
     Super::BeginPlay();
     
-    _musicActor = GetWorld()->SpawnActor<AMusicActor>(FActorSpawnParameters());
+    //_musicActor = GetWorld()->SpawnActor<AMusicActor>(FActorSpawnParameters());
     //_musicActor->SetMusic(EMusicType::Action);
 }

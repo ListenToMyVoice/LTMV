@@ -8,6 +8,7 @@
 
 AVRCharacter::AVRCharacter() {
     PrimaryActorTick.bCanEverTick = true;
+    bPositionalHeadTracking = true;
 
     VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("VRCameraOrigin"));
     VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -15,6 +16,7 @@ AVRCharacter::AVRCharacter() {
     CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
     /* Assign to the VR origin component so any reset calls to the HMD can reset to 0,0,0 relative to this component */
     CameraComp->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
+    GetMesh()->AttachToComponent(CameraComp, FAttachmentTransformRules::KeepRelativeTransform, TEXT("FPVCamera"));
 
     LeftHandComponent = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftHand"));
     LeftHandComponent->Hand = EControllerHand::Left;
@@ -23,14 +25,17 @@ AVRCharacter::AVRCharacter() {
     RightHandComponent = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightHand"));
     RightHandComponent->Hand = EControllerHand::Right;
     RightHandComponent->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
-
-    bPositionalHeadTracking = false;
 }
 
 void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
-
     SetupVROptions();
+
+    CameraComp->SetRelativeLocation(FVector(20, 0, 80));
+    CameraComp->SetRelativeRotation(FRotator(-90, 0, 90));
+
+    GetMesh()->SetRelativeLocation(FVector(-20, 0, -162));
+    GetMesh()->SetRelativeRotation(FRotator(0, 0, -90));
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
@@ -48,22 +53,22 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput)
 
 void AVRCharacter::SetupVROptions() {
     IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    if (HMD && HMD->IsStereoEnabled()) {
+    //if (HMD && HMD->IsStereoEnabled()) {
         /* Disable/Enable positional movement to pin camera translation */
         HMD->EnablePositionalTracking(bPositionalHeadTracking);
 
         /* Remove any translation when disabling positional head tracking */
         if (!bPositionalHeadTracking) {
-            CameraComp->SetRelativeLocation(FVector(0, 0, 0));
+            //CameraComp->SetRelativeLocation(FVector(0, 0, 0));
         }
-    }
+    //}
 }
 
 void AVRCharacter::ResetHMDOrigin() {
     IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    if (HMD && HMD->IsStereoEnabled()) {
+    //if (HMD && HMD->IsStereoEnabled()) {
         HMD->ResetOrientationAndPosition();
-    }
+    //}
 }
 
 void AVRCharacter::ToggleTrackingSpace() {
