@@ -2,6 +2,7 @@
 
 #include "proyecto.h"
 #include "VRCharacter.h"
+//#include "Runtime/Engine/Classes/Components/SplineComponent.h"
 /* VR Includes */
 #include "HeadMountedDisplay.h"
 #include "MotionControllerComponent.h"
@@ -18,13 +19,48 @@ AVRCharacter::AVRCharacter() {
     CameraComp->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     GetMesh()->AttachToComponent(CameraComp, FAttachmentTransformRules::KeepRelativeTransform, TEXT("FPVCamera"));
 
+    BuildLeft();
+    BuildRight();
+}
+
+void AVRCharacter::BuildLeft() {
     LeftHandComponent = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftHand"));
     LeftHandComponent->Hand = EControllerHand::Left;
     LeftHandComponent->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
 
+    /* MESH */
+    SM_LeftHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_LeftHand"));
+    SM_LeftHand->AttachToComponent(LeftHandComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+    /* ADDITIONAL */
+    LeftArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("LeftArrow"));
+    LeftArrow->AttachToComponent(SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+
+    //LeftSPline = CreateDefaultSubobject<USPlineComponent>(TEXT("LeftSPline"));
+    //LeftSPline->AttachToComponent(SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+
+    LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("LeftSphere"));
+    LeftSphere->AttachToComponent(SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+}
+
+void AVRCharacter::BuildRight() {
     RightHandComponent = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightHand"));
     RightHandComponent->Hand = EControllerHand::Right;
     RightHandComponent->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
+
+    /* MESH */
+    SM_RightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_RightHand"));
+    SM_RightHand->AttachToComponent(RightHandComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+    /* ADDITIONAL */
+    RightArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("RightArrow"));
+    RightArrow->AttachToComponent(SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+
+    //RightSPline = CreateDefaultSubobject<USPlineComponent>(TEXT("RightSPline"));
+    //RightSPline->AttachToComponent(SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+
+    RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("RightSphere"));
+    RightSphere->AttachToComponent(SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void AVRCharacter::BeginPlay() {

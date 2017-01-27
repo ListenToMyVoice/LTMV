@@ -21,11 +21,27 @@ protected:
     bool bPositionalHeadTracking;
 
     /* Motion Controllers */
-    UPROPERTY(EditDefaultsOnly, Category = "Components")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* LeftHandComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    class UStaticMeshComponent* SM_LeftHand;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    class UArrowComponent* LeftArrow;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    class USPlineComponent* LeftSPline;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    class USphereComponent* LeftSphere;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Components")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* RightHandComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    class UStaticMeshComponent* SM_RightHand;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    class UArrowComponent* RightArrow;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    class USPlineComponent* RightSPline;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    class USphereComponent* RightSphere;
 
     /********************************** ACTION MAPPINGS ******************************************/
     /* MOVEMENT */
@@ -43,4 +59,8 @@ public:
     void ResetHMDOrigin();
     /* Toggle between Seated and Standing VR Tracking */
     void ToggleTrackingSpace();
+
+private:
+    void BuildLeft();
+    void BuildRight();
 };
