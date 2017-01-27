@@ -5,19 +5,19 @@
 
 
 AMusicActor::AMusicActor(const class FObjectInitializer& OI) : Super(OI) {
-    static ConstructorHelpers::FObjectFinder<USoundWave> Sound(
-        TEXT("/Game/Audio/Music/Midnight_Syndicate-3-Born_of_the_Night"));
-    static ConstructorHelpers::FObjectFinder<USoundWave> Sound2(
-        TEXT("/Game/Audio/Music/04_-_Black_Night_Of_Magic"));
+    //static ConstructorHelpers::FObjectFinder<USoundWave> Sound(
+    //    TEXT("/Game/Audio/Music/Midnight_Syndicate-3-Born_of_the_Night"));
+    //static ConstructorHelpers::FObjectFinder<USoundWave> Sound2(
+    //    TEXT("/Game/Audio/Music/04_-_Black_Night_Of_Magic"));
 
-    _mainTrackPath = Sound.Object;
-    _actionTrackPath = Sound2.Object;
-
-    SetMusic(EMusicType::Main);
+    //_mainTrackPath = Sound.Object;
+    //_actionTrackPath = Sound2.Object;
 }
 
 void AMusicActor::BeginPlay() {
     Super::BeginPlay();
+
+    SetMusic(EMusicType::Main);
 }
 
 void AMusicActor::SetMusic(EMusicType type) {
@@ -29,4 +29,5 @@ void AMusicActor::SetMusic(EMusicType type) {
         _playing = EMusicType::Action;
         GetAudioComponent()->SetSound(_actionTrackPath);
     }
+    GetAudioComponent()->Play();
 }
