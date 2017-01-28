@@ -15,8 +15,7 @@ APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
     bReplicateMovement = true;
 
-    bHitFlag = false;
-
+    
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
     // set our turn rates for input
@@ -28,7 +27,7 @@ APlayerCharacter::APlayerCharacter() {
 
     _activeScenaryItems = {};
 
-    RayParameter = 300.f;
+    RayParameter = 100.0f;
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -43,21 +42,34 @@ void APlayerCharacter::Tick(float DeltaTime) {
     FCollisionQueryParams CollisionInfo;
     FHitResult HitActor;
     
+    APlayerController* PC = Cast<APlayerController>(Controller);
     // Poner que el actor sea la cámara.
     //UCameraComponent CameraComponent;
     //this->GetComponentByClass(TSubclassOf<UCameraComponent> CameraComponent);
+    FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation(); //STARTRAYCAST
+    FVector CameraFVector = PC->PlayerCameraManager->GetActorForwardVector() * RayParameter + CameraLocation; //ENDRAYCAST
 
+    //FVector StartRaycast = this->GetActorLocation();
+    //FVector StartRaycast = this->GetActorLocation();
+    //FVector EndRayCast = CameraLocation * RayParameter + StartRaycast;
+    //FVector finRaycast = Camera.GetActorForwardVector() * RayParameter + StartRaycast;
+    //FVector EndRaycast = this->GetActorForwardVector() * RayParameter + StartRaycast;
 
-    FVector StartRaycast = this->GetActorLocation();
-    FVector EndRaycast = this->GetActorForwardVector() * RayParameter + StartRaycast;
+    //bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 
-    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, CameraLocation, CameraFVector, ECC_Visibility, CollisionInfo);
 
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
-    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
-
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    DrawDebugLine(GetWorld(), CameraLocation, CameraFVector, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    
+    if (HitActor.Actor.IsValid()) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
+        UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActor.Actor->GetName());
+    }
     if (bHitRayCastFlag) {
         // COOL STUFF TO GRAB OBJECTS
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Component->GetName()));
+        UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActor.Component->GetName());
     }
 }
 
