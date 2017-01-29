@@ -14,6 +14,10 @@ UToggle::UToggle()
     // ...
 }
 
+TArray<AActor*> UToggle::GetArrayOfActors() {
+    return OtherActors;
+}
+
 void UToggle::ToggleOn(bool &bProperty) {
     bProperty = true;
 }

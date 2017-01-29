@@ -19,8 +19,8 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
     TArray<AActor*> OtherActors;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
-    TArray<bool> PropertyArray;
+    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    TArray<AActor*> GetArrayOfActors();
 
     UFUNCTION(BlueprintCallable, Category="ToggleComponent")
     void ToggleOn(bool &bProperty);
