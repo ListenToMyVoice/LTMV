@@ -17,7 +17,7 @@ public:
     UDoorFunctionality();
 
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DoorFunctionality")
-        bool bDoorState;
+    bool bDoorState;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
     bool Use();

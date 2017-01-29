@@ -17,25 +17,28 @@ public:
     UToggle();
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
-    AActor *OtherActor;
+    TArray<AActor*> OtherActors;
 
-    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
+    TArray<bool> PropertyArray;
+
+    UFUNCTION(BlueprintCallable, Category="ToggleComponent")
     void ToggleOn(bool &bProperty);
 
-    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    UFUNCTION(BlueprintCallable, Category="ToggleComponent")
     void ToggleOff(bool &bProperty);
 
-    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    UFUNCTION(BlueprintCallable, Category="ToggleComponent")
     void InvertState(bool &bProperty);
 
-    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    UFUNCTION(BlueprintCallable, Category="ToggleComponent")
     bool IsToggleActive(bool bProperty);
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ToggleComponent")
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="ToggleComponent")
     bool Use();
     virtual bool Use_Implementation() override;
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ToggleComponent")
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="ToggleComponent")
     bool Usable(bool &bProperty);
     virtual bool Usable_Implementation(bool &bProperty) override;
 
