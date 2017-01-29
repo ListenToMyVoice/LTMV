@@ -31,32 +31,47 @@ APlayerCharacter::APlayerCharacter() {
 
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
+
+    // Find Camera Component to set Raycast from camera.
+    GetCameraComponent();
 }
 
 void APlayerCharacter::Tick(float DeltaTime) {
 
     Super::Tick(DeltaTime);
 
+}
+
+void APlayerCharacter::GetCameraComponent() {
+
+    TArray<UActorComponent*> Components;
+    this->GetComponents(Components);
+
+    for (UActorComponent* Component : Components) {
+        if (Component && Component->IsA<UCameraComponent>()) {
+            PlayerCamera = Cast<UCameraComponent>(Component);
+        }
+    }
+}
+
+FHitResult APlayerCharacter::Raycasting() {
+
     bool bHitRayCastFlag;
-    FCollisionQueryParams CollisionInfo;
     FHitResult HitActor;
-    
-    // Poner que el actor sea la cámara.
-    //UCameraComponent CameraComponent;
-    //this->GetComponentByClass(TSubclassOf<UCameraComponent> CameraComponent);
+    FCollisionQueryParams CollisionInfo;
 
-
-    FVector StartRaycast = this->GetActorLocation();
-    FVector EndRaycast = this->GetActorForwardVector() * RayParameter + StartRaycast;
+    FVector StartRaycast = PlayerCamera->GetComponentLocation();
+    FVector EndRaycast = PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-
     DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
-    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
 
-    if (bHitRayCastFlag) {
-        // COOL STUFF TO GRAB OBJECTS
-    }
+    //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
+    //    // COOL STUFF TO GRAB OBJECTS
+    //    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
+    //}
+
+    return HitActor;
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {

@@ -3,31 +3,40 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "ItfUsable.h"
 #include "Toggle.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROYECTO_API UToggle : public UActorComponent
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class PROYECTO_API UToggle : public UActorComponent, public IItfUsable
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UToggle();
+public:
+    // Sets default values for this component's properties
+    UToggle();
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
-
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ToggleActor")
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
     AActor *OtherActor;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleActor")
-    bool bProperty;
-    
-    UFUNCTION(BlueprintCallable, Category="ToggleActor")
-    bool ToggleActorState();
+    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    void ToggleOn(bool &bProperty);
+
+    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    void ToggleOff(bool &bProperty);
+
+    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    void InvertState(bool &bProperty);
+
+    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    bool IsToggleActive(bool bProperty);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ToggleComponent")
+    bool Use();
+    virtual bool Use_Implementation() override;
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ToggleComponent")
+    bool Usable(bool &bProperty);
+    virtual bool Usable_Implementation(bool &bProperty) override;
 
 };

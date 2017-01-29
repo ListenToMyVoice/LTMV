@@ -14,30 +14,13 @@ UDoorFunctionality::UDoorFunctionality()
 	// ...
 }
 
-// Called when the game starts
-void UDoorFunctionality::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-// Called every frame
-void UDoorFunctionality::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
-{
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-
-	// ...
-}
-
-void UDoorFunctionality::Use_Implementation() {
+bool UDoorFunctionality::Use_Implementation() {
     // Open Door
     if (!IsDoorOpen()){
         AActor *Owner = UActorComponent::GetOwner();
 
         FRotator StartPosition = Owner->GetActorRotation();
-        FRotator EndPosition = StartPosition + FRotator(0.0f, 0.0f, 90.0f);
+        FRotator EndPosition = StartPosition + FRotator(0.0f, 90.0f, 0.0f);
 
         Owner->SetActorRotation(EndPosition.Quaternion());
         bDoorState = true;
@@ -48,13 +31,18 @@ void UDoorFunctionality::Use_Implementation() {
         AActor *Owner = UActorComponent::GetOwner();
 
         FRotator StartPosition = Owner->GetActorRotation();
-        FRotator EndPosition = StartPosition + FRotator(0.0f, 0.0f, -90.0f);
+        FRotator EndPosition = StartPosition + FRotator(0.0f, -90.0f, 0.0f);
 
         Owner->SetActorRotation(EndPosition.Quaternion());
         bDoorState = false;
     }
+    return true;
 }
 
 bool UDoorFunctionality::IsDoorOpen() {
     return bDoorState;
+}
+
+bool UDoorFunctionality::Usable_Implementation(bool &bProperty) {
+    return true;
 }

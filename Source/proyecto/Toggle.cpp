@@ -7,32 +7,39 @@
 // Sets default values for this component's properties
 UToggle::UToggle()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+    // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+    // off to improve performance if you don't need them.
+    PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
+    // ...
 }
 
-
-// Called when the game starts
-void UToggle::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
+void UToggle::ToggleOn(bool &bProperty) {
+    bProperty = true;
 }
 
-
-// Called every frame
-void UToggle::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
-{
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-
-	// ...
+void UToggle::ToggleOff(bool &bProperty) {
+    bProperty = false;
 }
 
-bool UToggle::ToggleActorState() {
+void UToggle::InvertState(bool &bProperty) {
+    bProperty = !bProperty;
+}
+
+bool UToggle::IsToggleActive(bool bProperty) {
+    return bProperty;
+}
+
+bool UToggle::Use_Implementation() {
+    return true;
+}
+
+bool UToggle::Usable_Implementation(bool &bProperty) {
+    if (!IsToggleActive(bProperty)) {
+        ToggleOn(bProperty);
+    }
+    else {
+        ToggleOff(bProperty);
+    }
     return true;
 }
