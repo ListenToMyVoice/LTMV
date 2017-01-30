@@ -9,21 +9,6 @@
 #include "Components/ActorComponent.h"
 #include "Switcher.generated.h"
 
-USTRUCT(BlueprintType, Category = "ToggleActor")
-struct FSwitcheable {
-    GENERATED_USTRUCT_BODY()
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ToggleActor")
-    AActor* _actor;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ToggleActor")
-    TArray<FName> _components;
-
-    FSwitcheable() {
-        _actor = nullptr;
-        _components = {};
-    }
-};
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROYECTO_API USwitcher : public UItemOverlap, public IItfUsable {
