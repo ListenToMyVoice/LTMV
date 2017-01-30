@@ -25,13 +25,18 @@ public:
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float _baseLookUpRate;
-
-
+    
     APlayerCharacter();
     virtual void BeginPlay() override;
+    virtual void Tick(float DeltaTime) override;
+
+    void GetCameraComponent();
 
     void ActivateScenaryItem(AItemActor* item);
     void DeactivateScenaryItem(AItemActor* item);
+
+    UPROPERTY(EditAnywhere, Category="Raycast")
+    float RayParameter;
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -71,7 +76,13 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void OnRep_Help();
 
+    /* RAYCASTING */
+    UFUNCTION(BlueprintCallable, Category = "Raycasting")
+    FHitResult Raycasting();
+
 private:
+    UCameraComponent* PlayerCamera;
+
     AItemActor* _itemLeft;
     AItemActor* _itemRight;
     TArray<AItemActor*> _activeScenaryItems;

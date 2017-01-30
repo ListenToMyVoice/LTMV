@@ -25,10 +25,53 @@ APlayerCharacter::APlayerCharacter() {
     _itemRight = nullptr;
 
     _activeScenaryItems = {};
+
+    RayParameter = 300.f;
 }
 
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
+
+    // Find Camera Component to set Raycast from camera.
+    GetCameraComponent();
+}
+
+void APlayerCharacter::Tick(float DeltaTime) {
+
+    Super::Tick(DeltaTime);
+
+}
+
+void APlayerCharacter::GetCameraComponent() {
+
+    TArray<UActorComponent*> Components;
+    this->GetComponents(Components);
+
+    for (UActorComponent* Component : Components) {
+        if (Component && Component->IsA<UCameraComponent>()) {
+            PlayerCamera = Cast<UCameraComponent>(Component);
+        }
+    }
+}
+
+FHitResult APlayerCharacter::Raycasting() {
+
+    bool bHitRayCastFlag;
+    FHitResult HitActor;
+    FCollisionQueryParams CollisionInfo;
+
+    FVector StartRaycast = PlayerCamera->GetComponentLocation();
+    FVector EndRaycast = PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
+
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+
+    //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
+    //    // COOL STUFF TO GRAB OBJECTS
+    //    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
+    //}
+
+    return HitActor;
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
@@ -53,6 +96,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     playerInput->BindAction("Help", IE_Released, this, &APlayerCharacter::SERVER_Help);
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::SERVER_Use);
 }
+
+
 
 /****************************************** ACTION MAPPINGS **************************************/
 /*********** MOVEMENT ***********/
