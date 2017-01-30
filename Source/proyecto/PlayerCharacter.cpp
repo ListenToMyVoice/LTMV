@@ -32,8 +32,7 @@ APlayerCharacter::APlayerCharacter() {
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
 
-    // Find Camera Component to set Raycast from camera.
-    GetCameraComponent();
+    GetOwnComponents();
 }
 
 void APlayerCharacter::Tick(float DeltaTime) {
@@ -42,14 +41,16 @@ void APlayerCharacter::Tick(float DeltaTime) {
 
 }
 
-void APlayerCharacter::GetCameraComponent() {
-
+void APlayerCharacter::GetOwnComponents() {
     TArray<UActorComponent*> Components;
     this->GetComponents(Components);
 
     for (UActorComponent* Component : Components) {
         if (Component && Component->IsA<UCameraComponent>()) {
-            PlayerCamera = Cast<UCameraComponent>(Component);
+            _playerCamera = Cast<UCameraComponent>(Component);
+        }
+        else if (Component && Component->IsA<UAudioComponent>()) {
+            _audioComp = Cast<UAudioComponent>(Component);
         }
     }
 }
@@ -60,8 +61,8 @@ FHitResult APlayerCharacter::Raycasting() {
     FHitResult HitActor;
     FCollisionQueryParams CollisionInfo;
 
-    FVector StartRaycast = PlayerCamera->GetComponentLocation();
-    FVector EndRaycast = PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
+    FVector StartRaycast = _playerCamera->GetComponentLocation();
+    FVector EndRaycast = _playerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
     DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
@@ -104,12 +105,30 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
 void APlayerCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
         AddMovementInput(GetActorForwardVector(), Value);
+        if (_audioComp && !_audioComp->IsPlaying()) {
+            //_audioComp->SetSound(_walkSound);
+            _audioComp->Play();
+        }
+    }
+    else {
+        if (_audioComp) {
+            _audioComp->Stop();
+        }
     }
 }
 
 void APlayerCharacter::MoveRight(float Value) {
     if (Value != 0.0f) {
         AddMovementInput(GetActorRightVector(), Value);
+        if (_audioComp && !_audioComp->IsPlaying()) {
+            //_audioComp->SetSound(_walkSound);
+            _audioComp->Play();
+        }
+    }
+    else {
+        if (_audioComp) {
+            _audioComp->Stop();
+        }
     }
 }
 

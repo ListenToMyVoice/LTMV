@@ -18,6 +18,11 @@ UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+    USoundWave* _walkSound;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+    USoundWave* _runSound;
+
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float _baseTurnRate;
@@ -30,7 +35,7 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
 
-    void GetCameraComponent();
+    void GetOwnComponents();
 
     void ActivateScenaryItem(AItemActor* item);
     void DeactivateScenaryItem(AItemActor* item);
@@ -81,7 +86,9 @@ protected:
     FHitResult Raycasting();
 
 private:
-    UCameraComponent* PlayerCamera;
+    UAudioComponent* _audioComp;
+
+    UCameraComponent* _playerCamera;
 
     AItemActor* _itemLeft;
     AItemActor* _itemRight;

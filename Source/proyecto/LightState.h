@@ -18,7 +18,7 @@ private:
     void AddIntensity();
 
 public:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     float MAX_INTENSITY;
 
 	ULightState();

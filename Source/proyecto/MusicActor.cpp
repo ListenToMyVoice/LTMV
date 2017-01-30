@@ -17,7 +17,7 @@ AMusicActor::AMusicActor(const class FObjectInitializer& OI) : Super(OI) {
 void AMusicActor::BeginPlay() {
     Super::BeginPlay();
 
-    SetMusic(EMusicType::Main);
+    //SetMusic(EMusicType::Main);
 }
 
 void AMusicActor::SetMusic(EMusicType type) {

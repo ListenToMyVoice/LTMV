@@ -18,9 +18,9 @@ class PROYECTO_API AMusicActor : public AAmbientSound {
 public:
     EMusicType _playing;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category="Sound")
     USoundWave* _mainTrackPath;
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Sound")
     USoundWave* _actionTrackPath;
 
     AMusicActor(const class FObjectInitializer& OI);
