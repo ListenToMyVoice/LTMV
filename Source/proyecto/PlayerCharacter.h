@@ -18,9 +18,11 @@ UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UAudioComponent* _audioComp;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     USoundWave* _walkSound;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     USoundWave* _runSound;
 
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -42,6 +44,8 @@ public:
 
     UPROPERTY(EditAnywhere, Category="Raycast")
     float RayParameter;
+
+    void SwitchSound(USoundWave* sound, bool stop);
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -86,8 +90,6 @@ protected:
     FHitResult Raycasting();
 
 private:
-    UAudioComponent* _audioComp;
-
     UCameraComponent* _playerCamera;
 
     AItemActor* _itemLeft;

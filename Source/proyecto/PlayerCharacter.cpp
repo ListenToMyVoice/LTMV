@@ -27,18 +27,23 @@ APlayerCharacter::APlayerCharacter() {
     _activeScenaryItems = {};
 
     RayParameter = 300.f;
+
+    _audioComp =  CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 }
 
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
-
     GetOwnComponents();
 }
 
 void APlayerCharacter::Tick(float DeltaTime) {
-
     Super::Tick(DeltaTime);
 
+    bool stop = false;
+    if (GetCharacterMovement()->Velocity.Equals(FVector::ZeroVector)) {
+        stop = true;
+    }
+    SwitchSound(_walkSound, stop);
 }
 
 void APlayerCharacter::GetOwnComponents() {
@@ -48,9 +53,6 @@ void APlayerCharacter::GetOwnComponents() {
     for (UActorComponent* Component : Components) {
         if (Component && Component->IsA<UCameraComponent>()) {
             _playerCamera = Cast<UCameraComponent>(Component);
-        }
-        else if (Component && Component->IsA<UAudioComponent>()) {
-            _audioComp = Cast<UAudioComponent>(Component);
         }
     }
 }
@@ -99,36 +101,17 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
 }
 
 
-
 /****************************************** ACTION MAPPINGS **************************************/
 /*********** MOVEMENT ***********/
 void APlayerCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
         AddMovementInput(GetActorForwardVector(), Value);
-        if (_audioComp && !_audioComp->IsPlaying()) {
-            //_audioComp->SetSound(_walkSound);
-            _audioComp->Play();
-        }
-    }
-    else {
-        if (_audioComp) {
-            _audioComp->Stop();
-        }
     }
 }
 
 void APlayerCharacter::MoveRight(float Value) {
     if (Value != 0.0f) {
         AddMovementInput(GetActorRightVector(), Value);
-        if (_audioComp && !_audioComp->IsPlaying()) {
-            //_audioComp->SetSound(_walkSound);
-            _audioComp->Play();
-        }
-    }
-    else {
-        if (_audioComp) {
-            _audioComp->Stop();
-        }
     }
 }
 
@@ -343,4 +326,18 @@ ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorCompone
         }
     }
     return res;
+}
+
+void APlayerCharacter::SwitchSound(USoundWave* sound, bool stop) {
+    if (_audioComp) {
+        if (stop && _audioComp->IsPlaying()) {
+            _audioComp->Stop();
+        }
+        else {
+            if (!_audioComp->IsPlaying()) {
+                _audioComp->SetSound(sound);
+                _audioComp->Play();
+            }
+        }
+    }
 }
