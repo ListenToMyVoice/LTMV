@@ -3,16 +3,27 @@
 #include "proyecto.h"
 #include "Switcher.h"
 #include "ItemActor.h"
-#include "ItfSwitcheable.h"
 #include "PlayerCharacter.h"
 
-USwitcher::USwitcher() {
+USwitcher::USwitcher() : Super() {
     PrimaryComponentTick.bCanEverTick = true;
     SwitcheableArr = {};
+    SwitcheableComps = {};
 }
 
 void USwitcher::BeginPlay() {
     Super::BeginPlay();
+
+    /* Fill the references to other switcheable componets */
+    TArray<UActorComponent*> components = {};
+    for (FSwitcheable s : SwitcheableArr) {
+        s._actor->GetComponents(components);
+        for (UActorComponent* comp : components) {
+            if (s._components.IndexOfByKey(comp->GetFName()) != INDEX_NONE) {
+                SwitcheableComps.AddUnique(comp);
+            }
+        }
+    }
 }
 
 void USwitcher::activateItem(UPrimitiveComponent* OverlappedComp,
@@ -38,18 +49,16 @@ void USwitcher::deactivateItem(UPrimitiveComponent* OverlappedComp,
     player->DeactivateScenaryItem(owner);
 }
 
-int USwitcher::Use_Implementation() {
-    ULibraryUtils::Log(TEXT("Use_Implementation"));
-
-    for (AActor* actor : SwitcheableArr) {
-        const TSet <UActorComponent*> set = actor->GetComponents();
-        for (UActorComponent* component : set) {
-            if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
-                IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
-                if (itfObject) itfObject->Execute_SwitchState(component);
-            }
+bool USwitcher::Use_Implementation() {
+    for (UActorComponent* component : SwitcheableComps) {
+        if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
+            IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
+            if (itfObject) itfObject->Execute_SwitchState(component);
         }
     }
+    return true;
+}
 
-    return 0;
+bool USwitcher::Usable_Implementation(bool &bProperty) {
+    return true;
 }
