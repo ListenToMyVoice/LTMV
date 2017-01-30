@@ -23,6 +23,7 @@ APlayerCharacter::APlayerCharacter() {
 
     _itemLeft = nullptr;
     _itemRight = nullptr;
+    _isAction = false;
 
     _activeScenaryItems = {};
 
@@ -307,10 +308,12 @@ void APlayerCharacter::SaveInventory(AItemActor* item) {
 /*** OUTSIDE ***/
 void APlayerCharacter::ActivateScenaryItem(AItemActor* item) {
     _activeScenaryItems.AddUnique(item);
+    _isAction = true;
 }
 
 void APlayerCharacter::DeactivateScenaryItem(AItemActor* item) {
     _activeScenaryItems.Remove(item);
+    _isAction = _activeScenaryItems.Num() > 0 ? true : false;
 }
 
 ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass) {

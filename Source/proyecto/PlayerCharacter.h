@@ -18,6 +18,8 @@ UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 public:
+    UPROPERTY(BlueprintReadOnly)
+    bool _isAction;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     UAudioComponent* _audioComp;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
