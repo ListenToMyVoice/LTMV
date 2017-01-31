@@ -3,12 +3,11 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "ItfUsable.h"
 #include "Toggle.generated.h"
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROYECTO_API UToggle : public UActorComponent, public IItfUsable
+class PROYECTO_API UToggle : public UActorComponent
 {
     GENERATED_BODY()
 
@@ -19,27 +18,24 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
     TArray<AActor*> OtherActors;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
+    TArray<bool> OtherActorsStates;
+
     UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
     TArray<AActor*> GetArrayOfActors();
 
-    UFUNCTION(BlueprintCallable, Category="ToggleComponent")
-    void ToggleOn(bool &bProperty);
+    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    TArray<bool> GetArrayOfStates();
+
+    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    void SetState(bool NewState, int index);
 
     UFUNCTION(BlueprintCallable, Category="ToggleComponent")
-    void ToggleOff(bool &bProperty);
+    bool ToggleOn();
 
     UFUNCTION(BlueprintCallable, Category="ToggleComponent")
-    void InvertState(bool &bProperty);
+    bool ToggleOff();
 
     UFUNCTION(BlueprintCallable, Category="ToggleComponent")
-    bool IsToggleActive(bool bProperty);
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="ToggleComponent")
-    bool Use();
-    virtual bool Use_Implementation() override;
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="ToggleComponent")
-    bool Usable(bool &bProperty);
-    virtual bool Usable_Implementation(bool &bProperty) override;
-
+    bool InvertState(bool bProperty);
 };
