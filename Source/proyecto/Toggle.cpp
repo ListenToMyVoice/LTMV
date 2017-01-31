@@ -18,32 +18,23 @@ TArray<AActor*> UToggle::GetArrayOfActors() {
     return OtherActors;
 }
 
-void UToggle::ToggleOn(bool &bProperty) {
-    bProperty = true;
+TArray<bool> UToggle::GetArrayOfStates() {
+    return OtherActorsStates;
 }
 
-void UToggle::ToggleOff(bool &bProperty) {
-    bProperty = false;
+void UToggle::SetState(bool NewState, int index) {
+    OtherActorsStates[index] = NewState;
 }
 
-void UToggle::InvertState(bool &bProperty) {
+bool UToggle::ToggleOn() {
+    return true;
+}
+
+bool UToggle::ToggleOff() {
+    return false;
+}
+
+bool UToggle::InvertState(bool bProperty) {
     bProperty = !bProperty;
-}
-
-bool UToggle::IsToggleActive(bool bProperty) {
     return bProperty;
-}
-
-bool UToggle::Use_Implementation() {
-    return true;
-}
-
-bool UToggle::Usable_Implementation(bool &bProperty) {
-    if (!IsToggleActive(bProperty)) {
-        ToggleOn(bProperty);
-    }
-    else {
-        ToggleOff(bProperty);
-    }
-    return true;
 }

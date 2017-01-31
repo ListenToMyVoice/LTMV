@@ -12,9 +12,6 @@ class PROYECTO_API IItfUsable {
 
 public:
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
-    bool Use();
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
-    bool Usable(bool &bProperty);
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Usable")
+    void Use();
 };
