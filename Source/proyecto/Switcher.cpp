@@ -49,12 +49,11 @@ void USwitcher::deactivateItem(UPrimitiveComponent* OverlappedComp,
     player->DeactivateScenaryItem(owner);
 }
 
-int USwitcher::Use_Implementation() {
+void USwitcher::Use_Implementation() {
     for (UActorComponent* component : SwitcheableComps) {
         if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
             IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
             if (itfObject) itfObject->Execute_SwitchState(component);
         }
     }
-    return 0;
 }

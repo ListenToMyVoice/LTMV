@@ -13,5 +13,5 @@ class PROYECTO_API IItfUsable {
 public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Usable")
-    int Use();
+    void Use();
 };

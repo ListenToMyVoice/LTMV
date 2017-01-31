@@ -40,6 +40,6 @@ public:
 
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
-    int Use();
-    virtual int Use_Implementation() override;
+    void Use();
+    virtual void Use_Implementation() override;
 };
