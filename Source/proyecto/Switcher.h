@@ -40,10 +40,6 @@ public:
 
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
-    bool Use();
-    virtual bool Use_Implementation() override;
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ToggleActor")
-    bool Usable(bool &bProperty);
-    virtual bool Usable_Implementation(bool &bProperty) override;
+    int Use();
+    virtual int Use_Implementation() override;
 };
