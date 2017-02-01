@@ -19,10 +19,16 @@ public:
     TArray<AActor*> OtherActors;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
+    TArray<UActorComponent*> OtherComponents;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ToggleComponent")
     TArray<bool> OtherActorsStates;
 
     UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
     TArray<AActor*> GetArrayOfActors();
+
+    UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
+    TArray<UActorComponent*> GetArrayOfComponents();
 
     UFUNCTION(BlueprintCallable, Category = "ToggleComponent")
     TArray<bool> GetArrayOfStates();

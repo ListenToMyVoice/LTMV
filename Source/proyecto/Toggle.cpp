@@ -18,6 +18,10 @@ TArray<AActor*> UToggle::GetArrayOfActors() {
     return OtherActors;
 }
 
+TArray<UActorComponent*> UToggle::GetArrayOfComponents() {
+    return OtherComponents;
+}
+
 TArray<bool> UToggle::GetArrayOfStates() {
     return OtherActorsStates;
 }
