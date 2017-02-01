@@ -17,7 +17,7 @@ void UKeyComponent::BeginPlay()
 	
 }
 
-int UKeyComponent::Use_Implementation() {
+void UKeyComponent::Use_Implementation() {
     UE_LOG(LogTemp, Warning, TEXT("You have pressed: %s"), *_keyNumber);
     
     UActorComponent* component = this->GetOwner()->GetComponentByClass(ULock::StaticClass());
@@ -25,6 +25,4 @@ int UKeyComponent::Use_Implementation() {
     
     //BUSCAR AL LOCK Y LAMAR AL METODO INSERTNUMBER
     lockObject->insertNumber(_keyNumber);
-    
-    return 0;
 }

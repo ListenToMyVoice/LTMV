@@ -78,7 +78,6 @@ FHitResult APlayerCharacter::Raycasting() {
     //}
 
     return HitActor;
->>>>>>> dev
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
@@ -253,7 +252,7 @@ void APlayerCharacter::OnRep_Use_Implementation() {
         UActorComponent* component = HitActor.GetComponent();
         UActorComponent* display = HitActor.GetActor()->GetComponentByClass(UTextRenderComponent::StaticClass());
         
-            if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+            if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
                 IItfUsable* itfObject = Cast<IItfUsable>(component);
                 if (itfObject) itfObject->Execute_Use(component);
             }

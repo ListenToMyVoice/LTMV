@@ -23,6 +23,6 @@ public:
     UPROPERTY(EditAnyWhere, Category = "Keypad")
         FString _keyNumber;
 		
-    int Use();
-    virtual int Use_Implementation();
+    void Use();
+    virtual void Use_Implementation();
 };
