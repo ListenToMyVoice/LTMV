@@ -26,34 +26,32 @@ void ULock::BeginPlay()
 
 
 void ULock::insertNumber(FString number) {
-    chain.Append(number);
+    if (!solved) {
+        chain.Append(number);
 
-    UActorComponent* txtComponent = this->GetOwner()->GetComponentByClass(UTextRenderComponent::StaticClass());
-    UTextRenderComponent* display = Cast<UTextRenderComponent>(txtComponent);
+        UActorComponent* txtComponent = this->GetOwner()->GetComponentByClass(UTextRenderComponent::StaticClass());
+        UTextRenderComponent* display = Cast<UTextRenderComponent>(txtComponent);
     
-    display->SetText(display->Text.ToString() + number);
+        display->SetText(display->Text.ToString() + number);
 
-    if (chain.Len() == _correctPassword.Len()){
-        if (chain.Equals(_correctPassword)) {
-            solved = true;
-            display->SetText("ACESS GRANTED");
-            UE_LOG(LogTemp, Warning, TEXT("CODIGO CORRECTO - ABRIENDO PUERTAS..."));
-            //ABRIR PUERTA
-            _switcherOk.ActivateSwitcher();
+        if (chain.Len() == _correctPassword.Len()){
+            if (chain.Equals(_correctPassword)) {
+                solved = true;
+                display->SetText("ACESS GRANTED");
+                UE_LOG(LogTemp, Warning, TEXT("CODIGO CORRECTO - ABRIENDO PUERTAS..."));
+                //ABRIR PUERTA
+                _switcherOk.ActivateSwitcher();
+            }
+            else {
+                chain = "";
+                display->SetText(chain);
+                UE_LOG(LogTemp, Warning, TEXT("CODIGO ERRONEO"));
+                _switcherKo.ActivateSwitcher();
+            }
         }
         else {
-            chain = "";
-            display->SetText(chain);
-            UE_LOG(LogTemp, Warning, TEXT("CODIGO ERRONEO"));
-            _switcherKo.ActivateSwitcher();
+            _switcherKey.ActivateSwitcher();
         }
-    }
-    else {
-        _switcherKey.ActivateSwitcher();
-    }
-
-    if (solved) {
-        //DESACTIVAR COMPONENTE
     }
 }
 
