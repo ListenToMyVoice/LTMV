@@ -18,6 +18,15 @@ UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 public:
+    UPROPERTY(BlueprintReadOnly)
+    bool _isAction;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UAudioComponent* _audioComp;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USoundWave* _walkSound;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USoundWave* _runSound;
+
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float _baseTurnRate;
@@ -25,17 +34,20 @@ public:
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float _baseLookUpRate;
-
-
+    
     APlayerCharacter();
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
+
+    void GetOwnComponents();
 
     void ActivateScenaryItem(AItemActor* item);
     void DeactivateScenaryItem(AItemActor* item);
 
     UPROPERTY(EditAnywhere, Category="Raycast")
     float RayParameter;
+
+    void SwitchSound(USoundWave* sound, bool stop);
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -75,7 +87,13 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void OnRep_Help();
 
+    /* RAYCASTING */
+    UFUNCTION(BlueprintCallable, Category = "Raycasting")
+    FHitResult Raycasting();
+
 private:
+    UCameraComponent* _playerCamera;
+
     AItemActor* _itemLeft;
     AItemActor* _itemRight;
     TArray<AItemActor*> _activeScenaryItems;

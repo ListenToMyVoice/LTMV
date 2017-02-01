@@ -7,7 +7,7 @@
 
 class APlayerCharacter;
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+UCLASS(BlueprintType, DefaultToInstanced, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROYECTO_API UItemOverlap : public UActorComponent {
     GENERATED_BODY()
 

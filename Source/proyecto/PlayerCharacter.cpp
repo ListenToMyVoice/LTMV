@@ -25,22 +25,60 @@ APlayerCharacter::APlayerCharacter() {
 
     _itemLeft = nullptr;
     _itemRight = nullptr;
+    _isAction = false;
 
     _activeScenaryItems = {};
-
+    
     /*RAYCAST PARAMETERS*/
     RayParameter = 100.0f;
+    _audioComp =  CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 }
 
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
+    GetOwnComponents();
 }
 
 void APlayerCharacter::Tick(float DeltaTime) {
-
     Super::Tick(DeltaTime);
     
-    
+    bool stop = false;
+    if (GetCharacterMovement()->Velocity.Equals(FVector::ZeroVector)) {
+        stop = true;
+    }
+    SwitchSound(_walkSound, stop);
+}
+
+void APlayerCharacter::GetOwnComponents() {
+    TArray<UActorComponent*> Components;
+    this->GetComponents(Components);
+
+    for (UActorComponent* Component : Components) {
+        if (Component && Component->IsA<UCameraComponent>()) {
+            _playerCamera = Cast<UCameraComponent>(Component);
+        }
+    }
+}
+
+FHitResult APlayerCharacter::Raycasting() {
+
+    bool bHitRayCastFlag;
+    FHitResult HitActor;
+    FCollisionQueryParams CollisionInfo;
+
+    FVector StartRaycast = _playerCamera->GetComponentLocation();
+    FVector EndRaycast = _playerCamera->GetForwardVector() * RayParameter + StartRaycast;
+
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+
+    //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
+    //    // COOL STUFF TO GRAB OBJECTS
+    //    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
+    //}
+
+    return HitActor;
+>>>>>>> dev
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
@@ -65,7 +103,6 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     playerInput->BindAction("Help", IE_Released, this, &APlayerCharacter::SERVER_Help);
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::SERVER_Use);
 }
-
 
 
 /****************************************** ACTION MAPPINGS **************************************/
@@ -305,10 +342,12 @@ void APlayerCharacter::SaveInventory(AItemActor* item) {
 /*** OUTSIDE ***/
 void APlayerCharacter::ActivateScenaryItem(AItemActor* item) {
     _activeScenaryItems.AddUnique(item);
+    _isAction = true;
 }
 
 void APlayerCharacter::DeactivateScenaryItem(AItemActor* item) {
     _activeScenaryItems.Remove(item);
+    _isAction = _activeScenaryItems.Num() > 0 ? true : false;
 }
 
 ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass) {
@@ -324,4 +363,18 @@ ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorCompone
         }
     }
     return res;
+}
+
+void APlayerCharacter::SwitchSound(USoundWave* sound, bool stop) {
+    if (_audioComp) {
+        if (stop && _audioComp->IsPlaying()) {
+            _audioComp->Stop();
+        }
+        else {
+            if (!_audioComp->IsPlaying()) {
+                _audioComp->SetSound(sound);
+                _audioComp->Play();
+            }
+        }
+    }
 }

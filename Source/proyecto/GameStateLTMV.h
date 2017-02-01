@@ -11,10 +11,10 @@ UCLASS()
 class PROYECTO_API AGameStateLTMV : public AGameState {
     GENERATED_BODY()
 
-private:
+public:
+    UPROPERTY(EditAnywhere)
     AMusicActor* _musicActor;
 
-public:
     AGameStateLTMV(const class FObjectInitializer& OI);
     virtual void BeginPlay() override;
 };
