@@ -8,6 +8,7 @@
 #include "ItemSave.h"
 #include "Inventory.h"
 #include "ItfUsable.h"
+#include "KeyComponent.h"
 #include "ItemActor.h"
 #include "GameStateLTMV.h"
 
@@ -27,6 +28,7 @@ APlayerCharacter::APlayerCharacter() {
 
     _activeScenaryItems = {};
 
+    /*RAYCAST PARAMETERS*/
     RayParameter = 100.0f;
 }
 
@@ -37,40 +39,8 @@ void APlayerCharacter::BeginPlay() {
 void APlayerCharacter::Tick(float DeltaTime) {
 
     Super::Tick(DeltaTime);
-	
-    bool bHitRayCastFlag;
-    FCollisionQueryParams CollisionInfo;
-    FHitResult HitActor;
     
-    APlayerController* PC = Cast<APlayerController>(Controller);
-    // Poner que el actor sea la cámara.
-    //UCameraComponent CameraComponent;
-    //this->GetComponentByClass(TSubclassOf<UCameraComponent> CameraComponent);
-    FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation(); //STARTRAYCAST
-    FVector CameraFVector = PC->PlayerCameraManager->GetActorForwardVector() * RayParameter + CameraLocation; //ENDRAYCAST
-
-    //FVector StartRaycast = this->GetActorLocation();
-    //FVector StartRaycast = this->GetActorLocation();
-    //FVector EndRayCast = CameraLocation * RayParameter + StartRaycast;
-    //FVector finRaycast = Camera.GetActorForwardVector() * RayParameter + StartRaycast;
-    //FVector EndRaycast = this->GetActorForwardVector() * RayParameter + StartRaycast;
-
-    //bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-
-    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, CameraLocation, CameraFVector, ECC_Visibility, CollisionInfo);
-
-    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
-    DrawDebugLine(GetWorld(), CameraLocation, CameraFVector, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
     
-    if (HitActor.Actor.IsValid()) {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
-        UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActor.Actor->GetName());
-    }
-    if (bHitRayCastFlag) {
-        // COOL STUFF TO GRAB OBJECTS
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Component->GetName()));
-        UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActor.Component->GetName());
-    }
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
@@ -209,6 +179,7 @@ void APlayerCharacter::OnRep_Help_Implementation() {
 }
 
 void APlayerCharacter::OnRep_Use_Implementation() {
+    /*OVERLAPPING DETECTION*/
     bool found = false;
     int i = _activeScenaryItems.Num() - 1;
     while (!found && i >= 0) {
@@ -222,6 +193,36 @@ void APlayerCharacter::OnRep_Use_Implementation() {
         }
         i--;
     }
+    /*RAYCASTING DETECTION*/
+    //Obtenemos el PlayerController para poder acceder a la cámara.
+    APlayerController* PC = Cast<APlayerController>(Controller);
+
+    //Posición inicial del rayo
+    FVector StartRaycast = PC->PlayerCameraManager->GetCameraLocation();
+    //Posición final del rayo
+    FVector EndRaycast = PC->PlayerCameraManager->GetActorForwardVector() * RayParameter + StartRaycast;
+
+    //Esta variable almacena si el rayo colisiona con algo.
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+
+    //Dibujar el rayo | DEBUG ONLY
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+
+
+    if (bHitRayCastFlag) {
+        //DEBUG
+        //UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActor.Component->GetName());
+
+        UActorComponent* component = HitActor.GetComponent();
+        UActorComponent* display = HitActor.GetActor()->GetComponentByClass(UTextRenderComponent::StaticClass());
+        
+            if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                IItfUsable* itfObject = Cast<IItfUsable>(component);
+                if (itfObject) itfObject->Execute_Use(component);
+            }
+
+    }
+
 }
 
 /****************************************** ACTIONS **********************************************/

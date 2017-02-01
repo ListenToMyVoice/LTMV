@@ -79,6 +79,7 @@ private:
     AItemActor* _itemLeft;
     AItemActor* _itemRight;
     TArray<AItemActor*> _activeScenaryItems;
+    UActorComponent* _component;
 
     void TakeItemLeft();
     void DropItemLeft();
@@ -89,4 +90,9 @@ private:
     void SaveInventory(AItemActor* itemActor);
 
     ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
+
+    /*RAYCAST PARAMETER*/
+    bool bHitRayCastFlag;
+    FCollisionQueryParams CollisionInfo;
+    FHitResult HitActor;
 };
