@@ -232,14 +232,14 @@ void APlayerCharacter::OnRep_Use_Implementation() {
     /*RAYCASTING DETECTION*/
     //Obtenemos el PlayerController para poder acceder a la cámara.
     APlayerController* PC = Cast<APlayerController>(Controller);
-
+    FHitResult HitActorTmp;
     //Posición inicial del rayo
     FVector StartRaycast = PC->PlayerCameraManager->GetCameraLocation();
     //Posición final del rayo
     FVector EndRaycast = PC->PlayerCameraManager->GetActorForwardVector() * RayParameter + StartRaycast;
 
     //Esta variable almacena si el rayo colisiona con algo.
-    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActorTmp, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 
     //Dibujar el rayo | DEBUG ONLY
     //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
@@ -247,15 +247,13 @@ void APlayerCharacter::OnRep_Use_Implementation() {
 
     if (bHitRayCastFlag) {
         //DEBUG
-        //UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActor.Component->GetName());
+        //UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActorTmp.Component->GetName());
 
-        UActorComponent* component = HitActor.GetComponent();
-        UActorComponent* display = HitActor.GetActor()->GetComponentByClass(UTextRenderComponent::StaticClass());
-        
-            if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-                IItfUsable* itfObject = Cast<IItfUsable>(component);
-                if (itfObject) itfObject->Execute_Use(component);
-            }
+        UActorComponent* component = HitActorTmp.GetComponent();
+        if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+            IItfUsable* itfObject = Cast<IItfUsable>(component);
+            if (itfObject) itfObject->Execute_Use(component);
+        }
 
     }
 
