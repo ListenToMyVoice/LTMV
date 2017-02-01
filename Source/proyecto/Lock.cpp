@@ -19,6 +19,9 @@ ULock::ULock() : Super() {
 void ULock::BeginPlay()
 {
     Super::BeginPlay();
+    _switcherOk.InitSwitcher();
+    _switcherKo.InitSwitcher();
+    _switcherKey.InitSwitcher();
 }
 
 
@@ -36,12 +39,17 @@ void ULock::insertNumber(FString number) {
             display->SetText("ACESS GRANTED");
             UE_LOG(LogTemp, Warning, TEXT("CODIGO CORRECTO - ABRIENDO PUERTAS..."));
             //ABRIR PUERTA
+            _switcherOk.ActivateSwitcher();
         }
         else {
             chain = "";
             display->SetText(chain);
             UE_LOG(LogTemp, Warning, TEXT("CODIGO ERRONEO"));
+            _switcherKo.ActivateSwitcher();
         }
+    }
+    else {
+        _switcherKey.ActivateSwitcher();
     }
 
     if (solved) {

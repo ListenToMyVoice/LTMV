@@ -22,11 +22,11 @@ USTRUCT(BlueprintType, Category = "Switch")
 struct FSwitcheable {
     GENERATED_USTRUCT_BODY()
 
-        UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")
-        AActor* _actor;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")
+    AActor* _actor;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")
-        TArray<FName> _components;
+    TArray<FName> _components;
 
     FSwitcheable() {
         _actor = nullptr;

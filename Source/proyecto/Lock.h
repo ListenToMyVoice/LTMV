@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ItfSwitcheable.h"
 
 #include "Components/ActorComponent.h"
 #include "Lock.generated.h"
@@ -11,7 +12,16 @@ UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROYECTO_API ULock : public UActorComponent {
 	GENERATED_BODY()
 
-public:	
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ToggleActor")
+    FSwitcher _switcherOk;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ToggleActor")
+    FSwitcher _switcherKo;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ToggleActor")
+    FSwitcher _switcherKey;
+
 	ULock();
 
     bool solved;
