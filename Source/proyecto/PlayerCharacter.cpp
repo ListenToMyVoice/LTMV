@@ -30,7 +30,7 @@ APlayerCharacter::APlayerCharacter() {
     _activeScenaryItems = {};
     
     /*RAYCAST PARAMETERS*/
-    RayParameter = 100.0f;
+    RayParameter = 150.0f;
     _audioComp =  CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 }
 
@@ -70,7 +70,7 @@ FHitResult APlayerCharacter::Raycasting() {
     FVector EndRaycast = _playerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
     //    // COOL STUFF TO GRAB OBJECTS
