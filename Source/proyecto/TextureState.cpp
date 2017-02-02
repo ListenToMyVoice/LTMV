@@ -17,12 +17,15 @@ void UTextureState::BeginPlay() {
 
 
 int UTextureState::SwitchState_Implementation() {
-    //    ULightComponent* lightComp = Cast<ULightComponent>(GetOwner()->GetComponentByClass(
-    //        ULightComponent::StaticClass()));
-    //
-    //    float i = lightComp->Intensity + _increment;
-    //    i = i > MAX_INTENSITY ? 0 : i;
-    //        i = i > MAX_INTENSITY ? 0 : i;
-    //    lightComp->SetIntensity(i);
+    UTextRenderComponent* textureComp = Cast<UTextRenderComponent>(GetOwner()->GetComponentByClass(
+        UTextRenderComponent::StaticClass()));
+    
+    if (textureComp->bVisible == false) {
+        textureComp->SetVisibility(true);
+    }
+    else {
+        textureComp->SetVisibility(false);
+    }
+
     return 0;
 }

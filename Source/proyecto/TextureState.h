@@ -19,7 +19,7 @@ public:
     virtual void BeginPlay() override;
 
     /*INTERFACES*/
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Texture")
         int SwitchState();
     virtual int SwitchState_Implementation() override;
 
