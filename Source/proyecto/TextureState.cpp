@@ -19,12 +19,13 @@ void UTextureState::BeginPlay() {
 int UTextureState::SwitchState_Implementation() {
     UTextRenderComponent* textureComp = Cast<UTextRenderComponent>(GetOwner()->GetComponentByClass(
         UTextRenderComponent::StaticClass()));
-    
-    if (textureComp->bVisible == false) {
-        textureComp->SetVisibility(true);
-    }
-    else {
-        textureComp->SetVisibility(false);
+    if (textureComp) {
+        if (textureComp->bVisible == false) {
+            textureComp->SetVisibility(true);
+        }
+        else {
+            textureComp->SetVisibility(false);
+        }
     }
 
     return 0;
