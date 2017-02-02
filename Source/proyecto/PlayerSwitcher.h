@@ -7,26 +7,18 @@
 #include "ItfSwitcheable.h"
 
 #include "Components/ActorComponent.h"
-#include "Switcher.generated.h"
+#include "PlayerSwitcher.generated.h"
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROYECTO_API USwitcher : public UItemOverlap, public IItfUsable {
+class PROYECTO_API UPlayerSwitcher : public UItemOverlap, public IItfUsable {
     GENERATED_BODY()
-
-private:
-    TArray<UActorComponent*> SwitcheableComps;
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ToggleActor")
-    TArray<FSwitcheable> SwitcheableArr;
-    
-    //TMap<AActor*, FString> map;
-    //TMap<AActor*, FName> map;
-    //TArray<AActor*> SwitcheableArr;
-    //TArray<UActorComponent*> SwitcheableArr;
+    FSwitcher _switcher;
 
-    USwitcher();
+    UPlayerSwitcher();
     virtual void BeginPlay() override;
     
     virtual void activateItem(UPrimitiveComponent* OverlappedComp,

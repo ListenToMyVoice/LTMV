@@ -8,6 +8,7 @@
 #include "ItemSave.h"
 #include "Inventory.h"
 #include "ItfUsable.h"
+#include "KeyComponent.h"
 #include "ItemActor.h"
 #include "GameStateLTMV.h"
 
@@ -15,6 +16,7 @@ APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
     bReplicateMovement = true;
 
+    
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
     // set our turn rates for input
@@ -26,9 +28,9 @@ APlayerCharacter::APlayerCharacter() {
     _isAction = false;
 
     _activeScenaryItems = {};
-
-    RayParameter = 300.f;
-
+    
+    /*RAYCAST PARAMETERS*/
+    RayParameter = 150.0f;
     _audioComp =  CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 }
 
@@ -39,7 +41,7 @@ void APlayerCharacter::BeginPlay() {
 
 void APlayerCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
-
+    
     bool stop = false;
     if (GetCharacterMovement()->Velocity.Equals(FVector::ZeroVector)) {
         stop = true;
@@ -68,7 +70,7 @@ FHitResult APlayerCharacter::Raycasting() {
     FVector EndRaycast = _playerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
     //    // COOL STUFF TO GRAB OBJECTS
@@ -213,6 +215,7 @@ void APlayerCharacter::OnRep_Help_Implementation() {
 }
 
 void APlayerCharacter::OnRep_Use_Implementation() {
+    /*OVERLAPPING DETECTION*/
     bool found = false;
     int i = _activeScenaryItems.Num() - 1;
     while (!found && i >= 0) {
@@ -226,6 +229,30 @@ void APlayerCharacter::OnRep_Use_Implementation() {
         }
         i--;
     }
+    /*RAYCASTING DETECTION*/
+    //Obtenemos el PlayerController para poder acceder a la cámara.
+    FHitResult HitActorTmp;
+    FVector StartRaycast = _playerCamera->GetComponentLocation();
+    //Posición final del rayo
+    FVector EndRaycast = StartRaycast + (_playerCamera->GetComponentRotation().Vector() * RayParameter);
+
+    //Dibujar el rayo | DEBUG ONLY
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+
+
+    if (GetWorld()->LineTraceSingleByChannel(HitActorTmp, StartRaycast, EndRaycast, ECC_Visibility,
+                                             CollisionInfo)) {
+        //DEBUG
+        //UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActorTmp.Component->GetName());
+
+        UActorComponent* component = HitActorTmp.GetComponent();
+        if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+            IItfUsable* itfObject = Cast<IItfUsable>(component);
+            if (itfObject) itfObject->Execute_Use(component);
+        }
+
+    }
+
 }
 
 /****************************************** ACTIONS **********************************************/
