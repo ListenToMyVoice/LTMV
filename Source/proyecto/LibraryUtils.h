@@ -37,9 +37,20 @@ public:
         #endif
     }
 
-    static FORCEINLINE void setActorEnable(AActor* actor, bool enable = true) {
+    static FORCEINLINE void SetActorEnable(AActor* actor, bool enable = true) {
         actor->SetActorHiddenInGame(!enable);
         actor->SetActorEnableCollision(enable);
         actor->SetActorTickEnabled(enable);
+    }
+
+    static FORCEINLINE void TestNull(UObject* obj) {
+        #if UE_BUILD_DEVELOPMENT
+        if (!obj) {
+            FString message = FString(TEXT("UOBJECT "));
+            message.Append(obj->GetFName().ToString());
+            message.Append(TEXT(" IS NULL"));
+            Log(message);
+        }
+        #endif
     }
 };

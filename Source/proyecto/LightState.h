@@ -12,14 +12,27 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROYECTO_API ULightState : public UActorComponent, public IItfSwitcheable {
 	GENERATED_BODY()
 
+private:
+    ULightComponent* _lightComp;
+    float _initialIntensity;
+    bool _requestOff;
+
+    void AddLight();
+    void AddLightDelayed();
+
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Light)
     float MAX_INTENSITY;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Light)
     float _increment;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Light)
+    bool _delayed;
 
 	ULightState();
 	virtual void BeginPlay() override;
+
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+                               FActorComponentTickFunction* ThisTickFunction) override;
 
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
