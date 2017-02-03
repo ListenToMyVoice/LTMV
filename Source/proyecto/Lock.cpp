@@ -2,13 +2,6 @@
 
 #include "proyecto.h"
 #include "Lock.h"
-#include "PlayerSwitcher.h"
-
-
-#include "PlayerCharacter.h"
-#include "GameStateLTMV.h"
-#include "ItfUsable.h"
-#include "ItemActor.h"
 
 // Sets default values for this component's properties
 ULock::ULock() : Super() {
