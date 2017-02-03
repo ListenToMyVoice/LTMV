@@ -12,7 +12,7 @@ void UInventory::BeginPlay() {
 }
 
 int UInventory::AddItem(AItemActor* item) {
-    ULibraryUtils::setActorEnable(item, false);
+    ULibraryUtils::SetActorEnable(item, false);
 
     item->GetStaticMeshComponent()->AttachToComponent(this,
         FAttachmentTransformRules::KeepRelativeTransform);
