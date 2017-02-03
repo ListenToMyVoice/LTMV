@@ -22,6 +22,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ToggleActor")
     FSwitcher _switcherKey;
 
+
 	ULock();
 
     bool solved;

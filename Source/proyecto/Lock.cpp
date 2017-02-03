@@ -2,6 +2,7 @@
 
 #include "proyecto.h"
 #include "Lock.h"
+#include "PlayerSwitcher.h"
 
 
 #include "PlayerCharacter.h"
@@ -38,9 +39,9 @@ void ULock::insertNumber(FString number) {
             if (chain.Equals(_correctPassword)) {
                 solved = true;
                 display->SetText("ACESS GRANTED");
-                UE_LOG(LogTemp, Warning, TEXT("CODIGO CORRECTO - ABRIENDO PUERTAS..."));
-                //ABRIR PUERTA
+                UE_LOG(LogTemp, Warning, TEXT("CODIGO CORRECTO - ABRIENDO PUERTAS..."));       
                 _switcherOk.ActivateSwitcher();
+
             }
             else {
                 chain = "";
