@@ -52,7 +52,7 @@ int ULightState::SwitchState_Implementation() {
 
 void ULightState::AddLight() {
     float i = _lightComp->Intensity + _increment;
-    i = i > MAX_INTENSITY ? _initialIntensity : i;
+    i = i > MAX_INTENSITY ? 0 : i;
     _lightComp->SetIntensity(i);
 }
 

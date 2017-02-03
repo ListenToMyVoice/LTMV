@@ -19,22 +19,22 @@ class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 public:
     UPROPERTY(BlueprintReadOnly)
-    bool _isAction;
+        bool _isAction;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    UAudioComponent* _audioComp;
+        UAudioComponent* _audioComp;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    USoundWave* _walkSound;
+        USoundWave* _walkSound;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    USoundWave* _runSound;
+        USoundWave* _runSound;
 
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-    float _baseTurnRate;
+        float _baseTurnRate;
 
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-    float _baseLookUpRate;
-    
+        float _baseLookUpRate;
+
     APlayerCharacter();
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
@@ -44,8 +44,8 @@ public:
     void ActivateScenaryItem(AItemActor* item);
     void DeactivateScenaryItem(AItemActor* item);
 
-    UPROPERTY(EditAnywhere, Category="Raycast")
-    float RayParameter;
+    UPROPERTY(EditAnywhere, Category = "Raycast")
+        float RayParameter;
 
     void SwitchSound(USoundWave* sound, bool stop);
 
@@ -61,30 +61,35 @@ protected:
 
     /* SERVER */
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeLeft();
+        void SERVER_TakeLeft();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeRight();
+        void SERVER_TakeRight();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveLeft();
+        void SERVER_SaveLeft();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveRight();
+        void SERVER_SaveRight();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_Help();
+        void SERVER_Help();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_Use();
+        void SERVER_Use();
 
     /* CLIENT */
-    // Todo esto llevaba: NetMulticast, Reliable y las implementaciones, con _Implementation y OnRep_
-    void TakeLeft();
-    void TakeRight();
-    void SaveLeft();
-    void SaveRight();
-    void Use();
-    void Help();
+    UFUNCTION(NetMulticast, Reliable)
+        void OnRep_TakeLeft();
+    UFUNCTION(NetMulticast, Reliable)
+        void OnRep_TakeRight();
+    UFUNCTION(NetMulticast, Reliable)
+        void OnRep_SaveLeft();
+    UFUNCTION(NetMulticast, Reliable)
+        void OnRep_SaveRight();
+    UFUNCTION(NetMulticast, Reliable)
+        void OnRep_Use();
+    UFUNCTION(NetMulticast, Reliable)
+        void OnRep_Help();
 
     /* RAYCASTING */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
-    FHitResult Raycasting();
+        FHitResult Raycasting();
 
 private:
     UCameraComponent* _playerCamera;
@@ -103,4 +108,9 @@ private:
     void SaveInventory(AItemActor* itemActor);
 
     ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
+
+    /*RAYCAST PARAMETER*/
+    bool bHitRayCastFlag;
+    FCollisionQueryParams CollisionInfo;
+    FHitResult HitActor;
 };

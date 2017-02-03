@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "proyecto.h"
 #include "PlayerCharacter.h"
@@ -16,7 +16,7 @@ APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
     bReplicateMovement = true;
 
-    
+
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
     // set our turn rates for input
@@ -28,10 +28,10 @@ APlayerCharacter::APlayerCharacter() {
     _isAction = false;
 
     _activeScenaryItems = {};
-    
+
     /*RAYCAST PARAMETERS*/
     RayParameter = 150.0f;
-    _audioComp =  CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+    _audioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -41,7 +41,7 @@ void APlayerCharacter::BeginPlay() {
 
 void APlayerCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
-    
+
     bool stop = false;
     if (GetCharacterMovement()->Velocity.Equals(FVector::ZeroVector)) {
         stop = true;
@@ -70,7 +70,12 @@ FHitResult APlayerCharacter::Raycasting() {
     FVector EndRaycast = _playerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+
+    //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
+    //    // COOL STUFF TO GRAB OBJECTS
+    //    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
+    //}
 
     return HitActor;
 }
@@ -129,34 +134,32 @@ bool APlayerCharacter::SERVER_SaveRight_Validate() { return true; }
 bool APlayerCharacter::SERVER_Help_Validate() { return true; }
 bool APlayerCharacter::SERVER_Use_Validate() { return true; }
 
-// Llamaban a OnRep
 void APlayerCharacter::SERVER_TakeLeft_Implementation() {
-    TakeLeft();
+    OnRep_TakeLeft();
 }
 
 void APlayerCharacter::SERVER_TakeRight_Implementation() {
-    TakeRight();
+    OnRep_TakeRight();
 }
 
 void APlayerCharacter::SERVER_SaveLeft_Implementation() {
-    SaveLeft();
+    OnRep_SaveLeft();
 }
 
 void APlayerCharacter::SERVER_SaveRight_Implementation() {
-    SaveRight();
+    OnRep_SaveRight();
 }
 
 void APlayerCharacter::SERVER_Help_Implementation() {
-    Help();
+    OnRep_Help();
 }
 
 void APlayerCharacter::SERVER_Use_Implementation() {
-    Use();
+    OnRep_Use();
 }
 
-// Todos llevaban OnRep
 /************ CLIENT ************/
-void APlayerCharacter::TakeLeft() {
+void APlayerCharacter::OnRep_TakeLeft_Implementation() {
     if (_itemLeft && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemLeft();
@@ -172,7 +175,7 @@ void APlayerCharacter::TakeLeft() {
     }
 }
 
-void APlayerCharacter::TakeRight() {
+void APlayerCharacter::OnRep_TakeRight_Implementation() {
     if (_itemRight && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemRight();
@@ -188,7 +191,7 @@ void APlayerCharacter::TakeRight() {
     }
 }
 
-void APlayerCharacter::SaveLeft() {
+void APlayerCharacter::OnRep_SaveLeft_Implementation() {
     if (_itemLeft) {
         // SAVE
         SaveInventory(_itemLeft);
@@ -196,7 +199,7 @@ void APlayerCharacter::SaveLeft() {
     }
 }
 
-void APlayerCharacter::SaveRight() {
+void APlayerCharacter::OnRep_SaveRight_Implementation() {
     if (_itemRight) {
         // SAVE
         SaveInventory(_itemRight);
@@ -204,14 +207,14 @@ void APlayerCharacter::SaveRight() {
     }
 }
 
-void APlayerCharacter::Help() {
+void APlayerCharacter::OnRep_Help_Implementation() {
     ULibraryUtils::Log(TEXT("ACTIVE ITEMS:"), 3);
     for (AItemActor* itemActor : _activeScenaryItems) {
         ULibraryUtils::Log(itemActor->_name.ToString(), 3);
     }
 }
 
-void APlayerCharacter::Use() {
+void APlayerCharacter::OnRep_Use_Implementation() {
     /*OVERLAPPING DETECTION*/
     bool found = false;
     int i = _activeScenaryItems.Num() - 1;
@@ -226,6 +229,30 @@ void APlayerCharacter::Use() {
         }
         i--;
     }
+    /*RAYCASTING DETECTION*/
+    //Obtenemos el PlayerController para poder acceder a la c�mara.
+    FHitResult HitActorTmp;
+    FVector StartRaycast = _playerCamera->GetComponentLocation();
+    //Posici�n final del rayo
+    FVector EndRaycast = StartRaycast + (_playerCamera->GetComponentRotation().Vector() * RayParameter);
+
+    //Dibujar el rayo | DEBUG ONLY
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+
+
+    if (GetWorld()->LineTraceSingleByChannel(HitActorTmp, StartRaycast, EndRaycast, ECC_Visibility,
+                                             CollisionInfo)) {
+        //DEBUG
+        //UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActorTmp.Component->GetName());
+
+        UActorComponent* component = HitActorTmp.GetComponent();
+        if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+            IItfUsable* itfObject = Cast<IItfUsable>(component);
+            if (itfObject) itfObject->Execute_Use(component);
+        }
+
+    }
+
 }
 
 /****************************************** ACTIONS **********************************************/
