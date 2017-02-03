@@ -70,12 +70,7 @@ FHitResult APlayerCharacter::Raycasting() {
     FVector EndRaycast = _playerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
-
-    //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
-    //    // COOL STUFF TO GRAB OBJECTS
-    //    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
-    //}
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     return HitActor;
 }
@@ -134,32 +129,34 @@ bool APlayerCharacter::SERVER_SaveRight_Validate() { return true; }
 bool APlayerCharacter::SERVER_Help_Validate() { return true; }
 bool APlayerCharacter::SERVER_Use_Validate() { return true; }
 
+// Llamaban a OnRep
 void APlayerCharacter::SERVER_TakeLeft_Implementation() {
-    OnRep_TakeLeft();
+    TakeLeft();
 }
 
 void APlayerCharacter::SERVER_TakeRight_Implementation() {
-    OnRep_TakeRight();
+    TakeRight();
 }
 
 void APlayerCharacter::SERVER_SaveLeft_Implementation() {
-    OnRep_SaveLeft();
+    SaveLeft();
 }
 
 void APlayerCharacter::SERVER_SaveRight_Implementation() {
-    OnRep_SaveRight();
+    SaveRight();
 }
 
 void APlayerCharacter::SERVER_Help_Implementation() {
-    OnRep_Help();
+    Help();
 }
 
 void APlayerCharacter::SERVER_Use_Implementation() {
-    OnRep_Use();
+    Use();
 }
 
+// Todos llevaban OnRep
 /************ CLIENT ************/
-void APlayerCharacter::OnRep_TakeLeft_Implementation() {
+void APlayerCharacter::TakeLeft() {
     if (_itemLeft && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemLeft();
@@ -175,7 +172,7 @@ void APlayerCharacter::OnRep_TakeLeft_Implementation() {
     }
 }
 
-void APlayerCharacter::OnRep_TakeRight_Implementation() {
+void APlayerCharacter::TakeRight() {
     if (_itemRight && _activeScenaryItems.Num() > 0) {
         // REPLACE
         DropItemRight();
@@ -191,7 +188,7 @@ void APlayerCharacter::OnRep_TakeRight_Implementation() {
     }
 }
 
-void APlayerCharacter::OnRep_SaveLeft_Implementation() {
+void APlayerCharacter::SaveLeft() {
     if (_itemLeft) {
         // SAVE
         SaveInventory(_itemLeft);
@@ -199,7 +196,7 @@ void APlayerCharacter::OnRep_SaveLeft_Implementation() {
     }
 }
 
-void APlayerCharacter::OnRep_SaveRight_Implementation() {
+void APlayerCharacter::SaveRight() {
     if (_itemRight) {
         // SAVE
         SaveInventory(_itemRight);
@@ -207,14 +204,14 @@ void APlayerCharacter::OnRep_SaveRight_Implementation() {
     }
 }
 
-void APlayerCharacter::OnRep_Help_Implementation() {
+void APlayerCharacter::Help() {
     ULibraryUtils::Log(TEXT("ACTIVE ITEMS:"), 3);
     for (AItemActor* itemActor : _activeScenaryItems) {
         ULibraryUtils::Log(itemActor->_name.ToString(), 3);
     }
 }
 
-void APlayerCharacter::OnRep_Use_Implementation() {
+void APlayerCharacter::Use() {
     /*OVERLAPPING DETECTION*/
     bool found = false;
     int i = _activeScenaryItems.Num() - 1;
@@ -229,30 +226,6 @@ void APlayerCharacter::OnRep_Use_Implementation() {
         }
         i--;
     }
-    /*RAYCASTING DETECTION*/
-    //Obtenemos el PlayerController para poder acceder a la cámara.
-    FHitResult HitActorTmp;
-    FVector StartRaycast = _playerCamera->GetComponentLocation();
-    //Posición final del rayo
-    FVector EndRaycast = StartRaycast + (_playerCamera->GetComponentRotation().Vector() * RayParameter);
-
-    //Dibujar el rayo | DEBUG ONLY
-    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
-
-
-    if (GetWorld()->LineTraceSingleByChannel(HitActorTmp, StartRaycast, EndRaycast, ECC_Visibility,
-                                             CollisionInfo)) {
-        //DEBUG
-        //UE_LOG(LogTemp, Warning, TEXT("You HIT: %s"), *HitActorTmp.Component->GetName());
-
-        UActorComponent* component = HitActorTmp.GetComponent();
-        if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-            IItfUsable* itfObject = Cast<IItfUsable>(component);
-            if (itfObject) itfObject->Execute_Use(component);
-        }
-
-    }
-
 }
 
 /****************************************** ACTIONS **********************************************/

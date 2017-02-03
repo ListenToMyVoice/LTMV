@@ -3,6 +3,8 @@
 #include "proyecto.h"
 #include "Toggle.h"
 
+#include "UnrealNetwork.h"
+
 
 // Sets default values for this component's properties
 UToggle::UToggle()

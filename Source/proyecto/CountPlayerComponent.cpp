@@ -11,32 +11,16 @@ UCountPlayerComponent::UCountPlayerComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
+    // ...
+
+    PlayerCount = 0;
+
 }
 
-
-// Called when the game starts
-void UCountPlayerComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
-void UCountPlayerComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
-{
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-
-	// ...
-}
-
-uint32 UCountPlayerComponent::CountUp() {
+int UCountPlayerComponent::CountUp() {
     return ++PlayerCount;
 }
 
-uint32 UCountPlayerComponent::CountDown() {
+int UCountPlayerComponent::CountDown() {
     return --PlayerCount;
 }

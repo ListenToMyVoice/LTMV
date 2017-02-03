@@ -15,16 +15,12 @@ public:
 	// Sets default values for this component's properties
 	UCountPlayerComponent();
 
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
+    UFUNCTION(BlueprintCallable, Category = "PlayerCounter")
+    int CountUp();
 
-    uint32 CountUp();
-
-    uint32 CountDown();
+    UFUNCTION(BlueprintCallable, Category="PlayerCounter")
+    int CountDown();
 
 private:
-    uint32 PlayerCount;
+    int PlayerCount;
 };

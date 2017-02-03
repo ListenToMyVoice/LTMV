@@ -74,18 +74,13 @@ protected:
     void SERVER_Use();
 
     /* CLIENT */
-    UFUNCTION(NetMulticast, Reliable)
-    void OnRep_TakeLeft();
-    UFUNCTION(NetMulticast, Reliable)
-    void OnRep_TakeRight();
-    UFUNCTION(NetMulticast, Reliable)
-    void OnRep_SaveLeft();
-    UFUNCTION(NetMulticast, Reliable)
-    void OnRep_SaveRight();
-    UFUNCTION(NetMulticast, Reliable)
-    void OnRep_Use();
-    UFUNCTION(NetMulticast, Reliable)
-    void OnRep_Help();
+    // Todo esto llevaba: NetMulticast, Reliable y las implementaciones, con _Implementation y OnRep_
+    void TakeLeft();
+    void TakeRight();
+    void SaveLeft();
+    void SaveRight();
+    void Use();
+    void Help();
 
     /* RAYCASTING */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
@@ -108,9 +103,4 @@ private:
     void SaveInventory(AItemActor* itemActor);
 
     ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
-
-    /*RAYCAST PARAMETER*/
-    bool bHitRayCastFlag;
-    FCollisionQueryParams CollisionInfo;
-    FHitResult HitActor;
 };
