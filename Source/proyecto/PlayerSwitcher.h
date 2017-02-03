@@ -15,7 +15,7 @@ class PROYECTO_API UPlayerSwitcher : public UItemOverlap, public IItfUsable {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ToggleActor")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")
     FSwitcher _switcher;
 
     UPlayerSwitcher();
