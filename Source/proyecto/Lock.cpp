@@ -3,12 +3,6 @@
 #include "proyecto.h"
 #include "Lock.h"
 
-
-#include "PlayerCharacter.h"
-#include "GameStateLTMV.h"
-#include "ItfUsable.h"
-#include "ItemActor.h"
-
 // Sets default values for this component's properties
 ULock::ULock() : Super() {
     chain = "";
@@ -32,15 +26,22 @@ void ULock::insertNumber(FString number) {
         UActorComponent* txtComponent = this->GetOwner()->GetComponentByClass(UTextRenderComponent::StaticClass());
         UTextRenderComponent* display = Cast<UTextRenderComponent>(txtComponent);
     
+        //FVector Position;
+        //Position.X = 0.0f;
+        //Position.Y = 12.0f;
+        //Position.Z = 3.0f;
+
         display->SetText(display->Text.ToString() + number);
 
         if (chain.Len() == _correctPassword.Len()){
             if (chain.Equals(_correctPassword)) {
                 solved = true;
+                display->AddRelativeLocation({0.0f,12.0f,3.0f});
+                display->SetWorldSize(10);
                 display->SetText("ACESS GRANTED");
-                UE_LOG(LogTemp, Warning, TEXT("CODIGO CORRECTO - ABRIENDO PUERTAS..."));
-                //ABRIR PUERTA
+                UE_LOG(LogTemp, Warning, TEXT("CODIGO CORRECTO - ABRIENDO PUERTAS..."));       
                 _switcherOk.ActivateSwitcher();
+
             }
             else {
                 chain = "";
