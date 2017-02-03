@@ -30,7 +30,7 @@ int UDoorState::SwitchState_Implementation() {
             Rotation.Pitch = 0.0f;
             Rotation.Yaw = 0.0f;
 
-            meshComp->SetWorldRotation(Rotation);
+            meshComp->AddRelativeRotation(Rotation);
         }
 
         if (ActOn == EOnAxis::Y_AXIS) {
@@ -38,7 +38,7 @@ int UDoorState::SwitchState_Implementation() {
             Rotation.Pitch = _displacement;
             Rotation.Yaw = 0.0f;
 
-            meshComp->SetWorldRotation(Rotation);
+            meshComp->AddRelativeRotation(Rotation);
         }
 
         if (ActOn == EOnAxis::Z_AXIS) {
@@ -46,7 +46,7 @@ int UDoorState::SwitchState_Implementation() {
             Rotation.Pitch = 0.0f;
             Rotation.Yaw = _displacement;
 
-            meshComp->SetRelativeRotation(Rotation);
+            meshComp->AddRelativeRotation(Rotation);
         }
 
     }
