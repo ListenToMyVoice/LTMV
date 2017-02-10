@@ -80,6 +80,26 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
 }
 
+FHitResult APlayerCharacter::Raycasting() {
+
+    bool bHitRayCastFlag;
+    FHitResult HitActor;
+    FCollisionQueryParams CollisionInfo;
+
+    FVector StartRaycast = _playerCamera->GetComponentLocation();
+    FVector EndRaycast = _playerCamera->GetForwardVector() * RayParameter + StartRaycast;
+
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+
+    //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
+    //    // COOL STUFF TO GRAB OBJECTS
+    //    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
+    //}
+
+    return HitActor;
+}
+
 /****************************************** ACTION MAPPINGS **************************************/
 /*********** MOVEMENT ***********/
 void APlayerCharacter::MoveForward(float Value) {
@@ -141,6 +161,8 @@ void APlayerCharacter::SERVER_Use_Implementation(UActorComponent* component) {
 }
 
 void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
+    const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
+    UE_LOG(LogTemp, Warning, TEXT("%s: TakeLeft"), *EnumPtr->GetEnumName((int32)Role));
     IItfUsable* itfObject = Cast<IItfUsable>(component);
     if (itfObject) itfObject->Execute_Use(component);
 }

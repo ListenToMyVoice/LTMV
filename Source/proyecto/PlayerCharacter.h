@@ -111,6 +111,10 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
     bool RayCastCamera(FHitResult &hitActor);
 
+    /* RAYCASTING */
+    UFUNCTION(BlueprintCallable, Category = "Raycasting")
+    FHitResult Raycasting();
+
 private:
     UCameraComponent* _playerCamera;
 
