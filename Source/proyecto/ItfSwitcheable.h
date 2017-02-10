@@ -54,7 +54,8 @@ public:
         /* Fill the references to other switcheable componets */
         TArray<UActorComponent*> components = {};
         for (FSwitcheable s : SwitcheableArr) {
-            s._actor->GetComponents(components);
+            if (s._actor) s._actor->GetComponents(components);
+            else ULibraryUtils::Log(TEXT("No switcheable actor"), 2);
             for (UActorComponent* comp : components) {
                 if (s._components.IndexOfByKey(comp->GetFName()) != INDEX_NONE) {
                     SwitcheableComps.AddUnique(comp);

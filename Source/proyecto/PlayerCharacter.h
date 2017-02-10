@@ -7,6 +7,8 @@
 #include "PlayerCharacter.generated.h"
 
 class AItemActor;
+class UItemTakeLeft;
+class UItemTakeRight;
 
 struct ItemData {
     //GENERATED_USTRUCT_BODY()
@@ -17,23 +19,22 @@ struct ItemData {
 UCLASS(config = Game)
 class PROYECTO_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
+
 public:
-    UPROPERTY(BlueprintReadOnly)
-        bool _isAction;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        UAudioComponent* _audioComp;
+    UAudioComponent* _audioComp;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        USoundWave* _walkSound;
+    USoundWave* _walkSound;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        USoundWave* _runSound;
+    USoundWave* _runSound;
 
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-        float _baseTurnRate;
+    float _baseTurnRate;
 
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-        float _baseLookUpRate;
+    float _baseLookUpRate;
 
     APlayerCharacter();
     virtual void BeginPlay() override;
@@ -45,72 +46,81 @@ public:
     void DeactivateScenaryItem(AItemActor* item);
 
     UPROPERTY(EditAnywhere, Category = "Raycast")
-        float RayParameter;
+    float RayParameter;
 
     void SwitchSound(USoundWave* sound, bool stop);
+
+    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
+    bool IsAction();
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
-    /********************************** ACTION MAPPINGS ******************************************/
-    /* MOVEMENT */
+    /*************************************** ACTION MAPPINGS *************************************/
+    /*********** MOVEMENT ***********/
     void MoveForward(float Val);
     void MoveRight(float Val);
     void TurnAtRate(float Rate);
     void LookUpAtRate(float Rate);
 
-    /* SERVER */
+    /************** USE *************/
+    void Use();
     UFUNCTION(Server, Reliable, WithValidation)
-        void SERVER_TakeLeft();
+    void SERVER_Use(UActorComponent* component);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_Use(UActorComponent* component);
+    
+    /********** TAKE LEFT ***********/
+    void TakeLeft();
     UFUNCTION(Server, Reliable, WithValidation)
-        void SERVER_TakeRight();
+    void SERVER_TakeLeft(AItemActor* actor, UItemTakeLeft* takeComp);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_TakeLeft(AItemActor* actor, UItemTakeLeft* takeComp);
     UFUNCTION(Server, Reliable, WithValidation)
-        void SERVER_SaveLeft();
-    UFUNCTION(Server, Reliable, WithValidation)
-        void SERVER_SaveRight();
-    UFUNCTION(Server, Reliable, WithValidation)
-        void SERVER_Help();
-    UFUNCTION(Server, Reliable, WithValidation)
-        void SERVER_Use();
+    void SERVER_DropLeft();
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_DropLeft();
 
-    /* CLIENT */
+    /********** TAKE RIGHT ***********/
+    void TakeRight();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_TakeRight(AItemActor* actor, UItemTakeRight* takeComp);
     UFUNCTION(NetMulticast, Reliable)
-        void OnRep_TakeLeft();
+    void MULTI_TakeRight(AItemActor* actor, UItemTakeRight* takeComp);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_DropRight();
     UFUNCTION(NetMulticast, Reliable)
-        void OnRep_TakeRight();
+    void MULTI_DropRight();
+
+    /************ SAVE LEFT **********/
+    void SaveLeft();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveLeft(AItemActor* itemActor);
     UFUNCTION(NetMulticast, Reliable)
-        void OnRep_SaveLeft();
+    void MULTI_SaveLeft(AItemActor* itemActor);
+
+    /************ SAVE RIGHT **********/
+    void SaveRight();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveRight(AItemActor* itemActor);
     UFUNCTION(NetMulticast, Reliable)
-        void OnRep_SaveRight();
-    UFUNCTION(NetMulticast, Reliable)
-        void OnRep_Use();
-    UFUNCTION(NetMulticast, Reliable)
-        void OnRep_Help();
+    void MULTI_SaveRight(AItemActor* itemActor);
+
 
     /* RAYCASTING */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
-        FHitResult Raycasting();
+    bool RayCastCamera(FHitResult &hitActor);
 
 private:
     UCameraComponent* _playerCamera;
 
+    bool _isAction;
     AItemActor* _itemLeft;
     AItemActor* _itemRight;
     TArray<AItemActor*> _activeScenaryItems;
     UActorComponent* _component;
 
-    void TakeItemLeft();
-    void DropItemLeft();
-
-    void TakeItemRight();
-    void DropItemRight();
-
     void SaveInventory(AItemActor* itemActor);
 
     ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
-
-    /*RAYCAST PARAMETER*/
-    bool bHitRayCastFlag;
-    FCollisionQueryParams CollisionInfo;
-    FHitResult HitActor;
 };
