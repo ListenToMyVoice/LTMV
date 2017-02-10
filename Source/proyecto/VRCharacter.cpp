@@ -2,7 +2,9 @@
 
 #include "proyecto.h"
 #include "VRCharacter.h"
-//#include "Runtime/Engine/Classes/Components/SplineComponent.h"
+
+#include "ItfUsable.h"
+
 /* VR Includes */
 #include "HeadMountedDisplay.h"
 #include "MotionControllerComponent.h"
@@ -86,6 +88,8 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput)
     playerInput->BindAxis("VRThumbLeft_Y", this, &AVRCharacter::MoveForward);
     playerInput->BindAxis("VRThumbLeft_X", this, &AVRCharacter::MoveRight);
 
+    /* ACTIONS */
+    playerInput->BindAction("TriggerLeft", IE_Released, this, &AVRCharacter::TriggerLeft);
     playerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
     playerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 }
@@ -136,3 +140,32 @@ void AVRCharacter::MoveRight(float Value) {
 //void APlayerCharacter::LookUpAtRate(float Rate) {
 //    AddControllerPitchInput(Rate * _baseLookUpRate * GetWorld()->GetDeltaSeconds());
 //}
+
+/************** USE *************/
+void AVRCharacter::TriggerLeft() {
+    /* OVERLAPPING DETECTION */
+    bool found = false;
+    TArray<AActor*> actors;
+    LeftSphere->GetOverlappingActors(actors);
+
+    int i = actors.Num() - 1;
+    while (!found && i >= 0) {
+        const TSet <UActorComponent*> set = actors[i]->GetComponents();
+        for (UActorComponent* component : set) {
+            if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                SERVER_TriggerLeft(component);
+            }
+        }
+        i--;
+    }
+}
+
+bool AVRCharacter::SERVER_TriggerLeft_Validate(UActorComponent* component) { return true; }
+void AVRCharacter::SERVER_TriggerLeft_Implementation(UActorComponent* component) {
+    MULTI_TriggerLeft(component);
+}
+
+void AVRCharacter::MULTI_TriggerLeft_Implementation(UActorComponent* component) {
+    IItfUsable* itfObject = Cast<IItfUsable>(component);
+    if (itfObject) itfObject->Execute_Use(component);
+}

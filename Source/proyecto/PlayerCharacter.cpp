@@ -161,8 +161,6 @@ void APlayerCharacter::SERVER_Use_Implementation(UActorComponent* component) {
 }
 
 void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
-    const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-    UE_LOG(LogTemp, Warning, TEXT("%s: TakeLeft"), *EnumPtr->GetEnumName((int32)Role));
     IItfUsable* itfObject = Cast<IItfUsable>(component);
     if (itfObject) itfObject->Execute_Use(component);
 }

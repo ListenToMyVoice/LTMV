@@ -55,6 +55,13 @@ protected:
     //void TurnAtRate(float Rate);
     //void LookUpAtRate(float Rate);
 
+    /************** TRIGGER LEFT *************/
+    void TriggerLeft();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_TriggerLeft(UActorComponent* component);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_TriggerLeft(UActorComponent* component);
+
 public:
     AVRCharacter();
     virtual void BeginPlay() override;
