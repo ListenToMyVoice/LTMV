@@ -89,10 +89,11 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput)
 
 void AVRCharacter::SetupVROptions() {
     IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
+    HMD->ResetOrientationAndPosition();
     //HMD->EnableHMD(true);
     //HMD->EnableStereo(true);
     ULibraryUtils::Log(TEXT("SetupVROptions"));
-    if (HMD && HMD->IsStereoEnabled()) {
+    if (HMD/* && HMD->IsStereoEnabled()*/) {
         /* Disable/Enable positional movement to pin camera translation */
         HMD->EnablePositionalTracking(bPositionalHeadTracking);
         ULibraryUtils::Log(TEXT("EnablePositionalTracking"));
