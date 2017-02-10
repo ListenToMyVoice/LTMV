@@ -6,31 +6,38 @@
 /* VR Includes */
 #include "HeadMountedDisplay.h"
 #include "MotionControllerComponent.h"
+#include "SteamVRChaperoneComponent.h"
 
 AVRCharacter::AVRCharacter() {
     PrimaryActorTick.bCanEverTick = true;
-    bPositionalHeadTracking = false;
+    bPositionalHeadTracking = true;
+
+    GetCharacterMovement()->MaxWalkSpeed = 240.0f;
+    GetCharacterMovement()->MaxFlySpeed = 240.0f;
+    GetCharacterMovement()->MaxCustomMovementSpeed = 240.0f;
+    GetCharacterMovement()->MaxWalkSpeedCrouched = 120.0f;
+    GetCharacterMovement()->MaxSwimSpeed = 120.0f;
 
     VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("VRCameraOrigin"));
     VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
     CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-    /* Assign to the VR origin component so any reset calls to the HMD can reset to 0,0,0 relative to this component */
     CameraComp->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
-    GetMesh()->AttachToComponent(CameraComp, FAttachmentTransformRules::KeepRelativeTransform, TEXT("FPVCamera"));
+
+    ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("ChaperoneComponent"));
 
     BuildLeft();
     BuildRight();
 }
 
 void AVRCharacter::BuildLeft() {
-    LeftHandComponent = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftHand"));
-    LeftHandComponent->Hand = EControllerHand::Left;
-    LeftHandComponent->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
+    LeftHandComp = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftHand"));
+    LeftHandComp->Hand = EControllerHand::Left;
+    LeftHandComp->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
 
     /* MESH */
     SM_LeftHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_LeftHand"));
-    SM_LeftHand->AttachToComponent(LeftHandComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    SM_LeftHand->AttachToComponent(LeftHandComp, FAttachmentTransformRules::KeepRelativeTransform);
 
     /* ADDITIONAL */
     LeftArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("LeftArrow"));
@@ -44,13 +51,13 @@ void AVRCharacter::BuildLeft() {
 }
 
 void AVRCharacter::BuildRight() {
-    RightHandComponent = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightHand"));
-    RightHandComponent->Hand = EControllerHand::Right;
-    RightHandComponent->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
+    RightHandComp = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightHand"));
+    RightHandComp->Hand = EControllerHand::Right;
+    RightHandComp->AttachToComponent(VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
 
     /* MESH */
     SM_RightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_RightHand"));
-    SM_RightHand->AttachToComponent(RightHandComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    SM_RightHand->AttachToComponent(RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
 
     /* ADDITIONAL */
     RightArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("RightArrow"));
@@ -65,21 +72,17 @@ void AVRCharacter::BuildRight() {
 
 void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
+
+    HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
+    //HMD->EnableHMD(true);
+    //HMD->EnableStereo(true);
     SetupVROptions();
-
-    CameraComp->SetRelativeLocation(FVector(0, 0, -110));
-    //CameraComp->SetRelativeRotation(FRotator(-90, 0, 90));
-
-    //GetMesh()->SetRelativeLocation(FVector(-20, 0, -162));
-    //GetMesh()->SetRelativeRotation(FRotator(0, 0, -90));
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
     Super::SetupPlayerInputComponent(playerInput);
 
     /* MOVEMENT */
-    //playerInput->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-    //playerInput->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
     playerInput->BindAxis("VRThumbLeft_Y", this, &AVRCharacter::MoveForward);
     playerInput->BindAxis("VRThumbLeft_X", this, &AVRCharacter::MoveRight);
 
@@ -88,55 +91,41 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput)
 }
 
 void AVRCharacter::SetupVROptions() {
-    IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    HMD->ResetOrientationAndPosition();
-    //HMD->EnableHMD(true);
-    //HMD->EnableStereo(true);
-    ULibraryUtils::Log(TEXT("SetupVROptions"));
-    if (HMD/* && HMD->IsStereoEnabled()*/) {
-        /* Disable/Enable positional movement to pin camera translation */
+    if (HMD && HMD->IsStereoEnabled()) {
         HMD->EnablePositionalTracking(bPositionalHeadTracking);
-        ULibraryUtils::Log(TEXT("EnablePositionalTracking"));
         /* Remove any translation when disabling positional head tracking */
-        if (!bPositionalHeadTracking) {
-            CameraComp->SetRelativeLocation(FVector(0, 0, 0));
-        }
+        if (!bPositionalHeadTracking) CameraComp->SetRelativeLocation(FVector(0, 0, 0));
     }
+    ResetHMDOrigin();
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
-    IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    if (HMD && HMD->IsStereoEnabled()) {
-        ULibraryUtils::Log(TEXT("ResetOrientationAndPosition"));
-        HMD->ResetOrientationAndPosition();
-    }
+    if (HMD && HMD->IsStereoEnabled()) HMD->ResetOrientationAndPosition();
 }
 
 void AVRCharacter::ToggleTrackingSpace() {// T
     // TODO: Fix module includes for SteamVR
 
     //@todo Make this safe once we can add something to the DeviceType enum.  For now, make the terrible assumption this is a SteamVR device.
-    // 	FSteamVRHMD* SteamVRHMD = (FSteamVRHMD*)(GEngine->HMDDevice.Get());
-    // 	if (SteamVRHMD && SteamVRHMD->IsStereoEnabled())
-    // 	{
-    // 		ESteamVRTrackingSpace TrackingSpace = SteamVRHMD->GetTrackingSpace();
-    // 		SteamVRHMD->SetTrackingSpace(TrackingSpace == ESteamVRTrackingSpace::Seated ? ESteamVRTrackingSpace::Standing : ESteamVRTrackingSpace::Seated);
-    // 	}
+    //FSteamVRHMD* SteamVRHMD = (FSteamVRHMD*)(GEngine->HMDDevice.Get());
+    //if (SteamVRHMD && SteamVRHMD->IsStereoEnabled())
+    //{
+    // 	ESteamVRTrackingSpace TrackingSpace = SteamVRHMD->GetTrackingSpace();
+    // 	SteamVRHMD->SetTrackingSpace(TrackingSpace == ESteamVRTrackingSpace::Seated ? ESteamVRTrackingSpace::Standing : ESteamVRTrackingSpace::Seated);
+    //}
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
 /*********** MOVEMENT ***********/
 void AVRCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
-        AddMovementInput(GetActorForwardVector(), Value);
-        //ULibraryUtils::Log(TEXT("MoveForward"));
+        AddMovementInput(CameraComp->GetForwardVector(), Value);
     }
 }
 
 void AVRCharacter::MoveRight(float Value) {
     if (Value != 0.0f) {
-        AddMovementInput(GetActorRightVector(), Value);
-        //ULibraryUtils::Log(TEXT("MoveRight"));
+        AddMovementInput(CameraComp->GetRightVector(), Value);
     }
 }
 
