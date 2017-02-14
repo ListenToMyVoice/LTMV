@@ -4,6 +4,7 @@
 #include "VRCharacter.h"
 
 #include "ItfUsable.h"
+#include "GrabItem.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -148,28 +149,38 @@ void AVRCharacter::TriggerLeft() {
     bool found = false;
     TArray<AActor*> actors;
     LeftSphere->GetOverlappingActors(actors);
-
     int i = actors.Num() - 1;
-    while (!found && i >= 0) {
-        const TSet <UActorComponent*> set = actors[i]->GetComponents();
-        for (UActorComponent* component : set) {
-            if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-                SERVER_TriggerLeft(component);
-                found = true;
+
+    if (!_itemLeft) {
+        /* CAN BE GRABBED */
+        while (!found && i >= 0) {
+            if (Cast<AStaticMeshActor>(actors[i])) {
+                const TSet <UActorComponent*> set = actors[i]->GetComponents();
+                for (UActorComponent* component : set) {
+                    if (component->IsA(UGrabItem::StaticClass())) {
+                        SERVER_GrabItem(true, Cast<UGrabItem>(component));
+                        found = true;
+                    }
+                }
             }
+            i--;
         }
-        i--;
+
+        /* CAN BE USED */
+        while (!found && i >= 0) {
+            const TSet <UActorComponent*> set = actors[i]->GetComponents();
+            for (UActorComponent* component : set) {
+                if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                    SERVER_Use(component);
+                    found = true;
+                }
+            }
+            i--;
+        }
     }
-}
-
-bool AVRCharacter::SERVER_TriggerLeft_Validate(UActorComponent* component) { return true; }
-void AVRCharacter::SERVER_TriggerLeft_Implementation(UActorComponent* component) {
-    MULTI_TriggerLeft(component);
-}
-
-void AVRCharacter::MULTI_TriggerLeft_Implementation(UActorComponent* component) {
-    IItfUsable* itfObject = Cast<IItfUsable>(component);
-    if (itfObject) itfObject->Execute_Use(component);
+    else {// DROP ITEM
+        SERVER_DropItem(_itemLeft);
+    }
 }
 
 /************** TRIGGER RIGHT *************/
@@ -178,26 +189,94 @@ void AVRCharacter::TriggerRight() {
     bool found = false;
     TArray<AActor*> actors;
     RightSphere->GetOverlappingActors(actors);
-
     int i = actors.Num() - 1;
-    while (!found && i >= 0) {
-        const TSet <UActorComponent*> set = actors[i]->GetComponents();
-        for (UActorComponent* component : set) {
-            if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-                SERVER_TriggerRight(component);
-                found = true;
+
+    if (!_itemRight) {
+        /* CAN BE GRABBED */
+        while (!found && i >= 0) {
+            if (Cast<AStaticMeshActor>(actors[i])) {
+                const TSet <UActorComponent*> set = actors[i]->GetComponents();
+                for (UActorComponent* component : set) {
+                    if (component->IsA(UGrabItem::StaticClass())) {
+                        SERVER_GrabItem(true, Cast<UGrabItem>(component));
+                        found = true;
+                    }
+                }
             }
+            i--;
         }
-        i--;
+
+        /* CAN BE USED */
+        while (!found && i >= 0) {
+            const TSet <UActorComponent*> set = actors[i]->GetComponents();
+            for (UActorComponent* component : set) {
+                if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                    SERVER_Use(component);
+                    found = true;
+                }
+            }
+            i--;
+        }
+    }
+    else {// DROP ITEM
+        SERVER_DropItem(_itemRight);
     }
 }
 
-bool AVRCharacter::SERVER_TriggerRight_Validate(UActorComponent* component) { return true; }
-void AVRCharacter::SERVER_TriggerRight_Implementation(UActorComponent* component) {
-    MULTI_TriggerRight(component);
+/****************************************** ACTIONS **********************************************/
+/*************** USE TRIGGER *************/
+bool AVRCharacter::SERVER_Use_Validate(UActorComponent* component) { return true; }
+void AVRCharacter::SERVER_Use_Implementation(UActorComponent* component) {
+    MULTI_Use(component);
 }
 
-void AVRCharacter::MULTI_TriggerRight_Implementation(UActorComponent* component) {
+void AVRCharacter::MULTI_Use_Implementation(UActorComponent* component) {
     IItfUsable* itfObject = Cast<IItfUsable>(component);
     if (itfObject) itfObject->Execute_Use(component);
+}
+
+/************** GRAB TRIGGER *************/
+bool AVRCharacter::SERVER_GrabItem_Validate(bool isLeft, UGrabItem* grabComp) { return true; }
+void AVRCharacter::SERVER_GrabItem_Implementation(bool isLeft, UGrabItem* grabComp) {
+    MULTI_GrabItem_Implementation(isLeft, grabComp);
+}
+
+void AVRCharacter::MULTI_GrabItem_Implementation(bool isLeft, UGrabItem* grabComp) {
+    UStaticMeshComponent* mesh = nullptr;
+    if (isLeft) {
+        mesh = _itemLeft->GetStaticMeshComponent();
+        mesh->SetSimulatePhysics(false);
+        mesh->AttachToComponent(GetMesh(),
+                                FAttachmentTransformRules::KeepRelativeTransform,
+                                TEXT("itemHand"));
+        mesh->RelativeLocation = grabComp->_locationAttach_L;
+        mesh->RelativeRotation = grabComp->_rotationAttach_L;
+        _itemLeft->SetActorEnableCollision(false);
+    }
+    else {
+        mesh = _itemRight->GetStaticMeshComponent();
+        mesh->SetSimulatePhysics(false);
+        mesh->AttachToComponent(GetMesh(),
+                                FAttachmentTransformRules::KeepRelativeTransform,
+                                TEXT("itemHand"));
+        mesh->RelativeLocation = grabComp->_locationAttach_R;
+        mesh->RelativeRotation = grabComp->_rotationAttach_R;
+        _itemLeft->SetActorEnableCollision(false);
+    }
+}
+
+/************** DROP TRIGGER *************/
+bool AVRCharacter::SERVER_DropItem_Validate(AStaticMeshActor* _item) { return true; }
+void AVRCharacter::SERVER_DropItem_Implementation(AStaticMeshActor* _item) {
+    MULTI_DropItem_Implementation(_item);
+}
+
+void AVRCharacter::MULTI_DropItem_Implementation(AStaticMeshActor* _item) {
+    UStaticMeshComponent* mesh = _item->GetStaticMeshComponent();
+    if (mesh) {
+        mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+        mesh->SetSimulatePhysics(true);
+    }
+    _item->SetActorEnableCollision(true);
+    _item = nullptr;
 }

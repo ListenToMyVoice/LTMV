@@ -5,7 +5,7 @@
 #include "GameFramework/Character.h"
 #include "VRCharacter.generated.h"
 
-class USteamVRChaperoneComponent;
+class UGrabItem;
 
 UCLASS()
 class PROYECTO_API AVRCharacter : public ACharacter {
@@ -21,7 +21,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     UCameraComponent* CameraComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    USteamVRChaperoneComponent* ChaperoneComp;
+    class USteamVRChaperoneComponent* ChaperoneComp;
 
     /*********************************** MOTION CONTROLLERS **************************************/
     /************ LEFT ***********/
@@ -29,24 +29,24 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* LeftHandComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class UStaticMeshComponent* SM_LeftHand;
+    UStaticMeshComponent* SM_LeftHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class UArrowComponent* LeftArrow;
+    UArrowComponent* LeftArrow;
     //UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     //class USPlineComponent* LeftSPline;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class USphereComponent* LeftSphere;
+    USphereComponent* LeftSphere;
     /*********** RIGHT ***********/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* RightHandComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class UStaticMeshComponent* SM_RightHand;
+    UStaticMeshComponent* SM_RightHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class UArrowComponent* RightArrow;
+    UArrowComponent* RightArrow;
     //UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     //class USPlineComponent* RightSPline;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class USphereComponent* RightSphere;
+    USphereComponent* RightSphere;
 
     /********************************** ACTION MAPPINGS ******************************************/
     /* MOVEMENT */
@@ -57,17 +57,9 @@ protected:
 
     /************** TRIGGER LEFT *************/
     void TriggerLeft();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TriggerLeft(UActorComponent* component);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TriggerLeft(UActorComponent* component);
-
+    
     /************** TRIGGER RIGHT *************/
     void TriggerRight();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TriggerRight(UActorComponent* component);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TriggerRight(UActorComponent* component);
 
 public:
     AVRCharacter();
@@ -81,7 +73,27 @@ public:
 
 private:
     IHeadMountedDisplay* HMD;
+    AStaticMeshActor* _itemLeft;
+    AStaticMeshActor* _itemRight;
 
     void BuildLeft();
     void BuildRight();
+
+    /*************** USE TRIGGER *************/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_Use(UActorComponent* component);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_Use(UActorComponent* component);
+
+    /************** GRAB TRIGGER *************/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_GrabItem(bool isLeft, UGrabItem* grabComp);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_GrabItem(bool isLeft, UGrabItem* grabComp);
+
+    /************** DROP TRIGGER *************/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_DropItem(AStaticMeshActor* _item);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_DropItem(AStaticMeshActor* _item);
 };
