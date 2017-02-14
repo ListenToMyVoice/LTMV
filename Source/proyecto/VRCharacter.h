@@ -32,8 +32,8 @@ protected:
     class UStaticMeshComponent* SM_LeftHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UArrowComponent* LeftArrow;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class USPlineComponent* LeftSPline;
+    //UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    //class USPlineComponent* LeftSPline;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class USphereComponent* LeftSphere;
     /*********** RIGHT ***********/
@@ -43,8 +43,8 @@ protected:
     class UStaticMeshComponent* SM_RightHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UArrowComponent* RightArrow;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class USPlineComponent* RightSPline;
+    //UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    //class USPlineComponent* RightSPline;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class USphereComponent* RightSphere;
 
