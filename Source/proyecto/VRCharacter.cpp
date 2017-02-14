@@ -179,7 +179,7 @@ void AVRCharacter::TriggerLeft() {
         }
     }
     else {// DROP ITEM
-        SERVER_DropItem(_itemLeft);
+        SERVER_DropItem(true);
     }
 }
 
@@ -198,7 +198,7 @@ void AVRCharacter::TriggerRight() {
                 const TSet <UActorComponent*> set = actors[i]->GetComponents();
                 for (UActorComponent* component : set) {
                     if (component->IsA(UGrabItem::StaticClass())) {
-                        SERVER_GrabItem(true, Cast<UGrabItem>(component));
+                        SERVER_GrabItem(false, Cast<UGrabItem>(component));
                         found = true;
                     }
                 }
@@ -219,7 +219,7 @@ void AVRCharacter::TriggerRight() {
         }
     }
     else {// DROP ITEM
-        SERVER_DropItem(_itemRight);
+        SERVER_DropItem(false);
     }
 }
 
@@ -244,9 +244,10 @@ void AVRCharacter::SERVER_GrabItem_Implementation(bool isLeft, UGrabItem* grabCo
 void AVRCharacter::MULTI_GrabItem_Implementation(bool isLeft, UGrabItem* grabComp) {
     UStaticMeshComponent* mesh = nullptr;
     if (isLeft) {
+        _itemLeft = Cast<AStaticMeshActor>(grabComp->GetOwner());
         mesh = _itemLeft->GetStaticMeshComponent();
         mesh->SetSimulatePhysics(false);
-        mesh->AttachToComponent(GetMesh(),
+        mesh->AttachToComponent(SM_LeftHand,
                                 FAttachmentTransformRules::KeepRelativeTransform,
                                 TEXT("itemHand"));
         mesh->RelativeLocation = grabComp->_locationAttach_L;
@@ -254,29 +255,40 @@ void AVRCharacter::MULTI_GrabItem_Implementation(bool isLeft, UGrabItem* grabCom
         _itemLeft->SetActorEnableCollision(false);
     }
     else {
+        _itemRight = Cast<AStaticMeshActor>(grabComp->GetOwner());
         mesh = _itemRight->GetStaticMeshComponent();
         mesh->SetSimulatePhysics(false);
-        mesh->AttachToComponent(GetMesh(),
+        mesh->AttachToComponent(SM_RightHand,
                                 FAttachmentTransformRules::KeepRelativeTransform,
                                 TEXT("itemHand"));
         mesh->RelativeLocation = grabComp->_locationAttach_R;
         mesh->RelativeRotation = grabComp->_rotationAttach_R;
-        _itemLeft->SetActorEnableCollision(false);
+        _itemRight->SetActorEnableCollision(false);
     }
+    UE_LOG(LogTemp, Warning, TEXT("GRAB ITEM"));
 }
 
 /************** DROP TRIGGER *************/
-bool AVRCharacter::SERVER_DropItem_Validate(AStaticMeshActor* _item) { return true; }
-void AVRCharacter::SERVER_DropItem_Implementation(AStaticMeshActor* _item) {
-    MULTI_DropItem_Implementation(_item);
+bool AVRCharacter::SERVER_DropItem_Validate(bool isLeft) { return true; }
+void AVRCharacter::SERVER_DropItem_Implementation(bool isLeft) {
+    MULTI_DropItem_Implementation(isLeft);
 }
 
-void AVRCharacter::MULTI_DropItem_Implementation(AStaticMeshActor* _item) {
-    UStaticMeshComponent* mesh = _item->GetStaticMeshComponent();
-    if (mesh) {
+void AVRCharacter::MULTI_DropItem_Implementation(bool isLeft) {
+    UStaticMeshComponent* mesh = nullptr;
+    if (isLeft) {
+        mesh = _itemLeft->GetStaticMeshComponent();
         mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         mesh->SetSimulatePhysics(true);
+        _itemLeft->SetActorEnableCollision(true);
+        _itemLeft = nullptr;
     }
-    _item->SetActorEnableCollision(true);
-    _item = nullptr;
+    else {
+        mesh = _itemRight->GetStaticMeshComponent();
+        mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+        mesh->SetSimulatePhysics(true);
+        _itemRight->SetActorEnableCollision(true);
+        _itemRight = nullptr;
+    }
+    UE_LOG(LogTemp, Warning, TEXT("DROP ITEM"));
 }

@@ -93,7 +93,7 @@ private:
 
     /************** DROP TRIGGER *************/
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_DropItem(AStaticMeshActor* _item);
+    void SERVER_DropItem(bool isLeft);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_DropItem(AStaticMeshActor* _item);
+    void MULTI_DropItem(bool isLeft);
 };
