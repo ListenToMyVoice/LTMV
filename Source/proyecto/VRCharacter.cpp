@@ -90,6 +90,7 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput)
 
     /* ACTIONS */
     playerInput->BindAction("TriggerLeft", IE_Released, this, &AVRCharacter::TriggerLeft);
+    playerInput->BindAction("TriggerRight", IE_Released, this, &AVRCharacter::TriggerRight);
     playerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
     playerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 }
@@ -141,7 +142,7 @@ void AVRCharacter::MoveRight(float Value) {
 //    AddControllerPitchInput(Rate * _baseLookUpRate * GetWorld()->GetDeltaSeconds());
 //}
 
-/************** USE *************/
+/************** TRIGGER LEFT *************/
 void AVRCharacter::TriggerLeft() {
     /* OVERLAPPING DETECTION */
     bool found = false;
@@ -154,6 +155,7 @@ void AVRCharacter::TriggerLeft() {
         for (UActorComponent* component : set) {
             if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
                 SERVER_TriggerLeft(component);
+                found = true;
             }
         }
         i--;
@@ -166,6 +168,36 @@ void AVRCharacter::SERVER_TriggerLeft_Implementation(UActorComponent* component)
 }
 
 void AVRCharacter::MULTI_TriggerLeft_Implementation(UActorComponent* component) {
+    IItfUsable* itfObject = Cast<IItfUsable>(component);
+    if (itfObject) itfObject->Execute_Use(component);
+}
+
+/************** TRIGGER RIGHT *************/
+void AVRCharacter::TriggerRight() {
+    /* OVERLAPPING DETECTION */
+    bool found = false;
+    TArray<AActor*> actors;
+    RightSphere->GetOverlappingActors(actors);
+
+    int i = actors.Num() - 1;
+    while (!found && i >= 0) {
+        const TSet <UActorComponent*> set = actors[i]->GetComponents();
+        for (UActorComponent* component : set) {
+            if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                SERVER_TriggerRight(component);
+                found = true;
+            }
+        }
+        i--;
+    }
+}
+
+bool AVRCharacter::SERVER_TriggerRight_Validate(UActorComponent* component) { return true; }
+void AVRCharacter::SERVER_TriggerRight_Implementation(UActorComponent* component) {
+    MULTI_TriggerRight(component);
+}
+
+void AVRCharacter::MULTI_TriggerRight_Implementation(UActorComponent* component) {
     IItfUsable* itfObject = Cast<IItfUsable>(component);
     if (itfObject) itfObject->Execute_Use(component);
 }

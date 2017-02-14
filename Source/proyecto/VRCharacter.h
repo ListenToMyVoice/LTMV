@@ -62,6 +62,13 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_TriggerLeft(UActorComponent* component);
 
+    /************** TRIGGER RIGHT *************/
+    void TriggerRight();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_TriggerRight(UActorComponent* component);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_TriggerRight(UActorComponent* component);
+
 public:
     AVRCharacter();
     virtual void BeginPlay() override;
