@@ -30,6 +30,9 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
 
 /**************************************** BLUEPRINTS *********************************************/
 void UNWGameInstance::StartOnlineGame(FName SessionName) {
+    /* For Prevent older instances */
+    DestroySessionAndLeaveGame(SessionName);
+
     // Creating a local player where we can get the UserID from
     ULocalPlayer* const Player = GetFirstGamePlayer();
 
