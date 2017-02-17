@@ -5,24 +5,29 @@
 #include "GameFramework/Character.h"
 #include "VRCharacter.generated.h"
 
+class USteamVRChaperoneComponent;
+
 UCLASS()
 class PROYECTO_API AVRCharacter : public ACharacter {
     GENERATED_BODY()
 
 protected:
-    UPROPERTY(VisibleAnywhere, Category = "Components")
-    UCameraComponent* CameraComp;
-
-    /* Component to specify origin for the HMD */
-    UPROPERTY(VisibleAnywhere, Category = "Components")
-    USceneComponent* VROriginComp;
-
     UPROPERTY(EditDefaultsOnly, Category = "VR")
     bool bPositionalHeadTracking;
 
+    /************************************* MAIN COMPONENTS ***************************************/
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    USceneComponent* VROriginComp;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UCameraComponent* CameraComp;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    USteamVRChaperoneComponent* ChaperoneComp;
+
+    /*********************************** MOTION CONTROLLERS **************************************/
+    /************ LEFT ***********/
     /* Motion Controllers */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class UMotionControllerComponent* LeftHandComponent;
+    class UMotionControllerComponent* LeftHandComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UStaticMeshComponent* SM_LeftHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -31,9 +36,9 @@ protected:
     class USPlineComponent* LeftSPline;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class USphereComponent* LeftSphere;
-
+    /*********** RIGHT ***********/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    class UMotionControllerComponent* RightHandComponent;
+    class UMotionControllerComponent* RightHandComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UStaticMeshComponent* SM_RightHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -50,6 +55,13 @@ protected:
     //void TurnAtRate(float Rate);
     //void LookUpAtRate(float Rate);
 
+    /************** TRIGGER LEFT *************/
+    void TriggerLeft();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_TriggerLeft(UActorComponent* component);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_TriggerLeft(UActorComponent* component);
+
 public:
     AVRCharacter();
     virtual void BeginPlay() override;
@@ -61,6 +73,8 @@ public:
     void ToggleTrackingSpace();
 
 private:
+    IHeadMountedDisplay* HMD;
+
     void BuildLeft();
     void BuildRight();
 };

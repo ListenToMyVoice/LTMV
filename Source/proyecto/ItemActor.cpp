@@ -6,6 +6,10 @@
 #include "PlayerCharacter.h"
 
 AItemActor::AItemActor() : Super() {
+    bReplicates = true;
+    bReplicateMovement = true;
+    bStaticMeshReplicateMovement = true;
+
     _boxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("collisionBox"));
     _boxCollision->SetBoxExtent(FVector(32.0f, 32.0f, 32.0f));
     //_boxCollision->SetRelativeLocation(FVector(0, 0, boxCollision->GetScaledBoxExtent().Z * 0.5f));
