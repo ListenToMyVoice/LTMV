@@ -12,6 +12,9 @@
 #include "SteamVRChaperoneComponent.h"
 
 AVRCharacter::AVRCharacter() {
+    static ConstructorHelpers::FClassFinder<AActor> ClassFinder(TEXT("/Game/Maps/Alex/MenuActor"));
+    _MenuClass = ClassFinder.Class;
+
     PrimaryActorTick.bCanEverTick = true;
     bPositionalHeadTracking = true;
 
@@ -96,6 +99,7 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput)
     /* ACTIONS */
     playerInput->BindAction("TriggerLeft", IE_Released, this, &AVRCharacter::TriggerLeft);
     playerInput->BindAction("TriggerRight", IE_Released, this, &AVRCharacter::TriggerRight);
+    playerInput->BindAction("Menu", IE_Released, this, &AVRCharacter::OpenMenu);
     playerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
     playerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 }
@@ -126,6 +130,13 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
+/*************** TRIGGER MENU *************/
+void AVRCharacter::OpenMenu() {
+    const FVector position = HMD->GetPositionScale3D();
+    GetWorld()->SpawnActor(_MenuClass, &position, &FRotator::ZeroRotator);
+    UE_LOG(LogTemp, Warning, TEXT("MENU"));
+}
+
 /*********** MOVEMENT ***********/
 void AVRCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {

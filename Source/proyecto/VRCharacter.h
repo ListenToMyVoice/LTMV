@@ -57,9 +57,10 @@ protected:
 
     /************** TRIGGER LEFT *************/
     void TriggerLeft();
-    
     /************** TRIGGER RIGHT *************/
     void TriggerRight();
+    /*************** TRIGGER MENU *************/
+    void OpenMenu();
 
 public:
     AVRCharacter();
@@ -75,6 +76,7 @@ private:
     IHeadMountedDisplay* HMD;
     AStaticMeshActor* _itemLeft;
     AStaticMeshActor* _itemRight;
+    TSubclassOf<AActor> _MenuClass;
 
     void BuildLeft();
     void BuildRight();
