@@ -29,6 +29,10 @@ AVRCharacter::AVRCharacter() {
 
     ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("ChaperoneComponent"));
 
+    HMD = nullptr;
+    _itemLeft = nullptr;
+    _itemRight = nullptr;
+
     BuildLeft();
     BuildRight();
 }
@@ -167,6 +171,7 @@ void AVRCharacter::TriggerLeft() {
         }
 
         /* CAN BE USED */
+        i = actors.Num() - 1;
         while (!found && i >= 0) {
             const TSet <UActorComponent*> set = actors[i]->GetComponents();
             for (UActorComponent* component : set) {
