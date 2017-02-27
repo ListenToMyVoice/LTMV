@@ -24,7 +24,7 @@ void URotateState::BeginPlay()
     ULibraryUtils::TestNull(_meshComp);
     _initialRotation = _meshComp->GetComponentRotation();
 
-    SetComponentTickEnabled(false);
+    SetComponentTickEnabled(true);
 	// ...
 	
 }
@@ -33,11 +33,8 @@ void URotateState::BeginPlay()
 // Called every frame
 void URotateState::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
-    AddRotation();
-    if (_meshComp->GetComponentRotation().Yaw >= _displacement || _requestOff) {
-        _meshComp->AddRelativeRotation(_initialRotation);
-        SetComponentTickEnabled(false);
-        _requestOff = false;
+    if (!_opened) {
+        AddRotation();
     }
 	// ...
 }

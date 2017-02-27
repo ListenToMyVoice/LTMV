@@ -24,6 +24,7 @@ private:
     UStaticMeshComponent* _meshComp;
     FRotator _initialRotation;
     bool _requestOff;
+    bool _opened;
 
     void AddRotation();
 
