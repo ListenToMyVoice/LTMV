@@ -16,12 +16,13 @@ public:
 
     AVRPlayerController(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
-    virtual void SetupInputComponent() override;
 
 protected:
     AActor* _Menu;
+    bool isMenuHidden;
 
     void CreateMenu();
+    virtual void SetupInputComponent() override;
 
     /********************************** ACTION MAPPINGS ******************************************/
     /*************** TRIGGER MENU *************/

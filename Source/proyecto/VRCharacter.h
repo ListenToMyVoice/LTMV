@@ -12,6 +12,9 @@ class PROYECTO_API AVRCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UCameraComponent* CameraComp;
+
     AVRCharacter(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
@@ -28,8 +31,6 @@ protected:
     /************************************* MAIN COMPONENTS ***************************************/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USceneComponent* VROriginComp;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    UCameraComponent* CameraComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class USteamVRChaperoneComponent* ChaperoneComp;
 
