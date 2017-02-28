@@ -11,6 +11,19 @@ UCLASS()
 class PROYECTO_API AVRCharacter : public ACharacter {
     GENERATED_BODY()
 
+public:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UCameraComponent* CameraComp;
+
+    AVRCharacter(const FObjectInitializer& OI);
+    virtual void BeginPlay() override;
+    virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+
+    void SetupVROptions();
+    void ResetHMDOrigin();
+    /* Toggle between Seated and Standing VR Tracking */
+    void ToggleTrackingSpace();
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
     bool bPositionalHeadTracking;
@@ -18,8 +31,6 @@ protected:
     /************************************* MAIN COMPONENTS ***************************************/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USceneComponent* VROriginComp;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    UCameraComponent* CameraComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class USteamVRChaperoneComponent* ChaperoneComp;
 
@@ -57,19 +68,10 @@ protected:
 
     /************** TRIGGER LEFT *************/
     void TriggerLeft();
-    
     /************** TRIGGER RIGHT *************/
     void TriggerRight();
-
-public:
-    AVRCharacter();
-    virtual void BeginPlay() override;
-    virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-
-    void SetupVROptions();
-    void ResetHMDOrigin();
-    /* Toggle between Seated and Standing VR Tracking */
-    void ToggleTrackingSpace();
+    /*************** TRIGGER MENU *************/
+    void ToogleMenu();
 
 private:
     IHeadMountedDisplay* HMD;

@@ -11,7 +11,7 @@
 #include "MotionControllerComponent.h"
 #include "SteamVRChaperoneComponent.h"
 
-AVRCharacter::AVRCharacter() {
+AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     PrimaryActorTick.bCanEverTick = true;
     bPositionalHeadTracking = true;
 
