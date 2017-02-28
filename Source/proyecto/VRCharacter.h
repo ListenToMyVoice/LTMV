@@ -11,6 +11,16 @@ UCLASS()
 class PROYECTO_API AVRCharacter : public ACharacter {
     GENERATED_BODY()
 
+public:
+    AVRCharacter(const FObjectInitializer& OI);
+    virtual void BeginPlay() override;
+    virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+
+    void SetupVROptions();
+    void ResetHMDOrigin();
+    /* Toggle between Seated and Standing VR Tracking */
+    void ToggleTrackingSpace();
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
     bool bPositionalHeadTracking;
@@ -60,23 +70,12 @@ protected:
     /************** TRIGGER RIGHT *************/
     void TriggerRight();
     /*************** TRIGGER MENU *************/
-    void OpenMenu();
-
-public:
-    AVRCharacter();
-    virtual void BeginPlay() override;
-    virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-
-    void SetupVROptions();
-    void ResetHMDOrigin();
-    /* Toggle between Seated and Standing VR Tracking */
-    void ToggleTrackingSpace();
+    void ToogleMenu();
 
 private:
     IHeadMountedDisplay* HMD;
     AStaticMeshActor* _itemLeft;
     AStaticMeshActor* _itemRight;
-    TSubclassOf<AActor> _MenuClass;
 
     void BuildLeft();
     void BuildRight();
