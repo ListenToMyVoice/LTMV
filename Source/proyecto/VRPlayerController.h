@@ -18,10 +18,6 @@ public:
     virtual void BeginPlay() override;
 
 protected:
-    AActor* _Menu;
-    bool isMenuHidden;
-
-    void CreateMenu();
     virtual void SetupInputComponent() override;
 
     /********************************** ACTION MAPPINGS ******************************************/

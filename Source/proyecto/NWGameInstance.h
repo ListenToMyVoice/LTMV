@@ -10,28 +10,31 @@ UCLASS()
 class PROYECTO_API UNWGameInstance : public UGameInstance {
     GENERATED_BODY()
 
+/**************************************** SESSION ************************************************/
 public:
-    TSharedPtr<class FOnlineSessionSettings> SessionSettings;
-    TSharedPtr<class FOnlineSessionSearch> SessionSearch;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Session")
-    FString SessionsList;
-    UPROPERTY(BlueprintReadOnly, Category = "Session")
-    FName _MapName;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Session")
+    FName _MapLobbyName;
 
     UNWGameInstance(const FObjectInitializer& OI);
 
-    /*********************************** BLUEPRINTS **********************************************/
+    UFUNCTION(BlueprintCallable, Category = "Start")
+    void InitGame();
+
+    /*** BLUEPRINTS ***/
     UFUNCTION(BlueprintCallable, Category = "Session")
-    void StartOnlineGame(FName SessionName);
+    void LaunchLobby(FName ServerName);
+    
+    UFUNCTION(BlueprintCallable, Category = "Session")
+    void CreateOnlineGame();
+    UFUNCTION(BlueprintCallable, Category = "Session")
+    void StartOnlineGame();
     UFUNCTION(BlueprintCallable, Category = "Session")
     void FindOnlineGames();
     UFUNCTION(BlueprintCallable, Category = "Session")
-    void JoinOnlineGame(FName SessionName);
+    void JoinOnlineGame();
     UFUNCTION(BlueprintCallable, Category = "Session")
-    void DestroySessionAndLeaveGame(FName SessionName);
+    void DestroySessionAndLeaveGame();
 
-    /************************************ SESSION ************************************************/
     /**
     *	Function to host a game!
     *
@@ -91,6 +94,23 @@ public:
     FDelegateHandle OnDestroySessionCompleteDelegateHandle;
     virtual void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 
-    /************************************** VOICE ************************************************/
-    //void RegisterVoice();
+protected:
+    TSharedPtr<class FOnlineSessionSettings> _SessionSettings;
+    TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
+    int _MaxPlayers;
+    FName _ServerName;
+
+    IOnlineSessionPtr GetSessions();
+
+
+
+/*************************************** MAIN MENU ***********************************************/
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
+    TSubclassOf<AActor> _MenuClass;
+
+protected:
+    AActor* _Menu;
+
+    void CreateMenu();
 };
