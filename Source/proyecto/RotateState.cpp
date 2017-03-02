@@ -20,36 +20,31 @@ void URotateState::BeginPlay()
 {
 	Super::BeginPlay();
 
-    _meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
-    ULibraryUtils::TestNull(_meshComp);
-    _initialRotation = _meshComp->GetComponentRotation();
+    //_meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+    //ULibraryUtils::TestNull(_meshComp);
+    //_initialRotation = _meshComp->GetComponentRotation();
 
-    SetComponentTickEnabled(true);
+    //SetComponentTickEnabled(true);
 	// ...
 	
 }
 
 
 // Called every frame
-void URotateState::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
-{
-    if (!_opened) {
+//void URotateState::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+//{
+    /*if (!_opened) {
         AddRotation();
-    }
+    }*/
 	// ...
-}
+//}
 
 int URotateState::SwitchState_Implementation() {
 
-    if (_meshComp->GetComponentRotation().Yaw > _initialRotation.Yaw &&
+   /* if (_meshComp->GetComponentRotation().Yaw > _initialRotation.Yaw &&
         _meshComp->GetComponentRotation().Yaw < _displacement) {
         _requestOff = true;
-    }
-    AddRotation();
-        return 0;
-}
-
-void URotateState::AddRotation() {
+    }*/
     FRotator Rotation;
 
     UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
@@ -81,5 +76,40 @@ void URotateState::AddRotation() {
 
         meshComp->AddRelativeRotation(Rotation);
     }
+        return 0;
 }
+
+/*void URotateState::AddRotation() {
+    FRotator Rotation;
+
+    UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+
+    meshComp->SetMobility(EComponentMobility::Movable);
+
+
+    if (RotateOnAxis == EMyAxis::X_AXIS) {
+        Rotation.Roll = _displacement;
+        Rotation.Pitch = 0.0f;
+        Rotation.Yaw = 0.0f;
+
+        meshComp->AddRelativeRotation(Rotation);
+    }
+
+    if (RotateOnAxis == EMyAxis::Y_AXIS) {
+        Rotation.Roll = 0.0f;
+        Rotation.Pitch = _displacement;
+        Rotation.Yaw = 0.0f;
+
+        meshComp->AddRelativeRotation(Rotation);
+    }
+
+    if (RotateOnAxis == EMyAxis::Z_AXIS) {
+        Rotation.Roll = 0.0f;
+        Rotation.Pitch = 0.0f;
+        Rotation.Yaw = _displacement;
+
+        meshComp->AddRelativeRotation(Rotation);
+    }
+}*//**/
 

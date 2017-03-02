@@ -21,12 +21,12 @@ class PROYECTO_API URotateState : public UActorComponent, public IItfSwitcheable
 	GENERATED_BODY()
 
 private:
-    UStaticMeshComponent* _meshComp;
+    //UStaticMeshComponent* _meshComp;
     FRotator _initialRotation;
     bool _requestOff;
     bool _opened;
 
-    void AddRotation();
+    //void AddRotation();
 
 public:	
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation")
@@ -45,7 +45,7 @@ public:
 	virtual void BeginPlay() override;
 	
 	// Called every frame
-	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
+	//virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Rotation")
