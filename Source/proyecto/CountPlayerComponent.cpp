@@ -14,8 +14,6 @@ UCountPlayerComponent::UCountPlayerComponent()
     // ...
 
     PlayerCount = 0;
-	//comentario de prueba
-	
 
 }
 

@@ -19,6 +19,8 @@ int UDoorState::SwitchState_Implementation() {
     UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
         UStaticMeshComponent::StaticClass()));
 
+	UCounterState* counter =  
+
     meshComp->SetMobility(EComponentMobility::Movable);
         
     if (DoorType == EDoorType::ROTABLE_DOOR) {
