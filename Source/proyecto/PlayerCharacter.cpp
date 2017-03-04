@@ -78,6 +78,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     playerInput->BindAction("SaveRight", IE_Released, this, &APlayerCharacter::SaveRight);
     //playerInput->BindAction("Help", IE_Released, this, &APlayerCharacter::Help);
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
+	//Mantener push
+	playerInput->BindAction("Push", IE_Pressed, this, &APlayerCharacter::Use);
 }
 
 FHitResult APlayerCharacter::Raycasting() {
