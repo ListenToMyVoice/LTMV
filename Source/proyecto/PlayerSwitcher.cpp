@@ -40,3 +40,8 @@ void UPlayerSwitcher::deactivateItem(UPrimitiveComponent* OverlappedComp,
 void UPlayerSwitcher::Use_Implementation() {
     _switcher.ActivateSwitcher();
 }
+
+
+void UPlayerSwitcher::Press_Implementation() {
+	_switcher.ActivateSwitcher2();
+}

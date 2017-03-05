@@ -18,14 +18,12 @@ void UCountInteraction::BeginPlay()
 }
 
 
-int UCountInteraction::SwitchState_Implementation() {
-
-	//Sumar 1 a _NumInteractions cuando se presiona y restar cuando se release
-	_NumInteractions++;
+void UCountInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction) {
 
 	//Si el numero son 2, usar el componente doorstate del muro
 	if (_NumInteractions == 2) {
-		//Buscar el componente de la puerta para usarlo
+		//Mover hacia arriba el componente
 
 		FRotator Rotation;
 		FVector Position;
@@ -33,15 +31,28 @@ int UCountInteraction::SwitchState_Implementation() {
 		UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
 			UStaticMeshComponent::StaticClass()));
 
-
 		meshComp->SetMobility(EComponentMobility::Movable);
 
 		Position.X = 0.0f;
 		Position.Y = 0.0f;
-		Position.Z = 100.0f;
+		Position.Z = 300.0f;
 		meshComp->AddRelativeLocation(Position);
 
 	}
+}
+
+int UCountInteraction::SwitchState2_Implementation() {
+	_NumInteractions++;
+
+	return 0;
+}
+
+int UCountInteraction::SwitchState_Implementation() {
+	//Si se ha llamado con la tecla press sumar 1
+	
+		_NumInteractions--;
+	
+
 	/*
 	FRotator Rotation;
 	FVector Position;

@@ -79,7 +79,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     //playerInput->BindAction("Help", IE_Released, this, &APlayerCharacter::Help);
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
 	//Mantener push
-	playerInput->BindAction("Push", IE_Pressed, this, &APlayerCharacter::Use);
+	playerInput->BindAction("Press", IE_Pressed, this, &APlayerCharacter::Press);
 }
 
 FHitResult APlayerCharacter::Raycasting() {
@@ -167,6 +167,40 @@ void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
     if (itfObject) itfObject->Execute_Use(component);
 }
 
+
+/*********** PRESS *********/
+void APlayerCharacter::Press() {
+	/* OVERLAPPING DETECTION */
+	bool found = false;
+	int i = _activeScenaryItems.Num() - 1;
+	while (!found && i >= 0) {
+		const TSet <UActorComponent*> set = _activeScenaryItems[i]->GetComponents();
+		for (UActorComponent* component : set) {
+			if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+				SERVER_Press(component);
+			}
+		}
+		i--;
+	}
+
+	/* RAYCASTING DETECTION */
+	FHitResult hitActor;
+	if (RayCastCamera(hitActor)) {
+		UActorComponent* component = hitActor.GetComponent();
+		if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+			SERVER_Press(component);
+		}
+	}
+}
+bool APlayerCharacter::SERVER_Press_Validate(UActorComponent* component) { return true; }
+void APlayerCharacter::SERVER_Press_Implementation(UActorComponent* component) {
+	MULTI_Press(component);
+}
+
+void APlayerCharacter::MULTI_Press_Implementation(UActorComponent* component) {
+	IItfUsable* itfObject = Cast<IItfUsable>(component);
+	if (itfObject) itfObject->Execute_Press(component);
+}
 
 /********** TAKE LEFT ***********/
 void APlayerCharacter::TakeLeft() {

@@ -25,4 +25,8 @@ public:
 		
     void Use();
     virtual void Use_Implementation();
+
+
+	void Press();
+	virtual void Press_Implementation();
 };

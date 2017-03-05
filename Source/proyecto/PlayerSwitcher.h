@@ -34,4 +34,9 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
     void Use();
     virtual void Use_Implementation() override;
+
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
+		void Press();
+	virtual void Press_Implementation() override;
 };

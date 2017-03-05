@@ -23,4 +23,7 @@ public:
         int SwitchState();
     virtual int SwitchState_Implementation() override;
 
+		int SwitchState2();
+	virtual int SwitchState2_Implementation() override;
+
 };

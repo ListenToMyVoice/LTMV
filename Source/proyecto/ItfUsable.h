@@ -14,4 +14,9 @@ public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Usable")
     void Use();
+
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pressable")
+		void Press();
+
 };

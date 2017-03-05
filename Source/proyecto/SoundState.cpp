@@ -12,6 +12,9 @@ void USoundState::BeginPlay() {
     Super::BeginPlay();
 }
 
+int USoundState::SwitchState2_Implementation() {
+	return 0;
+}
 int USoundState::SwitchState_Implementation() {
     Play();
     return 0;

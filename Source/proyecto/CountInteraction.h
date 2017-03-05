@@ -22,8 +22,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		float _NumInteractions;
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+		FActorComponentTickFunction* ThisTickFunction) override;
+
 	/* Interfaces */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Wall")
 		int SwitchState();
 	virtual int SwitchState_Implementation() override;
+
+	int SwitchState2();
+	virtual int SwitchState2_Implementation() override;
 };

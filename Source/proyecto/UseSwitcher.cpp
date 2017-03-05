@@ -15,3 +15,8 @@ void UUseSwitcher::BeginPlay() {
 void UUseSwitcher::Use_Implementation() {
     _switcher.ActivateSwitcher();
 }
+
+
+void UUseSwitcher::Press_Implementation() {
+	_switcher.ActivateSwitcher();
+}

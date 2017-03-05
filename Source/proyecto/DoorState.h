@@ -40,6 +40,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
         float _displacement;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
+		bool _open;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+		FActorComponentTickFunction* ThisTickFunction) override;
+
     UDoorState();
     virtual void BeginPlay() override;
 
@@ -47,4 +53,8 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
         int SwitchState();
     virtual int SwitchState_Implementation() override;
+
+	int SwitchState2();
+	virtual int SwitchState2_Implementation() override;
+
 };

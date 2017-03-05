@@ -33,6 +33,9 @@ void ULightState::TickComponent(float DeltaTime, ELevelTick TickType,
     }
 }
 
+int ULightState::SwitchState2_Implementation() {
+	return 0;
+}
 int ULightState::SwitchState_Implementation() {
     if (_delayed) {
         if (_lightComp->Intensity > _initialIntensity &&

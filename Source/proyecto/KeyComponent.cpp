@@ -18,11 +18,21 @@ void UKeyComponent::BeginPlay()
 }
 
 void UKeyComponent::Use_Implementation() {
-    UE_LOG(LogTemp, Warning, TEXT("You have pressed: %s"), *_keyNumber);
+    UE_LOG(LogTemp, Warning, TEXT("You have release: %s"), *_keyNumber);
     
     UActorComponent* component = this->GetOwner()->GetComponentByClass(ULock::StaticClass());
     ULock* lockObject = Cast<ULock>(component);
     
     //BUSCAR AL LOCK Y LAMAR AL METODO INSERTNUMBER
     lockObject->insertNumber(_keyNumber);
+}
+
+void UKeyComponent::Press_Implementation() {
+	UE_LOG(LogTemp, Warning, TEXT("You have pressed: %s"), *_keyNumber);
+
+	UActorComponent* component = this->GetOwner()->GetComponentByClass(ULock::StaticClass());
+	ULock* lockObject = Cast<ULock>(component);
+
+	//BUSCAR AL LOCK Y LAMAR AL METODO INSERTNUMBER
+	lockObject->insertNumber(_keyNumber);
 }
