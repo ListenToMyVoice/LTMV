@@ -1,6 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "proyecto.h"
+#include "ItemOverlap.h"
+#include "PlayerSwitcher.h"
+#include "DoorState.h"
+#include "Engine/StaticMeshActor.h"
 #include "CountInteraction.h"
 
 
@@ -8,6 +12,7 @@
 UCountInteraction::UCountInteraction()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
 }
 
 
@@ -15,18 +20,6 @@ UCountInteraction::UCountInteraction()
 void UCountInteraction::BeginPlay()
 {
 	Super::BeginPlay();
-	/*
-	for (UActorComponent* component : SwitcheableComps) {
-		if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
-			IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
-			if (itfObject) itfObject->Execute_SwitchState(component);
-		}
-	}
-	UDoorState* _doorState = Cast<UDoorState>(GetOwner()->GetComponentByClass(UDoorState::StaticClass()));
-	*/
-
-
-	UDoorState* _doorState = Cast<UDoorState>(GetOwner()->GetComponentByClass(UDoorState::StaticClass()));
 }
 
 
@@ -35,22 +28,26 @@ void UCountInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	//Si el numero son 2, usar el componente doorstate del muro
 	if (_NumInteractions == 2) {
-		//Mover hacia arriba el componente
 
-		//_doorState::SwitchState_Implementation();
+		//Mover hacia arriba el componente de doorState de este actor
+		UActorComponent* component = this->GetOwner()->GetComponentByClass(UDoorState::StaticClass());
+		UDoorState* _doorState = Cast<UDoorState>(component);
+		_doorState->SwitchState_Implementation();
+		//Cambiar el estado a block para que no se mueva más
+		_doorState->_block = true;
+
+		//Hacer sonar el sonido
+
+		//Abrir los componentes DoorState de las puertas
+		UActorComponent* component2 = this->GetOwner()->GetComponentByClass(UItemOverlap::StaticClass());
+		UPlayerSwitcher*  _playerSwitcher = Cast<UPlayerSwitcher>(component2);
+		_playerSwitcher->Use_Implementation();
 		/*
-		FRotator Rotation;
-		FVector Position;
-
-		UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
-			UStaticMeshComponent::StaticClass()));
-
-		meshComp->SetMobility(EComponentMobility::Movable);
-
-		Position.X = 0.0f;
-		Position.Y = 0.0f;
-		Position.Z = 300.0f;
-		meshComp->AddRelativeLocation(Position);
+		UActorComponent* component2 = this->GetOwner()->GetComponentByClass(UItemOverlap::StaticClass());
+		if (component2->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
+			IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component2);
+			if (itfObject) itfObject->Execute_SwitchState(component2);
+		}
 		*/
 	}
 }

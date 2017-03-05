@@ -133,16 +133,19 @@ int UDoorState::SwitchState2_Implementation() {
 
 int UDoorState::SwitchState_Implementation() {
 
-	//Si la puerta está cerrada, abrirla
-	if (StateDoor == EStateDoor::CLOSE) {
-		StateDoor = EStateDoor::OPENING;
-		_start_displacement = 0;
-	}
+	//Solo interactuar si la puerta no está bloqueada
+	if (!_block) {
+		//Si la puerta está cerrada, abrirla
+		if (StateDoor == EStateDoor::CLOSE) {
+			StateDoor = EStateDoor::OPENING;
+			_start_displacement = 0;
+		}
 
-	//Si la puerta está abierta, cerrarla
-	else if(StateDoor == EStateDoor::OPEN){
-		StateDoor = EStateDoor::CLOSING;
-		_start_displacement = _max_displacement;
+		//Si la puerta está abierta, cerrarla
+		else if (StateDoor == EStateDoor::OPEN) {
+			StateDoor = EStateDoor::CLOSING;
+			_start_displacement = _max_displacement;
+		}
 	}
 
     return 0;
