@@ -15,6 +15,18 @@ UCountInteraction::UCountInteraction()
 void UCountInteraction::BeginPlay()
 {
 	Super::BeginPlay();
+	/*
+	for (UActorComponent* component : SwitcheableComps) {
+		if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
+			IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
+			if (itfObject) itfObject->Execute_SwitchState(component);
+		}
+	}
+	UDoorState* _doorState = Cast<UDoorState>(GetOwner()->GetComponentByClass(UDoorState::StaticClass()));
+	*/
+
+
+	UDoorState* _doorState = Cast<UDoorState>(GetOwner()->GetComponentByClass(UDoorState::StaticClass()));
 }
 
 
@@ -25,6 +37,8 @@ void UCountInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
 	if (_NumInteractions == 2) {
 		//Mover hacia arriba el componente
 
+		//_doorState::SwitchState_Implementation();
+		/*
 		FRotator Rotation;
 		FVector Position;
 
@@ -37,7 +51,7 @@ void UCountInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
 		Position.Y = 0.0f;
 		Position.Z = 300.0f;
 		meshComp->AddRelativeLocation(Position);
-
+		*/
 	}
 }
 
@@ -49,10 +63,8 @@ int UCountInteraction::SwitchState2_Implementation() {
 
 int UCountInteraction::SwitchState_Implementation() {
 	//Si se ha llamado con la tecla press sumar 1
+	_NumInteractions--;
 	
-		_NumInteractions--;
-	
-
 	/*
 	FRotator Rotation;
 	FVector Position;

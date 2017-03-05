@@ -2,6 +2,7 @@
 #include "proyecto.h"
 #include "DoorState.h"
 
+float _start_displacement;
 
 UDoorState::UDoorState() {
     PrimaryComponentTick.bCanEverTick = true;
@@ -14,6 +15,7 @@ void UDoorState::BeginPlay() {
 void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) {
 
+
 	FRotator Rotation;
 	FVector Position;
 
@@ -21,37 +23,38 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		UStaticMeshComponent::StaticClass()));
 	meshComp->SetMobility(EComponentMobility::Movable);
 
-	if (_open) {
+	//I opening
+	if (StateDoor == EStateDoor::OPENING) {
+		if (_start_displacement < _max_displacement) {
+			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
-		if (DoorType == EDoorType::ROTABLE_DOOR) {
+				if (ActOn == EOnAxis::X_AXIS) {
+					Rotation.Roll = _displacement;
+					Rotation.Pitch = 0.0f;
+					Rotation.Yaw = 0.0f;
 
-			if (ActOn == EOnAxis::X_AXIS) {
-				Rotation.Roll = _displacement;
-				Rotation.Pitch = 0.0f;
-				Rotation.Yaw = 0.0f;
+					meshComp->AddRelativeRotation(Rotation);
+				}
 
-				meshComp->AddRelativeRotation(Rotation);
+				if (ActOn == EOnAxis::Y_AXIS) {
+					Rotation.Roll = 0.0f;
+					Rotation.Pitch = _displacement;
+					Rotation.Yaw = 0.0f;
+
+					meshComp->AddRelativeRotation(Rotation);
+				}
+
+				if (ActOn == EOnAxis::Z_AXIS) {
+					Rotation.Roll = 0.0f;
+					Rotation.Pitch = 0.0f;
+					Rotation.Yaw = _displacement;
+
+					meshComp->AddRelativeRotation(Rotation);
+				}
+
 			}
 
-			if (ActOn == EOnAxis::Y_AXIS) {
-				Rotation.Roll = 0.0f;
-				Rotation.Pitch = _displacement;
-				Rotation.Yaw = 0.0f;
-
-				meshComp->AddRelativeRotation(Rotation);
-			}
-
-			if (ActOn == EOnAxis::Z_AXIS) {
-				Rotation.Roll = 0.0f;
-				Rotation.Pitch = 0.0f;
-				Rotation.Yaw = _displacement;
-
-				meshComp->AddRelativeRotation(Rotation);
-			}
-
-		}
-
-		if (DoorType == EDoorType::SLIDABLE_DOOR) {
+			if (DoorType == EDoorType::SLIDABLE_DOOR) {
 
 			if (ActOn == EOnAxis::X_AXIS) {
 				Position.X = _displacement;
@@ -75,22 +78,73 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 			}
 		}
 
-	}
-}
+			_start_displacement += _displacement;
+		}
+		else {
+			StateDoor = EStateDoor::OPEN;
+		}
 
+	}
+	
+	else if (StateDoor == EStateDoor::CLOSING) {
+
+		if (_start_displacement >0) {
+
+			if (DoorType == EDoorType::ROTABLE_DOOR) {
+
+				if (ActOn == EOnAxis::X_AXIS) {
+					Rotation.Roll = -_displacement;
+					Rotation.Pitch = 0.0f;
+					Rotation.Yaw = 0.0f;
+
+					meshComp->AddRelativeRotation(Rotation);
+				}
+
+				if (ActOn == EOnAxis::Y_AXIS) {
+					Rotation.Roll = 0.0f;
+					Rotation.Pitch = -_displacement;
+					Rotation.Yaw = 0.0f;
+
+					meshComp->AddRelativeRotation(Rotation);
+				}
+
+				if (ActOn == EOnAxis::Z_AXIS) {
+					Rotation.Roll = 0.0f;
+					Rotation.Pitch = 0.0f;
+					Rotation.Yaw = -_displacement;
+
+					meshComp->AddRelativeRotation(Rotation);
+				}
+
+			}
+
+			_start_displacement -= _displacement;
+		}
+		else {
+			StateDoor = EStateDoor::CLOSE;
+		}
+	}
+
+}
 
 int UDoorState::SwitchState2_Implementation() {
 	return 0;
 }
+
 int UDoorState::SwitchState_Implementation() {
 
-	if (_open) {
-		_open = false;
-	}else
-	{
-		_open = true;
+	//Si la puerta está cerrada, abrirla
+	if (StateDoor == EStateDoor::CLOSE) {
+		StateDoor = EStateDoor::OPENING;
+		_start_displacement = 0;
 	}
-    
+
+	//Si la puerta está abierta, cerrarla
+	else if(StateDoor == EStateDoor::OPEN){
+		StateDoor = EStateDoor::CLOSING;
+		_start_displacement = _max_displacement;
+	}
+
     return 0;
 }
 

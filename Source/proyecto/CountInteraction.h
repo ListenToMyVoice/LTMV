@@ -12,7 +12,7 @@ class PROYECTO_API UCountInteraction : public UActorComponent, public IItfSwitch
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UCountInteraction();
 

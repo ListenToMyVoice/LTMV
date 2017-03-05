@@ -23,6 +23,16 @@ namespace EDoorType {
     };
 }
 
+UENUM()
+namespace EStateDoor {
+	enum Type {
+		CLOSE    UMETA(DisplayName = "Close"),
+		OPENING     UMETA(DisplayName = "Opening"),
+		OPEN     UMETA(DisplayName = "Open"),
+		CLOSING     UMETA(DisplayName = "Closing")
+	};
+}
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROYECTO_API UDoorState : public UActorComponent, public IItfSwitcheable {
     GENERATED_BODY()
@@ -33,7 +43,10 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
         TEnumAsByte<EOnAxis::Type> ActOn;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
+		TEnumAsByte<EStateDoor::Type> StateDoor;
+	
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
         float _Velocity;
     
@@ -41,7 +54,12 @@ public:
         float _displacement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
+		float _max_displacement;
+
+	/*
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		bool _open;
+		*/
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
