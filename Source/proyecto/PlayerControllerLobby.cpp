@@ -63,6 +63,7 @@ void APlayerControllerLobby::Client_AddPlayerInfo_Implementation(FPlayerInfo pla
 void APlayerControllerLobby::Client_CreateMenu_Implementation(TSubclassOf<AActor> menuClass) {
     UCameraComponent* cameraComp = Cast<UCameraComponent>(GetPawn()->FindComponentByClass<UCameraComponent>());
     if (cameraComp) {
+        if (_ActorWidgetMenu) _ActorWidgetMenu->Destroy();
         FVector position = cameraComp->GetForwardVector() * 500.0f +
             cameraComp->GetComponentLocation();
         FRotator rotation = cameraComp->GetComponentRotation();
