@@ -3,11 +3,12 @@
 #include "proyecto.h"
 #include "ItemOverlap.h"
 #include "PlayerSwitcher.h"
+#include "SoundState.h"
 #include "DoorState.h"
 #include "Engine/StaticMeshActor.h"
 #include "CountInteraction.h"
 
-
+bool _used; 
 // Sets default values for this component's properties
 UCountInteraction::UCountInteraction()
 {
@@ -19,6 +20,8 @@ UCountInteraction::UCountInteraction()
 // Called when the game starts
 void UCountInteraction::BeginPlay()
 {
+
+	_used = false;
 	Super::BeginPlay();
 }
 
@@ -27,7 +30,7 @@ void UCountInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) {
 
 	//Si el numero son 2, usar el componente doorstate del muro
-	if (_NumInteractions == 2) {
+	if (_NumInteractions == 2 && !_used) {
 
 		//Mover hacia arriba el componente de doorState de este actor
 		UActorComponent* component = this->GetOwner()->GetComponentByClass(UDoorState::StaticClass());
@@ -36,7 +39,12 @@ void UCountInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
 		//Cambiar el estado a block para que no se mueva más
 		_doorState->_block = true;
 
-		//Hacer sonar el sonido
+		//Hacer sonar el sonido del muro
+		UActorComponent* component3 = this->GetOwner()->GetComponentByClass(USoundState::StaticClass());
+		USoundState* _sound = Cast<USoundState>(component3);
+		_sound->SwitchState_Implementation();
+
+		//Esperar un poco
 
 		//Abrir los componentes DoorState de las puertas
 		UActorComponent* component2 = this->GetOwner()->GetComponentByClass(UItemOverlap::StaticClass());
@@ -45,10 +53,12 @@ void UCountInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
 		/*
 		UActorComponent* component2 = this->GetOwner()->GetComponentByClass(UItemOverlap::StaticClass());
 		if (component2->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
-			IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component2);
-			if (itfObject) itfObject->Execute_SwitchState(component2);
+		IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component2);
+		if (itfObject) itfObject->Execute_SwitchState(component2);
 		}
 		*/
+		_used = true;
+
 	}
 }
 
