@@ -2,7 +2,6 @@
 
 #include "proyecto.h"
 #include "proyectoGameMode.h"
-#include "GameStateLTMV.h"
 
 AproyectoGameMode::AproyectoGameMode(const class FObjectInitializer& OI) : Super(OI) {
     //static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(

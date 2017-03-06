@@ -12,8 +12,22 @@ class PROYECTO_API UNWGameInstance : public UGameInstance {
 
 /**************************************** SESSION ************************************************/
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Player Info")
+    FPlayerInfo _PlayerInfoSaved;
+    UPROPERTY(Replicated)
+    FName _ServerName;
+    UPROPERTY(Replicated)
+    int _MaxPlayers;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Session")
+    FString _SessionOwner;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Session")
+    FName _MapMenuName;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Session")
     FName _MapLobbyName;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Session")
+    FName _MapGameName;
 
     UNWGameInstance(const FObjectInitializer& OI);
 
@@ -23,17 +37,12 @@ public:
     /*** BLUEPRINTS ***/
     UFUNCTION(BlueprintCallable, Category = "Session")
     void LaunchLobby(FName ServerName);
-    
-    UFUNCTION(BlueprintCallable, Category = "Session")
-    void CreateOnlineGame();
-    UFUNCTION(BlueprintCallable, Category = "Session")
-    void StartOnlineGame();
     UFUNCTION(BlueprintCallable, Category = "Session")
     void FindOnlineGames();
     UFUNCTION(BlueprintCallable, Category = "Session")
     void JoinOnlineGame();
     UFUNCTION(BlueprintCallable, Category = "Session")
-    void DestroySessionAndLeaveGame();
+    void DestroySession();
 
     /**
     *	Function to host a game!
@@ -97,20 +106,6 @@ public:
 protected:
     TSharedPtr<class FOnlineSessionSettings> _SessionSettings;
     TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
-    int _MaxPlayers;
-    FName _ServerName;
 
     IOnlineSessionPtr GetSessions();
-
-
-
-/*************************************** MAIN MENU ***********************************************/
-public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-    TSubclassOf<AActor> _MenuClass;
-
-protected:
-    AActor* _Menu;
-
-    void CreateMenu();
 };

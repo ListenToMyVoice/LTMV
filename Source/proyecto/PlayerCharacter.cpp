@@ -10,7 +10,6 @@
 #include "ItfUsable.h"
 #include "KeyComponent.h"
 #include "ItemActor.h"
-#include "GameStateLTMV.h"
 
 APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
