@@ -55,6 +55,9 @@ public:
         float _displacement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
+		float _current_displacement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		float _max_displacement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")

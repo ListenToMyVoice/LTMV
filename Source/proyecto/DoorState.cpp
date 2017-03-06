@@ -79,6 +79,7 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 
 			_start_displacement += _displacement;
+			_current_displacement = _start_displacement;
 		}
 		else {
 			StateDoor = EStateDoor::OPEN;
@@ -119,6 +120,7 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 			}
 
 			_start_displacement -= _displacement;
+			_current_displacement = _start_displacement;
 		}
 		else {
 			StateDoor = EStateDoor::CLOSE;
