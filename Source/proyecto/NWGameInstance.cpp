@@ -7,10 +7,9 @@
 void UNWGameInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(UNWGameInstance, _PlayerInfoSaved);
     DOREPLIFETIME(UNWGameInstance, _MaxPlayers);
     DOREPLIFETIME(UNWGameInstance, _ServerName);
-    DOREPLIFETIME(UNWGameInstance, _ServerName);
+    DOREPLIFETIME(UNWGameInstance, _PlayerInfoSaved);
 }
 
 UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
@@ -34,9 +33,7 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
 
     _MapMenuName = FName(TEXT("Menu"));
     _MapLobbyName = FName(TEXT("Lobby"));
-    _MapGameName = FName(TEXT("test_map"));
     
-    _PlayerInfoSaved = FPlayerInfo();
     _MaxPlayers = 2;
     _ServerName = "";
     _SessionOwner = "";

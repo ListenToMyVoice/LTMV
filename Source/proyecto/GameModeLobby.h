@@ -25,11 +25,14 @@ public:
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_UpdateEveryOne();
 
+    UFUNCTION(BlueprintCallable, Category = "Launch Game")
+    void LaunchGame();
+
 protected:
     UPROPERTY(Replicated)
     FName _ServerName;
     UPROPERTY(Replicated)
-    FName _MapNameGM;
+    FString _MapNameGM;
 
     UPROPERTY(Replicated)
     int32 _MaxPlayers;
@@ -44,10 +47,6 @@ protected:
     APlayerStart* _SpawnPoint_1;
     UPROPERTY(Replicated)
     APlayerStart* _SpawnPoint_2;
-    //UPROPERTY(Replicated)
-    //FPlayerInfo _PlayerInfo_1;
-    //UPROPERTY(Replicated)
-    //FPlayerInfo _PlayerInfo_2;
 
     void FindSpawnPoints();
 };

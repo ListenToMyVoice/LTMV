@@ -26,8 +26,6 @@ public:
     FName _MapMenuName;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Session")
     FName _MapLobbyName;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Session")
-    FName _MapGameName;
 
     UNWGameInstance(const FObjectInitializer& OI);
 

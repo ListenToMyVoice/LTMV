@@ -25,9 +25,13 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     DefaultPawnClass = PlayerPawnClassFinder.Class;
     PlayerControllerClass = APlayerControllerLobby::StaticClass();
 
+    bUseSeamlessTravel = true;
+
     _MaxPlayers = 2;
     _CurrentPlayers = 0;
     _ServerName = "";
+
+    _MapNameGM = "/Game/Maps/Alex/test_map";
 }
 
 void AGameModeLobby::BeginPlay() {
@@ -55,7 +59,7 @@ void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {
         APlayerControllerLobby* PlayerController = Cast<APlayerControllerLobby>(NewPlayer);
         if (PlayerController) {
             PlayerController->Client_InitialSetup();
-            PlayerController->Client_UpdateLobbySettings(_MapNameGM.ToString());
+            PlayerController->Client_UpdateLobbySettings(_MapNameGM);
         }
     }
 }
@@ -98,7 +102,13 @@ void AGameModeLobby::SERVER_UpdateEveryOne_Implementation() {
     }
 }
 
-
+void AGameModeLobby::LaunchGame() {
+    GetWorld()->ServerTravel(_MapNameGM, true);
+    //if(_PlayerController_1)
+    //    _PlayerController_1->ClientTravel(_MapNameGM, ETravelType::TRAVEL_Absolute);
+    //if (_PlayerController_2)
+    //    _PlayerController_2->ClientTravel(_MapNameGM, ETravelType::TRAVEL_Absolute);
+}
 
 void AGameModeLobby::FindSpawnPoints() {
     if (!_SpawnPoint_1 || !_SpawnPoint_2) {

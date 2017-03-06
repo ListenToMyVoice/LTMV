@@ -28,6 +28,9 @@ public:
     UPROPERTY(Replicated)
     FPlayerInfo _OtherPlayerInfo;
 
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
+    //TSubclassOf<AActor> _MenuClass;
+
     APlayerControllerLobby(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
 
@@ -41,4 +44,15 @@ public:
     void Client_AddPlayerInfo(FPlayerInfo playerInfo);
     UFUNCTION(Client, Reliable)
     void Client_UpdateLobbySettings(const FString& mapName);
+    UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
+    void Client_CreateMenu(TSubclassOf<AActor> menuClass);
+
+protected:
+    AActor* _ActorWidgetMenu;
+
+    virtual void SetupInputComponent() override;
+
+    /********************************** ACTION MAPPINGS ******************************************/
+    /*************** TRIGGER MENU *************/
+    void Ready();
 };
