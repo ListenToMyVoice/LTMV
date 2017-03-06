@@ -39,7 +39,7 @@ void AGameModeLobby::BeginPlay() {
 }
 
 void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {
-    //Super::PostLogin(NewPlayer);
+    Super::PostLogin(NewPlayer);
     
     if (HasAuthority()) {
         if (_CurrentPlayers == 0) {//HOST
