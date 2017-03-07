@@ -3,12 +3,12 @@
 #pragma once
 
 #include "GameFramework/GameMode.h"
-#include "proyectoGameMode.generated.h"
+#include "GameModeNone.generated.h"
 
 UCLASS()
-class PROYECTO_API AproyectoGameMode : public AGameMode {
+class PROYECTO_API AGameModeNone : public AGameMode {
     GENERATED_BODY()
 
 public:
-    AproyectoGameMode(const class FObjectInitializer& OI);
+    AGameModeNone(const class FObjectInitializer& OI);
 };
