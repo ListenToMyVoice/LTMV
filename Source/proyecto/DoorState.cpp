@@ -16,6 +16,8 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) {
 
 
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
 	FRotator Rotation;
 	FVector Position;
 
@@ -117,6 +119,29 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 					meshComp->AddRelativeRotation(Rotation);
 				}
 
+			}
+			if (DoorType == EDoorType::SLIDABLE_DOOR) {
+
+				if (ActOn == EOnAxis::X_AXIS) {
+					Position.X = -_displacement;
+					Position.Y = 0.0f;
+					Position.Z = 0.0f;
+					meshComp->AddRelativeLocation(Position);
+				}
+
+				if (ActOn == EOnAxis::Y_AXIS) {
+					Position.X = 0.0f;
+					Position.Y = -_displacement;
+					Position.Z = 0.0f;
+					meshComp->AddRelativeLocation(Position);
+				}
+
+				if (ActOn == EOnAxis::Z_AXIS) {
+					Position.X = 0.0f;
+					Position.Y = 0.0f;
+					Position.Z = -_displacement;
+					meshComp->AddRelativeLocation(Position);
+				}
 			}
 
 			_start_displacement -= _displacement;

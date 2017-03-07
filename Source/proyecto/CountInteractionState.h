@@ -25,6 +25,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		float _max_NumInteractions;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
+		bool _used;
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
 

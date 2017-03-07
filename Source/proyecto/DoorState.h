@@ -46,11 +46,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
 		TEnumAsByte<EStateDoor::Type> StateDoor;
-	/*
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
-        float _Velocity;
-	*/
-    
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
         float _displacement;
 
@@ -63,10 +58,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		bool _block;
 
-	/*
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
-		bool _open;
-		*/
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;

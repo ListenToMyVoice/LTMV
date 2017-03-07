@@ -9,7 +9,6 @@
 #include "CountInteractionState.h"
 
 
-bool _used2;
 // Sets default values for this component's properties
 UCountInteractionState::UCountInteractionState()
 {
@@ -20,7 +19,7 @@ UCountInteractionState::UCountInteractionState()
 // Called when the game starts
 void UCountInteractionState::BeginPlay()
 {
-	_used2 = false;
+	_used = false;
 	Super::BeginPlay();
 }
 
@@ -37,13 +36,13 @@ int UCountInteractionState::SwitchState2_Implementation() {
 	_NumInteractions++;
 
 	//Si el numero son 2 y aún no se ha usado este componente
-	if (_NumInteractions == _max_NumInteractions && !_used2) {
+	if (_NumInteractions == _max_NumInteractions && !_used) {
 		//usar todos los componentes del PlayerSwitcher de este componente
 		UActorComponent* component2 = this->GetOwner()->GetComponentByClass(UItemOverlap::StaticClass());
 		UPlayerSwitcher*  _playerSwitcher = Cast<UPlayerSwitcher>(component2);
 		_playerSwitcher->Use_Implementation();
 
-		_used2 = true;
+		_used = true;
 	}
 
 	return 0;
