@@ -160,7 +160,9 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
         Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
         if (_SessionSearch->SearchResults.Num() > 0) {
             for (int32 i = 0; i < _SessionSearch->SearchResults.Num(); i++) {
-                _SessionOwner = _SessionSearch->SearchResults[i].Session.OwningUserName;
+                if (_SessionSearch->SearchResults[i].Session.NumOpenPublicConnections > 0) {
+                    _SessionOwner = _SessionSearch->SearchResults[i].Session.OwningUserName;
+                }
             }
         }
         else {

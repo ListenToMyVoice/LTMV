@@ -5,6 +5,7 @@
 
 #include "NWGameInstance.h"
 
+
 void AGameModeLobby::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
