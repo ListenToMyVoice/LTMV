@@ -28,9 +28,6 @@ public:
     UPROPERTY(Replicated)
     FPlayerInfo _OtherPlayerInfo;
 
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-    //TSubclassOf<AActor> _MenuClass;
-
     APlayerControllerLobby(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
 

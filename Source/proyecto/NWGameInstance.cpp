@@ -31,8 +31,8 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
     OnDestroySessionCompleteDelegate =
         FOnDestroySessionCompleteDelegate::CreateUObject(this, &UNWGameInstance::OnDestroySessionComplete);
 
-    _MapMenuName = FName(TEXT("Menu"));
-    _MapLobbyName = FName(TEXT("Lobby"));
+    _MapMenuName = FName(TEXT("MenuMain"));
+    _MapLobbyName = FName(TEXT("MenuLobby"));
     
     _MaxPlayers = 2;
     _ServerName = "";
