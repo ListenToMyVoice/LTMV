@@ -12,7 +12,7 @@
 // Sets default values for this component's properties
 UCountInteractionState::UCountInteractionState()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -40,6 +40,7 @@ int UCountInteractionState::SwitchState2_Implementation() {
 		//usar todos los componentes del PlayerSwitcher de este componente
 		UActorComponent* component2 = this->GetOwner()->GetComponentByClass(UItemOverlap::StaticClass());
 		UPlayerSwitcher*  _playerSwitcher = Cast<UPlayerSwitcher>(component2);
+		_playerSwitcher->Press_Implementation();
 		_playerSwitcher->Use_Implementation();
 
 		_used = true;

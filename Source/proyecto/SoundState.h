@@ -16,6 +16,8 @@ public:
     USoundState();
     virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+		bool _onPress;
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
     int SwitchState();

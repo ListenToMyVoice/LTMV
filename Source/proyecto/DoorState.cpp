@@ -2,7 +2,6 @@
 #include "proyecto.h"
 #include "DoorState.h"
 
-float _start_displacement;
 
 UDoorState::UDoorState() {
     PrimaryComponentTick.bCanEverTick = true;
@@ -10,22 +9,18 @@ UDoorState::UDoorState() {
 
 void UDoorState::BeginPlay() {
     Super::BeginPlay();
+
 }
 
 void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) {
 
-
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FRotator Rotation;
-	FVector Position;
-
-	UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
+	meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
 		UStaticMeshComponent::StaticClass()));
 	meshComp->SetMobility(EComponentMobility::Movable);
-
-	//I opening
+	//If opening
 	if (StateDoor == EStateDoor::OPENING) {
 		if (_start_displacement < _max_displacement) {
 			if (DoorType == EDoorType::ROTABLE_DOOR) {

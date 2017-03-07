@@ -36,6 +36,12 @@ namespace EStateDoor {
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROYECTO_API UDoorState : public UActorComponent, public IItfSwitcheable {
     GENERATED_BODY()
+private:
+
+	float _start_displacement;
+	UStaticMeshComponent* meshComp;
+	FRotator Rotation;
+	FVector Position;
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
