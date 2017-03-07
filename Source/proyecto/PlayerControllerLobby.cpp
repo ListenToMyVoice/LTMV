@@ -13,18 +13,10 @@ void APlayerControllerLobby::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
     DOREPLIFETIME(APlayerControllerLobby, _OtherPlayerInfo);
 }
 
-APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
-    //static ConstructorHelpers::FClassFinder<AActor> ClassFinder(TEXT("/Game/Maps/Alex/MenuActor_BP"));
-    //_MenuClass = ClassFinder.Class;
-}
+APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {}
 
 void APlayerControllerLobby::BeginPlay() {
     Super::BeginPlay();
-}
-
-void APlayerControllerLobby::SetupInputComponent() {
-    Super::SetupInputComponent();
-    InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerLobby::Ready);
 }
 
 void APlayerControllerLobby::Client_InitialSetup_Implementation() {
@@ -69,16 +61,5 @@ void APlayerControllerLobby::Client_CreateMenu_Implementation(TSubclassOf<AActor
         FRotator rotation = cameraComp->GetComponentRotation();
 
         _ActorWidgetMenu = GetWorld()->SpawnActor(menuClass, &position, &rotation);
-    }
-}
-
-/****************************************** ACTION MAPPINGS **************************************/
-/*************** TRIGGER MENU *************/
-void APlayerControllerLobby::Ready() {
-    if (GetWorld()->IsServer()) {
-        AGameModeLobby* gameMode = Cast<AGameModeLobby>(GetWorld()->GetAuthGameMode());
-        if (gameMode) {
-            gameMode->LaunchGame();
-        }
     }
 }

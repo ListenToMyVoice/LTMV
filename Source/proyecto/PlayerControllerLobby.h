@@ -46,10 +46,4 @@ public:
 
 protected:
     AActor* _ActorWidgetMenu;
-
-    virtual void SetupInputComponent() override;
-
-    /********************************** ACTION MAPPINGS ******************************************/
-    /*************** TRIGGER MENU *************/
-    void Ready();
 };
