@@ -50,7 +50,7 @@ void AGameModePlay::SERVER_RespawnPlayer_Implementation(APlayerController* Playe
 void AGameModePlay::FindSpawnPoints() {
     if (!_SpawnPoint_1 || !_SpawnPoint_2) {
         for (TActorIterator<APlayerStart> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-            if ((*ActorItr)->GetFName().IsEqual("PlayerStart_10")) {
+            if ((*ActorItr)->GetFName().IsEqual("PlayerStart_1")) {
                 _SpawnPoint_1 = *ActorItr;
             }
             else {

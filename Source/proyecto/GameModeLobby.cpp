@@ -32,7 +32,7 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     _CurrentPlayers = 0;
     _ServerName = "";
 
-    _MapNameGM = "/Game/Maps/Alex/test_map";
+    _MapNameGM = "/Game/Maps/Hito3/intro_level_2";
 }
 
 void AGameModeLobby::BeginPlay() {
