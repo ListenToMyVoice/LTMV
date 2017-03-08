@@ -58,8 +58,9 @@ void APlayerControllerLobby::Client_CreateMenu_Implementation(TSubclassOf<AActor
         UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
         if (cameraComp) {
             if (_ActorWidgetMenu) _ActorWidgetMenu->Destroy();
-            FVector position = cameraComp->GetForwardVector() * 1000.0f +
-                cameraComp->GetComponentLocation();
+            //FVector position = cameraComp->GetForwardVector() * 1000.0f +
+            //    cameraComp->GetComponentLocation();
+            FVector position = cameraComp->GetComponentLocation();
             FRotator rotation = cameraComp->GetComponentRotation();
 
             _ActorWidgetMenu = GetWorld()->SpawnActor(menuClass, &position, &rotation);
