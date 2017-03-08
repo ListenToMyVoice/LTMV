@@ -12,7 +12,15 @@ void USoundState::BeginPlay() {
     Super::BeginPlay();
 }
 
+int USoundState::SwitchState2_Implementation() {
+	if (_onPress) {
+		Play();
+	}
+	return 0;
+}
 int USoundState::SwitchState_Implementation() {
-    Play();
+	if (!_onPress) {
+		Play();
+	}
     return 0;
 }

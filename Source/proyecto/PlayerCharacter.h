@@ -69,7 +69,14 @@ protected:
     void SERVER_Use(UActorComponent* component);
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_Use(UActorComponent* component);
-    
+
+	/************** PRESS *************/
+	void Press();
+	UFUNCTION(Server, Reliable, WithValidation)
+		void SERVER_Press(UActorComponent* component);
+	UFUNCTION(NetMulticast, Reliable)
+		void MULTI_Press(UActorComponent* component);
+
     /********** TAKE LEFT ***********/
     void TakeLeft();
     UFUNCTION(Server, Reliable, WithValidation)

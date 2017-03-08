@@ -15,6 +15,10 @@ public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Switch")
     int SwitchState();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Switch")
+		int SwitchState2();
+
 };
 
 
@@ -72,4 +76,15 @@ public:
             }
         }
     }
+
+
+
+	void ActivateSwitcher2() {
+		for (UActorComponent* component : SwitcheableComps) {
+			if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
+				IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
+				if (itfObject) itfObject->Execute_SwitchState2(component);
+			}
+		}
+	}
 };

@@ -16,6 +16,9 @@ void UTextureState::BeginPlay() {
 }
 
 
+int UTextureState::SwitchState2_Implementation() {
+	return 0;
+}
 int UTextureState::SwitchState_Implementation() {
     UTextRenderComponent* textureComp = Cast<UTextRenderComponent>(GetOwner()->GetComponentByClass(
         UTextRenderComponent::StaticClass()));
