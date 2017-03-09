@@ -9,7 +9,7 @@ void UNWGameInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutL
 
     DOREPLIFETIME(UNWGameInstance, _MaxPlayers);
     DOREPLIFETIME(UNWGameInstance, _ServerName);
-    DOREPLIFETIME(UNWGameInstance, _PlayerInfoSaved);
+    //DOREPLIFETIME(UNWGameInstance, _PlayerInfoSaved);
 }
 
 UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {

@@ -14,16 +14,13 @@ class PROYECTO_API AGameModeLobby : public AGameMode {
 
 public:
     AGameModeLobby(const class FObjectInitializer& OI);
-    virtual void BeginPlay() override;
 
     virtual void PostLogin(APlayerController * NewPlayer) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SwapCharacter(APlayerController* PlayerController,
-                              TSubclassOf<ACharacter> CharacterClass, bool ChangeStatus);
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_UpdateEveryOne();
+    void SERVER_SwapCharacter(APlayerController* PlayerController, FPlayerInfo info,
+                              bool ChangeStatus);
 
     UFUNCTION(BlueprintCallable, Category = "Launch Game")
     void LaunchGame();
@@ -36,11 +33,4 @@ protected:
 
     UPROPERTY(Replicated)
     int32 _MaxPlayers;
-    UPROPERTY(Replicated)
-    int32 _CurrentPlayers;
-
-    UPROPERTY(Replicated)
-    APlayerController* _PlayerController_1;
-    UPROPERTY(Replicated)
-    APlayerController* _PlayerController_2;
 };

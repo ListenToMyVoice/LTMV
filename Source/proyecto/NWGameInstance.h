@@ -5,6 +5,18 @@
 #include "Engine/GameInstance.h"
 #include "NWGameInstance.generated.h"
 
+USTRUCT(BlueprintType, Category = "Player Info")
+struct FPlayerInfo {
+    GENERATED_USTRUCT_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
+    FString Name;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
+    TSubclassOf<ACharacter> CharacterClass;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
+    bool IsHost;
+};
 
 UCLASS()
 class PROYECTO_API UNWGameInstance : public UGameInstance {
@@ -12,7 +24,7 @@ class PROYECTO_API UNWGameInstance : public UGameInstance {
 
 /**************************************** SESSION ************************************************/
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Player Info")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FPlayerInfo _PlayerInfoSaved;
     UPROPERTY(Replicated)
     FName _ServerName;

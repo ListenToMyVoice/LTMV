@@ -7,39 +7,28 @@
 #include "NWGameInstance.h"
 
 
-void APlayerControllerPlay::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
-    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-    DOREPLIFETIME(APlayerControllerPlay, _PlayerInfo);
-}
-
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {}
-
-void APlayerControllerPlay::BeginPlay() {
-    Super::BeginPlay();
-
-    if (IsLocalController()) {
-        UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
-        if (gameInstance) {
-            _PlayerInfo = gameInstance->_PlayerInfoSaved;// In client...
-        }
-        SERVER_PassInfoToServer(_PlayerInfo);
-    }
-}
 
 void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
 }
 
-bool APlayerControllerPlay::SERVER_PassInfoToServer_Validate(FPlayerInfo info) { return true; }
-void APlayerControllerPlay::SERVER_PassInfoToServer_Implementation(FPlayerInfo info) {
-    _PlayerInfo = info;//... and Server
+void APlayerControllerPlay::BeginPlay() {
+    Super::BeginPlay();
 
-    AGameModePlay* gameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
-    if (gameMode) {
-        gameMode->SERVER_RespawnPlayer(this, _PlayerInfo.CharacterClass);
+    if (IsLocalController()) {
+        UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
+        if (gameInstance) SERVER_CallUpdate(gameInstance->_PlayerInfoSaved);
     }
+}
+
+bool APlayerControllerPlay::SERVER_CallUpdate_Validate(FPlayerInfo info) {
+    return true; 
+}
+void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
+    AGameModePlay* gameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
+    if (gameMode) gameMode->SERVER_RespawnPlayer(this, info);
 }
 
 /****************************************** ACTION MAPPINGS **************************************/

@@ -14,10 +14,5 @@ public:
     AGameModePlay(const class FObjectInitializer& OI);
 
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_RespawnPlayer(APlayerController* PlayerController,
-                              TSubclassOf<ACharacter> CharacterClass);
-
-protected:
-    UPROPERTY(Replicated)
-    int32 _CurrentPlayers;
+    void SERVER_RespawnPlayer(APlayerController* PlayerController, FPlayerInfo info);
 };
