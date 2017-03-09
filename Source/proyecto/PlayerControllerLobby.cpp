@@ -8,6 +8,11 @@
 
 APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {}
 
+void APlayerControllerLobby::SetupInputComponent() {
+    Super::SetupInputComponent();
+    InputComponent->BindAction("Exit", IE_Released, this, &APlayerControllerLobby::ExitGame);
+}
+
 void APlayerControllerLobby::Client_InitialSetup_Implementation() {
     UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
     if (gameInstance) SERVER_CallUpdate(gameInstance->_PlayerInfoSaved, false);
@@ -33,4 +38,8 @@ void APlayerControllerLobby::Client_CreateMenu_Implementation(TSubclassOf<AActor
             _ActorWidgetMenu = GetWorld()->SpawnActor(menuClass, &position, &rotation);
         }
     }
+}
+
+void APlayerControllerLobby::ExitGame() {
+    FGenericPlatformMisc::RequestExit(false);
 }

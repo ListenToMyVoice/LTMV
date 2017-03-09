@@ -28,4 +28,8 @@ protected:
     /********************************** ACTION MAPPINGS ******************************************/
     /*************** TRIGGER MENU *************/
     void ToogleMenu();
+
+private:
+    /***************** EXIT GAME **************/
+    void ExitGame();
 };

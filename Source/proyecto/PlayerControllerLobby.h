@@ -26,4 +26,11 @@ public:
 
 protected:
     AActor* _ActorWidgetMenu;
+
+    virtual void SetupInputComponent() override;
+
+private:
+    /********************************** ACTION MAPPINGS ******************************************/
+    /***************** EXIT GAME **************/
+    void ExitGame();
 };

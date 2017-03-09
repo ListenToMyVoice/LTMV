@@ -12,6 +12,7 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
 void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
+    InputComponent->BindAction("Exit", IE_Released, this, &APlayerControllerPlay::ExitGame);
 }
 
 void APlayerControllerPlay::BeginPlay() {
@@ -54,4 +55,8 @@ void APlayerControllerPlay::ToogleMenu() {
     //    ULibraryUtils::SetActorEnable(_Menu, false);
     //}
     //isMenuHidden = !isMenuHidden;
+}
+
+void APlayerControllerPlay::ExitGame() {
+    FGenericPlatformMisc::RequestExit(false);
 }
