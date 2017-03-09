@@ -43,10 +43,4 @@ protected:
     APlayerController* _PlayerController_1;
     UPROPERTY(Replicated)
     APlayerController* _PlayerController_2;
-    UPROPERTY(Replicated)
-    APlayerStart* _SpawnPoint_1;
-    UPROPERTY(Replicated)
-    APlayerStart* _SpawnPoint_2;
-
-    void FindSpawnPoints();
 };

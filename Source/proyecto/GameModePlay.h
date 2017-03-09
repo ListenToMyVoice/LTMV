@@ -20,10 +20,4 @@ public:
 protected:
     UPROPERTY(Replicated)
     int32 _CurrentPlayers;
-    UPROPERTY(Replicated)
-    APlayerStart* _SpawnPoint_1;
-    UPROPERTY(Replicated)
-    APlayerStart* _SpawnPoint_2;
-
-    void FindSpawnPoints();
 };

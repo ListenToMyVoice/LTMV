@@ -16,8 +16,6 @@ void AGameModeLobby::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 
     DOREPLIFETIME(AGameModeLobby, _PlayerController_1);
     DOREPLIFETIME(AGameModeLobby, _PlayerController_2);
-    DOREPLIFETIME(AGameModeLobby, _SpawnPoint_1);
-    DOREPLIFETIME(AGameModeLobby, _SpawnPoint_2);
 }
 
 AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
@@ -75,13 +73,12 @@ void AGameModeLobby::SERVER_SwapCharacter_Implementation(APlayerController* Play
         if (PlayerController->GetPawn()) {
             PlayerController->GetPawn()->Destroy();
         }
-        FindSpawnPoints();
         FTransform transform;
         if (_CurrentPlayers == 1) {
-            transform = _SpawnPoint_1->GetActorTransform();
+            transform = FindPlayerStart(PlayerController, "host")->GetActorTransform();
         }
         else {
-            transform = _SpawnPoint_2->GetActorTransform();
+            transform = FindPlayerStart(PlayerController, "guest")->GetActorTransform();
         }
         APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(CharacterClass, &transform));
 
@@ -105,21 +102,4 @@ void AGameModeLobby::SERVER_UpdateEveryOne_Implementation() {
 
 void AGameModeLobby::LaunchGame() {
     GetWorld()->ServerTravel(_MapNameGM, true);
-    //if(_PlayerController_1)
-    //    _PlayerController_1->ClientTravel(_MapNameGM, ETravelType::TRAVEL_Absolute);
-    //if (_PlayerController_2)
-    //    _PlayerController_2->ClientTravel(_MapNameGM, ETravelType::TRAVEL_Absolute);
-}
-
-void AGameModeLobby::FindSpawnPoints() {
-    if (!_SpawnPoint_1 || !_SpawnPoint_2) {
-        for (TActorIterator<APlayerStart> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-            if ((*ActorItr)->GetFName().IsEqual("PlayerStart_1")) {
-                _SpawnPoint_1 = *ActorItr;
-            }
-            else {
-                _SpawnPoint_2 = *ActorItr;
-            }
-        }
-    }
 }
