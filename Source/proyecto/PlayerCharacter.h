@@ -123,7 +123,7 @@ protected:
     FHitResult Raycasting();
 
 private:
-    UCameraComponent* _playerCamera;
+    UCameraComponent* _PlayerCamera;
 
     bool _isAction;
     AItemActor* _itemLeft;

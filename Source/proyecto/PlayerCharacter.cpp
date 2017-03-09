@@ -41,7 +41,7 @@ void APlayerCharacter::GetOwnComponents() {
 
     for (UActorComponent* Component : Components) {
         if (Component && Component->IsA<UCameraComponent>()) {
-            _playerCamera = Cast<UCameraComponent>(Component);
+            _PlayerCamera = Cast<UCameraComponent>(Component);
         }
     }
 }
@@ -87,8 +87,8 @@ FHitResult APlayerCharacter::Raycasting() {
     FHitResult HitActor;
     FCollisionQueryParams CollisionInfo;
 
-    FVector StartRaycast = _playerCamera->GetComponentLocation();
-    FVector EndRaycast = _playerCamera->GetForwardVector() * RayParameter + StartRaycast;
+    FVector StartRaycast = _PlayerCamera->GetComponentLocation();
+    FVector EndRaycast = _PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
     //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
@@ -126,8 +126,8 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 /************** USE *************/
 bool APlayerCharacter::RayCastCamera(FHitResult &hitActor) {
     FCollisionQueryParams CollisionInfo;
-    FVector StartRaycast = _playerCamera->GetComponentLocation();
-    FVector EndRaycast = StartRaycast + (_playerCamera->GetComponentRotation().Vector() * RayParameter);
+    FVector StartRaycast = _PlayerCamera->GetComponentLocation();
+    FVector EndRaycast = StartRaycast + (_PlayerCamera->GetComponentRotation().Vector() * RayParameter);
     //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
     return GetWorld()->LineTraceSingleByChannel(hitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 }
