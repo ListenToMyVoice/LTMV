@@ -25,7 +25,7 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
 
     _MaxPlayers = 2;
     _ServerName = "";
-    _MapNameGM = "/Game/Maps/Hito3/intro_level_3";
+    _MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
 }
 
 void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {

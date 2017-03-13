@@ -33,11 +33,9 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Session")
     FString _SessionOwner;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Session")
-    FName _MapMenuName;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Session")
-    FName _MapLobbyName;
+    FString _MapLobbyName;
 
     UNWGameInstance(const FObjectInitializer& OI);
 

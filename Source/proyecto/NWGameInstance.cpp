@@ -30,8 +30,7 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
     OnDestroySessionCompleteDelegate =
         FOnDestroySessionCompleteDelegate::CreateUObject(this, &UNWGameInstance::OnDestroySessionComplete);
 
-    _MapMenuName = FName(TEXT("MenuMain"));
-    _MapLobbyName = FName(TEXT("MenuLobby"));
+    _MapLobbyName = USettings::Get()->LevelLobby.GetAssetName();
     
     _MaxPlayers = 2;
     _ServerName = "";
@@ -104,7 +103,7 @@ bool UNWGameInstance::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName S
         _SessionSettings->bShouldAdvertise = true;
         _SessionSettings->bAllowJoinViaPresence = true;
         _SessionSettings->bAllowJoinViaPresenceFriendsOnly = false;
-        _SessionSettings->Set(SETTING_MAPNAME, _MapLobbyName.ToString(),
+        _SessionSettings->Set(SETTING_MAPNAME, _MapLobbyName,
                               EOnlineDataAdvertisementType::ViaOnlineService);
         OnCreateSessionCompleteDelegateHandle = 
             Sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
@@ -130,7 +129,7 @@ void UNWGameInstance::OnStartOnlineGameComplete(FName SessionName, bool bWasSucc
         Sessions->ClearOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegateHandle);
     }
     if (bWasSuccessful) {
-        UGameplayStatics::OpenLevel(GetWorld(), _MapLobbyName, true, "listen");
+        UGameplayStatics::OpenLevel(GetWorld(), FName(*_MapLobbyName), true, "listen");
     }
 }
 

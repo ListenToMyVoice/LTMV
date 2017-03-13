@@ -7,5 +7,6 @@
 #include "UnrealNetwork.h"
 #include "Online.h"
 #include "LibraryUtils.h"
+#include "Settings.h"
 
 #endif
