@@ -6,7 +6,13 @@
 #include "GameModeLobby.h"
 
 
-APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {}
+APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
+    _audioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+    static ConstructorHelpers::FObjectFinder<USoundWave> Finder(TEXT(
+        "/Game/Audio/Sounds/beep"));
+    _audioComp->SetSound(Finder.Object);
+    _audioComp->bAutoActivate = false;
+}
 
 void APlayerControllerLobby::SetupInputComponent() {
     Super::SetupInputComponent();
@@ -42,4 +48,19 @@ void APlayerControllerLobby::Client_CreateMenu_Implementation(TSubclassOf<AActor
 
 void APlayerControllerLobby::ExitGame() {
     FGenericPlatformMisc::RequestExit(false);
+}
+
+void APlayerControllerLobby::ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
+                                                       class UAudioComponent* AudioComponent) {
+    AudioComponent->bEnableLowPassFilter = true;
+    AudioComponent->LowPassFilterFrequency = 60000;
+
+    ULibraryUtils::Log("Audio Started", 0, 10);
+    _audioComp->Play();
+    AudioComponent->OnAudioFinishedNative.AddUObject(this, &APlayerControllerLobby::EndAudio);
+}
+
+void APlayerControllerLobby::EndAudio(UAudioComponent* AudioComponent) {
+    ULibraryUtils::Log("Audio Finished", 0, 10);
+    _audioComp->Play();
 }

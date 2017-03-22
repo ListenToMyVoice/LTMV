@@ -13,6 +13,9 @@ class LTMV_API APlayerControllerLobby : public APlayerController {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UAudioComponent* _audioComp;
+
     APlayerControllerLobby(const FObjectInitializer& OI);
 
     UFUNCTION(Client, Reliable)
@@ -23,6 +26,10 @@ public:
 
     UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
     void Client_CreateMenu(TSubclassOf<AActor> menuClass);
+
+    virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
+                                           class UAudioComponent* AudioComponent) override;
+    void EndAudio(UAudioComponent* AudioComponent);
 
 protected:
     AActor* _ActorWidgetMenu;
