@@ -1,0 +1,10 @@
+{
+	"Changelist" : 3299760,
+	"BuildId" : "",
+	"Modules" : 
+	{
+		"FMODStudioOculus" : "UE4Editor-FMODStudioOculus.dll",
+		"FMODStudio" : "UE4Editor-FMODStudio.dll",
+		"FMODStudioEditor" : "UE4Editor-FMODStudioEditor.dll"
+	}
+}
