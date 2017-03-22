@@ -134,4 +134,7 @@ private:
     void SaveInventory(AItemActor* itemActor);
 
     ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
+
+    //Global HitResult to check actor in every tick:
+    FHitResult hitResult;
 };

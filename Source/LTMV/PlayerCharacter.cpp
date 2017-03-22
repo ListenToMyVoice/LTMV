@@ -49,6 +49,8 @@ void APlayerCharacter::GetOwnComponents() {
 void APlayerCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
+    Raycasting();
+
     bool stop = false;
     if (GetCharacterMovement()->Velocity.Equals(FVector::ZeroVector)) {
         stop = true;
@@ -84,21 +86,40 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
 FHitResult APlayerCharacter::Raycasting() {
 
     bool bHitRayCastFlag;
-    FHitResult HitActor;
+    //FHitResult HitActor;
     FCollisionQueryParams CollisionInfo;
 
     FVector StartRaycast = _PlayerCamera->GetComponentLocation();
     FVector EndRaycast = _PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
-    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(HitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(hitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
     //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
-    //if (bHitRayCastFlag && HitActor.Actor.IsValid()) {
-    //    // COOL STUFF TO GRAB OBJECTS
-    //    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitActor.Actor->GetName()));
-    //}
+    if (bHitRayCastFlag && hitResult.Actor.IsValid()) {
+        // COOL STUFF TO GRAB OBJECTS
+        UActorComponent* actorComponent = hitResult.GetComponent();
 
-    return HitActor;
+        TArray<UActorComponent*> components = actorComponent->GetOwner()->GetComponentsByClass(UInventory::StaticClass());
+
+            for (UActorComponent* component : components) {
+                UInventory* itemInventory = Cast<UInventory>(component);
+
+                UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(itemInventory->GetOwner()->GetComponentByClass(
+                    UStaticMeshComponent::StaticClass()));
+
+                //Highlight outline colors:
+                //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
+                mesh->SetRenderCustomDepth(true);
+                mesh->SetCustomDepthStencilValue(255);
+
+
+                //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *mesh->GetName()));
+                //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
+        }
+
+    }
+
+    return hitResult;
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
@@ -128,7 +149,7 @@ bool APlayerCharacter::RayCastCamera(FHitResult &hitActor) {
     FCollisionQueryParams CollisionInfo;
     FVector StartRaycast = _PlayerCamera->GetComponentLocation();
     FVector EndRaycast = StartRaycast + (_PlayerCamera->GetComponentRotation().Vector() * RayParameter);
-    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
     return GetWorld()->LineTraceSingleByChannel(hitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 }
 
@@ -239,6 +260,8 @@ void APlayerCharacter::MULTI_TakeLeft_Implementation(AItemActor* actor, UItemTak
 
         mesh->RelativeLocation = takeComp->_locationAttach;
         mesh->RelativeRotation = takeComp->_rotationAttach;
+
+        
 
         //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
         //UE_LOG(LogTemp, Warning, TEXT("%s: TakeLeft"), *EnumPtr->GetEnumName((int32)Role));
