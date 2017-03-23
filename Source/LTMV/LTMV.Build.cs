@@ -9,7 +9,8 @@ public class LTMV : ModuleRules {
                                                             "Engine",
                                                             "InputCore",
                                                             "OnlineSubsystem",
-                                                            "OnlineSubsystemUtils" });
+                                                            "OnlineSubsystemUtils",
+                                                            "FMODStudio" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "HeadMountedDisplay",
                                                              "SteamVR",

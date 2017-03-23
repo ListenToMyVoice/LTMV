@@ -13,8 +13,7 @@ class LTMV_API APlayerControllerLobby : public APlayerController {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    UAudioComponent* _AudioComp;
+    class UFMODAudioComponent* _AudioComp;
 
     APlayerControllerLobby(const FObjectInitializer& OI);
 
@@ -32,7 +31,7 @@ public:
 
     virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
                                            class UAudioComponent* AudioComponent) override;
-    //void EndAudio(UAudioComponent* AudioComponent);
+
     UFUNCTION(BlueprintCallable, Category = "Voice")
     bool IsListen();
 

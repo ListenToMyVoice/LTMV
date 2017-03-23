@@ -4,14 +4,16 @@
 #include "PlayerControllerLobby.h"
 
 #include "GameModeLobby.h"
+#include "FMODAudioComponent.h"
 
 
 APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
-    _AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
-    static ConstructorHelpers::FObjectFinder<USoundWave> Finder(TEXT("/Game/Audio/Sounds/RadioNoise"));
-    _AudioComp->SetSound(Finder.Object);
+    _AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+    static ConstructorHelpers::FObjectFinder<UObject> Finder(
+        TEXT("/Game/FMOD/Events/Character/Radio/CommandCustom"));
+
+    _AudioComp->SetEvent((UFMODEvent*)(Finder.Object));
     _AudioComp->bAutoActivate = false;
-    _AudioComp->SetVolumeMultiplier(0.2);
 
     _IsListen = false;
 }
@@ -59,14 +61,7 @@ void APlayerControllerLobby::ModifyVoiceAudioComponent(const FUniqueNetId& Remot
     
     //AudioComponent->bEnableLowPassFilter = true;
     //AudioComponent->LowPassFilterFrequency = 60000;
-
-    //AudioComponent->OnAudioFinishedNative.AddUObject(this, &APlayerControllerLobby::EndAudio);
 }
-
-//void APlayerControllerLobby::EndAudio(UAudioComponent* AudioComponent) {
-//    ULibraryUtils::Log("Audio Finished", 0, 10);
-//    _AudioComp->Play();
-//}
 
 void APlayerControllerLobby::TickActor(float DeltaTime, enum ELevelTick TickType,
                                        FActorTickFunction & ThisTickFunction) {
