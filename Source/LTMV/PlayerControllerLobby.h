@@ -14,9 +14,12 @@ class LTMV_API APlayerControllerLobby : public APlayerController {
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    UAudioComponent* _audioComp;
+    UAudioComponent* _AudioComp;
 
     APlayerControllerLobby(const FObjectInitializer& OI);
+
+    virtual void TickActor(float DeltaTime, enum ELevelTick TickType,
+                           FActorTickFunction & ThisTickFunction) override;
 
     UFUNCTION(Client, Reliable)
     void Client_InitialSetup();
@@ -29,7 +32,9 @@ public:
 
     virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
                                            class UAudioComponent* AudioComponent) override;
-    void EndAudio(UAudioComponent* AudioComponent);
+    //void EndAudio(UAudioComponent* AudioComponent);
+    UFUNCTION(BlueprintCallable, Category = "Voice")
+    bool IsListen();
 
 protected:
     AActor* _ActorWidgetMenu;
@@ -37,6 +42,11 @@ protected:
     virtual void SetupInputComponent() override;
 
 private:
+    UAudioComponent* _VoiceAudioComp;
+    bool _IsListen;
+
+    void TickWalkie();
+
     /********************************** ACTION MAPPINGS ******************************************/
     /***************** EXIT GAME **************/
     void ExitGame();

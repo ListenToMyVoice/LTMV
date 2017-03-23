@@ -7,11 +7,13 @@
 
 
 APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
-    _audioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
-    static ConstructorHelpers::FObjectFinder<USoundWave> Finder(TEXT(
-        "/Game/Audio/Sounds/beep"));
-    _audioComp->SetSound(Finder.Object);
-    _audioComp->bAutoActivate = false;
+    _AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+    static ConstructorHelpers::FObjectFinder<USoundWave> Finder(TEXT("/Game/Audio/Sounds/RadioNoise"));
+    _AudioComp->SetSound(Finder.Object);
+    _AudioComp->bAutoActivate = false;
+    _AudioComp->SetVolumeMultiplier(0.2);
+
+    _IsListen = false;
 }
 
 void APlayerControllerLobby::SetupInputComponent() {
@@ -52,15 +54,41 @@ void APlayerControllerLobby::ExitGame() {
 
 void APlayerControllerLobby::ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
                                                        class UAudioComponent* AudioComponent) {
-    AudioComponent->bEnableLowPassFilter = true;
-    AudioComponent->LowPassFilterFrequency = 60000;
+    
+    if (!_VoiceAudioComp) _VoiceAudioComp = AudioComponent;
+    
+    //AudioComponent->bEnableLowPassFilter = true;
+    //AudioComponent->LowPassFilterFrequency = 60000;
 
-    ULibraryUtils::Log("Audio Started", 0, 10);
-    _audioComp->Play();
-    AudioComponent->OnAudioFinishedNative.AddUObject(this, &APlayerControllerLobby::EndAudio);
+    //AudioComponent->OnAudioFinishedNative.AddUObject(this, &APlayerControllerLobby::EndAudio);
 }
 
-void APlayerControllerLobby::EndAudio(UAudioComponent* AudioComponent) {
-    ULibraryUtils::Log("Audio Finished", 0, 10);
-    _audioComp->Play();
+//void APlayerControllerLobby::EndAudio(UAudioComponent* AudioComponent) {
+//    ULibraryUtils::Log("Audio Finished", 0, 10);
+//    _AudioComp->Play();
+//}
+
+void APlayerControllerLobby::TickActor(float DeltaTime, enum ELevelTick TickType,
+                                       FActorTickFunction & ThisTickFunction) {
+    Super::TickActor(DeltaTime, TickType, ThisTickFunction);
+    TickWalkie();
+}
+
+void APlayerControllerLobby::TickWalkie() {
+    if(_VoiceAudioComp && _AudioComp) {
+        if (_VoiceAudioComp->IsPlaying() && !_AudioComp->IsPlaying()) {
+            ULibraryUtils::Log("Play Radio", 0, 10);
+            _AudioComp->Play();
+            _IsListen = true;
+        }
+        else if (!_VoiceAudioComp->IsPlaying() && _AudioComp->IsPlaying()) {
+            ULibraryUtils::Log("Stop Radio", 2, 10);
+            _AudioComp->Stop();
+            _IsListen = false;
+        }
+    }
+}
+
+bool APlayerControllerLobby::IsListen() {
+    return _IsListen;
 }
