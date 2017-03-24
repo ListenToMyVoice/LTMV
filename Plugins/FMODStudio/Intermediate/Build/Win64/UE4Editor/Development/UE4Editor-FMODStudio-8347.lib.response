@@ -3,7 +3,7 @@
 /MACHINE:x64
 /SUBSYSTEM:WINDOWS
 /DEF
-/NAME:"UE4Editor-FMODStudio-8625.dll"
+/NAME:"UE4Editor-FMODStudio-8347.dll"
 /IGNORE:4221
 /LIBPATH:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64"
 /NODEFAULTLIB:"LIBCMT"
@@ -34,6 +34,6 @@
 "C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudio\FMODStudioModule.cpp.obj"
 "C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudio\FMODVCA.cpp.obj"
 "C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudio\FMODStudio.generated.cpp.obj"
-"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\FMODStudio\PCLaunch.rc.res"
-"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\ModuleVersionResource.rc.inl.res"
-/OUT:"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudio-8625.lib"
+"C:\Program Files\Epic Games\UE_LTMV\Engine\Intermediate\Build\Win64\UE4Editor\Development\PCLaunch.rc.res"
+"C:\Program Files\Epic Games\UE_LTMV\Engine\Intermediate\Build\Win64\UE4Editor\Development\ModuleVersionResource.rc.inl.res"
+/OUT:"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudio-8347.lib"

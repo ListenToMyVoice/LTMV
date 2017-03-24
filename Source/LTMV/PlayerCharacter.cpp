@@ -103,18 +103,18 @@ FHitResult APlayerCharacter::Raycasting() {
         // COOL STUFF TO GRAB OBJECTS
         UActorComponent* actorComponent = hitResult.GetComponent();
 
-        TArray<UActorComponent*> components = actorComponent->GetOwner()->GetComponentsByClass(UInventory::StaticClass());
+        components = actorComponent->GetOwner()->GetComponentsByClass(UInventory::StaticClass());
 
             for (UActorComponent* component : components) {
-                UInventory* itemInventory = Cast<UInventory>(component);
+                //UInventory* itemInventory = Cast<UInventory>(component);
 
-                lastActorAim = Cast<UStaticMeshComponent>(itemInventory->GetOwner()->GetComponentByClass(
+                lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
 
                 //Highlight outline colors:
                 //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
-                lastActorAim->SetRenderCustomDepth(true);
-                lastActorAim->SetCustomDepthStencilValue(255);
+                lastMeshFocused->SetRenderCustomDepth(true);
+                lastMeshFocused->SetCustomDepthStencilValue(255);
                 bInventoryItemHit = true;
 
                 //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
@@ -122,11 +122,11 @@ FHitResult APlayerCharacter::Raycasting() {
     }
     
     //If Raycast is not hitting any actor, disable the outline
-    if (bInventoryItemHit && hitResult.Actor == nullptr) {
+    if (bInventoryItemHit && hitResult.Actor != lastMeshFocused->GetOwner()) {
         //UActorComponent* actorComponent = hitResult.GetComponent();
         
-        lastActorAim->SetCustomDepthStencilValue(0);
-        lastActorAim->SetRenderCustomDepth(false);
+        lastMeshFocused->SetCustomDepthStencilValue(0);
+        lastMeshFocused->SetRenderCustomDepth(false);
 
         bInventoryItemHit = false;
     }

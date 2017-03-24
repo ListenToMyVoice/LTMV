@@ -82,8 +82,8 @@
 "C:\Program Files\Epic Games\UE_LTMV\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Core.lib"
 "C:\Program Files\Epic Games\UE_LTMV\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-CoreUObject.lib"
 "C:\Program Files\Epic Games\UE_LTMV\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Engine.lib"
-"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudio.lib"
-/OUT:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64\UE4Editor-FMODStudioEditor.dll"
-/IMPLIB:"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudioEditor.suppressed.lib"
-/PDB:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64\UE4Editor-FMODStudioEditor.pdb"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudio-8347.lib"
+/OUT:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64\UE4Editor-FMODStudioEditor-8347.dll"
+/IMPLIB:"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudioEditor-8347.suppressed.lib"
+/PDB:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64\UE4Editor-FMODStudioEditor-8347.pdb"
 /ignore:4078

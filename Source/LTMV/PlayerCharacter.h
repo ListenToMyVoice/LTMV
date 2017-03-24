@@ -140,6 +140,8 @@ private:
 
     bool bInventoryItemHit = false;
 
-    UStaticMeshComponent* lastActorAim;
-    FHitResult hitResultActor;
+    TArray<UActorComponent*> components;
+
+    UStaticMeshComponent* lastMeshFocused = nullptr;
+
 };

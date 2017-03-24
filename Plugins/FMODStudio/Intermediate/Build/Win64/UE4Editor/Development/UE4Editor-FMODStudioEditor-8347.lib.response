@@ -3,7 +3,7 @@
 /MACHINE:x64
 /SUBSYSTEM:WINDOWS
 /DEF
-/NAME:"UE4Editor-FMODStudioEditor-6579.dll"
+/NAME:"UE4Editor-FMODStudioEditor-8347.dll"
 /IGNORE:4221
 /LIBPATH:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64"
 /NODEFAULTLIB:"LIBCMT"
@@ -26,6 +26,6 @@
 "C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODStudioStyle.cpp.obj"
 "C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\SFMODEventEditorPanel.cpp.obj"
 "C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODStudioEditor.generated.cpp.obj"
-"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\PCLaunch.rc.res"
-"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\ModuleVersionResource.rc.inl.res"
-/OUT:"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudioEditor-6579.lib"
+"C:\Program Files\Epic Games\UE_LTMV\Engine\Intermediate\Build\Win64\UE4Editor\Development\PCLaunch.rc.res"
+"C:\Program Files\Epic Games\UE_LTMV\Engine\Intermediate\Build\Win64\UE4Editor\Development\ModuleVersionResource.rc.inl.res"
+/OUT:"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudioEditor-8347.lib"
