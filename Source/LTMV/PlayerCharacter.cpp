@@ -103,19 +103,30 @@ FHitResult APlayerCharacter::Raycasting() {
         // COOL STUFF TO GRAB OBJECTS
         UActorComponent* actorComponent = hitResult.GetComponent();
 
-        components = actorComponent->GetOwner()->GetComponentsByClass(UInventory::StaticClass());
+       // components = actorComponent->GetOwner()->GetComponentsByClass(UInventory::StaticClass());
+        components = actorComponent->GetOwner()->GetComponentsByClass(UActorComponent::StaticClass());
 
             for (UActorComponent* component : components) {
                 //UInventory* itemInventory = Cast<UInventory>(component);
 
-                lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
-                    UStaticMeshComponent::StaticClass()));
-
                 //Highlight outline colors:
                 //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
-                lastMeshFocused->SetRenderCustomDepth(true);
-                lastMeshFocused->SetCustomDepthStencilValue(255);
-                bInventoryItemHit = true;
+                if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())){
+                    lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+                        UStaticMeshComponent::StaticClass()));
+
+                    lastMeshFocused->SetRenderCustomDepth(true);
+                    lastMeshFocused->SetCustomDepthStencilValue(252);
+                    bInventoryItemHit = true;
+                }
+                else if (component->GetClass() == UInventory::StaticClass()) {
+                    lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+                        UStaticMeshComponent::StaticClass()));
+
+                    lastMeshFocused->SetRenderCustomDepth(true);
+                    lastMeshFocused->SetCustomDepthStencilValue(255);
+                    bInventoryItemHit = true;
+                }
 
                 //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
         }
