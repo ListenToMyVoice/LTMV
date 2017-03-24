@@ -1,0 +1,89 @@
+/MANIFEST:NO
+/NOLOGO
+/DEBUG
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/FIXED:No
+/NXCOMPAT
+/STACK:5000000
+/DELAY:UNLOAD
+/DLL
+/PDBALTPATH:%_PDB%
+/OPT:NOREF
+/OPT:NOICF
+/INCREMENTAL:NO
+/ignore:4199
+/ignore:4099
+/DELAYLOAD:"d3d12.dll"
+/DELAYLOAD:"fmodL64.dll"
+/DELAYLOAD:"fmodstudioL64.dll"
+/LIBPATH:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64"
+/NODEFAULTLIB:"LIBCMT"
+/NODEFAULTLIB:"LIBCPMT"
+/NODEFAULTLIB:"LIBCMTD"
+/NODEFAULTLIB:"LIBCPMTD"
+/NODEFAULTLIB:"MSVCRTD"
+/NODEFAULTLIB:"MSVCPRTD"
+/NODEFAULTLIB:"LIBC"
+/NODEFAULTLIB:"LIBCP"
+/NODEFAULTLIB:"LIBCD"
+/NODEFAULTLIB:"LIBCPD"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\PCH.FMODStudioEditor.h.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\AssetTypeActions_FMODEvent.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODAmbientSoundActorFactory.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODAmbientSoundDetails.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODAudioComponentVisualizer.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODEventEditor.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODStudioEditorModule.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODStudioStyle.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\SFMODEventEditorPanel.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\FMODStudioEditor.generated.cpp.obj"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioEditor\PCLaunch.rc.res"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\ModuleVersionResource.rc.inl.res"
+"delayimp.lib"
+"wininet.lib"
+"rpcrt4.lib"
+"ws2_32.lib"
+"dbghelp.lib"
+"comctl32.lib"
+"Winmm.lib"
+"kernel32.lib"
+"user32.lib"
+"gdi32.lib"
+"winspool.lib"
+"comdlg32.lib"
+"advapi32.lib"
+"shell32.lib"
+"ole32.lib"
+"oleaut32.lib"
+"uuid.lib"
+"odbc32.lib"
+"odbccp32.lib"
+"netapi32.lib"
+"iphlpapi.lib"
+"setupapi.lib"
+"dwmapi.lib"
+"imm32.lib"
+"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64\fmodL64_vc.lib"
+"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64\fmodstudioL64_vc.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-UnrealEd.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Slate.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-SlateCore.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-InputCore.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Settings.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-EditorStyle.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-LevelEditor.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-AssetTools.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-AssetRegistry.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-PropertyEditor.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-WorkspaceMenuStructure.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Sockets.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Core.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-CoreUObject.lib"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-Engine.lib"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudio-4392.lib"
+/OUT:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64\UE4Editor-FMODStudioEditor-4392.dll"
+/IMPLIB:"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudioEditor-4392.suppressed.lib"
+/PDB:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64\UE4Editor-FMODStudioEditor-4392.pdb"
+/ignore:4078

@@ -85,7 +85,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
 
 FHitResult APlayerCharacter::Raycasting() {
 
-    bool bHitRayCastFlag;
+    bool bHitRayCastFlag = false;
+    
     //FHitResult HitActor;
     FCollisionQueryParams CollisionInfo;
 
@@ -93,9 +94,12 @@ FHitResult APlayerCharacter::Raycasting() {
     FVector EndRaycast = _PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(hitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (bHitRayCastFlag && hitResult.Actor.IsValid()) {
+
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
+
         // COOL STUFF TO GRAB OBJECTS
         UActorComponent* actorComponent = hitResult.GetComponent();
 
@@ -104,20 +108,29 @@ FHitResult APlayerCharacter::Raycasting() {
             for (UActorComponent* component : components) {
                 UInventory* itemInventory = Cast<UInventory>(component);
 
-                UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(itemInventory->GetOwner()->GetComponentByClass(
+                lastActorAim = Cast<UStaticMeshComponent>(itemInventory->GetOwner()->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
 
                 //Highlight outline colors:
                 //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
-                mesh->SetRenderCustomDepth(true);
-                mesh->SetCustomDepthStencilValue(255);
+                lastActorAim->SetRenderCustomDepth(true);
+                lastActorAim->SetCustomDepthStencilValue(255);
+                bInventoryItemHit = true;
 
-
-                //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *mesh->GetName()));
                 //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
         }
-
     }
+    
+    //If Raycast is not hitting any actor, disable the outline
+    if (bInventoryItemHit && hitResult.Actor == nullptr) {
+        //UActorComponent* actorComponent = hitResult.GetComponent();
+        
+        lastActorAim->SetCustomDepthStencilValue(0);
+        lastActorAim->SetRenderCustomDepth(false);
+
+        bInventoryItemHit = false;
+    }
+    
 
     return hitResult;
 }
@@ -150,7 +163,7 @@ bool APlayerCharacter::RayCastCamera(FHitResult &hitActor) {
     FVector StartRaycast = _PlayerCamera->GetComponentLocation();
     FVector EndRaycast = StartRaycast + (_PlayerCamera->GetComponentRotation().Vector() * RayParameter);
     DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
-    return GetWorld()->LineTraceSingleByChannel(hitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    return GetWorld()->LineTraceSingleByChannel(hitActor, StartRaycast, EndRaycast, ECC_GameTraceChannel1, CollisionInfo);
 }
 
 void APlayerCharacter::Use() {

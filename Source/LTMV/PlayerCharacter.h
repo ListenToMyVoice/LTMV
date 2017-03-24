@@ -137,4 +137,9 @@ private:
 
     //Global HitResult to check actor in every tick:
     FHitResult hitResult;
+
+    bool bInventoryItemHit = false;
+
+    UStaticMeshComponent* lastActorAim;
+    FHitResult hitResultActor;
 };

@@ -1,0 +1,23 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UE4Editor-FMODStudioOculus-6866.dll"
+/IGNORE:4221
+/LIBPATH:"C:\git\LTMV\Plugins\FMODStudio\Binaries\Win64"
+/NODEFAULTLIB:"LIBCMT"
+/NODEFAULTLIB:"LIBCPMT"
+/NODEFAULTLIB:"LIBCMTD"
+/NODEFAULTLIB:"LIBCPMTD"
+/NODEFAULTLIB:"MSVCRTD"
+/NODEFAULTLIB:"MSVCPRTD"
+/NODEFAULTLIB:"LIBC"
+/NODEFAULTLIB:"LIBCP"
+/NODEFAULTLIB:"LIBCD"
+/NODEFAULTLIB:"LIBCPD"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioOculus\Module.FMODStudioOculus.cpp.obj"
+"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioOculus\FMODStudioOculus.generated.cpp.obj"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\FMODStudioOculus\PCLaunch.rc.res"
+"C:\Program Files\Epic Games\UE_4.15\Engine\Intermediate\Build\Win64\UE4Editor\Development\ModuleVersionResource.rc.inl.res"
+/OUT:"C:\git\LTMV\Plugins\FMODStudio\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-FMODStudioOculus-6866.lib"
