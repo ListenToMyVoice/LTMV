@@ -9,10 +9,10 @@
 
 APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
     _AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
-    static ConstructorHelpers::FObjectFinder<UObject> Finder(
-        TEXT("/Game/FMOD/Events/Character/Radio/CommandCustom"));
+    //static ConstructorHelpers::FObjectFinder<UObject> Finder(
+    //    TEXT("/Game/FMOD/Desktop/Events/Character/Radio/CommandCustom"));
 
-    _AudioComp->SetEvent((UFMODEvent*)(Finder.Object));
+    //_AudioComp->SetEvent((UFMODEvent*)(Finder.Object));
     _AudioComp->bAutoActivate = false;
 
     _IsListen = false;
