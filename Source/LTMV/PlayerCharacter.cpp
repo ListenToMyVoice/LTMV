@@ -21,7 +21,7 @@ APlayerCharacter::APlayerCharacter() {
     _itemLeft = nullptr;
     _itemRight = nullptr;
     _isAction = false;
-    _activeScenaryItems = {};
+    //_activeScenaryItems = {};
 
     /*RAYCAST PARAMETERS*/
     RayParameter = 150.0f;
@@ -179,6 +179,7 @@ bool APlayerCharacter::RayCastCamera(FHitResult &hitActor) {
 
 void APlayerCharacter::Use() {
     /* OVERLAPPING DETECTION */
+    /*
     bool found = false;
     int i = _activeScenaryItems.Num() - 1;
     while (!found && i >= 0) {
@@ -189,7 +190,7 @@ void APlayerCharacter::Use() {
             }
         }
         i--;
-    }
+    }*/
 
     /* RAYCASTING DETECTION */
     FHitResult hitActor;
@@ -215,6 +216,7 @@ void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
 /*********** PRESS *********/
 void APlayerCharacter::Press() {
 	/* OVERLAPPING DETECTION */
+    /*
 	bool found = false;
 	int i = _activeScenaryItems.Num() - 1;
 	while (!found && i >= 0) {
@@ -225,7 +227,7 @@ void APlayerCharacter::Press() {
 			}
 		}
 		i--;
-	}
+	}*/
 
 	/* RAYCASTING DETECTION */
 	FHitResult hitActor;
@@ -247,6 +249,7 @@ void APlayerCharacter::MULTI_Press_Implementation(UActorComponent* component) {
 }
 
 /********** TAKE LEFT ***********/
+//Cambiar
 void APlayerCharacter::TakeLeft() {
     if (_itemLeft && _activeScenaryItems.Num() > 0) {
         // REPLACE
@@ -255,11 +258,11 @@ void APlayerCharacter::TakeLeft() {
         UItemTakeLeft* takeComp = data.actor ? Cast<UItemTakeLeft>(data.components[0]) : nullptr;
         if (takeComp) SERVER_TakeLeft(data.actor, takeComp);
     }
-    else if (_itemLeft && _activeScenaryItems.Num() <= 0) {
+    else if (_itemLeft) {
         // DROP
         SERVER_DropLeft();
     }
-    else if (!_itemLeft && _activeScenaryItems.Num() > 0) {
+    else if (!_itemLeft) {
         // TAKE
         ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
         UItemTakeLeft* takeComp = data.actor ? Cast<UItemTakeLeft>(data.components[0]) : nullptr;
@@ -267,12 +270,12 @@ void APlayerCharacter::TakeLeft() {
     }
 }
 
-bool APlayerCharacter::SERVER_TakeLeft_Validate(AItemActor* actor, UItemTakeLeft* takeComp) { return true; }
-void APlayerCharacter::SERVER_TakeLeft_Implementation(AItemActor* actor, UItemTakeLeft* takeComp) {
+bool APlayerCharacter::SERVER_TakeLeft_Validate(AActor* actor, UItemTakeLeft* takeComp) { return true; }
+void APlayerCharacter::SERVER_TakeLeft_Implementation(AActor* actor, UItemTakeLeft* takeComp) {
     MULTI_TakeLeft(actor, takeComp);
 }
 
-void APlayerCharacter::MULTI_TakeLeft_Implementation(AItemActor* actor, UItemTakeLeft* takeComp) {
+void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* actor, UItemTakeLeft* takeComp) {
     _itemLeft = actor;
     UStaticMeshComponent* mesh = _itemLeft->GetStaticMeshComponent();
     if (mesh) {
@@ -291,7 +294,7 @@ void APlayerCharacter::MULTI_TakeLeft_Implementation(AItemActor* actor, UItemTak
         //UE_LOG(LogTemp, Warning, TEXT("%s: TakeLeft"), *EnumPtr->GetEnumName((int32)Role));
     }
     _itemLeft->SetActorEnableCollision(false);
-    _activeScenaryItems.Remove(actor);
+    //_activeScenaryItems.Remove(actor);
 }
 
 bool APlayerCharacter::SERVER_DropLeft_Validate() { return true; }
@@ -313,6 +316,7 @@ void APlayerCharacter::MULTI_DropLeft_Implementation() {
 }
 
 /********** TAKE RIGHT ***********/
+//Cambiar
 void APlayerCharacter::TakeRight() {
     if (_itemRight && _activeScenaryItems.Num() > 0) {
         // REPLACE
@@ -333,12 +337,12 @@ void APlayerCharacter::TakeRight() {
     }
 }
 
-bool APlayerCharacter::SERVER_TakeRight_Validate(AItemActor* actor, UItemTakeRight* takeComp) { return true; }
-void APlayerCharacter::SERVER_TakeRight_Implementation(AItemActor* actor, UItemTakeRight* takeComp) {
+bool APlayerCharacter::SERVER_TakeRight_Validate(AActor* actor, UItemTakeRight* takeComp) { return true; }
+void APlayerCharacter::SERVER_TakeRight_Implementation(AActor* actor, UItemTakeRight* takeComp) {
     MULTI_TakeRight(actor, takeComp);
 }
 
-void APlayerCharacter::MULTI_TakeRight_Implementation(AItemActor* actor, UItemTakeRight* takeComp) {
+void APlayerCharacter::MULTI_TakeRight_Implementation(AActor* actor, UItemTakeRight* takeComp) {
     _itemRight = actor;
     UStaticMeshComponent* mesh = _itemRight->GetStaticMeshComponent();
     if (mesh) {
@@ -355,7 +359,7 @@ void APlayerCharacter::MULTI_TakeRight_Implementation(AItemActor* actor, UItemTa
         //UE_LOG(LogTemp, Warning, TEXT("%s: TakeRight"), *EnumPtr->GetEnumName((int32)Role));
     }
     _itemRight->SetActorEnableCollision(false);
-    _activeScenaryItems.Remove(actor);
+    //_activeScenaryItems.Remove(actor);
 }
 
 bool APlayerCharacter::SERVER_DropRight_Validate() { return true; }
@@ -364,7 +368,7 @@ void APlayerCharacter::SERVER_DropRight_Implementation() {
 }
 
 void APlayerCharacter::MULTI_DropRight_Implementation() {
-    UStaticMeshComponent* mesh = _itemRight->GetStaticMeshComponent();
+    UStaticMeshComponent* mesh = obtainStaticMeshComponent(_itemLeft);
     if (mesh) {
         mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         mesh->SetSimulatePhysics(true);
@@ -381,12 +385,12 @@ void APlayerCharacter::SaveLeft() {
     if (_itemLeft) SERVER_SaveLeft(_itemLeft);
 }
 
-bool APlayerCharacter::SERVER_SaveLeft_Validate(AItemActor* itemActor) { return true; }
-void APlayerCharacter::SERVER_SaveLeft_Implementation(AItemActor* itemActor) {
+bool APlayerCharacter::SERVER_SaveLeft_Validate(AActor* itemActor) { return true; }
+void APlayerCharacter::SERVER_SaveLeft_Implementation(AActor* itemActor) {
     MULTI_SaveLeft(itemActor);
 }
 
-void APlayerCharacter::MULTI_SaveLeft_Implementation(AItemActor* itemActor) {
+void APlayerCharacter::MULTI_SaveLeft_Implementation(AActor* itemActor) {
     //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
     //UE_LOG(LogTemp, Warning, TEXT("%s: MULTI_SaveLeft_Implementation"), *EnumPtr->GetEnumName((int32)Role));
 
@@ -399,12 +403,12 @@ void APlayerCharacter::SaveRight() {
     if (_itemRight) SERVER_SaveRight(_itemRight);
 }
 
-bool APlayerCharacter::SERVER_SaveRight_Validate(AItemActor* itemActor) { return true; }
-void APlayerCharacter::SERVER_SaveRight_Implementation(AItemActor* itemActor) {
+bool APlayerCharacter::SERVER_SaveRight_Validate(AActor* itemActor) { return true; }
+void APlayerCharacter::SERVER_SaveRight_Implementation(AActor* itemActor) {
     MULTI_SaveRight(itemActor);
 }
 
-void APlayerCharacter::MULTI_SaveRight_Implementation(AItemActor* itemActor) {
+void APlayerCharacter::MULTI_SaveRight_Implementation(AActor* itemActor) {
     //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
     //UE_LOG(LogTemp, Warning, TEXT("%s: MULTI_SaveRight_Implementation"), *EnumPtr->GetEnumName((int32)Role));
 
@@ -414,7 +418,7 @@ void APlayerCharacter::MULTI_SaveRight_Implementation(AItemActor* itemActor) {
 
 /****************************************** ACTIONS **********************************************/
 /*** SAVING ***/
-void APlayerCharacter::SaveInventory(AItemActor* item) {
+void APlayerCharacter::SaveInventory(AActor* item) {
     UInventory* inventory = Cast<UInventory>(FindComponentByClass(UInventory::StaticClass()));
     if (inventory && item->FindComponentByClass(UItemSave::StaticClass())) {
         inventory->AddItem(item);
@@ -424,16 +428,19 @@ void APlayerCharacter::SaveInventory(AItemActor* item) {
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
 
 /*** OUTSIDE ***/
-void APlayerCharacter::ActivateScenaryItem(AItemActor* item) {
+/*
+void APlayerCharacter::ActivateScenaryItem(AActor* item) {
     _activeScenaryItems.AddUnique(item);
     _isAction = true;
-}
+}*/
 
-void APlayerCharacter::DeactivateScenaryItem(AItemActor* item) {
+/*
+void APlayerCharacter::DeactivateScenaryItem(AActor* item) {
     _activeScenaryItems.Remove(item);
     _isAction = _activeScenaryItems.Num() > 0 ? true : false;
-}
+}*/
 
+/*
 ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass) {
     ItemData res{};
     int i = _activeScenaryItems.Num() - 1;
@@ -447,6 +454,15 @@ ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorCompone
         }
     }
     return res;
+}*/
+
+/**/
+UStaticMeshComponent* obtainStaticMeshComponent(AActor* Actor) {
+    TArray<UStaticMeshComponent*> Components;
+    Actor->GetComponents<UStaticMeshComponent>(Components);
+    for (int32 i = 0; i < 1; i++) {
+        return Components[0];
+    }
 }
 
 void APlayerCharacter::SwitchSound(USoundWave* sound, bool stop) {

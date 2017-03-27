@@ -42,8 +42,8 @@ public:
 
     void GetOwnComponents();
 
-    void ActivateScenaryItem(AItemActor* item);
-    void DeactivateScenaryItem(AItemActor* item);
+    //void ActivateScenaryItem(AItemActor* item);
+    //void DeactivateScenaryItem(AItemActor* item);
 
     UPROPERTY(EditAnywhere, Category = "Raycast")
     float RayParameter;
@@ -80,9 +80,9 @@ protected:
     /********** TAKE LEFT ***********/
     void TakeLeft();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeLeft(AItemActor* actor, UItemTakeLeft* takeComp);
+    void SERVER_TakeLeft(AActor* actor, UItemTakeLeft* takeComp);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeLeft(AItemActor* actor, UItemTakeLeft* takeComp);
+    void MULTI_TakeLeft(AActor* actor, UItemTakeLeft* takeComp);
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_DropLeft();
     UFUNCTION(NetMulticast, Reliable)
@@ -91,9 +91,9 @@ protected:
     /********** TAKE RIGHT ***********/
     void TakeRight();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeRight(AItemActor* actor, UItemTakeRight* takeComp);
+    void SERVER_TakeRight(AActor* actor, UItemTakeRight* takeComp);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeRight(AItemActor* actor, UItemTakeRight* takeComp);
+    void MULTI_TakeRight(AActor* actor, UItemTakeRight* takeComp);
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_DropRight();
     UFUNCTION(NetMulticast, Reliable)
@@ -102,16 +102,16 @@ protected:
     /************ SAVE LEFT **********/
     void SaveLeft();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveLeft(AItemActor* itemActor);
+    void SERVER_SaveLeft(AActor* itemActor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveLeft(AItemActor* itemActor);
+    void MULTI_SaveLeft(AActor* itemActor);
 
     /************ SAVE RIGHT **********/
     void SaveRight();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveRight(AItemActor* itemActor);
+    void SERVER_SaveRight(AActor* itemActor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveRight(AItemActor* itemActor);
+    void MULTI_SaveRight(AActor* itemActor);
 
 
     /* RAYCASTING */
@@ -126,14 +126,14 @@ private:
     UCameraComponent* _PlayerCamera;
 
     bool _isAction;
-    AItemActor* _itemLeft;
-    AItemActor* _itemRight;
-    TArray<AItemActor*> _activeScenaryItems;
+    AActor* _itemLeft;
+    AActor* _itemRight;
+    //TArray<AItemActor*> _activeScenaryItems;
     UActorComponent* _component;
 
-    void SaveInventory(AItemActor* itemActor);
+    void SaveInventory(AActor* itemActor);
 
-    ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
+    //ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
 
     //Global HitResult to check actor in every tick:
     FHitResult hitResult;
