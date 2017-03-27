@@ -15,6 +15,14 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
     if (GameSession) GameSession->bRequiresPushToTalk = true;
 }
 
+void AGameModePlay::InitGame(const FString & MapName, const FString & Options,
+                              FString & ErrorMessage) {
+    Super::InitGame(MapName, Options, ErrorMessage);
+
+    if (GameSession) GameSession->bRequiresPushToTalk = true;
+}
+
+
 bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerController* PlayerController,
                                                   FPlayerInfo info) {
     return true;

@@ -27,7 +27,14 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     _ServerName = "";
     _MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
 
-    if(GameSession) GameSession->bRequiresPushToTalk = false;
+    
+}
+
+void AGameModeLobby::InitGame(const FString & MapName, const FString & Options,
+                              FString & ErrorMessage) {
+    Super::InitGame(MapName, Options, ErrorMessage);
+
+    if (GameSession) GameSession->bRequiresPushToTalk = false;
 }
 
 void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {

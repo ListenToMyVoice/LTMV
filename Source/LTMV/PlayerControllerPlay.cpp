@@ -24,6 +24,9 @@ void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
     InputComponent->BindAction("Exit", IE_Released, this, &APlayerControllerPlay::ExitGame);
+
+    InputComponent->BindAction("PushToTalk", IE_Pressed, this, &APlayerController::StartTalking);
+    InputComponent->BindAction("PushToTalk", IE_Released, this, &APlayerController::StopTalking);
 }
 
 void APlayerControllerPlay::BeginPlay() {

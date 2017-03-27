@@ -15,4 +15,7 @@ public:
 
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_RespawnPlayer(APlayerController* PlayerController, FPlayerInfo info);
+
+    virtual void InitGame(const FString & MapName, const FString & Options,
+                          FString & ErrorMessage) override;
 };

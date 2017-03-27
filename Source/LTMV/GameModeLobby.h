@@ -25,6 +25,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Launch Game")
     void LaunchGame();
 
+    virtual void InitGame(const FString & MapName, const FString & Options, 
+                          FString & ErrorMessage) override;
+
 protected:
     UPROPERTY(Replicated)
     FName _ServerName;
