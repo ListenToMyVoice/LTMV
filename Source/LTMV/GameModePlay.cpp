@@ -11,6 +11,8 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
         "/Game/BluePrints/Characters/PlayerCharacter_BP"));
     DefaultPawnClass = PlayerPawnClassFinder.Class;
     PlayerControllerClass = APlayerControllerPlay::StaticClass();
+
+    if (GameSession) GameSession->bRequiresPushToTalk = true;
 }
 
 bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerController* PlayerController,

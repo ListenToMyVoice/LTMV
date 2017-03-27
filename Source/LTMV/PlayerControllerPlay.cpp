@@ -5,9 +5,20 @@
 
 #include "GameModePlay.h"
 #include "NWGameInstance.h"
+#include "FMODAudioComponent.h"
 
 
-APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {}
+APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
+    /* VOICE */
+    _AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+    static ConstructorHelpers::FObjectFinder<UObject> Finder(
+        TEXT("/Game/FMOD/Events/Character/Radio/CommandCustom"));
+
+    _AudioComp->SetEvent((UFMODEvent*)(Finder.Object));
+    _AudioComp->bAutoActivate = false;
+
+    _IsListen = false;
+}
 
 void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
@@ -30,6 +41,42 @@ bool APlayerControllerPlay::SERVER_CallUpdate_Validate(FPlayerInfo info) {
 void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
     AGameModePlay* gameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
     if (gameMode) gameMode->SERVER_RespawnPlayer(this, info);
+}
+
+
+/*********************************************** VOICE *******************************************/
+void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
+                                                      class UAudioComponent* AudioComponent) {
+
+    if (!_VoiceAudioComp) _VoiceAudioComp = AudioComponent;
+
+    //AudioComponent->bEnableLowPassFilter = true;
+    //AudioComponent->LowPassFilterFrequency = 60000;
+}
+
+void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
+                                      FActorTickFunction & ThisTickFunction) {
+    Super::TickActor(DeltaTime, TickType, ThisTickFunction);
+    TickWalkie();
+}
+
+void APlayerControllerPlay::TickWalkie() {
+    if (_VoiceAudioComp && _AudioComp) {
+        if (_VoiceAudioComp->IsPlaying() && !_AudioComp->IsPlaying()) {
+            ULibraryUtils::Log("Play Radio", 0, 10);
+            _AudioComp->Play();
+            _IsListen = true;
+        }
+        else if (!_VoiceAudioComp->IsPlaying() && _AudioComp->IsPlaying()) {
+            ULibraryUtils::Log("Stop Radio", 2, 10);
+            _AudioComp->Stop();
+            _IsListen = false;
+        }
+    }
+}
+
+bool APlayerControllerPlay::IsListen() {
+    return _IsListen;
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
@@ -57,6 +104,7 @@ void APlayerControllerPlay::ToogleMenu() {
     //isMenuHidden = !isMenuHidden;
 }
 
+/***************** EXIT GAME **************/
 void APlayerControllerPlay::ExitGame() {
     FGenericPlatformMisc::RequestExit(false);
 }

@@ -22,10 +22,12 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     PlayerControllerClass = APlayerControllerLobby::StaticClass();
 
     bUseSeamlessTravel = true;
-
+    
     _MaxPlayers = 2;
     _ServerName = "";
     _MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
+
+    if(GameSession) GameSession->bRequiresPushToTalk = false;
 }
 
 void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {
