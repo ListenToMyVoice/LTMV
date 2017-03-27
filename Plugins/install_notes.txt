@@ -1,4 +1,0 @@
-The FMODStudio can be placed in the Engine/Plugins directory, or in your games's GameName/Plugins directory.
-
-Please see this page for more instructions:
-    http://www.fmod.org/documentation/#content/generated/engine_ue4/overview.html
