@@ -7,8 +7,15 @@
 
 AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& OI) : Super(OI) {
     PrimaryActorTick.bCanEverTick = true;
+    bReplicates = true;
+    bReplicateMovement = true;
 
     AIControllerClass = AEnemyController::StaticClass();
+
+    GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
+    AutoPossessAI = EAutoPossessAI::Disabled;
+    _SightRange = 20.0f;
+    _HearingRange = 20.0f;
 }
 
 void AEnemyCharacter::BeginPlay() {

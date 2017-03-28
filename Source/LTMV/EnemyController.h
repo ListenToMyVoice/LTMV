@@ -28,9 +28,9 @@ public:
     virtual void Possess(APawn* InPawn) override;
 
 protected:
-    void SenseSight(TArray<AActor*> Actors);
-    void SenseHearing(TArray<AActor*> Actors);
+    UFUNCTION()
+    void SenseStuff(TArray<AActor*> Actors);
 
 private:
-    void ApplySenses();
+    void ApplySenses(float SightRange, float HearingRange);
 };

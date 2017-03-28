@@ -3,52 +3,59 @@
 #include "proyecto.h"
 #include "EnemyController.h"
 
+#include "EnemyCharacter.h"
+
 
 AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
     _SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
     _HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
 
     _PerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component"));
-    _PerceptionComp->ConfigureSense(*Cast<UAISenseConfig>(_SightConfig));
+    _PerceptionComp->ConfigureSense(*_SightConfig);
     _PerceptionComp->SetDominantSense(_SightConfig->GetSenseImplementation());
-    _PerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseSight);
-    _PerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseHearing);
+    _PerceptionComp->ConfigureSense(*_HearingConfig);
+    _PerceptionComp->SetDominantSense(_HearingConfig->GetSenseImplementation());
+    _PerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseStuff);
 }
 
 void AEnemyController::Possess(APawn* InPawn) {
-    Super::Possess(InPawn);
-    ApplySenses();
+    AEnemyCharacter* EnemyCharacter = Cast<AEnemyCharacter>(InPawn);
+    if (EnemyCharacter) {
+        Super::Possess(InPawn);
 
-    UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
-                                                         _SightConfig->GetSenseImplementation(),
-                                                         GetControlledPawn());
+        ApplySenses(EnemyCharacter->_SightRange, EnemyCharacter->_HearingRange);
+        UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
+                                                             _SightConfig->GetSenseImplementation(),
+                                                             GetControlledPawn());
+    }
+    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Possess");
 }
 
-void AEnemyController::ApplySenses() {
+void AEnemyController::ApplySenses(float SightRange, float HearingRange) {
     /* Sight */
-    //_SightConfig->SightRadius = InPawn->sightRange;
-    //_SightConfig->LoseSightRadius = (InPawn->sightRange + 20.0f);
+    _SightConfig->SightRadius = SightRange;
+    _SightConfig->LoseSightRadius = SightRange + 20.0f;
     _SightConfig->PeripheralVisionAngleDegrees = 360.0f;
     _SightConfig->DetectionByAffiliation.bDetectEnemies = true;
     _SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
     _SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
     _PerceptionComp->ConfigureSense(*_SightConfig);
+    _PerceptionComp->SetDominantSense(_SightConfig->GetSenseImplementation());
 
     /* Hearing */
-    //_HearingConfig->HearingRange = InPawn->HearingRange;
-    //_HearingConfig->LoSHearingRange = (InPawn->HearingRange + 20.0f);
+    _HearingConfig->HearingRange = HearingRange;
+    _HearingConfig->LoSHearingRange = HearingRange + 20.0f;
     _HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
     _HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
     _HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
     _PerceptionComp->ConfigureSense(*_HearingConfig);
+    _PerceptionComp->SetDominantSense(_HearingConfig->GetSenseImplementation());
+
+    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "ApplySenses");
 }
 
-void AEnemyController::SenseSight(TArray<AActor*> testActors) {
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "I SEE you!");
-}
-
-void AEnemyController::SenseHearing(TArray<AActor*> testActors) {
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "I HEAR you!");
+void AEnemyController::SenseStuff(TArray<AActor*> testActors) {
+    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "SenseStuff");
 }
 
 //void AEnemyController::WakeUp(UBehaviorTree* Tree) {

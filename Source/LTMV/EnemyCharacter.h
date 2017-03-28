@@ -10,6 +10,11 @@ class LTMV_API AEnemyCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float _SightRange;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float _HearingRange;
+
     AEnemyCharacter(const FObjectInitializer& OI);
 
 protected:
