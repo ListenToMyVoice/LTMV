@@ -4,18 +4,19 @@
 #include "EnemyController.h"
 
 #include "EnemyCharacter.h"
-
+#include "Perception/AIPerceptionComponent.h"
 
 AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
     _SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-    _HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
+    //_HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
 
-    _PerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component"));
-    _PerceptionComp->ConfigureSense(*_SightConfig);
-    _PerceptionComp->SetDominantSense(_SightConfig->GetSenseImplementation());
-    _PerceptionComp->ConfigureSense(*_HearingConfig);
-    _PerceptionComp->SetDominantSense(_HearingConfig->GetSenseImplementation());
-    _PerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseStuff);
+    PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component"));
+    PerceptionComponent->ConfigureSense(*_SightConfig);
+    PerceptionComponent->SetDominantSense(_SightConfig->GetSenseImplementation());
+    //PerceptionComponent->ConfigureSense(*_HearingConfig);
+    //PerceptionComponent->SetDominantSense(_HearingConfig->GetSenseImplementation());
+    PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseStuff);
+    
 }
 
 void AEnemyController::Possess(APawn* InPawn) {
@@ -27,9 +28,9 @@ void AEnemyController::Possess(APawn* InPawn) {
         UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
                                                              _SightConfig->GetSenseImplementation(),
                                                              GetPawn());
-        UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
-                                                             _HearingConfig->GetSenseImplementation(),
-                                                             GetPawn());
+        //UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
+        //                                                     _HearingConfig->GetSenseImplementation(),
+        //                                                     GetPawn());
     }
 }
 
@@ -41,17 +42,17 @@ void AEnemyController::ApplySenses(float SightRange, float HearingRange) {
     _SightConfig->DetectionByAffiliation.bDetectEnemies = true;
     _SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
     _SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
-    _PerceptionComp->ConfigureSense(*_SightConfig);
-    _PerceptionComp->SetDominantSense(_SightConfig->GetSenseImplementation());
+    PerceptionComponent->ConfigureSense(*_SightConfig);
+    PerceptionComponent->SetDominantSense(_SightConfig->GetSenseImplementation());
 
     /* Hearing */
-    _HearingConfig->HearingRange = HearingRange;
-    _HearingConfig->LoSHearingRange = HearingRange + 20.0f;
-    _HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
-    _HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
-    _HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
-    _PerceptionComp->ConfigureSense(*_HearingConfig);
-    _PerceptionComp->SetDominantSense(_HearingConfig->GetSenseImplementation());
+    //_HearingConfig->HearingRange = HearingRange;
+    //_HearingConfig->LoSHearingRange = HearingRange + 20.0f;
+    //_HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
+    //_HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
+    //_HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
+    //PerceptionComponent->ConfigureSense(*_HearingConfig);
+    //PerceptionComponent->SetDominantSense(_HearingConfig->GetSenseImplementation());
 
     GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "ApplySenses");
 }
