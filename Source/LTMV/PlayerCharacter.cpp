@@ -26,7 +26,7 @@ APlayerCharacter::APlayerCharacter() {
     //_activeScenaryItems = {};
 
     /*RAYCAST PARAMETERS*/
-    RayParameter = 150.0f;
+    RayParameter = 250.0f;
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
     _audioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
@@ -253,7 +253,7 @@ void APlayerCharacter::MULTI_Press_Implementation(UActorComponent* component) {
 /********** TAKE LEFT ***********/
 //Cambiar
 void APlayerCharacter::TakeLeft() {
-    if (_itemLeft && _itemLeftTaken) {
+    if (_itemLeft && ItemFocused()) {
         // REPLACE
         SERVER_DropLeft();
         //ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
@@ -263,25 +263,29 @@ void APlayerCharacter::TakeLeft() {
 
         if (takeComp) SERVER_TakeLeft(_itemLeft, takeComp);
     }
-    /*
-    else if (_itemLeft) {
+    
+    else if (_itemLeft && !ItemFocused()) {
         // DROP
         SERVER_DropLeft();
     }
-    */
-   if (!_itemLeft && !_itemLeftTaken) {
+    
+   if (!_itemLeft && ItemFocused()) {
         // TAKE
 
        if (hitResult.GetActor()) {
-           _itemLeft = hitResult.GetActor();
-           _itemLeft->SetReplicates(true);
-           _itemLeft->SetReplicateMovement(true);
-           _itemLeftTaken = true;
 
-           UItemTakeLeft* takeComp = _itemLeft ? Cast<UItemTakeLeft>(_itemLeft->GetComponentByClass(
+           UItemTakeLeft* takeComp = hitResult.GetActor()->FindComponentByClass(UItemTakeLeft::StaticClass()) ? Cast<UItemTakeLeft>(hitResult.GetActor()->GetComponentByClass(
                UItemTakeLeft::StaticClass())) : nullptr;
 
-           if (takeComp) SERVER_TakeLeft(_itemLeft, takeComp);
+           if (takeComp) {
+
+               _itemLeft = hitResult.GetActor();
+               _itemLeft->SetReplicates(true);
+               _itemLeft->SetReplicateMovement(true);
+               _itemLeftTaken = true;
+
+               SERVER_TakeLeft(_itemLeft, takeComp);
+           }
        }
 
         //ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
@@ -311,7 +315,6 @@ void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* actor, UItemTakeLef
         mesh->RelativeLocation = takeComp->_locationAttach;
         mesh->RelativeRotation = takeComp->_rotationAttach;
 
-        
 
         //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
         //UE_LOG(LogTemp, Warning, TEXT("%s: TakeLeft"), *EnumPtr->GetEnumName((int32)Role));
@@ -330,6 +333,8 @@ void APlayerCharacter::MULTI_DropLeft_Implementation() {
         UStaticMeshComponent::StaticClass()));
 
     if (mesh) {
+        mesh->SetMobility(EComponentMobility::Movable);
+        mesh->SetIsReplicated(true);
         mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         mesh->SetSimulatePhysics(true);
 
@@ -511,4 +516,13 @@ void APlayerCharacter::SwitchSound(USoundWave* sound, bool stop) {
 
 bool APlayerCharacter::IsAction() {
     return _isAction;
+}
+
+bool APlayerCharacter::ItemFocused() {
+
+    if (hitResult.GetActor()->GetComponentByClass(UInventory::StaticClass())) {
+        return true;
+    }
+
+    return false;
 }

@@ -53,6 +53,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     bool IsAction();
 
+    bool ItemFocused();
+
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
