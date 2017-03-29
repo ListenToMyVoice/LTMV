@@ -26,9 +26,11 @@ void AEnemyController::Possess(APawn* InPawn) {
         ApplySenses(EnemyCharacter->_SightRange, EnemyCharacter->_HearingRange);
         UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
                                                              _SightConfig->GetSenseImplementation(),
-                                                             GetControlledPawn());
+                                                             GetPawn());
+        UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
+                                                             _HearingConfig->GetSenseImplementation(),
+                                                             GetPawn());
     }
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Possess");
 }
 
 void AEnemyController::ApplySenses(float SightRange, float HearingRange) {
