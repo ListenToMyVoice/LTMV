@@ -11,12 +11,11 @@ AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
     //_HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
 
     PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component"));
-    PerceptionComponent->ConfigureSense(*_SightConfig);
-    PerceptionComponent->SetDominantSense(_SightConfig->GetSenseImplementation());
+    //PerceptionComponent->ConfigureSense(*_SightConfig);
+    //PerceptionComponent->SetDominantSense(_SightConfig->GetSenseImplementation());
     //PerceptionComponent->ConfigureSense(*_HearingConfig);
     //PerceptionComponent->SetDominantSense(_HearingConfig->GetSenseImplementation());
-    PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseStuff);
-    
+    //PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseStuff);
 }
 
 void AEnemyController::Possess(APawn* InPawn) {
@@ -25,9 +24,9 @@ void AEnemyController::Possess(APawn* InPawn) {
         Super::Possess(InPawn);
 
         ApplySenses(EnemyCharacter->_SightRange, EnemyCharacter->_HearingRange);
-        UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
-                                                             _SightConfig->GetSenseImplementation(),
-                                                             GetPawn());
+        //UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
+        //                                                     _SightConfig->GetSenseImplementation(),
+        //                                                     GetPawn());
         //UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
         //                                                     _HearingConfig->GetSenseImplementation(),
         //                                                     GetPawn());
@@ -45,6 +44,9 @@ void AEnemyController::ApplySenses(float SightRange, float HearingRange) {
     PerceptionComponent->ConfigureSense(*_SightConfig);
     PerceptionComponent->SetDominantSense(_SightConfig->GetSenseImplementation());
 
+    PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::PerceptionUpdated);
+    PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::TargetPerceptionUpdated);
+
     /* Hearing */
     //_HearingConfig->HearingRange = HearingRange;
     //_HearingConfig->LoSHearingRange = HearingRange + 20.0f;
@@ -57,8 +59,12 @@ void AEnemyController::ApplySenses(float SightRange, float HearingRange) {
     GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "ApplySenses");
 }
 
-void AEnemyController::SenseStuff(TArray<AActor*> testActors) {
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "SenseStuff");
+void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
+    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "PerceptionUpdated");
+}
+
+void AEnemyController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) {
+    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "OnTargetPerceptionUpdated");
 }
 
 //void AEnemyController::WakeUp(UBehaviorTree* Tree) {

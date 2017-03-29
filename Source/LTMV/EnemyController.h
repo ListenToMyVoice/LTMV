@@ -26,7 +26,10 @@ public:
 
 protected:
     UFUNCTION()
-    void SenseStuff(TArray<AActor*> Actors);
+    void PerceptionUpdated(TArray<AActor*> Actors);
+
+    UFUNCTION()
+    void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
 private:
     void ApplySenses(float SightRange, float HearingRange);
