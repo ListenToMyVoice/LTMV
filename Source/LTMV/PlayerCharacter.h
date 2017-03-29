@@ -143,5 +143,5 @@ private:
     TArray<UActorComponent*> components;
 
     UStaticMeshComponent* lastMeshFocused = nullptr;
-
+    bool _itemLeftTaken;
 };

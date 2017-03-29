@@ -12,13 +12,13 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LTMV_API UInventory : public UStaticMeshComponent {
     GENERATED_BODY()
 private:
-    TArray<AItemActor*> _items;
+    TArray<AActor*> _items;
 
 public:
     UInventory();
     virtual void BeginPlay() override;
 
-    int AddItem(AItemActor* item);
+    int AddItem(AActor* item);
 
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
     //                           FActorComponentTickFunction* ThisTickFunction) override;

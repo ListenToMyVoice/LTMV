@@ -22,7 +22,7 @@ void UItemTakeRight::activateItem(UPrimitiveComponent* OverlappedComp,
                         SweepResult);
 
     AItemActor* owner = Cast<AItemActor>(GetOwner());
-    player->ActivateScenaryItem(owner);
+    //player->ActivateScenaryItem(owner);
 }
 
 void UItemTakeRight::deactivateItem(UPrimitiveComponent* OverlappedComp,
@@ -32,5 +32,5 @@ void UItemTakeRight::deactivateItem(UPrimitiveComponent* OverlappedComp,
     Super::deactivateItem(OverlappedComp, player, OtherComp, OtherBodyIndex);
 
     AItemActor* owner = Cast<AItemActor>(GetOwner());
-    player->DeactivateScenaryItem(owner);
+    //player->DeactivateScenaryItem(owner);
 }

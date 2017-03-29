@@ -21,6 +21,8 @@ APlayerCharacter::APlayerCharacter() {
     _itemLeft = nullptr;
     _itemRight = nullptr;
     _isAction = false;
+
+    _itemLeftTaken = false;
     //_activeScenaryItems = {};
 
     /*RAYCAST PARAMETERS*/
@@ -251,22 +253,39 @@ void APlayerCharacter::MULTI_Press_Implementation(UActorComponent* component) {
 /********** TAKE LEFT ***********/
 //Cambiar
 void APlayerCharacter::TakeLeft() {
-    if (_itemLeft && _activeScenaryItems.Num() > 0) {
+    if (_itemLeft && _itemLeftTaken) {
         // REPLACE
         SERVER_DropLeft();
-        ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
-        UItemTakeLeft* takeComp = data.actor ? Cast<UItemTakeLeft>(data.components[0]) : nullptr;
-        if (takeComp) SERVER_TakeLeft(data.actor, takeComp);
+        //ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
+        //UItemTakeLeft* takeComp = data.actor ? Cast<UItemTakeLeft>(data.components[0]) : nullptr;
+        UItemTakeLeft* takeComp = _itemLeft ? Cast<UItemTakeLeft>(_itemLeft->GetComponentByClass(
+            UItemTakeLeft::StaticClass())) : nullptr;
+
+        if (takeComp) SERVER_TakeLeft(_itemLeft, takeComp);
     }
+    /*
     else if (_itemLeft) {
         // DROP
         SERVER_DropLeft();
     }
-    else if (!_itemLeft) {
+    */
+   if (!_itemLeft && !_itemLeftTaken) {
         // TAKE
-        ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
-        UItemTakeLeft* takeComp = data.actor ? Cast<UItemTakeLeft>(data.components[0]) : nullptr;
-        if (takeComp) SERVER_TakeLeft(data.actor, takeComp);
+
+       if (hitResult.GetActor()) {
+           _itemLeft = hitResult.GetActor();
+           _itemLeft->SetReplicates(true);
+           _itemLeft->SetReplicateMovement(true);
+           _itemLeftTaken = true;
+
+           UItemTakeLeft* takeComp = _itemLeft ? Cast<UItemTakeLeft>(_itemLeft->GetComponentByClass(
+               UItemTakeLeft::StaticClass())) : nullptr;
+
+           if (takeComp) SERVER_TakeLeft(_itemLeft, takeComp);
+       }
+
+        //ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
+
     }
 }
 
@@ -276,9 +295,13 @@ void APlayerCharacter::SERVER_TakeLeft_Implementation(AActor* actor, UItemTakeLe
 }
 
 void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* actor, UItemTakeLeft* takeComp) {
-    _itemLeft = actor;
-    UStaticMeshComponent* mesh = _itemLeft->GetStaticMeshComponent();
+    hitResult.GetActor = actor;
+    UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemLeft->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+
     if (mesh) {
+        mesh->SetMobility(EComponentMobility::Movable);
+        mesh->SetIsReplicated(true);
         mesh->SetSimulatePhysics(false);
 
         mesh->AttachToComponent(GetMesh(),
@@ -303,7 +326,9 @@ void APlayerCharacter::SERVER_DropLeft_Implementation() {
 }
 
 void APlayerCharacter::MULTI_DropLeft_Implementation() {
-    UStaticMeshComponent* mesh = _itemLeft->GetStaticMeshComponent();
+    UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemLeft->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+
     if (mesh) {
         mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         mesh->SetSimulatePhysics(true);
@@ -318,22 +343,30 @@ void APlayerCharacter::MULTI_DropLeft_Implementation() {
 /********** TAKE RIGHT ***********/
 //Cambiar
 void APlayerCharacter::TakeRight() {
-    if (_itemRight && _activeScenaryItems.Num() > 0) {
+    if (_itemRight) {
         // REPLACE
         SERVER_DropRight();
-        ItemData data = FindItemAndComponents(UItemTakeRight::StaticClass());
-        UItemTakeRight* takeComp = data.actor ? Cast<UItemTakeRight>(data.components[0]) : nullptr;
-        if (takeComp) SERVER_TakeRight(data.actor, takeComp);
+        //ItemData data = FindItemAndComponents(UItemTakeRight::StaticClass());
+
+        UItemTakeRight* takeComp = _itemRight ? Cast<UItemTakeRight>(_itemRight->GetComponentByClass(
+            UItemTakeLeft::StaticClass())) : nullptr;
+        
+        if (takeComp) SERVER_TakeRight(_itemRight, takeComp);
     }
+    /*
     else if (_itemRight && _activeScenaryItems.Num() <= 0) {
         // DROP
         SERVER_DropRight();
     }
-    else if (!_itemRight && _activeScenaryItems.Num() > 0) {
+    */
+    else if (!_itemRight) {
         // TAKE
-        ItemData data = FindItemAndComponents(UItemTakeRight::StaticClass());
-        UItemTakeRight* takeComp = data.actor ? Cast<UItemTakeRight>(data.components[0]) : nullptr;
-        if (takeComp) SERVER_TakeRight(data.actor, takeComp);
+        //ItemData data = FindItemAndComponents(UItemTakeRight::StaticClass());
+
+        UItemTakeRight* takeComp = _itemRight ? Cast<UItemTakeRight>(_itemRight->GetComponentByClass(
+            UItemTakeLeft::StaticClass())) : nullptr;
+
+        if (takeComp) SERVER_TakeRight(_itemRight, takeComp);
     }
 }
 
@@ -344,7 +377,9 @@ void APlayerCharacter::SERVER_TakeRight_Implementation(AActor* actor, UItemTakeR
 
 void APlayerCharacter::MULTI_TakeRight_Implementation(AActor* actor, UItemTakeRight* takeComp) {
     _itemRight = actor;
-    UStaticMeshComponent* mesh = _itemRight->GetStaticMeshComponent();
+    UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemRight->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+
     if (mesh) {
         mesh->SetSimulatePhysics(false);
 
@@ -368,7 +403,10 @@ void APlayerCharacter::SERVER_DropRight_Implementation() {
 }
 
 void APlayerCharacter::MULTI_DropRight_Implementation() {
-    UStaticMeshComponent* mesh = obtainStaticMeshComponent(_itemLeft);
+
+    UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemRight->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+
     if (mesh) {
         mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         mesh->SetSimulatePhysics(true);
@@ -456,14 +494,6 @@ ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorCompone
     return res;
 }*/
 
-/**/
-UStaticMeshComponent* obtainStaticMeshComponent(AActor* Actor) {
-    TArray<UStaticMeshComponent*> Components;
-    Actor->GetComponents<UStaticMeshComponent>(Components);
-    for (int32 i = 0; i < 1; i++) {
-        return Components[0];
-    }
-}
 
 void APlayerCharacter::SwitchSound(USoundWave* sound, bool stop) {
     if (_audioComp) {

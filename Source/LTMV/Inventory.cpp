@@ -11,14 +11,17 @@ void UInventory::BeginPlay() {
     Super::BeginPlay();
 }
 
-int UInventory::AddItem(AItemActor* item) {
+int UInventory::AddItem(AActor* item) {
     ULibraryUtils::SetActorEnable(item, false);
 
-    item->GetStaticMeshComponent()->AttachToComponent(this,
+    UStaticMeshComponent* itemMesh = Cast<UStaticMeshComponent>(item->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+
+    itemMesh->AttachToComponent(this,
         FAttachmentTransformRules::KeepRelativeTransform);
 
-    item->GetStaticMeshComponent()->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
-    item->GetStaticMeshComponent()->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
+    itemMesh->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
+    itemMesh->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
 
     _items.Add(item);
     return 0;
