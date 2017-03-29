@@ -295,7 +295,7 @@ void APlayerCharacter::SERVER_TakeLeft_Implementation(AActor* actor, UItemTakeLe
 }
 
 void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* actor, UItemTakeLeft* takeComp) {
-    hitResult.GetActor = actor;
+    _itemLeft = actor;
     UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemLeft->GetComponentByClass(
         UStaticMeshComponent::StaticClass()));
 
