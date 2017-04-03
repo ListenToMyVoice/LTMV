@@ -25,8 +25,8 @@ protected:
     UFUNCTION()
     void PerceptionUpdated(TArray<AActor*> Actors);
 
-    UFUNCTION()
-    void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+    //UFUNCTION()
+    //void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
 private:
     void ApplySenses(float SightRange, float HearingRange, float VisionAngleDegrees);

@@ -15,7 +15,7 @@ AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
     GetAIPerceptionComponent()->SetDominantSense(_SightConfig->GetSenseImplementation());
 
     GetAIPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::PerceptionUpdated);
-    GetAIPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::TargetPerceptionUpdated);
+    //GetAIPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::TargetPerceptionUpdated);
 }
 
 void AEnemyController::Possess(APawn* InPawn) {
@@ -43,8 +43,14 @@ void AEnemyController::ApplySenses(float SightRange, float HearingRange, float V
 
 void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
     GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "PerceptionUpdated");
+
+    for (AActor* Actor : Actors) {
+        GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Actor->GetName());
+    }
 }
 
-void AEnemyController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) {
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "OnTargetPerceptionUpdated");
-}
+//void AEnemyController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) {
+//    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "OnTargetPerceptionUpdated");
+//
+//    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Actor->GetName());
+//}
