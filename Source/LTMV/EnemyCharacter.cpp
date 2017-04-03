@@ -14,8 +14,8 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& OI) : Super(OI) {
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
     AutoPossessAI = EAutoPossessAI::Disabled;
-    _SightRange = 20000.0f;
-    _HearingRange = 20000.0f;
+    _SightRadius = 500.0f;
+    _LoseSightRadius = 600.0f;
     _VisionAngleDegrees = 180.0f;
 }
 

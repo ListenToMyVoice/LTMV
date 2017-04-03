@@ -27,16 +27,16 @@ void AEnemyController::Possess(APawn* InPawn) {
     if (EnemyCharacter) {
         Super::Possess(InPawn);
 
-        ApplySenses(EnemyCharacter->_SightRange,
-                    EnemyCharacter->_HearingRange,
+        ApplySenses(EnemyCharacter->_SightRadius,
+                    EnemyCharacter->_LoseSightRadius,
                     EnemyCharacter->_VisionAngleDegrees);
     }
 }
 
-void AEnemyController::ApplySenses(float SightRange, float HearingRange, float VisionAngleDegrees) {
+void AEnemyController::ApplySenses(float SightRange, float LoseSightRadius, float VisionAngleDegrees) {
     /* Sight */
     _SightConfig->SightRadius = SightRange;
-    _SightConfig->LoseSightRadius = SightRange + 20.0f;
+    _SightConfig->LoseSightRadius = LoseSightRadius;
     _SightConfig->PeripheralVisionAngleDegrees = VisionAngleDegrees;
     _SightConfig->DetectionByAffiliation.bDetectEnemies = true;
     _SightConfig->DetectionByAffiliation.bDetectNeutrals = true;

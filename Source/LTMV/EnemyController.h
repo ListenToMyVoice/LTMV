@@ -29,5 +29,5 @@ protected:
     //void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
 private:
-    void ApplySenses(float SightRange, float HearingRange, float VisionAngleDegrees);
+    void ApplySenses(float SightRange, float LoseSightRadius, float VisionAngleDegrees);
 };

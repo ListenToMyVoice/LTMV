@@ -11,9 +11,9 @@ class LTMV_API AEnemyCharacter : public ACharacter {
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float _SightRange;
+    float _SightRadius;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float _HearingRange;
+    float _LoseSightRadius;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float _VisionAngleDegrees;
 
