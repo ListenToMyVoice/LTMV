@@ -4,6 +4,10 @@
 #include "EnemyController.h"
 
 #include "EnemyCharacter.h"
+#include "PlayerCharacter.h"
+
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 
 AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
@@ -43,9 +47,25 @@ void AEnemyController::ApplySenses(float SightRange, float HearingRange, float V
 
 void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
     GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "PerceptionUpdated");
+    if (Blackboard) {
+        APlayerCharacter* Target = nullptr;
+        int i = 0;
+        while (!Target && i < Actors.Num()) {
+            if (Actors[i]->IsA<APlayerCharacter>()) {
+                Target = Cast<APlayerCharacter>(Actors[i]);
+            }
+            else { i++; }
+        }
 
-    for (AActor* Actor : Actors) {
-        GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Actor->GetName());
+        if (Target) {
+            const UBlackboardData* BBAsset = Blackboard->GetBlackboardAsset();
+            if (BBAsset) {
+                const FBlackboard::FKey TargetKey = BBAsset->GetKeyID(FName("TargetPawn"));
+                if (TargetKey != FBlackboard::InvalidKey) {
+                    Blackboard->SetValue<UBlackboardKeyType_Object>(TargetKey, Target);
+                }
+            }
+        }
     }
 }
 
