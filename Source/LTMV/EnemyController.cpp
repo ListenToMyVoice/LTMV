@@ -4,11 +4,10 @@
 #include "EnemyController.h"
 
 #include "EnemyCharacter.h"
-#include "Perception/AIPerceptionComponent.h"
+
 
 AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
     _SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-    //_HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
 
     SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component")));
     GetAIPerceptionComponent()->bAutoActivate = true;
@@ -40,17 +39,6 @@ void AEnemyController::ApplySenses(float SightRange, float HearingRange, float V
     _SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
     GetAIPerceptionComponent()->ConfigureSense(*_SightConfig);
     GetAIPerceptionComponent()->SetDominantSense(_SightConfig->GetSenseImplementation());
-
-    /* Hearing */
-    //_HearingConfig->HearingRange = HearingRange;
-    //_HearingConfig->LoSHearingRange = HearingRange + 20.0f;
-    //_HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
-    //_HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
-    //_HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
-    //PerceptionComponent->ConfigureSense(*_HearingConfig);
-    //PerceptionComponent->SetDominantSense(_HearingConfig->GetSenseImplementation());
-
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "ApplySenses");
 }
 
 void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
@@ -60,7 +48,3 @@ void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
 void AEnemyController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) {
     GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "OnTargetPerceptionUpdated");
 }
-
-//void AEnemyController::WakeUp(UBehaviorTree* Tree) {
-//    RunBehaviorTree(Tree);
-//}
