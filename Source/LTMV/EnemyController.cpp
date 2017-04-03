@@ -10,12 +10,13 @@ AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
     _SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
     //_HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
 
-    PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component"));
-    //PerceptionComponent->ConfigureSense(*_SightConfig);
-    //PerceptionComponent->SetDominantSense(_SightConfig->GetSenseImplementation());
-    //PerceptionComponent->ConfigureSense(*_HearingConfig);
-    //PerceptionComponent->SetDominantSense(_HearingConfig->GetSenseImplementation());
-    //PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::SenseStuff);
+    SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component")));
+    GetAIPerceptionComponent()->bAutoActivate = true;
+    GetAIPerceptionComponent()->ConfigureSense(*_SightConfig);
+    GetAIPerceptionComponent()->SetDominantSense(_SightConfig->GetSenseImplementation());
+
+    GetAIPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::PerceptionUpdated);
+    GetAIPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::TargetPerceptionUpdated);
 }
 
 void AEnemyController::Possess(APawn* InPawn) {
@@ -23,29 +24,22 @@ void AEnemyController::Possess(APawn* InPawn) {
     if (EnemyCharacter) {
         Super::Possess(InPawn);
 
-        ApplySenses(EnemyCharacter->_SightRange, EnemyCharacter->_HearingRange);
-        //UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
-        //                                                     _SightConfig->GetSenseImplementation(),
-        //                                                     GetPawn());
-        //UAIPerceptionSystem::RegisterPerceptionStimuliSource(this,
-        //                                                     _HearingConfig->GetSenseImplementation(),
-        //                                                     GetPawn());
+        ApplySenses(EnemyCharacter->_SightRange,
+                    EnemyCharacter->_HearingRange,
+                    EnemyCharacter->_VisionAngleDegrees);
     }
 }
 
-void AEnemyController::ApplySenses(float SightRange, float HearingRange) {
+void AEnemyController::ApplySenses(float SightRange, float HearingRange, float VisionAngleDegrees) {
     /* Sight */
     _SightConfig->SightRadius = SightRange;
     _SightConfig->LoseSightRadius = SightRange + 20.0f;
-    _SightConfig->PeripheralVisionAngleDegrees = 360.0f;
+    _SightConfig->PeripheralVisionAngleDegrees = VisionAngleDegrees;
     _SightConfig->DetectionByAffiliation.bDetectEnemies = true;
     _SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
     _SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
-    PerceptionComponent->ConfigureSense(*_SightConfig);
-    PerceptionComponent->SetDominantSense(_SightConfig->GetSenseImplementation());
-
-    PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::PerceptionUpdated);
-    PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyController::TargetPerceptionUpdated);
+    GetAIPerceptionComponent()->ConfigureSense(*_SightConfig);
+    GetAIPerceptionComponent()->SetDominantSense(_SightConfig->GetSenseImplementation());
 
     /* Hearing */
     //_HearingConfig->HearingRange = HearingRange;

@@ -14,6 +14,7 @@ class LTMV_API AEnemyController : public AAIController {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     UAISenseConfig_Sight* _SightConfig;
     //UAISenseConfig_Hearing* _HearingConfig;
 
@@ -32,5 +33,5 @@ protected:
     void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
 private:
-    void ApplySenses(float SightRange, float HearingRange);
+    void ApplySenses(float SightRange, float HearingRange, float VisionAngleDegrees);
 };

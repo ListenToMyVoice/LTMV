@@ -14,6 +14,8 @@ public:
     float _SightRange;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float _HearingRange;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float _VisionAngleDegrees;
 
     AEnemyCharacter(const FObjectInitializer& OI);
 
