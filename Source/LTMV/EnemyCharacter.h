@@ -19,6 +19,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
     class UBehaviorTree* _BehaviourTree;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+    int _Damage;
+
     AEnemyCharacter(const FObjectInitializer& OI);
 
 protected:

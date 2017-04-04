@@ -28,6 +28,8 @@ APlayerCharacter::APlayerCharacter() {
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
     _audioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+
+    _Health = 3;
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -418,4 +420,13 @@ void APlayerCharacter::SwitchSound(USoundWave* sound, bool stop) {
 
 bool APlayerCharacter::IsAction() {
     return _isAction;
+}
+
+float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+                                   class AController* EventInstigator, class AActor* DamageCauser) {
+    //Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+    _Health -= DamageAmount;
+    UE_LOG(LogTemp, Warning, TEXT("TakeDamage"));
+    return DamageAmount;
 }

@@ -17,6 +17,7 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& OI) : Super(OI) {
     _SightRadius = 500.0f;
     _LoseSightRadius = 1000.0f;
     _VisionAngleDegrees = 90.0f;
+    _Damage = 1;
 }
 
 void AEnemyCharacter::BeginPlay() {

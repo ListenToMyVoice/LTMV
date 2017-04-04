@@ -21,12 +21,15 @@ class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
     UAudioComponent* _audioComp;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
     USoundWave* _walkSound;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
     USoundWave* _runSound;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
+    int _Health;
 
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -52,6 +55,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     bool IsAction();
+
+    virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+                             class AController* EventInstigator, class AActor* DamageCauser) override;
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
