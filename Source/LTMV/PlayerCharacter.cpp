@@ -20,6 +20,8 @@ APlayerCharacter::APlayerCharacter() {
     _baseLookUpRate = 45.f;
     _itemLeft = nullptr;
     _itemRight = nullptr;
+    _inventory = nullptr;
+
     _isAction = false;
 
     _itemLeftTaken = false;
@@ -83,6 +85,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
 	//Mantener push
 	playerInput->BindAction("Press", IE_Pressed, this, &APlayerCharacter::Press);
+
+    playerInput->BindAction("ShowInventory", IE_Pressed, this, &APlayerCharacter::ShowInventory);
 }
 
 FHitResult APlayerCharacter::Raycasting() {
@@ -100,7 +104,9 @@ FHitResult APlayerCharacter::Raycasting() {
 
     if (bHitRayCastFlag && hitResult.Actor.IsValid()) {
 
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
+        _itemFocused = ItemFocused();
+
+        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
 
         // COOL STUFF TO GRAB OBJECTS
         UActorComponent* actorComponent = hitResult.GetComponent();
@@ -121,7 +127,7 @@ FHitResult APlayerCharacter::Raycasting() {
                     lastMeshFocused->SetCustomDepthStencilValue(252);
                     bInventoryItemHit = true;
                 }
-                else if (component->GetClass() == UInventory::StaticClass()) {
+                else if (component->GetClass() == UItemSave::StaticClass()) {
                     lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
                         UStaticMeshComponent::StaticClass()));
 
@@ -253,23 +259,24 @@ void APlayerCharacter::MULTI_Press_Implementation(UActorComponent* component) {
 /********** TAKE LEFT ***********/
 //Cambiar
 void APlayerCharacter::TakeLeft() {
-    if (_itemLeft && ItemFocused()) {
+    if (_itemLeft && _itemFocused) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("REPLACING: %s"), *hitResult.Actor->GetName()));
+
         // REPLACE
         SERVER_DropLeft();
-        //ItemData data = FindItemAndComponents(UItemTakeLeft::StaticClass());
-        //UItemTakeLeft* takeComp = data.actor ? Cast<UItemTakeLeft>(data.components[0]) : nullptr;
+        
         UItemTakeLeft* takeComp = _itemLeft ? Cast<UItemTakeLeft>(_itemLeft->GetComponentByClass(
             UItemTakeLeft::StaticClass())) : nullptr;
 
         if (takeComp) SERVER_TakeLeft(_itemLeft, takeComp);
     }
     
-    else if (_itemLeft && !ItemFocused()) {
+    else if (_itemLeft && !_itemFocused) {
         // DROP
         SERVER_DropLeft();
     }
     
-   if (!_itemLeft && ItemFocused()) {
+   if (!_itemLeft && _itemFocused) {
         // TAKE
 
        if (hitResult.GetActor()) {
@@ -436,9 +443,9 @@ void APlayerCharacter::SERVER_SaveLeft_Implementation(AActor* itemActor) {
 void APlayerCharacter::MULTI_SaveLeft_Implementation(AActor* itemActor) {
     //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
     //UE_LOG(LogTemp, Warning, TEXT("%s: MULTI_SaveLeft_Implementation"), *EnumPtr->GetEnumName((int32)Role));
-
     SaveInventory(itemActor);
-    _itemLeft = nullptr;
+    //_itemLeft = nullptr;
+
 }
 
 /************ SAVE RIGHT **********/
@@ -462,11 +469,25 @@ void APlayerCharacter::MULTI_SaveRight_Implementation(AActor* itemActor) {
 /****************************************** ACTIONS **********************************************/
 /*** SAVING ***/
 void APlayerCharacter::SaveInventory(AActor* item) {
-    UInventory* inventory = Cast<UInventory>(FindComponentByClass(UInventory::StaticClass()));
-    if (inventory && item->FindComponentByClass(UItemSave::StaticClass())) {
-        inventory->AddItem(item);
+
+    this->_inventory = Cast<UInventory>(this->FindComponentByClass(UInventory::StaticClass()));
+    if (_inventory && item->FindComponentByClass(UItemSave::StaticClass())) {
+        _inventory->AddItem(item);
+        _itemLeft = nullptr;
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("LEFT SAVED: %s"), *item->GetName()));
     }
 }
+
+/*** SHOW INVENTORY ***/
+void APlayerCharacter::ShowInventory() {
+    if (this->_inventory)
+        this->ShowInventory_Implementation(_inventory);
+}
+
+void APlayerCharacter::ShowInventory_Implementation(UInventory* inventory) {
+    inventory->ShowAllItems();
+}
+
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
 
@@ -520,7 +541,9 @@ bool APlayerCharacter::IsAction() {
 
 bool APlayerCharacter::ItemFocused() {
 
-    if (hitResult.GetActor()->GetComponentByClass(UInventory::StaticClass())) {
+    if (hitResult.GetActor()->GetComponentByClass(UItemTakeLeft::StaticClass())
+        || hitResult.GetActor()->GetComponentByClass(UItemTakeRight::StaticClass())
+        || hitResult.GetActor()->GetComponentByClass(UItemSave::StaticClass())) {
         return true;
     }
 

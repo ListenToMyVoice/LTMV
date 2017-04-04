@@ -9,6 +9,7 @@
 class AItemActor;
 class UItemTakeLeft;
 class UItemTakeRight;
+class UInventory;
 
 struct ItemData {
     //GENERATED_USTRUCT_BODY()
@@ -115,6 +116,10 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_SaveRight(AActor* itemActor);
 
+    /*************INVENTORY************/
+    void ShowInventory();
+    void ShowInventory_Implementation(UInventory* inventory);
+
 
     /* RAYCASTING */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
@@ -130,6 +135,7 @@ private:
     bool _isAction;
     AActor* _itemLeft;
     AActor* _itemRight;
+    UInventory* _inventory;
     //TArray<AItemActor*> _activeScenaryItems;
     UActorComponent* _component;
 
@@ -145,5 +151,6 @@ private:
     TArray<UActorComponent*> components;
 
     UStaticMeshComponent* lastMeshFocused = nullptr;
+    bool _itemFocused;
     bool _itemLeftTaken;
 };

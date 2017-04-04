@@ -24,5 +24,21 @@ int UInventory::AddItem(AActor* item) {
     itemMesh->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
 
     _items.Add(item);
+
+    //OnItemAdd();
+
     return 0;
 }
+
+TArray<AActor*> UInventory::GetItemsArray() {
+    return _items;
+}
+
+void UInventory::ShowAllItems() {
+    for (AActor* item:_items){
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *item->GetName()));
+    }
+}
+
+
+//void OnItemAdd_Implementation() {}

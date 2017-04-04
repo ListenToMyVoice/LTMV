@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "ItemActor.h"
-
 #include "Components/StaticMeshComponent.h"
 #include "Inventory.generated.h"
 
@@ -20,6 +18,16 @@ public:
 
     int AddItem(AActor* item);
 
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    TArray<AActor*> GetItemsArray();
+
+    //UFUNCTION(BlueprintNativeEvent, Category = "Inventory", BlueprintCallable)
+    //void OnItemAdd();
+
+    //void OnItemAdd_Implementation();
+
+    void ShowAllItems();
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
     //                           FActorComponentTickFunction* ThisTickFunction) override;
+
 };
