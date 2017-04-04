@@ -27,9 +27,13 @@ void AEnemyController::Possess(APawn* InPawn) {
     if (EnemyCharacter) {
         Super::Possess(InPawn);
 
+        RunBehaviorTree(Cast<AEnemyCharacter>(GetPawn())->_BehaviourTree);
+
         ApplySenses(EnemyCharacter->_SightRadius,
                     EnemyCharacter->_LoseSightRadius,
                     EnemyCharacter->_VisionAngleDegrees);
+
+        UE_LOG(LogTemp, Warning, TEXT("Possess"));
     }
 }
 
@@ -46,23 +50,22 @@ void AEnemyController::ApplySenses(float SightRange, float LoseSightRadius, floa
 }
 
 void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "PerceptionUpdated");
-    if (Blackboard) {
-        APlayerCharacter* Target = nullptr;
-        int i = 0;
-        while (!Target && i < Actors.Num()) {
-            if (Actors[i]->IsA<APlayerCharacter>()) {
-                Target = Cast<APlayerCharacter>(Actors[i]);
-            }
-            else { i++; }
-        }
+    /* Find Player */
+    bool found = false;
+    int i = 0;
+    while (!found && i < Actors.Num()) {
+        if (Actors[i]->IsA<APlayerCharacter>()) found = true;
+        else i++;
+    }
 
-        if (Target) {
+    if (found) {
+        _TargetPawn = _TargetPawn ? nullptr : Cast<APlayerCharacter>(Actors[i]);
+        if (Blackboard) {
             const UBlackboardData* BBAsset = Blackboard->GetBlackboardAsset();
             if (BBAsset) {
                 const FBlackboard::FKey TargetKey = BBAsset->GetKeyID(FName("TargetPawn"));
                 if (TargetKey != FBlackboard::InvalidKey) {
-                    Blackboard->SetValue<UBlackboardKeyType_Object>(TargetKey, Target);
+                    Blackboard->SetValue<UBlackboardKeyType_Object>(TargetKey, _TargetPawn);
                 }
             }
         }

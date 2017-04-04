@@ -10,12 +10,14 @@ class LTMV_API AEnemyCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Settings")
     float _SightRadius;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
     float _LoseSightRadius;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
     float _VisionAngleDegrees;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+    class UBehaviorTree* _BehaviourTree;
 
     AEnemyCharacter(const FObjectInitializer& OI);
 

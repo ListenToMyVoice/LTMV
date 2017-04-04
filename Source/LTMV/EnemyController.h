@@ -22,6 +22,8 @@ public:
     virtual void Possess(APawn* InPawn) override;
 
 protected:
+    class APlayerCharacter* _TargetPawn;
+
     UFUNCTION()
     void PerceptionUpdated(TArray<AActor*> Actors);
 
