@@ -17,7 +17,7 @@ struct ItemData {
     TArray<UActorComponent*> components;
 };
 
-UCLASS(config = Game)
+UCLASS()
 class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 

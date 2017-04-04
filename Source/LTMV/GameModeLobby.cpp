@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "proyecto.h"
+#include "LTMV.h"
 #include "GameModeLobby.h"
 
 #include "NWGameInstance.h"
@@ -22,10 +22,19 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     PlayerControllerClass = APlayerControllerLobby::StaticClass();
 
     bUseSeamlessTravel = true;
-
+    
     _MaxPlayers = 2;
     _ServerName = "";
     _MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
+
+    
+}
+
+void AGameModeLobby::InitGame(const FString & MapName, const FString & Options,
+                              FString & ErrorMessage) {
+    Super::InitGame(MapName, Options, ErrorMessage);
+
+    if (GameSession) GameSession->bRequiresPushToTalk = false;
 }
 
 void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {

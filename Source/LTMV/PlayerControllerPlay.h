@@ -11,14 +11,26 @@ class LTMV_API APlayerControllerPlay : public APlayerController {
     GENERATED_BODY()
 
 public:
+    class UFMODAudioComponent* _AudioComp;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
     TSubclassOf<AActor> _MenuClass;
 
     APlayerControllerPlay(const FObjectInitializer& OI);
 
+    virtual void TickActor(float DeltaTime, enum ELevelTick TickType,
+                           FActorTickFunction & ThisTickFunction) override;
+
     virtual void BeginPlay() override;
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_CallUpdate(FPlayerInfo info);
+
+    /*************************************** VOICE ***********************************************/
+    virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
+                                           class UAudioComponent* AudioComponent) override;
+
+    UFUNCTION(BlueprintCallable, Category = "Voice")
+    bool IsListen();
 
 protected:
     AActor* _MenuActor;
@@ -30,6 +42,11 @@ protected:
     void ToogleMenu();
 
 private:
+    UAudioComponent* _VoiceAudioComp;
+    bool _IsListen;
+
+    void TickWalkie();
+
     /***************** EXIT GAME **************/
     void ExitGame();
 };

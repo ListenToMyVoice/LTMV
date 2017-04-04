@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "proyecto.h"
+#include "LTMV.h"
 #include "GameModePlay.h"
 
 #include "PlayerControllerPlay.h"
@@ -11,7 +11,17 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
         "/Game/BluePrints/Characters/PlayerCharacter_BP"));
     DefaultPawnClass = PlayerPawnClassFinder.Class;
     PlayerControllerClass = APlayerControllerPlay::StaticClass();
+
+    if (GameSession) GameSession->bRequiresPushToTalk = true;
 }
+
+void AGameModePlay::InitGame(const FString & MapName, const FString & Options,
+                              FString & ErrorMessage) {
+    Super::InitGame(MapName, Options, ErrorMessage);
+
+    if (GameSession) GameSession->bRequiresPushToTalk = true;
+}
+
 
 bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerController* PlayerController,
                                                   FPlayerInfo info) {
