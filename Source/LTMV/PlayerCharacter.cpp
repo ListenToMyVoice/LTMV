@@ -10,6 +10,7 @@
 #include "ItfUsable.h"
 #include "KeyComponent.h"
 #include "ItemActor.h"
+#include "FMODAudioComponent.h"
 
 APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
@@ -27,14 +28,19 @@ APlayerCharacter::APlayerCharacter() {
     RayParameter = 150.0f;
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-    _audioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+
+    _AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+    _AudioComp->bAutoActivate = false;
 
     _Health = 3;
+    _LastStepAge = 0;
+    _StepSeconds = 0.5f;
 }
 
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
     GetOwnComponents();
+    _AudioComp->SetEvent(_WalkEvent);
 }
 
 void APlayerCharacter::GetOwnComponents() {
@@ -51,11 +57,14 @@ void APlayerCharacter::GetOwnComponents() {
 void APlayerCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
-    bool stop = false;
-    if (GetCharacterMovement()->Velocity.Equals(FVector::ZeroVector)) {
-        stop = true;
+    if (!GetCharacterMovement()->Velocity.Equals(FVector::ZeroVector) &&
+        _LastStepAge > _StepSeconds) {
+        _AudioComp->Play();
+        _LastStepAge = 0;
     }
-    SwitchSound(_walkSound, stop);
+    else {
+        _LastStepAge += DeltaTime;
+    }
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
@@ -402,20 +411,6 @@ ItemData APlayerCharacter::FindItemAndComponents(const TSubclassOf<UActorCompone
         }
     }
     return res;
-}
-
-void APlayerCharacter::SwitchSound(USoundWave* sound, bool stop) {
-    if (_audioComp) {
-        if (stop && _audioComp->IsPlaying()) {
-            _audioComp->Stop();
-        }
-        else {
-            if (!_audioComp->IsPlaying()) {
-                _audioComp->SetSound(sound);
-                _audioComp->Play();
-            }
-        }
-    }
 }
 
 bool APlayerCharacter::IsAction() {

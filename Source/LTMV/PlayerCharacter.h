@@ -21,12 +21,10 @@ class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-    UAudioComponent* _audioComp;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-    USoundWave* _walkSound;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-    USoundWave* _runSound;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+    class UFMODEvent* _WalkEvent;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+    float _StepSeconds;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
     int _Health;
@@ -50,8 +48,6 @@ public:
 
     UPROPERTY(EditAnywhere, Category = "Raycast")
     float RayParameter;
-
-    void SwitchSound(USoundWave* sound, bool stop);
 
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     bool IsAction();
@@ -79,9 +75,9 @@ protected:
 	/************** PRESS *************/
 	void Press();
 	UFUNCTION(Server, Reliable, WithValidation)
-		void SERVER_Press(UActorComponent* component);
+	void SERVER_Press(UActorComponent* component);
 	UFUNCTION(NetMulticast, Reliable)
-		void MULTI_Press(UActorComponent* component);
+	void MULTI_Press(UActorComponent* component);
 
     /********** TAKE LEFT ***********/
     void TakeLeft();
@@ -129,6 +125,10 @@ protected:
     FHitResult Raycasting();
 
 private:
+    UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    class UFMODAudioComponent* _AudioComp;
+    
+    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;
 
     bool _isAction;
@@ -137,7 +137,15 @@ private:
     TArray<AItemActor*> _activeScenaryItems;
     UActorComponent* _component;
 
+    /* Setps Management */
+    float _LastStepAge;
+
+
     void SaveInventory(AItemActor* itemActor);
 
     ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
+
+public:
+    FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetAudioComp() const { return _AudioComp; }
+    FORCEINLINE UCameraComponent* APlayerCharacter::GetPlayerCamera() const { return _PlayerCamera; }
 };
