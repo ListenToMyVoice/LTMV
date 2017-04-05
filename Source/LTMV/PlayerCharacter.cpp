@@ -427,6 +427,5 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
     //Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
     _Health -= DamageAmount;
-    UE_LOG(LogTemp, Warning, TEXT("TakeDamage"));
     return DamageAmount;
 }
