@@ -21,11 +21,6 @@ class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
-    class UFMODEvent* _WalkEvent;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
-    float _StepSeconds;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
     int _Health;
 
@@ -126,7 +121,7 @@ protected:
 
 private:
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    class UFMODAudioComponent* _AudioComp;
+    class UFMODAudioComponent* _StepsAudioComp;
     
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;
@@ -137,15 +132,11 @@ private:
     TArray<AItemActor*> _activeScenaryItems;
     UActorComponent* _component;
 
-    /* Setps Management */
-    float _LastStepAge;
-
-
     void SaveInventory(AItemActor* itemActor);
 
     ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
 
 public:
-    FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetAudioComp() const { return _AudioComp; }
+    FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }
     FORCEINLINE UCameraComponent* APlayerCharacter::GetPlayerCamera() const { return _PlayerCamera; }
 };

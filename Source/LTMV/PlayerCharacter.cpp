@@ -29,18 +29,17 @@ APlayerCharacter::APlayerCharacter() {
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
-    _AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
-    _AudioComp->bAutoActivate = false;
+    static ConstructorHelpers::FObjectFinder<UObject> Finder(
+        TEXT("/Game/FMOD/Events/Personaje/pasos"));
+    _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+    _StepsAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
 
     _Health = 3;
-    _LastStepAge = 0;
-    _StepSeconds = 0.5f;
 }
 
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
     GetOwnComponents();
-    _AudioComp->SetEvent(_WalkEvent);
 }
 
 void APlayerCharacter::GetOwnComponents() {
@@ -56,15 +55,6 @@ void APlayerCharacter::GetOwnComponents() {
 
 void APlayerCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
-
-    if (!GetCharacterMovement()->Velocity.Equals(FVector::ZeroVector) &&
-        _LastStepAge > _StepSeconds) {
-        _AudioComp->Play();
-        _LastStepAge = 0;
-    }
-    else {
-        _LastStepAge += DeltaTime;
-    }
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
