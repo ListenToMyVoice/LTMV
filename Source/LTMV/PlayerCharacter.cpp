@@ -53,8 +53,10 @@ void APlayerCharacter::GetOwnComponents() {
     }
 }
 
-void APlayerCharacter::Tick(float DeltaTime) {
-    Super::Tick(DeltaTime);
+void APlayerCharacter::Tick(float DeltaSeconds) {
+    Super::Tick(DeltaSeconds);
+    //UE_LOG(LogTemp, Warning, TEXT("0.9"));
+    //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
