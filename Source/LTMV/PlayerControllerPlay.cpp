@@ -30,8 +30,8 @@ void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
 
-    InputComponent->BindAction("PushToTalk", IE_Pressed, this, &APlayerController::StartTalking);
-    InputComponent->BindAction("PushToTalk", IE_Released, this, &APlayerController::StopTalking);
+    InputComponent->BindAction("PushToTalk", IE_Pressed, this, &APlayerControllerPlay::PushTalk);
+    InputComponent->BindAction("PushToTalk", IE_Released, this, &APlayerControllerPlay::ReleaseTalk);
 }
 
 void APlayerControllerPlay::BeginPlay() {
@@ -86,6 +86,27 @@ bool APlayerControllerPlay::IsListen() {
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
+/*************** PUSH TO TALK *************/
+void APlayerControllerPlay::PushTalk() {
+    StartTalking();
+
+    for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
+        if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
+            GameplayMutePlayer(OtherPlayerState->UniqueId);
+        }
+    }
+}
+
+void APlayerControllerPlay::ReleaseTalk() {
+    StopTalking();
+
+    for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
+        if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
+            GameplayUnmutePlayer(OtherPlayerState->UniqueId);
+        }
+    }
+}
+
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
     APawn* pawn = GetPawn();

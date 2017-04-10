@@ -7,4 +7,5 @@
 
 AGameStatePlay::AGameStatePlay(const class FObjectInitializer& OI) : Super(OI){
     _StatueWakeUp = false;
+    _UniqueNetIdArray = {};
 }

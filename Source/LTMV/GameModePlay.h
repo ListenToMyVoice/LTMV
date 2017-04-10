@@ -24,8 +24,6 @@ public:
                           FString & ErrorMessage) override;
 
 protected:
-    //UPROPERTY(Replicated)
     class APlayerControllerPlay* _HostController;
-    //UPROPERTY(Replicated)
     class APlayerControllerPlay* _GuestController;
 };

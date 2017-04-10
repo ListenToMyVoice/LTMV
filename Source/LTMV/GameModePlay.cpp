@@ -7,13 +7,6 @@
 #include "GameStatePlay.h"
 
 
-//void AGameModePlay::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
-//    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-//    DOREPLIFETIME(AGameModePlay, _HostController);
-//    DOREPLIFETIME(AGameModePlay, _GuestController);
-//}
-
 AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(
         "/Game/BluePrints/Characters/PlayerCharacter_BP"));
@@ -46,6 +39,10 @@ void AGameModePlay::SERVER_RespawnPlayer_Implementation(APlayerController* Playe
     if (HasAuthority() && PlayerController->IsA<APlayerControllerPlay>()) {
         if (!_HostController) _HostController = Cast<APlayerControllerPlay>(PlayerController);
         else _GuestController = Cast<APlayerControllerPlay>(PlayerController);
+        
+        //AGameStatePlay* GameStatePlay = GetGameState<AGameStatePlay>();
+        //if (GameStatePlay) GameStatePlay->_UniqueNetIdArray.AddUnique(
+        //    *PlayerController->GetLocalPlayer()->GetPreferredUniqueNetId());
     }
 }
 

@@ -44,6 +44,10 @@ protected:
     /*************** TRIGGER MENU *************/
     void ToogleMenu();
 
+    /*************** PUSH TO TALK *************/
+    void PushTalk();
+    void ReleaseTalk();
+
 private:
     UAudioComponent* _VoiceAudioComp;
     bool _IsListen;

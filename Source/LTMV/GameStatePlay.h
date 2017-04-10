@@ -12,6 +12,7 @@ class LTMV_API AGameStatePlay : public AGameState {
 
 public:
     bool _StatueWakeUp;
+    TArray<TSharedPtr<const FUniqueNetId>> _UniqueNetIdArray;
 
     AGameStatePlay(const class FObjectInitializer& OI);
 };
