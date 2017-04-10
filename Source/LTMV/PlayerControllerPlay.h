@@ -13,9 +13,6 @@ class LTMV_API APlayerControllerPlay : public APlayerController {
 public:
     class UFMODAudioComponent* _AudioComp;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-    TSubclassOf<AActor> _MenuClass;
-
     APlayerControllerPlay(const FObjectInitializer& OI);
 
     virtual void TickActor(float DeltaTime, enum ELevelTick TickType,
@@ -32,8 +29,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Voice")
     bool IsListen();
 
+    UFUNCTION(Client, Reliable)
+    void CLIENT_Dead(const uint32 NetId);
+
 protected:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
+    TSubclassOf<AActor> _MenuClass;
     AActor* _MenuActor;
+    bool _IsMenuHidden;
 
     virtual void SetupInputComponent() override;
 

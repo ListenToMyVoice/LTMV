@@ -34,6 +34,7 @@ public:
             default: // Info
                 GEngine->AddOnScreenDebugMessage(-1, displayTime, FColor::Green, msg);
         }
+        UE_LOG(LogTemp, Warning, TEXT("___ %s ____ "), *msg);
         #endif
     }
 

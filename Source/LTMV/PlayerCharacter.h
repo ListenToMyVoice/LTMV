@@ -50,6 +50,9 @@ public:
     virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                              class AController* EventInstigator, class AActor* DamageCauser) override;
 
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_CharacterDead();
+
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

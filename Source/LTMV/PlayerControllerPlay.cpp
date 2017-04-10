@@ -6,6 +6,7 @@
 #include "GameModePlay.h"
 #include "NWGameInstance.h"
 #include "FMODAudioComponent.h"
+#include "PlayerCharacter.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -16,14 +17,18 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
 
     //_AudioComp->SetEvent((UFMODEvent*)(Finder.Object));
     //_AudioComp->bAutoActivate = false;
-
     _IsListen = false;
+
+    /* MENU */
+    _IsMenuHidden = true;
+    static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
+        "/Game/BluePrints/HUD/MainMenuActor_BP"));
+    _MenuClass = MenuClassFinder.Class;
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
-    InputComponent->BindAction("Exit", IE_Released, this, &APlayerControllerPlay::ExitGame);
 
     InputComponent->BindAction("PushToTalk", IE_Pressed, this, &APlayerController::StartTalking);
     InputComponent->BindAction("PushToTalk", IE_Released, this, &APlayerController::StopTalking);
@@ -66,12 +71,10 @@ void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
 void APlayerControllerPlay::TickWalkie() {
     if (_VoiceAudioComp && _AudioComp) {
         if (_VoiceAudioComp->IsPlaying() && !_AudioComp->IsPlaying()) {
-            ULibraryUtils::Log("Play Radio", 0, 10);
             _AudioComp->Play();
             _IsListen = true;
         }
         else if (!_VoiceAudioComp->IsPlaying() && _AudioComp->IsPlaying()) {
-            ULibraryUtils::Log("Stop Radio", 2, 10);
             _AudioComp->Stop();
             _IsListen = false;
         }
@@ -85,29 +88,49 @@ bool APlayerControllerPlay::IsListen() {
 /****************************************** ACTION MAPPINGS **************************************/
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
-    //if (isMenuHidden) {
-    //    ULibraryUtils::SetActorEnable(_Menu);
+    APawn* pawn = GetPawn();
+    if (pawn) {
+        if (_IsMenuHidden) {
+            UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
+            if (cameraComp) {
+                FVector position = cameraComp->GetComponentLocation();
+                FRotator rotation = cameraComp->GetComponentRotation();
 
-    //    UCameraComponent* cameraComp = Cast<UCameraComponent>(
-    //                                        GetPawn()->FindComponentByClass<UCameraComponent>());
-    //    if (cameraComp) {
-    //        FVector position = cameraComp->GetForwardVector() * 200.0f +
-    //                           cameraComp->GetComponentLocation();
-    //        FRotator rotation = cameraComp->GetComponentRotation();
-    //        _Menu->SetActorLocationAndRotation(position,
-    //                                           rotation,
-    //                                           false,
-    //                                           nullptr,
-    //                                           ETeleportType::TeleportPhysics);
-    //    }
-    //}
-    //else {
-    //    ULibraryUtils::SetActorEnable(_Menu, false);
-    //}
-    //isMenuHidden = !isMenuHidden;
+                if (_MenuActor) {
+                    ULibraryUtils::SetActorEnable(_MenuActor);
+                    _MenuActor->SetActorLocationAndRotation(position,
+                                                            rotation,
+                                                            false,
+                                                            nullptr,
+                                                            ETeleportType::TeleportPhysics);
+                }
+                else {
+                    _MenuActor = GetWorld()->SpawnActor(_MenuClass, &position, &rotation);
+                }
+            }
+        }
+        else {
+            ULibraryUtils::SetActorEnable(_MenuActor, false);
+        }
+        _IsMenuHidden = !_IsMenuHidden;
+    }
 }
 
 /***************** EXIT GAME **************/
 void APlayerControllerPlay::ExitGame() {
     FGenericPlatformMisc::RequestExit(false);
+}
+
+
+/******************************************** GAME FLOW ******************************************/
+void APlayerControllerPlay::CLIENT_Dead_Implementation(uint32 NetId) {
+    if (GetUniqueID() == NetId) {
+        ULibraryUtils::Log(TEXT("MY DEAD"));
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (PlayerCharacter) PlayerCharacter->MULTI_CharacterDead();
+    }
+    else {
+        ULibraryUtils::Log(TEXT("MY FRIEND DEAD"));
+    }
+    ToogleMenu();
 }

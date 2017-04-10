@@ -11,6 +11,7 @@
 #include "KeyComponent.h"
 #include "ItemActor.h"
 #include "FMODAudioComponent.h"
+#include "GameModePlay.h"
 
 APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
@@ -34,7 +35,7 @@ APlayerCharacter::APlayerCharacter() {
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     _StepsAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
 
-    _Health = 3;
+    _Health = 1;
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -412,7 +413,17 @@ bool APlayerCharacter::IsAction() {
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                                    class AController* EventInstigator, class AActor* DamageCauser) {
     //Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
+    ULibraryUtils::Log(TEXT("TakeDamage"));
     _Health -= DamageAmount;
-    return DamageAmount;
+    if (_Health <= 0) {
+        AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
+        if (GameMode) GameMode->SERVER_PlayerDead(GetController());
+    }
+    return _Health;
+}
+
+void APlayerCharacter::MULTI_CharacterDead_Implementation() {
+    Cast<UPrimitiveComponent>(GetRootComponent())->SetCollisionProfileName(FName("Ragdoll"));
+    SetActorEnableCollision(true);
+    GetMesh()->SetSimulatePhysics(true);
 }

@@ -14,7 +14,6 @@ class LTMV_API AGameModeLobby : public AGameMode {
 
 public:
     AGameModeLobby(const class FObjectInitializer& OI);
-
     virtual void PostLogin(APlayerController * NewPlayer) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 

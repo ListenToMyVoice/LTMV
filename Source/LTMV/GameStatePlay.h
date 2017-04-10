@@ -7,11 +7,11 @@
 
 
 UCLASS()
-class LTMV_API AGameStatePlay : public AGameState
-{
-	GENERATED_BODY()
-	
-	
-	
-	
+class LTMV_API AGameStatePlay : public AGameState {
+    GENERATED_BODY()
+
+public:
+    bool _StatueWakeUp;
+
+    AGameStatePlay(const class FObjectInitializer& OI);
 };

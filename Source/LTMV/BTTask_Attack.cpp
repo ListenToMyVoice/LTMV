@@ -21,7 +21,10 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
                                                             GetValueAsObject(FName("SelfActor")));
     if (Target && Self) {
         FDamageEvent DamageEvent;
-        Target->TakeDamage(Self->_Damage, DamageEvent, Self->GetController(), Self);
+        if (Target->TakeDamage(Self->_Damage, DamageEvent, Self->GetController(), Self) <= 0) {
+            OwnerComp.GetBlackboardComponent()->SetValueAsObject(BlackboardKey.SelectedKeyName,
+                                                                 nullptr);
+        }
         return EBTNodeResult::Type::Succeeded;
     }
 

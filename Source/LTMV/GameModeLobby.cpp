@@ -26,8 +26,6 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     _MaxPlayers = 2;
     _ServerName = "";
     _MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
-
-    
 }
 
 void AGameModeLobby::InitGame(const FString & MapName, const FString & Options,
@@ -39,7 +37,8 @@ void AGameModeLobby::InitGame(const FString & MapName, const FString & Options,
 
 void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {
     Super::PostLogin(NewPlayer);
-    
+
+    ULibraryUtils::Log(TEXT("PostLogin"));
     if (HasAuthority()) {
         UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
         if (GameInstance) {
@@ -48,7 +47,7 @@ void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {
         }
 
         APlayerControllerLobby* PlayerController = Cast<APlayerControllerLobby>(NewPlayer);
-        if (PlayerController) PlayerController->Client_InitialSetup();
+        if (PlayerController) PlayerController->CLIENT_InitialSetup();
     }
 }
 

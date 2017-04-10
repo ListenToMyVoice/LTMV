@@ -13,7 +13,7 @@ void APlayerControllerLobby::SetupInputComponent() {
     InputComponent->BindAction("Exit", IE_Released, this, &APlayerControllerLobby::ExitGame);
 }
 
-void APlayerControllerLobby::Client_InitialSetup_Implementation() {
+void APlayerControllerLobby::CLIENT_InitialSetup_Implementation() {
     UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
     if (gameInstance) SERVER_CallUpdate(gameInstance->_PlayerInfoSaved, false);
 }
@@ -26,7 +26,7 @@ void APlayerControllerLobby::SERVER_CallUpdate_Implementation(FPlayerInfo info,
     if (gameMode) gameMode->SERVER_SwapCharacter(this, info, changedStatus);
 }
 
-void APlayerControllerLobby::Client_CreateMenu_Implementation(TSubclassOf<AActor> menuClass) {
+void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor> menuClass) {
     APawn* pawn = GetPawn();
     if (pawn) {
         UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());

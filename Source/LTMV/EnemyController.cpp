@@ -8,6 +8,7 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
+#include "GameStatePlay.h"
 
 
 AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
@@ -32,8 +33,9 @@ void AEnemyController::Possess(APawn* InPawn) {
         ApplySenses(EnemyCharacter->_SightRadius,
                     EnemyCharacter->_LoseSightRadius,
                     EnemyCharacter->_VisionAngleDegrees);
-
-        UE_LOG(LogTemp, Warning, TEXT("Possess"));
+        
+        AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+        if (GameState) GameState->_StatueWakeUp = true;
     }
 }
 

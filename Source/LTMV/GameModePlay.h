@@ -12,10 +12,20 @@ class LTMV_API AGameModePlay : public AGameMode {
 
 public:
     AGameModePlay(const class FObjectInitializer& OI);
+    //virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_RespawnPlayer(APlayerController* PlayerController, FPlayerInfo info);
 
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_PlayerDead(AController* PlayerController);
+
     virtual void InitGame(const FString & MapName, const FString & Options,
                           FString & ErrorMessage) override;
+
+protected:
+    //UPROPERTY(Replicated)
+    class APlayerControllerPlay* _HostController;
+    //UPROPERTY(Replicated)
+    class APlayerControllerPlay* _GuestController;
 };

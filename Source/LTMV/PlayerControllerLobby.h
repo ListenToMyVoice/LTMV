@@ -16,13 +16,13 @@ public:
     APlayerControllerLobby(const FObjectInitializer& OI);
 
     UFUNCTION(Client, Reliable)
-    void Client_InitialSetup();
+    void CLIENT_InitialSetup();
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_CallUpdate(FPlayerInfo info, bool changedStatus);
 
 
     UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
-    void Client_CreateMenu(TSubclassOf<AActor> menuClass);
+    void CLIENT_CreateMenu(TSubclassOf<AActor> menuClass);
 
 protected:
     AActor* _ActorWidgetMenu;
