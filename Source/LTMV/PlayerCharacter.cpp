@@ -620,12 +620,13 @@ void APlayerCharacter::SaveInventory(AActor* item) {
 void APlayerCharacter::ShowInventory() {
 
     if (this->_inventory)
-        ShowInventory_Implementation(_inventory);
+        ShowInventory_Implementation(this->_inventory);
 }
 
 void APlayerCharacter::ShowInventory_Implementation(UInventory* inventory) {
     inventory->ShowAllItems();
-    InventoryWidget->SetVisibility(ESlateVisibility::Visible); // Set it to hidden so its not open on spawn.               
+    if(InventoryWidget)
+        InventoryWidget->SetVisibility(ESlateVisibility::Visible); // Set it to hidden so its not open on spawn.               
 
     //if (!IsHUDVisible()) {
     //   SetHUDVisible(false);
@@ -642,6 +643,7 @@ void APlayerCharacter::HideInventory() {
 
 void APlayerCharacter::HideInventory_Implementation() {
     //if (IsHUDVisible()) {
+    if (InventoryWidget)
         InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
     //    SetHUDVisible(true);
     //}
