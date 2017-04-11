@@ -22,6 +22,13 @@ class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
+    bool _isAction;
+
+    bool _isVisible;
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+    void OnShowInventory();
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     UAudioComponent* _audioComp;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -66,6 +73,10 @@ protected:
     void TurnAtRate(float Rate);
     void LookUpAtRate(float Rate);
 
+    /*********** CROUCH ***********/
+    void execOnStartCrouching();
+    void execOnEndCrouching();
+
     /************** USE *************/
     void Use();
     UFUNCTION(Server, Reliable, WithValidation)
@@ -80,45 +91,57 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MULTI_Press(UActorComponent* component);
 
-    /********** TAKE LEFT ***********/
-    void TakeLeft();
+    /********** TAKE ITEM ***********/
+    void TakeDropRight();
+    void TakeDropLeft();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeLeft(AActor* actor, UItemTakeLeft* takeComp);
+    void SERVER_TakeDropRight(AActor* actor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeLeft(AActor* actor, UItemTakeLeft* takeComp);
+    void MULTI_TakeDropRight(AActor* actor);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_TakeDropLeft(AActor* actor);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_TakeDropLeft(AActor* actor);
+
+
+    /********** DROP ITEM ***********/
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_DropLeft();
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_DropLeft();
-
-    /********** TAKE RIGHT ***********/
-    void TakeRight();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeRight(AActor* actor, UItemTakeRight* takeComp);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeRight(AActor* actor, UItemTakeRight* takeComp);
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_DropRight();
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_DropRight();
 
-    /************ SAVE LEFT **********/
-    void SaveLeft();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveLeft(AActor* itemActor);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveLeft(AActor* itemActor);
-
-    /************ SAVE RIGHT **********/
-    void SaveRight();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveRight(AActor* itemActor);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveRight(AActor* itemActor);
-
     /*************INVENTORY************/
+    // The class that will be used for the players Inventory UI
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    TAssetSubclassOf<class UInventoryWidget> InventoryUIClass;
+
+    // The instance of the players Inventory UI Widget
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    class UInventoryWidget* InventoryWidget;
+
+    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     void ShowInventory();
     void ShowInventory_Implementation(UInventory* inventory);
+
+    void HideInventory();
+    void HideInventory_Implementation();
+
+    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
+    FString ShowFirstItem();
+
+    void SaveInventory(AActor* itemActor);
+
+    void PickItemFromInventory();
+    void PickItemFromInventory_Implementation(FString name);
+
+    void SetHUDVisible(bool visible);
+    bool IsHUDVisible();
+
+
 
 
     /* RAYCASTING */
@@ -132,14 +155,14 @@ protected:
 private:
     UCameraComponent* _PlayerCamera;
 
-    bool _isAction;
+
     AActor* _itemLeft;
     AActor* _itemRight;
     UInventory* _inventory;
     //TArray<AItemActor*> _activeScenaryItems;
     UActorComponent* _component;
 
-    void SaveInventory(AActor* itemActor);
+    
 
     //ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
 

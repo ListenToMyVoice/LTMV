@@ -10,12 +10,15 @@ public class LTMV : ModuleRules {
                                                             "InputCore",
                                                             "OnlineSubsystem",
                                                             "OnlineSubsystemUtils",
-                                                            "AIModule" });
+                                                            "AIModule",
+                                                            "UMG"});
 
         PrivateDependencyModuleNames.AddRange(new string[] { "HeadMountedDisplay",
                                                              "SteamVR",
                                                              "SteamVRController",
-                                                             "FMODStudio" });
+                                                             "FMODStudio",
+                                                             "Slate",
+                                                             "SlateCore" });
 
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
     }

@@ -16,10 +16,13 @@ public:
     UInventory();
     virtual void BeginPlay() override;
 
-    int AddItem(AActor* item);
+    void AddItem(AActor* item);
+    void RemoveItem(AActor* item);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     TArray<AActor*> GetItemsArray();
+
+    FString GetFirstItem();
 
     //UFUNCTION(BlueprintNativeEvent, Category = "Inventory", BlueprintCallable)
     //void OnItemAdd();
@@ -30,4 +33,5 @@ public:
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
     //                           FActorComponentTickFunction* ThisTickFunction) override;
 
+    AActor* PickItem(FString ItemName);
 };
