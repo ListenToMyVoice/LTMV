@@ -90,9 +90,14 @@ bool APlayerControllerPlay::IsListen() {
 void APlayerControllerPlay::PushTalk() {
     StartTalking();
 
+    ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s"),
+                                       *PlayerState->UniqueId.ToDebugString()), 3, 60);
+
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
             GameplayMutePlayer(OtherPlayerState->UniqueId);
+            ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
+                               *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
         }
     }
 }
@@ -103,6 +108,8 @@ void APlayerControllerPlay::ReleaseTalk() {
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
             GameplayUnmutePlayer(OtherPlayerState->UniqueId);
+            ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
+                               *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
         }
     }
 }

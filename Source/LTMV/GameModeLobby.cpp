@@ -38,7 +38,6 @@ void AGameModeLobby::InitGame(const FString & MapName, const FString & Options,
 void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {
     Super::PostLogin(NewPlayer);
 
-    ULibraryUtils::Log(TEXT("PostLogin"));
     if (HasAuthority()) {
         UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
         if (GameInstance) {
