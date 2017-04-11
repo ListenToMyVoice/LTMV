@@ -14,7 +14,6 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     //_AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     //static ConstructorHelpers::FObjectFinder<UObject> Finder(
     //    TEXT("/Game/FMOD/Events/Character/Radio/CommandCustom"));
-
     //_AudioComp->SetEvent((UFMODEvent*)(Finder.Object));
     //_AudioComp->bAutoActivate = false;
     _IsListen = false;

@@ -30,9 +30,9 @@ APlayerCharacter::APlayerCharacter() {
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
+    _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     //static ConstructorHelpers::FObjectFinder<UObject> Finder(
     //    TEXT("/Game/FMOD/Desktop/Events/Personaje/pasos"));
-    _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     //_StepsAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
 
     _Health = 1;
@@ -56,7 +56,6 @@ void APlayerCharacter::GetOwnComponents() {
 
 void APlayerCharacter::Tick(float DeltaSeconds) {
     Super::Tick(DeltaSeconds);
-    //UE_LOG(LogTemp, Warning, TEXT("0.9"));
     //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
 }
 
