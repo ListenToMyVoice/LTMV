@@ -30,10 +30,10 @@ APlayerCharacter::APlayerCharacter() {
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
-    static ConstructorHelpers::FObjectFinder<UObject> Finder(
-        TEXT("/Game/FMOD/Events/Personaje/pasos"));
+    //static ConstructorHelpers::FObjectFinder<UObject> Finder(
+    //    TEXT("/Game/FMOD/Desktop/Events/Personaje/pasos"));
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
-    _StepsAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
+    //_StepsAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
 
     _Health = 1;
 }
