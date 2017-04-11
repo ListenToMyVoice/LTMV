@@ -44,11 +44,16 @@ void UInventory::RemoveItem(AActor* itemToRemove) {
 
 }
 
-FString UInventory::GetFirstItem() {
+UTexture2D* UInventory::GetItemAt(int itemIndex) {
     //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("FIRST ITEM: %s"), *_items[0]->GetName()));
-    if(_items.Num() > 0)
-        return _items[0]->GetName();
-    else return "NO ITEM";
+    UInventoryItem* comp;
+
+    if (itemIndex < _items.Num()) {
+       comp = Cast<UInventoryItem>(_items[itemIndex]->GetComponentByClass(
+            UInventoryItem::StaticClass()));
+       return comp->GetItemImage();
+    }
+    else return nullptr;
 }
 
 TArray<AActor*> UInventory::GetItemsArray() {
@@ -94,4 +99,13 @@ AActor* UInventory::PickItem(FString ItemName) {
 
     return ReturnItem;
 }
+
+UActorComponent* UInventory::GetInventoryItemComponent(AActor* item) {
+
+    if(item->GetComponentByClass(UInventoryItem::StaticClass()))
+        return Cast<UActorComponent>(item->GetComponentByClass(UInventoryItem::StaticClass()));
+
+    else return nullptr;
+}
+
 

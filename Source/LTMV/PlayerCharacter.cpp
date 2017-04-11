@@ -624,8 +624,7 @@ void APlayerCharacter::ShowInventory() {
 }
 
 void APlayerCharacter::ShowInventory_Implementation(UInventory* inventory) {
-    inventory->ShowAllItems();
-    if(InventoryWidget)
+    inventory->ShowAllItems();    if(InventoryWidget)
         InventoryWidget->SetVisibility(ESlateVisibility::Visible); // Set it to hidden so its not open on spawn.               
 
     //if (!IsHUDVisible()) {
@@ -657,10 +656,10 @@ bool APlayerCharacter::IsHUDVisible() {
     return _isVisible;
 }
 
-FString APlayerCharacter::ShowFirstItem() {
+UTexture2D* APlayerCharacter::GetItemAt(int itemIndex) {
     if (this->_inventory)
-        return _inventory->GetFirstItem();
-    else return "NONE";
+        return _inventory->GetItemAt(itemIndex);
+    else return nullptr;
 }
 
 /*** TAKE ITEM FROM INVENTORY TO HAND ***/
@@ -753,4 +752,8 @@ bool APlayerCharacter::ItemFocused() {
         }
 
     return false;
+}
+
+UInventory* APlayerCharacter::GetInventory() {
+    return this->_inventory;
 }

@@ -17,6 +17,9 @@ public:
     UPROPERTY(EditAnywhere)
     bool _equipped;
 
+    UPROPERTY(EditAnywhere)
+    UTexture2D* _itemImage;
+
     UInventoryItem();
 
     UPROPERTY(EditAnywhere)
@@ -34,6 +37,10 @@ public:
     void SetEquipped(bool equipped);
     
     bool IsEquipped();
+
+
+    UFUNCTION(BlueprintCallable, Category = "InventoryItem")
+    UTexture2D* GetItemImage();
 
 private:
     

@@ -29,4 +29,7 @@ public:
 
     UPROPERTY(BlueprintReadWrite, Category = "Inventory Widget")
     UTexture2D* imagetexture;
+
+    //UFUNCTION(BlueprintCallable, Category = "Inventory Widget")
+    //UInventory* GetInventory();
 };

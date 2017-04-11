@@ -130,8 +130,11 @@ protected:
     void HideInventory();
     void HideInventory_Implementation();
 
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    UInventory* GetInventory();
+
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
-    FString ShowFirstItem();
+    UTexture2D* GetItemAt(int itemIndex);
 
     void SaveInventory(AActor* itemActor);
 

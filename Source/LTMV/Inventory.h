@@ -5,7 +5,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Inventory.generated.h"
 
-
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LTMV_API UInventory : public UStaticMeshComponent {
     GENERATED_BODY()
@@ -22,7 +21,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     TArray<AActor*> GetItemsArray();
 
-    FString GetFirstItem();
+    UTexture2D* GetItemAt(int itemIndex);
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    UActorComponent* GetInventoryItemComponent(AActor* item);
 
     //UFUNCTION(BlueprintNativeEvent, Category = "Inventory", BlueprintCallable)
     //void OnItemAdd();
@@ -34,4 +36,6 @@ public:
     //                           FActorComponentTickFunction* ThisTickFunction) override;
 
     AActor* PickItem(FString ItemName);
+
+
 };
