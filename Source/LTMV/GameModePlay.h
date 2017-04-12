@@ -12,7 +12,6 @@ class LTMV_API AGameModePlay : public AGameMode {
 
 public:
     AGameModePlay(const class FObjectInitializer& OI);
-    //virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_RespawnPlayer(APlayerController* PlayerController, FPlayerInfo info);

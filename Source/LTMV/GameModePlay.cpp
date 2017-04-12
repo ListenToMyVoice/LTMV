@@ -39,10 +39,6 @@ void AGameModePlay::SERVER_RespawnPlayer_Implementation(APlayerController* Playe
     if (HasAuthority() && PlayerController->IsA<APlayerControllerPlay>()) {
         if (!_HostController) _HostController = Cast<APlayerControllerPlay>(PlayerController);
         else _GuestController = Cast<APlayerControllerPlay>(PlayerController);
-        
-        //AGameStatePlay* GameStatePlay = GetGameState<AGameStatePlay>();
-        //if (GameStatePlay) GameStatePlay->_UniqueNetIdArray.AddUnique(
-        //    *PlayerController->GetLocalPlayer()->GetPreferredUniqueNetId());
     }
 }
 
