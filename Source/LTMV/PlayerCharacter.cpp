@@ -45,7 +45,7 @@ void APlayerCharacter::BeginPlay() {
     GetOwnComponents();
 
     // Only create the UI on the local machine (dose not exist on the server.)
-    if (GetController()->IsLocalController())
+    if (GetController() && GetController()->IsLocalController())
     {
         if (InventoryUIClass) // Check the selected UI class is not NULL
         {
