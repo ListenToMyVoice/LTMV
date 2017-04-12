@@ -29,8 +29,8 @@ void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
 
-    InputComponent->BindAction("PushToTalk", IE_Pressed, this, &APlayerControllerPlay::PushTalk);
-    InputComponent->BindAction("PushToTalk", IE_Released, this, &APlayerControllerPlay::ReleaseTalk);
+    //InputComponent->BindAction("PushToTalk", IE_Pressed, this, &APlayerControllerPlay::PushTalk);
+    //InputComponent->BindAction("PushToTalk", IE_Released, this, &APlayerControllerPlay::ReleaseTalk);
 }
 
 void APlayerControllerPlay::BeginPlay() {
@@ -43,7 +43,7 @@ void APlayerControllerPlay::BeginPlay() {
 }
 
 bool APlayerControllerPlay::SERVER_CallUpdate_Validate(FPlayerInfo info) {
-    return true; 
+    return true;
 }
 void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
     AGameModePlay* gameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());

@@ -70,6 +70,14 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_Use(UActorComponent* component);
 
+    /******** USE ITEM LEFT *********/
+    void UseLeftPressed();
+    void UseLeftReleased();
+
+    /******* USE ITEM RIGHT *********/
+    void UseRightPressed();
+    void UseRightReleased();
+
 	/************** PRESS *************/
 	void Press();
 	UFUNCTION(Server, Reliable, WithValidation)

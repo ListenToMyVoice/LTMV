@@ -82,6 +82,12 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
 	//Mantener push
 	playerInput->BindAction("Press", IE_Pressed, this, &APlayerCharacter::Press);
+
+    /* USE ITEM */
+    playerInput->BindAction("ClickLeft", IE_Pressed, this, &APlayerCharacter::UseLeftPressed);
+    playerInput->BindAction("ClickLeft", IE_Released, this, &APlayerCharacter::UseLeftReleased);
+    playerInput->BindAction("ClickRight", IE_Pressed, this, &APlayerCharacter::UseRightPressed);
+    playerInput->BindAction("ClickRight", IE_Released, this, &APlayerCharacter::UseRightReleased);
 }
 
 FHitResult APlayerCharacter::Raycasting() {
@@ -169,6 +175,23 @@ void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
     if (itfObject) itfObject->Execute_Use(component);
 }
 
+/******** USE ITEM LEFT *********/
+void APlayerCharacter::UseLeftPressed() {
+
+}
+
+void APlayerCharacter::UseLeftReleased() {
+
+}
+
+/******* USE ITEM RIGHT *********/
+void APlayerCharacter::UseRightPressed() {
+
+}
+
+void APlayerCharacter::UseRightReleased() {
+
+}
 
 /*********** PRESS *********/
 void APlayerCharacter::Press() {
