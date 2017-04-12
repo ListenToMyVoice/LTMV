@@ -37,10 +37,11 @@ void UInventory::RemoveItem(AActor* itemToRemove) {
         if (itemToRemove == item) {
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("REMOVED ITEM: %s"), *item->GetName()));
             UE_LOG(LogTemp, Warning, TEXT("REMOVED ITEM: %s"), *item->GetName());
-
-            _items.Remove(item);
+            itemToRemove = item;
         }
     }
+
+    _items.Remove(itemToRemove);
 
 }
 
