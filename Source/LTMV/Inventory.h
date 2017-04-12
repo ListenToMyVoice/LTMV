@@ -2,24 +2,40 @@
 
 #pragma once
 
-#include "ItemActor.h"
-
 #include "Components/StaticMeshComponent.h"
 #include "Inventory.generated.h"
-
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LTMV_API UInventory : public UStaticMeshComponent {
     GENERATED_BODY()
 private:
-    TArray<AItemActor*> _items;
+    TArray<AActor*> _items;
 
 public:
     UInventory();
     virtual void BeginPlay() override;
 
-    int AddItem(AItemActor* item);
+    void AddItem(AActor* item);
+    void RemoveItem(AActor* item);
 
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    TArray<AActor*> GetItemsArray();
+
+    UTexture2D* GetItemAt(int itemIndex);
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    UActorComponent* GetInventoryItemComponent(AActor* item);
+
+    //UFUNCTION(BlueprintNativeEvent, Category = "Inventory", BlueprintCallable)
+    //void OnItemAdd();
+
+    //void OnItemAdd_Implementation();
+
+    void ShowAllItems();
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
     //                           FActorComponentTickFunction* ThisTickFunction) override;
+
+    AActor* PickItem(FString ItemName);
+
+
 };

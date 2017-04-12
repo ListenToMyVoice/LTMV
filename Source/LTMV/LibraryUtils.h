@@ -24,6 +24,7 @@ public:
         switch (mode) {
             case 1: // Warning
                 GEngine->AddOnScreenDebugMessage(-1, displayTime, FColor::Yellow, msg);
+
                 break;
             case 2: // Error
                 GEngine->AddOnScreenDebugMessage(-1, displayTime, FColor::Red, msg);

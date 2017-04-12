@@ -13,6 +13,7 @@ DECLARE_EVENT_OneParam(APlayerCharacter, FPickRadioEvent, UActorComponent*);
 class AItemActor;
 class UItemTakeLeft;
 class UItemTakeRight;
+class UInventory;
 
 struct ItemData {
     //GENERATED_USTRUCT_BODY()
@@ -27,6 +28,10 @@ class LTMV_API APlayerCharacter : public ACharacter {
 public:
     FDelegateHandle SubscribeRadio(FPickRadioDelegate& PickRadioDelegate);
     void UnsubscribeRadio(FDelegateHandle DelegateHandle);
+    bool _isVisible;
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+    void OnShowInventory();
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
     int _Health;
@@ -45,12 +50,13 @@ public:
 
     void GetOwnComponents();
 
-    void ActivateScenaryItem(AItemActor* item);
-    void DeactivateScenaryItem(AItemActor* item);
+    //void ActivateScenaryItem(AItemActor* item);
+    //void DeactivateScenaryItem(AItemActor* item);
 
     UPROPERTY(EditAnywhere, Category = "Raycast")
     float RayParameter;
 
+	bool ItemFocused();
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     bool IsAction();
 
@@ -69,6 +75,10 @@ protected:
     void MoveRight(float Val);
     void TurnAtRate(float Rate);
     void LookUpAtRate(float Rate);
+
+    /*********** CROUCH ***********/
+    void execOnStartCrouching();
+    void execOnEndCrouching();
 
     /************** USE *************/
     void Use();
@@ -92,41 +102,60 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MULTI_Press(UActorComponent* component);
 
-    /********** TAKE LEFT ***********/
-    void TakeLeft();
+    /********** TAKE ITEM ***********/
+    void TakeDropRight();
+    void TakeDropLeft();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeLeft(AItemActor* actor, UItemTakeLeft* takeComp);
+    void SERVER_TakeDropRight(AActor* actor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeLeft(AItemActor* actor, UItemTakeLeft* takeComp);
+    void MULTI_TakeDropRight(AActor* actor);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_TakeDropLeft(AActor* actor);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_TakeDropLeft(AActor* actor);
+
+
+    /********** DROP ITEM ***********/
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_DropLeft();
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_DropLeft();
-
-    /********** TAKE RIGHT ***********/
-    void TakeRight();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeRight(AItemActor* actor, UItemTakeRight* takeComp);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeRight(AItemActor* actor, UItemTakeRight* takeComp);
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_DropRight();
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_DropRight();
 
-    /************ SAVE LEFT **********/
-    void SaveLeft();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveLeft(AItemActor* itemActor);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveLeft(AItemActor* itemActor);
+    /*************INVENTORY************/
+    // The class that will be used for the players Inventory UI
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    TAssetSubclassOf<class UInventoryWidget> InventoryUIClass;
 
-    /************ SAVE RIGHT **********/
-    void SaveRight();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveRight(AItemActor* itemActor);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveRight(AItemActor* itemActor);
+    // The instance of the players Inventory UI Widget
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    class UInventoryWidget* InventoryWidget;
+
+    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
+    void ShowInventory();
+    void ShowInventory_Implementation(UInventory* inventory);
+
+    void HideInventory();
+    void HideInventory_Implementation();
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    UInventory* GetInventory();
+
+    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
+    UTexture2D* GetItemAt(int itemIndex);
+
+    void SaveInventory(AActor* itemActor);
+
+    void PickItemFromInventory();
+    void PickItemFromInventory_Implementation(FString name);
+
+    void SetHUDVisible(bool visible);
+    bool IsHUDVisible();
+
+
 
 
     /* RAYCASTING */
@@ -147,14 +176,24 @@ private:
     UCameraComponent* _PlayerCamera;
 
     bool _isAction;
-    AItemActor* _itemLeft;
-    AItemActor* _itemRight;
-    TArray<AItemActor*> _activeScenaryItems;
+    AActor* _itemLeft;
+    AActor* _itemRight;
+    UInventory* _inventory;
+    //TArray<AItemActor*> _activeScenaryItems;
     UActorComponent* _component;
 
-    void SaveInventory(AItemActor* itemActor);
+        //Global HitResult to check actor in every tick:
+    FHitResult hitResult;
 
-    ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
+    bool bInventoryItemHit = false;
+
+    TArray<UActorComponent*> components;
+
+    UStaticMeshComponent* lastMeshFocused = nullptr;
+    bool _itemFocused;
+    bool _itemLeftTaken;
+
+    //ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
 
 public:
     FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }

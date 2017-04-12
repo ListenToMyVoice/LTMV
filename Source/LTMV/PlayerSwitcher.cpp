@@ -24,7 +24,7 @@ void UPlayerSwitcher::activateItem(UPrimitiveComponent* OverlappedComp,
                         SweepResult);
 
     AItemActor* owner = Cast<AItemActor>(GetOwner());
-    player->ActivateScenaryItem(owner);
+    //player->ActivateScenaryItem(owner);
 }
 
 void UPlayerSwitcher::deactivateItem(UPrimitiveComponent* OverlappedComp,
@@ -34,7 +34,7 @@ void UPlayerSwitcher::deactivateItem(UPrimitiveComponent* OverlappedComp,
     Super::deactivateItem(OverlappedComp, player, OtherComp, OtherBodyIndex);
 
     AItemActor* owner = Cast<AItemActor>(GetOwner());
-    player->DeactivateScenaryItem(owner);
+    //player->DeactivateScenaryItem(owner);
 }
 
 void UPlayerSwitcher::Use_Implementation() {
