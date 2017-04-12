@@ -3,16 +3,11 @@
 #include "LTMV.h"
 #include "PlayerCharacter.h"
 
-//#include "ItemTakeLeft.h"
-//#include "ItemTakeRight.h"
-//#include "ItemSave.h"
 #include "Inventory.h"
 #include "ItfUsable.h"
 #include "InventoryItem.h"
 #include "HandPickItem.h"
 #include "InventoryWidget.h"
-//#include "KeyComponent.h"
-//#include "ItemActor.h"
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
 
@@ -49,7 +44,7 @@ void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
     GetOwnComponents();
 
-    // Only create the UI on the local machine (dose not excist on the server.)
+    // Only create the UI on the local machine (dose not exist on the server.)
     if (GetController()->IsLocalController())
     {
         if (InventoryUIClass) // Check the selected UI class is not NULL
@@ -143,15 +138,11 @@ FHitResult APlayerCharacter::Raycasting() {
         _itemFocused = ItemFocused();
 
         //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
-
-        // COOL STUFF TO GRAB OBJECTS
         UActorComponent* actorComponent = hitResult.GetComponent();
 
-       // components = actorComponent->GetOwner()->GetComponentsByClass(UInventory::StaticClass());
         components = actorComponent->GetOwner()->GetComponentsByClass(UActorComponent::StaticClass());
 
             for (UActorComponent* component : components) {
-                //UInventory* itemInventory = Cast<UInventory>(component);
 
                 //Highlight outline colors:
                 //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
@@ -186,8 +177,7 @@ FHitResult APlayerCharacter::Raycasting() {
     
     //If Raycast is not hitting any actor, disable the outline
     if (bInventoryItemHit && hitResult.Actor != lastMeshFocused->GetOwner()) {
-        //UActorComponent* actorComponent = hitResult.GetComponent();
-        
+      
         lastMeshFocused->SetCustomDepthStencilValue(0);
         lastMeshFocused->SetRenderCustomDepth(false);
 
@@ -314,7 +304,6 @@ void APlayerCharacter::TakeDropRight() {
             _itemRight = hitResult.GetActor();
             _itemRight->SetReplicates(true);
             _itemRight->SetReplicateMovement(true);
-            //_itemLeftTaken = true;
             if(takeComp)
                 SERVER_TakeDropRight(_itemRight);
         }
@@ -356,8 +345,6 @@ void APlayerCharacter::MULTI_TakeDropRight_Implementation(AActor* actor) {
 
     /****GUESS TAKECOMP***/
     if (mesh && _itemRight->FindComponentByClass(UInventoryItem::StaticClass())) {
-        //takeComp = Cast<UInventoryItem>(hitResult.GetActor()->GetComponentByClass(
-         //   UInventoryItem::StaticClass()));
 
         mesh->SetMobility(EComponentMobility::Movable);
         SaveInventory(_itemRight);
@@ -365,8 +352,6 @@ void APlayerCharacter::MULTI_TakeDropRight_Implementation(AActor* actor) {
     }
 
     else if (mesh && _itemRight->FindComponentByClass(UHandPickItem::StaticClass())) {
-        //takeComp = Cast<UHandPickItem>(hitResult.GetActor()->GetComponentByClass(
-        //    UHandPickItem::StaticClass()));
 
         UHandPickItem* HandPickComp = Cast<UHandPickItem>(_itemRight->FindComponentByClass(
             UHandPickItem::StaticClass()));
@@ -381,10 +366,6 @@ void APlayerCharacter::MULTI_TakeDropRight_Implementation(AActor* actor) {
 
         mesh->RelativeLocation = HandPickComp->_locationAttach_R;
         mesh->RelativeRotation = HandPickComp->_rotationAttach_R;
-
-
-        //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-        //UE_LOG(LogTemp, Warning, TEXT("%s: TakeLeft"), *EnumPtr->GetEnumName((int32)Role));
 
         _itemRight->SetActorEnableCollision(false);
     }
@@ -409,8 +390,7 @@ void APlayerCharacter::TakeDropLeft() {
 
         else {
             /*REPLACE LEFT HAND ITEM*/
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DEBERÍA PASAR POR AQUI...")));
-
+            
             SERVER_DropLeft();
 
             _itemLeft = hitResult.GetActor();
@@ -445,18 +425,12 @@ void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
 
     /****GUESS TAKECOMP***/
     if (mesh && _itemLeft->FindComponentByClass(UInventoryItem::StaticClass())) {
-        //takeComp = Cast<UInventoryItem>(hitResult.GetActor()->GetComponentByClass(
-        //    UInventoryItem::StaticClass()));
-
         mesh->SetMobility(EComponentMobility::Movable);
         SaveInventory(_itemLeft);
         _itemLeft = nullptr;
     }
 
     else if (mesh && _itemLeft->FindComponentByClass(UHandPickItem::StaticClass())) {
-        //takeComp = Cast<UHandPickItem>(hitResult.GetActor()->GetComponentByClass(
-        //    UHandPickItem::StaticClass()));
-
         UHandPickItem* HandPickComp = Cast<UHandPickItem>(_itemLeft->FindComponentByClass(
             UHandPickItem::StaticClass()));
 
@@ -470,10 +444,6 @@ void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
 
         mesh->RelativeLocation = HandPickComp->_locationAttach_L;
         mesh->RelativeRotation = HandPickComp->_rotationAttach_L;
-
-
-        //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-        //UE_LOG(LogTemp, Warning, TEXT("%s: TakeLeft"), *EnumPtr->GetEnumName((int32)Role));
 
         _itemLeft->SetActorEnableCollision(false);
     }
@@ -494,9 +464,6 @@ void APlayerCharacter::MULTI_DropLeft_Implementation() {
             mesh->SetIsReplicated(true);
             mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
             mesh->SetSimulatePhysics(true);
-
-            //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-            //UE_LOG(LogTemp, Warning, TEXT("%s: DropLeft"), *EnumPtr->GetEnumName((int32)Role));
         }
 
         if (_itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
@@ -508,7 +475,6 @@ void APlayerCharacter::MULTI_DropLeft_Implementation() {
         }
 
         _itemLeft->SetActorEnableCollision(true);
-        //_itemLeft->SetActorHiddenInGame(false);
         _itemLeft = nullptr;    
     
     }
@@ -533,9 +499,6 @@ void APlayerCharacter::MULTI_DropRight_Implementation() {
             mesh->SetIsReplicated(true);
             mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
             mesh->SetSimulatePhysics(true);
-
-            //const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-            //UE_LOG(LogTemp, Warning, TEXT("%s: DropRight"), *EnumPtr->GetEnumName((int32)Role));
         }
 
         if (_itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
@@ -688,6 +651,7 @@ bool APlayerCharacter::ItemFocused() {
 
 UInventory* APlayerCharacter::GetInventory() {
     return this->_inventory;
+}
 
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                                    class AController* EventInstigator, class AActor* DamageCauser) {

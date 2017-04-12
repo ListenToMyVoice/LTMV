@@ -50,9 +50,6 @@ public:
 
     void GetOwnComponents();
 
-    //void ActivateScenaryItem(AItemActor* item);
-    //void DeactivateScenaryItem(AItemActor* item);
-
     UPROPERTY(EditAnywhere, Category = "Raycast")
     float RayParameter;
 
@@ -179,10 +176,9 @@ private:
     AActor* _itemLeft;
     AActor* _itemRight;
     UInventory* _inventory;
-    //TArray<AItemActor*> _activeScenaryItems;
     UActorComponent* _component;
 
-        //Global HitResult to check actor in every tick:
+     //Global HitResult to check actor in every tick:
     FHitResult hitResult;
 
     bool bInventoryItemHit = false;
@@ -192,8 +188,6 @@ private:
     UStaticMeshComponent* lastMeshFocused = nullptr;
     bool _itemFocused;
     bool _itemLeftTaken;
-
-    //ItemData FindItemAndComponents(const TSubclassOf<UActorComponent> ComponentClass);
 
 public:
     FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }
