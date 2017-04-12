@@ -26,8 +26,8 @@ public:
     virtual void UseItemReleased_Implementation() override;
 
 protected:
-    FRadioDelegate RadioPressedDelegate;
-    FRadioDelegate RadioReleasedDelegate;
+    FRadioDelegate _RadioPressedDelegate;
+    FRadioDelegate _RadioReleasedDelegate;
 
     virtual void BeginPlay() override;
 };

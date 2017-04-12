@@ -6,6 +6,10 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+
+DECLARE_DELEGATE_OneParam(FPickRadioDelegate, UActorComponent*);
+DECLARE_EVENT_OneParam(APlayerCharacter, FPickRadioEvent, UActorComponent*);
+
 class AItemActor;
 class UItemTakeLeft;
 class UItemTakeRight;
@@ -21,6 +25,9 @@ class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
+    FDelegateHandle SubscribeRadio(FPickRadioDelegate& PickRadioDelegate);
+    void UnsubscribeRadio(FDelegateHandle DelegateHandle);
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
     int _Health;
 
@@ -131,6 +138,8 @@ protected:
     FHitResult Raycasting();
 
 private:
+    FPickRadioEvent _PickRadioEvent;
+
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UFMODAudioComponent* _StepsAudioComp;
     
