@@ -22,23 +22,23 @@ void AGameModePlay::InitGame(const FString & MapName, const FString & Options,
     if (GameSession) GameSession->bRequiresPushToTalk = true;
 }
 
-bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerController* PlayerController,
+bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerControllerPlay* PlayerController,
                                                   FPlayerInfo info) {
     return true;
 }
 
-void AGameModePlay::SERVER_RespawnPlayer_Implementation(APlayerController* PlayerController,
+void AGameModePlay::SERVER_RespawnPlayer_Implementation(APlayerControllerPlay* PlayerController,
                                                         FPlayerInfo info) {
     if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
 
     FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
     APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
-    if (actor) PlayerController->Possess(actor);
+    if (actor) {
+        PlayerController->Possess(actor);
+        PlayerController->CLIENT_AfterPossessed();
 
-    /* SET CONTROLLERS */
-    if (HasAuthority() && PlayerController->IsA<APlayerControllerPlay>()) {
-        if (!_HostController) _HostController = Cast<APlayerControllerPlay>(PlayerController);
-        else _GuestController = Cast<APlayerControllerPlay>(PlayerController);
+        if (!_HostController) _HostController = PlayerController;
+        else _GuestController = PlayerController;
     }
 }
 
@@ -47,8 +47,8 @@ bool AGameModePlay::SERVER_PlayerDead_Validate(AController* PlayerController) {
 }
 
 void AGameModePlay::SERVER_PlayerDead_Implementation(AController* PlayerController) {
-    if (_HostController) _HostController->CLIENT_Dead(PlayerController->GetUniqueID());
-    if (_GuestController) _GuestController->CLIENT_Dead(PlayerController->GetUniqueID());
+    if (_HostController) _HostController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
+    if (_GuestController) _GuestController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
 
     PlayerController->UnPossess();
 }

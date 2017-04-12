@@ -15,4 +15,6 @@
 #include "Runtime/UMG/Public/Slate/SObjectWidget.h"
 #include "Runtime/UMG/Public/IUMGModule.h"
 
+DECLARE_DELEGATE(FRadioDelegate);
+
 #endif

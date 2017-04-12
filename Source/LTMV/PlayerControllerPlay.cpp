@@ -6,7 +6,6 @@
 #include "GameModePlay.h"
 #include "NWGameInstance.h"
 #include "FMODAudioComponent.h"
-#include "PlayerCharacter.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -28,9 +27,6 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
 void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
-
-    //InputComponent->BindAction("PushToTalk", IE_Pressed, this, &APlayerControllerPlay::PushTalk);
-    //InputComponent->BindAction("PushToTalk", IE_Released, this, &APlayerControllerPlay::ReleaseTalk);
 }
 
 void APlayerControllerPlay::BeginPlay() {
@@ -50,6 +46,14 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
     if (gameMode) gameMode->SERVER_RespawnPlayer(this, info);
 }
 
+void APlayerControllerPlay::CLIENT_AfterPossessed_Implementation() {
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter) {
+        ULibraryUtils::Log(TEXT("CLIENT_AfterPossessed_Implementation"));
+        PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
+        PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
+    }
+}
 
 /*********************************************** VOICE *******************************************/
 void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
@@ -85,34 +89,6 @@ bool APlayerControllerPlay::IsListen() {
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
-/*************** PUSH TO TALK *************/
-void APlayerControllerPlay::PushTalk() {
-    StartTalking();
-
-    ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s"),
-                                       *PlayerState->UniqueId.ToDebugString()), 3, 60);
-
-    for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
-        if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
-            GameplayMutePlayer(OtherPlayerState->UniqueId);
-            ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
-                               *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
-        }
-    }
-}
-
-void APlayerControllerPlay::ReleaseTalk() {
-    StopTalking();
-
-    for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
-        if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
-            GameplayUnmutePlayer(OtherPlayerState->UniqueId);
-            ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
-                               *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
-        }
-    }
-}
-
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
     APawn* pawn = GetPawn();
@@ -148,10 +124,49 @@ void APlayerControllerPlay::ExitGame() {
     FGenericPlatformMisc::RequestExit(false);
 }
 
+/*********************************************** DELEGATES ***************************************/
+void APlayerControllerPlay::OnRadioPressed() {
+    const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
+    FString myRole = EnumPtr->GetEnumName((int32)Role);
+
+    ULibraryUtils::Log(FString::Printf(TEXT("OnRadioPressed: %s"), *myRole), 0, 60);
+
+    //StartTalking();
+
+    //ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s"),
+    //                                   *PlayerState->UniqueId.ToDebugString()), 3, 60);
+
+    //for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
+    //    if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
+    //        GameplayMutePlayer(OtherPlayerState->UniqueId);
+    //        ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
+    //                                           *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
+    //    }
+    //}
+}
+
+void APlayerControllerPlay::OnRadioReleased() {
+    const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
+    FString myRole = EnumPtr->GetEnumName((int32)Role);
+
+    ULibraryUtils::Log(FString::Printf(TEXT("OnRadioReleased: %s"), *myRole), 0, 60);
+
+    //StopTalking();
+
+    //for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
+    //    if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
+    //        GameplayUnmutePlayer(OtherPlayerState->UniqueId);
+    //        ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
+    //                                           *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
+    //    }
+    //}
+}
 
 /******************************************** GAME FLOW ******************************************/
-void APlayerControllerPlay::CLIENT_Dead_Implementation(uint32 NetId) {
-    if (GetUniqueID() == NetId) {
+void APlayerControllerPlay::CLIENT_Dead_Implementation(const FUniqueNetIdRepl NetId) {
+    ULibraryUtils::Log(FString::Printf(TEXT("REMOTE ID: %s"), *NetId.ToDebugString()), 0, 60);
+    ULibraryUtils::Log(FString::Printf(TEXT("LOCAL ID: %s"), *PlayerState->UniqueId.ToDebugString()), 0, 60);
+    if (PlayerState->UniqueId == NetId) {
         ULibraryUtils::Log(TEXT("MY DEAD"));
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
         if (PlayerCharacter) PlayerCharacter->MULTI_CharacterDead();

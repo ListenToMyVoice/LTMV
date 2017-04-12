@@ -5,17 +5,19 @@
 
 #include "Inventory.h"
 #include "ItfUsable.h"
+#include "ItfUsableItem.h"
 #include "InventoryItem.h"
 #include "HandPickItem.h"
 #include "InventoryWidget.h"
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
+#include "Walkie.h"
 
 APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
     bReplicateMovement = true;
 
-    // set our turn rates for input
+    //set our turn rates for input
     _baseTurnRate = 45.f;
     _baseLookUpRate = 45.f;
     _itemLeft = nullptr;
@@ -34,7 +36,7 @@ APlayerCharacter::APlayerCharacter() {
 
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     //static ConstructorHelpers::FObjectFinder<UObject> Finder(
-    //    TEXT("/Game/FMOD/Desktop/Events/Personaje/pasos"));
+    //     TEXT("/Game/FMOD/Desktop/Events/Personaje/pasos"));
     //_StepsAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
 
     _Health = 1;
@@ -110,7 +112,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
     
 
 	playerInput->BindAction("PickItemFromInventory", IE_Pressed, this, &APlayerCharacter::PickItemFromInventory);
-
+    
     /* USE ITEM */
     playerInput->BindAction("ClickLeft", IE_Pressed, this, &APlayerCharacter::UseLeftPressed);
     playerInput->BindAction("ClickLeft", IE_Released, this, &APlayerCharacter::UseLeftReleased);
@@ -122,7 +124,7 @@ FHitResult APlayerCharacter::Raycasting() {
 
     bool bHitRayCastFlag = false;
 
-    
+                                        
     
     //FHitResult HitActor;
     FCollisionQueryParams CollisionInfo;
@@ -254,20 +256,60 @@ void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
 
 /******** USE ITEM LEFT *********/
 void APlayerCharacter::UseLeftPressed() {
+    if (_itemLeft) {
+        TArray<UActorComponent*> Components;
+        _itemLeft->GetComponents(Components);
 
+        for (UActorComponent* Component : Components) {
+            if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
+                IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
+                if (ItfObject) ItfObject->Execute_UseItemPressed(Component);
+            }
+        }
+    }
 }
 
 void APlayerCharacter::UseLeftReleased() {
+    if (_itemLeft) {
+        TArray<UActorComponent*> Components;
+        _itemLeft->GetComponents(Components);
 
+        for (UActorComponent* Component : Components) {
+            if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
+                IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
+                if (ItfObject) ItfObject->Execute_UseItemReleased(Component);
+            }
+        }
+    }
 }
 
 /******* USE ITEM RIGHT *********/
 void APlayerCharacter::UseRightPressed() {
+    if (_itemRight) {
+        TArray<UActorComponent*> Components;
+        _itemRight->GetComponents(Components);
 
+        for (UActorComponent* Component : Components) {
+            if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
+                IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
+                if (ItfObject) ItfObject->Execute_UseItemPressed(Component);
+            }
+        }
+    }
 }
 
 void APlayerCharacter::UseRightReleased() {
+    if (_itemRight) {
+        TArray<UActorComponent*> Components;
+        _itemRight->GetComponents(Components);
 
+        for (UActorComponent* Component : Components) {
+            if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
+                IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
+                if (ItfObject) ItfObject->Execute_UseItemReleased(Component);
+            }
+        }
+    }
 }
 
 /*********** PRESS *********/
@@ -572,7 +614,7 @@ UTexture2D* APlayerCharacter::GetItemAt(int itemIndex) {
 /*** TAKE ITEM FROM INVENTORY TO HAND ***/
 void APlayerCharacter::PickItemFromInventory() {
     if (this->_inventory)
-        this->PickItemFromInventory_Implementation("Lantern3");
+        this->PickItemFromInventory_Implementation("Lantern");
 }
 
 void APlayerCharacter::PickItemFromInventory_Implementation(FString name) {
@@ -614,6 +656,7 @@ void APlayerCharacter::PickItemFromInventory_Implementation(FString name) {
         InventoryItemComponent->SetEquipped(true);
 
         _itemLeft = ItemFromInventory;
+        AddRadioDelegates(ItemFromInventory);
     }
 
     else if (ItemMesh && !_itemRight) {
@@ -629,11 +672,21 @@ void APlayerCharacter::PickItemFromInventory_Implementation(FString name) {
         InventoryItemComponent->SetEquipped(true);
 
         _itemRight = ItemFromInventory;
+        AddRadioDelegates(ItemFromInventory);
     }
-
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
+/* Radio Delegate */
+void APlayerCharacter::AddRadioDelegates(AActor* PickedActor) {
+    if (Role == ROLE_AutonomousProxy) {
+        UWalkie* Walkie = Cast<UWalkie>(PickedActor->GetComponentByClass(UWalkie::StaticClass()));
+        if (Walkie) {
+            _OnRadioPressedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioPressedDelegate, true);
+            _OnRadioReleasedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioReleasedDelegate, false);
+        }
+    }
+}
 
 bool APlayerCharacter::IsAction() {
     return _isAction;

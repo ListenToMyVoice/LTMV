@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "PlayerCharacter.h"
+
 #include "GameFramework/PlayerController.h"
 #include "PlayerControllerPlay.generated.h"
 
@@ -19,6 +21,10 @@ public:
                            FActorTickFunction & ThisTickFunction) override;
 
     virtual void BeginPlay() override;
+
+    UFUNCTION(Client, Reliable)
+    void CLIENT_AfterPossessed();
+    
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_CallUpdate(FPlayerInfo info);
 
@@ -29,8 +35,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Voice")
     bool IsListen();
 
+    /* Radio Delegate */
+    void OnRadioPressed();
+    void OnRadioReleased();
+
     UFUNCTION(Client, Reliable)
-    void CLIENT_Dead(const uint32 NetId);
+    void CLIENT_Dead(const FUniqueNetIdRepl NetId);
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
@@ -43,10 +53,6 @@ protected:
     /********************************** ACTION MAPPINGS ******************************************/
     /*************** TRIGGER MENU *************/
     void ToogleMenu();
-
-    /*************** PUSH TO TALK *************/
-    void PushTalk();
-    void ReleaseTalk();
 
 private:
     UAudioComponent* _VoiceAudioComp;

@@ -14,7 +14,7 @@ public:
     AGameModePlay(const class FObjectInitializer& OI);
 
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_RespawnPlayer(APlayerController* PlayerController, FPlayerInfo info);
+    void SERVER_RespawnPlayer(class APlayerControllerPlay* PlayerController, FPlayerInfo info);
 
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_PlayerDead(AController* PlayerController);

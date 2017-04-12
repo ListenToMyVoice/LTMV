@@ -7,13 +7,17 @@
 #include "Components/ActorComponent.h"
 #include "Walkie.generated.h"
 
-DECLARE_DELEGATE(FRadioDelegate)
+DECLARE_EVENT(UWalkie, FRadioEvent);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LTMV_API UWalkie : public UActorComponent, public IItfUsableItem {
     GENERATED_BODY()
 
 public:
+    FDelegateHandle AddOnRadioDelegate(FRadioDelegate& RadioDelegate, bool IsPressed);
+    void ClearOnRadioDelegate(FDelegateHandle DelegateHandle, bool IsPressed);
+
+
     UWalkie();
 
     /* Interfaces */
@@ -26,8 +30,9 @@ public:
     virtual void UseItemReleased_Implementation() override;
 
 protected:
-    FRadioDelegate _RadioPressedDelegate;
-    FRadioDelegate _RadioReleasedDelegate;
-
     virtual void BeginPlay() override;
+
+private:
+    FRadioEvent _RadioPressedEvent;
+    FRadioEvent _RadioReleasedEvent;
 };

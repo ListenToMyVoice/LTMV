@@ -7,9 +7,6 @@
 #include "PlayerCharacter.generated.h"
 
 
-DECLARE_DELEGATE_OneParam(FPickRadioDelegate, UActorComponent*);
-DECLARE_EVENT_OneParam(APlayerCharacter, FPickRadioEvent, UActorComponent*);
-
 class AItemActor;
 class UItemTakeLeft;
 class UItemTakeRight;
@@ -26,8 +23,6 @@ class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
-    FDelegateHandle SubscribeRadio(FPickRadioDelegate& PickRadioDelegate);
-    void UnsubscribeRadio(FDelegateHandle DelegateHandle);
     bool _isVisible;
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
@@ -62,6 +57,10 @@ public:
 
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_CharacterDead();
+
+    /* Radio Delegate */
+    FRadioDelegate _OnRadioPressedDelegate;
+    FRadioDelegate _OnRadioReleasedDelegate;
 
 protected:
     virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -164,8 +163,6 @@ protected:
     FHitResult Raycasting();
 
 private:
-    FPickRadioEvent _PickRadioEvent;
-
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UFMODAudioComponent* _StepsAudioComp;
     
@@ -188,6 +185,11 @@ private:
     UStaticMeshComponent* lastMeshFocused = nullptr;
     bool _itemFocused;
     bool _itemLeftTaken;
+
+    /* Radio Delegate */
+    FDelegateHandle _OnRadioPressedDelegateHandle;
+    FDelegateHandle _OnRadioReleasedDelegateHandle;
+    void AddRadioDelegates(AActor* PickedActor);
 
 public:
     FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }
