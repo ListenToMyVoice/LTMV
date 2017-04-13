@@ -200,6 +200,8 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
         Sessions->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
         if (bWasSuccessful) {
             //UGameplayStatics::OpenLevel(GetWorld(), _MapMenuName, true);
+            APlayerController * const PlayerController = GetFirstLocalPlayerController();
+            if (PlayerController) PlayerController->ClientReturnToMainMenu("");
         }
     }
 }
