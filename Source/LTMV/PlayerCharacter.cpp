@@ -679,12 +679,15 @@ void APlayerCharacter::PickItemFromInventory_Implementation(FString name) {
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
 /* Radio Delegate */
 void APlayerCharacter::AddRadioDelegates(AActor* PickedActor) {
-    if (Role == ROLE_AutonomousProxy) {
-        UWalkie* Walkie = Cast<UWalkie>(PickedActor->GetComponentByClass(UWalkie::StaticClass()));
-        if (Walkie) {
-            _OnRadioPressedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioPressedDelegate, true);
-            _OnRadioReleasedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioReleasedDelegate, false);
-        }
+    UWalkie* Walkie = Cast<UWalkie>(PickedActor->GetComponentByClass(UWalkie::StaticClass()));
+    if (Walkie) {
+        _OnRadioPressedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioPressedDelegate, true);
+        _OnRadioReleasedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioReleasedDelegate, false);
+
+        const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
+        FString myRole = EnumPtr->GetEnumName((int32)Role);
+
+        ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates: %s"), *myRole), 0, 60);
     }
 }
 

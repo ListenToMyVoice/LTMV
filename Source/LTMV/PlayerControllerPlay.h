@@ -24,6 +24,9 @@ public:
 
     UFUNCTION(Client, Reliable)
     void CLIENT_AfterPossessed();
+    // This override is because CLIENT_AfterPossessed does not work in host (Client-server)
+    UFUNCTION()
+    virtual void OnRep_Pawn() override;
     
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_CallUpdate(FPlayerInfo info);
@@ -57,8 +60,11 @@ protected:
 private:
     UAudioComponent* _VoiceAudioComp;
     bool _IsListen;
+    bool _DelegatesBinded;
 
     void TickWalkie();
+
+    void BindDelegates();
 
     /***************** EXIT GAME **************/
     void ExitGame();

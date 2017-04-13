@@ -22,6 +22,8 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
         "/Game/BluePrints/HUD/MainMenuActor_BP"));
     _MenuClass = MenuClassFinder.Class;
+
+    _DelegatesBinded = false;
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -33,8 +35,8 @@ void APlayerControllerPlay::BeginPlay() {
     Super::BeginPlay();
 
     if (IsLocalController()) {
-        UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
-        if (gameInstance) SERVER_CallUpdate(gameInstance->_PlayerInfoSaved);
+        UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
+        if (GameInstance) SERVER_CallUpdate(GameInstance->_PlayerInfoSaved);
     }
 }
 
@@ -47,11 +49,23 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
 }
 
 void APlayerControllerPlay::CLIENT_AfterPossessed_Implementation() {
+    if (!_DelegatesBinded) BindDelegates();
+}
+
+void APlayerControllerPlay::OnRep_Pawn() {
+    Super::OnRep_Pawn();
+    if (!_DelegatesBinded) BindDelegates();
+}
+
+void APlayerControllerPlay::BindDelegates() {
+    UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) {
-        ULibraryUtils::Log(TEXT("CLIENT_AfterPossessed_Implementation"));
+    if (!GameInstance || !PlayerCharacter) return;
+
+    if (PlayerCharacter->IsA(GameInstance->_PlayerInfoSaved.CharacterClass)) {
         PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
         PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
+        _DelegatesBinded = true;
     }
 }
 
@@ -126,40 +140,30 @@ void APlayerControllerPlay::ExitGame() {
 
 /*********************************************** DELEGATES ***************************************/
 void APlayerControllerPlay::OnRadioPressed() {
-    const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-    FString myRole = EnumPtr->GetEnumName((int32)Role);
+    StartTalking();
 
-    ULibraryUtils::Log(FString::Printf(TEXT("OnRadioPressed: %s"), *myRole), 0, 60);
+    ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s"),
+                                       *PlayerState->UniqueId.ToDebugString()), 3, 60);
 
-    //StartTalking();
-
-    //ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s"),
-    //                                   *PlayerState->UniqueId.ToDebugString()), 3, 60);
-
-    //for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
-    //    if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
-    //        GameplayMutePlayer(OtherPlayerState->UniqueId);
-    //        ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
-    //                                           *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
-    //    }
-    //}
+    for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
+        if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
+            GameplayMutePlayer(OtherPlayerState->UniqueId);
+            ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
+                                               *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
+        }
+    }
 }
 
 void APlayerControllerPlay::OnRadioReleased() {
-    const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-    FString myRole = EnumPtr->GetEnumName((int32)Role);
+    StopTalking();
 
-    ULibraryUtils::Log(FString::Printf(TEXT("OnRadioReleased: %s"), *myRole), 0, 60);
-
-    //StopTalking();
-
-    //for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
-    //    if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
-    //        GameplayUnmutePlayer(OtherPlayerState->UniqueId);
-    //        ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
-    //                                           *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
-    //    }
-    //}
+    for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
+        if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
+            GameplayUnmutePlayer(OtherPlayerState->UniqueId);
+            ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
+                                               *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
+        }
+    }
 }
 
 /******************************************** GAME FLOW ******************************************/
