@@ -55,7 +55,7 @@ protected:
 
     /********************************** ACTION MAPPINGS ******************************************/
     /*************** TRIGGER MENU *************/
-    void ToogleMenu(bool ForceVisible);
+    void ToogleMenu();
 
 private:
     UAudioComponent* _VoiceAudioComp;

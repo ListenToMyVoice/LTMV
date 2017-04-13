@@ -155,6 +155,8 @@ void UNWGameInstance::FindSessions(TSharedPtr<const FUniqueNetId> UserId, bool b
 }
 
 void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
+    ULibraryUtils::Log(FString::Printf(TEXT("Number of Sessions found: %d"),
+                                       _SessionSearch->SearchResults.Num()), 3, 15);
     IOnlineSessionPtr Sessions = GetSessions();
     FString Result = "";
     if (Sessions.IsValid()) {
@@ -165,7 +167,7 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
             }
         }
     }
-    else Result = "NO SESSIONS VALID";
+    else Result = "NO VALID SESSIONS";
 
     _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS FOUND";
 }
