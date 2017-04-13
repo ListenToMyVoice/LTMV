@@ -104,7 +104,7 @@ bool APlayerControllerPlay::IsListen() {
 
 /****************************************** ACTION MAPPINGS **************************************/
 /*************** TRIGGER MENU *************/
-void APlayerControllerPlay::ToogleMenu() {
+void APlayerControllerPlay::ToogleMenu(bool ForceVisible) {
     APawn* pawn = GetPawn();
     if (pawn) {
         if (_IsMenuHidden) {
@@ -126,10 +126,10 @@ void APlayerControllerPlay::ToogleMenu() {
                 }
             }
         }
-        else {
+        else if (!ForceVisible) {
             ULibraryUtils::SetActorEnable(_MenuActor, false);
         }
-        _IsMenuHidden = !_IsMenuHidden;
+        _IsMenuHidden = ForceVisible ? false : !_IsMenuHidden;
     }
 }
 
