@@ -140,33 +140,34 @@ void UNWGameInstance::FindSessions(TSharedPtr<const FUniqueNetId> UserId, bool b
         _SessionSearch->bIsLanQuery = bIsLAN;
         _SessionSearch->MaxSearchResults = 20;
         _SessionSearch->PingBucketSize = 50;
+        _SessionSearch->TimeoutInSeconds = 15;
 
-        //if (bIsPresence) {
+        //if (bIsPresence) { 
         //    _SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, bIsPresence, EOnlineComparisonOp::Equals);
         //}
 
         TSharedRef<FOnlineSessionSearch> SearchSettingsRef = _SessionSearch.ToSharedRef();
         OnFindSessionsCompleteDelegateHandle = 
             Sessions->AddOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegate);
+        _SessionOwner = "";
         Sessions->FindSessions(*UserId, SearchSettingsRef);
     }
 }
 
 void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
     IOnlineSessionPtr Sessions = GetSessions();
+    FString Result = "";
     if (Sessions.IsValid()) {
         Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
-        if (_SessionSearch->SearchResults.Num() > 0) {
-            for (int32 i = 0; i < _SessionSearch->SearchResults.Num(); i++) {
-                if (_SessionSearch->SearchResults[i].Session.NumOpenPublicConnections > 0) {
-                    _SessionOwner = _SessionSearch->SearchResults[i].Session.OwningUserName;
-                }
+        for (int32 i = 0; i < _SessionSearch->SearchResults.Num(); i++) {
+            if (_SessionSearch->SearchResults[i].Session.NumOpenPublicConnections > 0) {
+                Result = _SessionSearch->SearchResults[i].Session.OwningUserName;
             }
         }
-        else {
-            _SessionOwner = "";
-        }
     }
+    else Result = "NO SESSIONS VALID";
+
+    _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS FOUND";
 }
 
 bool UNWGameInstance::JoinAtSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName,
