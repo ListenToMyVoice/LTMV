@@ -20,7 +20,7 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     /* MENU */
     _IsMenuHidden = true;
     static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
-        "/Game/BluePrints/HUD/MainMenuActor_BP"));
+        "/Game/BluePrints/HUD/MenuPlayActor_BP"));
     _MenuClass = MenuClassFinder.Class;
 
     _DelegatesBinded = false;

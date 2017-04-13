@@ -6,11 +6,17 @@
 #include "GameModeLobby.h"
 
 
-APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {}
+APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
+    /* MENU */
+    _IsMenuHidden = true;
+    static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
+        "/Game/BluePrints/HUD/MenuLobbyActor_BP"));
+    _MenuClass = MenuClassFinder.Class;
+}
 
 void APlayerControllerLobby::SetupInputComponent() {
     Super::SetupInputComponent();
-    InputComponent->BindAction("Exit", IE_Released, this, &APlayerControllerLobby::ExitGame);
+    InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerLobby::ToogleMenu);
 }
 
 void APlayerControllerLobby::CLIENT_InitialSetup_Implementation() {
@@ -31,16 +37,46 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor
     if (pawn) {
         UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
         if (cameraComp) {
-            if (_ActorWidgetMenu) _ActorWidgetMenu->Destroy();
             FVector position = cameraComp->GetComponentLocation();
             FRotator rotation = cameraComp->GetComponentRotation();
 
-            _ActorWidgetMenu = GetWorld()->SpawnActor(menuClass, &position, &rotation);
+            // Save a Reference of the spawned actor??
+            GetWorld()->SpawnActor(menuClass, &position, &rotation);
         }
     }
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
+/*************** TRIGGER MENU *************/
+void APlayerControllerLobby::ToogleMenu() {
+    APawn* pawn = GetPawn();
+    if (pawn) {
+        if (_IsMenuHidden) {
+            UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
+            if (cameraComp) {
+                FVector position = cameraComp->GetComponentLocation();
+                FRotator rotation = cameraComp->GetComponentRotation();
+
+                if (_MenuActor) {
+                    ULibraryUtils::SetActorEnable(_MenuActor);
+                    _MenuActor->SetActorLocationAndRotation(position,
+                                                            rotation,
+                                                            false,
+                                                            nullptr,
+                                                            ETeleportType::TeleportPhysics);
+                }
+                else {
+                    _MenuActor = GetWorld()->SpawnActor(_MenuClass, &position, &rotation);
+                }
+            }
+        }
+        else {
+            ULibraryUtils::SetActorEnable(_MenuActor, false);
+        }
+        _IsMenuHidden = !_IsMenuHidden;
+    }
+}
+
 /***************** EXIT GAME **************/
 void APlayerControllerLobby::ExitGame() {
     FGenericPlatformMisc::RequestExit(false);

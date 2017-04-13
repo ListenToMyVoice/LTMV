@@ -25,9 +25,16 @@ public:
     void CLIENT_CreateMenu(TSubclassOf<AActor> menuClass);
 
 protected:
-    AActor* _ActorWidgetMenu;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
+    TSubclassOf<AActor> _MenuClass;
+    AActor* _MenuActor;
+    bool _IsMenuHidden;
 
     virtual void SetupInputComponent() override;
+
+    /********************************** ACTION MAPPINGS ******************************************/
+    /*************** TRIGGER MENU *************/
+    void ToogleMenu();
 
 private:
     /********************************** ACTION MAPPINGS ******************************************/

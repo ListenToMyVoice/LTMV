@@ -17,6 +17,6 @@ public:
 
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pressable")
-		void Press();
+	void Press();
 
 };
