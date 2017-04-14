@@ -11,7 +11,13 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(
         "/Game/BluePrints/Characters/PlayerCharacter_BP"));
     DefaultPawnClass = PlayerPawnClassFinder.Class;
+    
+    static ConstructorHelpers::FClassFinder<ASpectatorPawn> SpectatorClassFinder(TEXT(
+        "/Game/BluePrints/Characters/SpectadorPawnPlay"));
+    SpectatorClass = SpectatorClassFinder.Class;
+    
     PlayerControllerClass = APlayerControllerPlay::StaticClass();
+    
     GameStateClass = AGameStatePlay::StaticClass();
 }
 

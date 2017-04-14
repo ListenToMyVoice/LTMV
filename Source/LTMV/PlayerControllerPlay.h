@@ -24,7 +24,7 @@ public:
 
     UFUNCTION(Client, Reliable)
     void CLIENT_AfterPossessed();
-    // This override is because CLIENT_AfterPossessed does not work in host (Client-server)
+    //This override is because CLIENT_AfterPossessed does not work in host (Client-server)
     UFUNCTION()
     virtual void OnRep_Pawn() override;
     

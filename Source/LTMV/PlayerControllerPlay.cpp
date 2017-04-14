@@ -168,8 +168,6 @@ void APlayerControllerPlay::OnRadioReleased() {
 
 /******************************************** GAME FLOW ******************************************/
 void APlayerControllerPlay::CLIENT_Dead_Implementation(const FUniqueNetIdRepl NetId) {
-    ULibraryUtils::Log(FString::Printf(TEXT("REMOTE ID: %s"), *NetId.ToDebugString()), 0, 60);
-    ULibraryUtils::Log(FString::Printf(TEXT("LOCAL ID: %s"), *PlayerState->UniqueId.ToDebugString()), 0, 60);
     if (PlayerState->UniqueId == NetId) {
         ULibraryUtils::Log(TEXT("MY DEAD"));
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
