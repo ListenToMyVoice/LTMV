@@ -46,9 +46,13 @@ bool AGameModePlay::SERVER_PlayerDead_Validate(AController* PlayerController) {
     return true;
 }
 
-void AGameModePlay::SERVER_PlayerDead_Implementation(AController* PlayerController) {
-    if (_HostController) _HostController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
-    if (_GuestController) _GuestController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
+void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
+    APlayerControllerPlay* PlayerController = Cast<APlayerControllerPlay>(Controller);
+    if (PlayerController) {
+        if (_HostController) _HostController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
+        if (_GuestController) _GuestController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
 
-    PlayerController->UnPossess();
+        PlayerController->ChangeState(NAME_Spectating);
+        PlayerController->ClientGotoState(NAME_Spectating);
+    }
 }
