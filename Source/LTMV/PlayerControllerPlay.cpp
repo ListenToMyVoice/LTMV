@@ -171,7 +171,7 @@ void APlayerControllerPlay::CLIENT_Dead_Implementation(const FUniqueNetIdRepl Ne
     if (PlayerState->UniqueId == NetId) {
         ULibraryUtils::Log(TEXT("MY DEAD"));
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-        if (PlayerCharacter) PlayerCharacter->MULTI_CharacterDead();
+        if (PlayerCharacter) PlayerCharacter->SERVER_CharacterDead();
     }
     else {
         ULibraryUtils::Log(TEXT("MY FRIEND DEAD"));

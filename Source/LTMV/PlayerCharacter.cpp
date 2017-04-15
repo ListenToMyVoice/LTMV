@@ -721,6 +721,12 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
     return _Health;
 }
 
+
+bool APlayerCharacter::SERVER_CharacterDead_Validate() { return true; }
+void APlayerCharacter::SERVER_CharacterDead_Implementation() {
+    MULTI_CharacterDead();
+}
+
 void APlayerCharacter::MULTI_CharacterDead_Implementation() {
     Cast<UPrimitiveComponent>(GetRootComponent())->SetCollisionProfileName(FName("Ragdoll"));
     SetActorEnableCollision(true);

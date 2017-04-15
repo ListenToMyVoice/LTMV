@@ -55,6 +55,8 @@ public:
     virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                              class AController* EventInstigator, class AActor* DamageCauser) override;
 
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_CharacterDead();
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_CharacterDead();
 
