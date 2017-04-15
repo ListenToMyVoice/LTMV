@@ -22,6 +22,18 @@ public:
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_CallUpdate(FPlayerInfo info);
 
+    /***********************************INVENTORY WIDGET******************************************/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    TSubclassOf<class UInventoryWidget> InventoryUIClass;
+
+    UInventoryWidget* _inventoryHUD;
+
+    class APlayerCharacter* _PlayerCharacter;
+
+    void SetupInventoryWidget(UInventoryWidget* InventoryWidget);
+
+    virtual void Possess(APawn *InPawn) override;
+
     /*************************************** VOICE ***********************************************/
     virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
                                            class UAudioComponent* AudioComponent) override;
@@ -37,6 +49,7 @@ protected:
     TSubclassOf<AActor> _MenuClass;
     AActor* _MenuActor;
     bool _IsMenuHidden;
+    bool _IsInventoryHidden;
 
     virtual void SetupInputComponent() override;
 
@@ -47,6 +60,9 @@ protected:
     /*************** PUSH TO TALK *************/
     void PushTalk();
     void ReleaseTalk();
+
+    /**************** TRIGGER INVENTORY *************/
+    void ToggleInventory();
 
 private:
     UAudioComponent* _VoiceAudioComp;

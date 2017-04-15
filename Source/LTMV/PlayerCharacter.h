@@ -21,6 +21,10 @@ struct ItemData {
     TArray<UActorComponent*> components;
 };
 
+struct Key {
+    FString KeyName;
+};
+
 UCLASS()
 class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
@@ -30,8 +34,32 @@ public:
     void UnsubscribeRadio(FDelegateHandle DelegateHandle);
     bool _isVisible;
 
+    /*************INVENTORY************/
+    // The class that will be used for the players Inventory UI
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    TSubclassOf<class UInventoryWidget> InventoryUIClass;
+
+    // The instance of the players Inventory UI Widget
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    class UInventoryWidget* InventoryWidget;
+
     UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
     void OnShowInventory();
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    UInventory* GetInventory();
+
+    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
+        UTexture2D* GetItemAt(int itemIndex);
+
+    void SaveInventory(AActor* itemActor);
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    void PickItemFromInventory(FString itemName, FKey KeyStruct);
+    void PickItemFromInventory_Implementation(FString itemName, FKey KeyStruct);
+
+    void SetHUDVisible(bool visible);
+    bool IsHUDVisible();
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
     int _Health;
@@ -122,38 +150,6 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_DropRight();
 
-    /*************INVENTORY************/
-    // The class that will be used for the players Inventory UI
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    TAssetSubclassOf<class UInventoryWidget> InventoryUIClass;
-
-    // The instance of the players Inventory UI Widget
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    class UInventoryWidget* InventoryWidget;
-
-    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
-    void ShowInventory();
-    void ShowInventory_Implementation(UInventory* inventory);
-
-    void HideInventory();
-    void HideInventory_Implementation();
-
-    UFUNCTION(BlueprintCallable, Category = "Inventory")
-    UInventory* GetInventory();
-
-    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
-    UTexture2D* GetItemAt(int itemIndex);
-
-    void SaveInventory(AActor* itemActor);
-
-    void PickItemFromInventory();
-    void PickItemFromInventory_Implementation(FString name);
-
-    void SetHUDVisible(bool visible);
-    bool IsHUDVisible();
-
-
-
 
     /* RAYCASTING */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
@@ -165,6 +161,8 @@ protected:
 
 private:
     FPickRadioEvent _PickRadioEvent;
+
+    APlayerController* PC;
 
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UFMODAudioComponent* _StepsAudioComp;

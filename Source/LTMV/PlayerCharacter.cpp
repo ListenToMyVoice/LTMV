@@ -44,24 +44,27 @@ void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
     GetOwnComponents();
 
+    PC = Cast<APlayerController>(this->GetController());
+
     // Only create the UI on the local machine (dose not exist on the server.)
-    if (GetController() && GetController()->IsLocalController())
+    /*
+    if (PC && PC->IsLocalPlayerController())
     {
         if (InventoryUIClass) // Check the selected UI class is not NULL
         {
             if (!InventoryWidget) // If the widget is not created and == NULL
             {
-                InventoryWidget = CreateWidget<UInventoryWidget>(Cast<APlayerController>(GetController()),
-                    InventoryUIClass.LoadSynchronous()); // Create Widget
+                InventoryWidget = CreateWidget<UInventoryWidget>(PC,
+                    InventoryUIClass); // Create Widget
 
                 if (!InventoryWidget)
                     return;
                 InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
                 InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.               
-                //SetHUDVisible(false);
             }
         }
     }
+    */
 }
 
 void APlayerCharacter::GetOwnComponents() {
@@ -103,13 +106,9 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerIn
 
     playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
 	//Mantener push
-	playerInput->BindAction("Press", IE_Pressed, this, &APlayerCharacter::Press);
- 	
-	playerInput->BindAction("ShowInventory", IE_Pressed, this, &APlayerCharacter::ShowInventory);
-    playerInput->BindAction("ShowInventory", IE_Released, this, &APlayerCharacter::HideInventory);
-    
+	playerInput->BindAction("Press", IE_Pressed, this, &APlayerCharacter::Press);    
 
-	playerInput->BindAction("PickItemFromInventory", IE_Pressed, this, &APlayerCharacter::PickItemFromInventory);
+	//playerInput->BindAction("PickItemFromInventory", IE_Pressed, this, &APlayerCharacter::PickItemFromInventory);
 
     /* USE ITEM */
     playerInput->BindAction("ClickLeft", IE_Pressed, this, &APlayerCharacter::UseLeftPressed);
@@ -323,7 +322,7 @@ void APlayerCharacter::TakeDropRight() {
 
     else {
         /*DROP RIGHT ITEM*/
-        if (_itemRight) {
+        if (_itemRight && _itemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
             SERVER_DropRight();
         }
     }
@@ -404,7 +403,7 @@ void APlayerCharacter::TakeDropLeft() {
 
     else {
         /*DROP LEFT ITEM*/
-        if (_itemLeft) {
+        if (_itemLeft && _itemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
             SERVER_DropLeft();
         }
     }
@@ -529,32 +528,6 @@ void APlayerCharacter::SaveInventory(AActor* item) {
     }
 }
 
-/*** SHOW INVENTORY ***/
-void APlayerCharacter::ShowInventory() {
-
-    if (this->_inventory)
-        ShowInventory_Implementation(this->_inventory);
-}
-
-void APlayerCharacter::ShowInventory_Implementation(UInventory* inventory) {
-    inventory->ShowAllItems();    
-    
-    if(InventoryWidget)
-        InventoryWidget->SetVisibility(ESlateVisibility::Visible); // Set it to hidden so its not open on spawn.               
-    OnShowInventory();
-}
-
-/*** HIDE INVENTORY ***/
-void APlayerCharacter::HideInventory() {
-    if (this->_inventory)
-        HideInventory_Implementation();
-}
-
-void APlayerCharacter::HideInventory_Implementation() {
-    if (InventoryWidget)
-        InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-}
-
 void APlayerCharacter::SetHUDVisible(bool visible) {
     _isVisible = visible;
 }
@@ -570,16 +543,16 @@ UTexture2D* APlayerCharacter::GetItemAt(int itemIndex) {
 }
 
 /*** TAKE ITEM FROM INVENTORY TO HAND ***/
-void APlayerCharacter::PickItemFromInventory() {
+void APlayerCharacter::PickItemFromInventory(FString itemName, FKey keyStruct) {
     if (this->_inventory)
-        this->PickItemFromInventory_Implementation("Lantern3");
+        this->PickItemFromInventory_Implementation(itemName, keyStruct);
 }
 
-void APlayerCharacter::PickItemFromInventory_Implementation(FString name) {
+void APlayerCharacter::PickItemFromInventory_Implementation(FString itemName, FKey keyStruct) {
     this->_inventory = Cast<UInventory>(this->FindComponentByClass(UInventory::StaticClass()));
     AActor* ItemFromInventory = nullptr;
 
-    ItemFromInventory = _inventory->PickItem(name);
+    ItemFromInventory = _inventory->PickItem(itemName);
 
     UStaticMeshComponent* ItemMesh = nullptr;
     UInventoryItem* InventoryItemComponent = nullptr;
@@ -599,38 +572,66 @@ void APlayerCharacter::PickItemFromInventory_Implementation(FString name) {
         ItemMesh->SetSimulatePhysics(false);
     }
 
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tecla: %s"), *keyStruct.GetFName().ToString()));
 
-    /*If there is no item in hands, attach to left hand by default*/
-    if (ItemMesh && !_itemLeft) {
-            
-        ItemMesh->AttachToComponent(GetMesh(),
-            FAttachmentTransformRules::KeepRelativeTransform,
-            TEXT("itemHand_l"));
 
-        ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_L;
-        ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_L;
-        ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+    if (keyStruct.GetFName().ToString().Equals("LeftMouseButton")) {
+        if (ItemMesh) {
 
-        InventoryItemComponent->SetEquipped(true);
+            if (_itemLeft) {
+                SaveInventory(_itemLeft);
+                Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
+                    UInventoryItem::StaticClass()))->SetEquipped(false);
+                _itemLeft = nullptr;
+            }
 
-        _itemLeft = ItemFromInventory;
+            ItemMesh->AttachToComponent(GetMesh(),
+                FAttachmentTransformRules::KeepRelativeTransform,
+                TEXT("itemHand_l"));
+
+            ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_L;
+            ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_L;
+            ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+
+            InventoryItemComponent->SetEquipped(true);
+
+            _itemLeft = ItemFromInventory;
+
+            /*If the item is equipped in the other hand*/
+            if (_itemRight && _itemRight == ItemFromInventory){
+                _itemRight = nullptr;
+            }
+        }
     }
 
-    else if (ItemMesh && !_itemRight) {
+    if (keyStruct.GetFName().ToString().Equals("RightMouseButton")) {
+        if (ItemMesh) {
 
-        ItemMesh->AttachToComponent(GetMesh(),
-            FAttachmentTransformRules::KeepRelativeTransform,
-            TEXT("itemHand_r"));
+            if (_itemRight) {
+                SaveInventory(_itemRight);
+                Cast<UInventoryItem>(_itemRight->GetComponentByClass(
+                    UInventoryItem::StaticClass()))->SetEquipped(false);
+                _itemRight = nullptr;
+            }
 
-        ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_R;
-        ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_R;
-        ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+            ItemMesh->AttachToComponent(GetMesh(),
+                FAttachmentTransformRules::KeepRelativeTransform,
+                TEXT("itemHand_r"));
 
-        InventoryItemComponent->SetEquipped(true);
+            ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_R;
+            ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_R;
+            ItemMesh->GetOwner()->SetActorHiddenInGame(false);
 
-        _itemRight = ItemFromInventory;
+            InventoryItemComponent->SetEquipped(true);
+
+            _itemRight = ItemFromInventory;
+
+            /*If the item is equipped in the other hand*/
+            if (_itemLeft && _itemLeft == ItemFromInventory) {
+                _itemLeft = nullptr;
+            }
+        }
     }
-
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
