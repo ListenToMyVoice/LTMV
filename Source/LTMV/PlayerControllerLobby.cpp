@@ -12,6 +12,13 @@ APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : S
     static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
         "/Game/BluePrints/HUD/MenuLobbyActor_BP"));
     _MenuClass = MenuClassFinder.Class;
+
+    GConfig->GetString(
+        TEXT("/Script/EngineSettings.GameMapsSettings"),
+        TEXT("GameDefaultMap"),
+        _MapMainMenu,
+        GEngineIni
+    );
 }
 
 void APlayerControllerLobby::SetupInputComponent() {
@@ -49,31 +56,35 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor
 /****************************************** ACTION MAPPINGS **************************************/
 /*************** TRIGGER MENU *************/
 void APlayerControllerLobby::ToogleMenu() {
-    APawn* pawn = GetPawn();
-    if (pawn) {
-        if (_IsMenuHidden) {
-            UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
-            if (cameraComp) {
-                FVector position = cameraComp->GetComponentLocation();
-                FRotator rotation = cameraComp->GetComponentRotation();
+    ULibraryUtils::Log(_MapMainMenu);
+    ULibraryUtils::Log(GetWorld()->GetMapName());
+    if (!_MapMainMenu.Contains(GetWorld()->GetMapName())) {
+        APawn* pawn = GetPawn();
+        if (pawn) {
+            if (_IsMenuHidden) {
+                UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
+                if (cameraComp) {
+                    FVector position = cameraComp->GetComponentLocation();
+                    FRotator rotation = cameraComp->GetComponentRotation();
 
-                if (_MenuActor) {
-                    ULibraryUtils::SetActorEnable(_MenuActor);
-                    _MenuActor->SetActorLocationAndRotation(position,
-                                                            rotation,
-                                                            false,
-                                                            nullptr,
-                                                            ETeleportType::TeleportPhysics);
-                }
-                else {
-                    _MenuActor = GetWorld()->SpawnActor(_MenuClass, &position, &rotation);
+                    if (_MenuActor) {
+                        ULibraryUtils::SetActorEnable(_MenuActor);
+                        _MenuActor->SetActorLocationAndRotation(position,
+                                                                rotation,
+                                                                false,
+                                                                nullptr,
+                                                                ETeleportType::TeleportPhysics);
+                    }
+                    else {
+                        _MenuActor = GetWorld()->SpawnActor(_MenuClass, &position, &rotation);
+                    }
                 }
             }
+            else {
+                ULibraryUtils::SetActorEnable(_MenuActor, false);
+            }
+            _IsMenuHidden = !_IsMenuHidden;
         }
-        else {
-            ULibraryUtils::SetActorEnable(_MenuActor, false);
-        }
-        _IsMenuHidden = !_IsMenuHidden;
     }
 }
 

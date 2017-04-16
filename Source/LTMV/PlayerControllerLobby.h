@@ -37,6 +37,8 @@ protected:
     void ToogleMenu();
 
 private:
+    FString _MapMainMenu;
+
     /********************************** ACTION MAPPINGS ******************************************/
     /***************** EXIT GAME **************/
     void ExitGame();
