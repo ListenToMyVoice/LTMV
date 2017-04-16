@@ -712,19 +712,15 @@ UInventory* APlayerCharacter::GetInventory() {
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                                    class AController* EventInstigator, class AActor* DamageCauser) {
     //Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-    ULibraryUtils::Log(TEXT("TakeDamage"));
     _Health -= DamageAmount;
     if (_Health <= 0) {
         AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
-        if (GameMode) GameMode->SERVER_PlayerDead(GetController());
+        if (GameMode) {
+            GameMode->SERVER_PlayerDead(GetController());
+            MULTI_CharacterDead();
+        }
     }
     return _Health;
-}
-
-
-bool APlayerCharacter::SERVER_CharacterDead_Validate() { return true; }
-void APlayerCharacter::SERVER_CharacterDead_Implementation() {
-    MULTI_CharacterDead();
 }
 
 void APlayerCharacter::MULTI_CharacterDead_Implementation() {

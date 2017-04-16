@@ -44,6 +44,8 @@ public:
 
     UFUNCTION(Client, Reliable)
     void CLIENT_Dead(const FUniqueNetIdRepl NetId);
+    UFUNCTION(Client, Reliable)
+    void CLIENT_GotoState(FName NewState);
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")

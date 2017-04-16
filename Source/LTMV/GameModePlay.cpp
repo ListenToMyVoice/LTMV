@@ -59,6 +59,7 @@ void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
         if (_GuestController) _GuestController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
 
         PlayerController->ChangeState(NAME_Spectating);
-        PlayerController->ClientGotoState(NAME_Spectating);
+        PlayerController->CLIENT_GotoState(NAME_Spectating);
+        //PlayerController->GameHasEnded(PlayerController->_MenuActor, false);
     }
 }

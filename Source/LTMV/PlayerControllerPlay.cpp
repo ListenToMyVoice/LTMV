@@ -49,7 +49,7 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
 }
 
 void APlayerControllerPlay::CLIENT_AfterPossessed_Implementation() {
-    if (!_DelegatesBinded) BindDelegates();
+    if (!_DelegatesBinded) BindDelegates();// CLIENT-SERVER EXCEPTION
 }
 
 void APlayerControllerPlay::OnRep_Pawn() {
@@ -168,13 +168,13 @@ void APlayerControllerPlay::OnRadioReleased() {
 
 /******************************************** GAME FLOW ******************************************/
 void APlayerControllerPlay::CLIENT_Dead_Implementation(const FUniqueNetIdRepl NetId) {
-    if (PlayerState->UniqueId == NetId) {
-        ULibraryUtils::Log(TEXT("MY DEAD"));
-        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-        if (PlayerCharacter) PlayerCharacter->SERVER_CharacterDead();
-    }
-    else {
-        ULibraryUtils::Log(TEXT("MY FRIEND DEAD"));
-    }
     ToogleMenu();
+}
+
+void APlayerControllerPlay::CLIENT_GotoState_Implementation(FName NewState) {
+    if (GetPawn()) {// CLIENT-SERVER EXCEPTION
+        FVector Location = GetPawn()->GetActorLocation();
+        ClientGotoState(NewState);
+        GetSpectatorPawn()->SetActorLocation(Location);
+    }
 }
