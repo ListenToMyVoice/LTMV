@@ -549,90 +549,98 @@ UTexture2D* APlayerCharacter::GetItemAt(int itemIndex) {
 }
 
 /*** TAKE ITEM FROM INVENTORY TO HAND ***/
-void APlayerCharacter::PickItemFromInventory(AActor* ItemActor, FKey keyStruct) {
-    if (this->_inventory)
-        this->PickItemFromInventory_Implementation(ItemActor, keyStruct);
+void APlayerCharacter::PickItemFromInventory(AActor* ItemActor, FKey KeyStruct) {
+    SERVER_PickItemFromInventory(ItemActor, KeyStruct);
 }
 
-void APlayerCharacter::PickItemFromInventory_Implementation(AActor* ItemActor, FKey keyStruct) {
+bool APlayerCharacter::SERVER_PickItemFromInventory_Validate(AActor* ItemActor, FKey KeyStruct) { 
+    return true;
+}
+void APlayerCharacter::SERVER_PickItemFromInventory_Implementation(AActor* ItemActor, FKey KeyStruct) {
+    MULTI_PickItemFromInventory(ItemActor, KeyStruct);
+}
+
+void APlayerCharacter::MULTI_PickItemFromInventory_Implementation(AActor* ItemActor, FKey KeyStruct) {
     this->_inventory = Cast<UInventory>(this->FindComponentByClass(UInventory::StaticClass()));
-    AActor* ItemFromInventory = nullptr;
+    if (_inventory) {
+        AActor* ItemFromInventory = nullptr;
 
-    ItemFromInventory = _inventory->PickItem(ItemActor);
+        ItemFromInventory = _inventory->PickItem(ItemActor);
 
-    UStaticMeshComponent* ItemMesh = nullptr;
-    UInventoryItem* InventoryItemComponent = nullptr;
+        UStaticMeshComponent* ItemMesh = nullptr;
+        UInventoryItem* InventoryItemComponent = nullptr;
 
-    /*Obtaining item components*/
-    if (ItemFromInventory) {
-        ItemMesh = Cast<UStaticMeshComponent>(ItemFromInventory->GetComponentByClass(
-            UStaticMeshComponent::StaticClass()));
-        
-        InventoryItemComponent = Cast<UInventoryItem>(ItemFromInventory->GetComponentByClass(
-            UInventoryItem::StaticClass()));
-    }
+        /*Obtaining item components*/
+        if (ItemFromInventory) {
+            ItemMesh = Cast<UStaticMeshComponent>(ItemFromInventory->GetComponentByClass(
+                UStaticMeshComponent::StaticClass()));
 
-    if (ItemMesh) {
-        ItemMesh->SetMobility(EComponentMobility::Movable);
-        ItemMesh->SetIsReplicated(true);
-        ItemMesh->SetSimulatePhysics(false);
-    }
-    
-    if (keyStruct == EKeys::LeftMouseButton) {
+            InventoryItemComponent = Cast<UInventoryItem>(ItemFromInventory->GetComponentByClass(
+                UInventoryItem::StaticClass()));
+        }
+
         if (ItemMesh) {
-            if (_itemLeft) {
-                SaveInventory(_itemLeft);
-                Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
-                    UInventoryItem::StaticClass()))->SetEquipped(false);
-                _itemLeft = nullptr;
-            }
+            ItemMesh->SetMobility(EComponentMobility::Movable);
+            ItemMesh->SetIsReplicated(true);
+            ItemMesh->SetSimulatePhysics(false);
+        }
 
-            ItemMesh->AttachToComponent(GetMesh(),
-                FAttachmentTransformRules::KeepRelativeTransform,
-                TEXT("itemHand_l"));
+        if (KeyStruct == EKeys::LeftMouseButton) {
+            if (ItemMesh) {
+                if (_itemLeft) {
+                    SaveInventory(_itemLeft);
+                    Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
+                        UInventoryItem::StaticClass()))->SetEquipped(false);
+                    _itemLeft = nullptr;
+                }
 
-            ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_L;
-            ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_L;
-            ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+                ItemMesh->AttachToComponent(GetMesh(),
+                                            FAttachmentTransformRules::KeepRelativeTransform,
+                                            TEXT("itemHand_l"));
 
-            InventoryItemComponent->SetEquipped(true);
+                ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_L;
+                ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_L;
+                ItemMesh->GetOwner()->SetActorHiddenInGame(false);
 
-            _itemLeft = ItemFromInventory;
-            AddRadioDelegates(ItemFromInventory);
+                InventoryItemComponent->SetEquipped(true);
 
-            /*If the item is equipped in the other hand*/
-            if (_itemRight && _itemRight == ItemFromInventory){
-                _itemRight = nullptr;
+                _itemLeft = ItemFromInventory;
+                AddRadioDelegates(ItemFromInventory);
+
+                /*If the item is equipped in the other hand*/
+                if (_itemRight && _itemRight == ItemFromInventory) {
+                    _itemRight = nullptr;
+                }
             }
         }
-    }
 
-    if (keyStruct == EKeys::RightMouseButton) {
-        if (ItemMesh) {
+        if (KeyStruct == EKeys::RightMouseButton) {
+            if (ItemMesh) {
 
-            if (_itemRight) {
-                SaveInventory(_itemRight);
-                Cast<UInventoryItem>(_itemRight->GetComponentByClass(
-                    UInventoryItem::StaticClass()))->SetEquipped(false);
-                _itemRight = nullptr;
-            }
+                if (_itemRight) {
+                    SaveInventory(_itemRight);
+                    Cast<UInventoryItem>(_itemRight->GetComponentByClass(
+                        UInventoryItem::StaticClass()))->SetEquipped(false);
+                    _itemRight = nullptr;
+                }
 
-            ItemMesh->AttachToComponent(GetMesh(),
-                FAttachmentTransformRules::KeepRelativeTransform,
-                TEXT("itemHand_r"));
+                ItemMesh->AttachToComponent(GetMesh(),
+                                            FAttachmentTransformRules::KeepRelativeTransform,
+                                            TEXT("itemHand_r"));
 
-            ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_R;
-            ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_R;
-            ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+                ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_R;
+                ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_R;
+                ItemMesh->GetOwner()->SetActorHiddenInGame(false);
 
-            InventoryItemComponent->SetEquipped(true);
+                InventoryItemComponent->SetEquipped(true);
 
-            _itemRight = ItemFromInventory;
-            AddRadioDelegates(ItemFromInventory);
+                _itemRight = ItemFromInventory;
+                AddRadioDelegates(ItemFromInventory);
 
-            /*If the item is equipped in the other hand*/
-            if (_itemLeft && _itemLeft == ItemFromInventory) {
-                _itemLeft = nullptr;
+                /*If the item is equipped in the other hand*/
+                if (_itemLeft && _itemLeft == ItemFromInventory) {
+                    _itemLeft = nullptr;
+                }
             }
         }
     }

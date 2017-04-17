@@ -39,9 +39,13 @@ public:
 
     void SaveInventory(AActor* itemActor);
 
+    /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     void PickItemFromInventory(AActor* ItemActor, FKey KeyStruct);
-    void PickItemFromInventory_Implementation(AActor* ItemActor, FKey KeyStruct);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_PickItemFromInventory(AActor* ItemActor, FKey KeyStruct);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_PickItemFromInventory(AActor* ItemActor, FKey KeyStruct);
 
     void SetHUDVisible(bool visible);
     bool IsHUDVisible();

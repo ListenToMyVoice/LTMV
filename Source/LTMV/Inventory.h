@@ -36,6 +36,4 @@ public:
     //                           FActorComponentTickFunction* ThisTickFunction) override;
 
     AActor* PickItem(AActor* ItemActor);
-
-
 };

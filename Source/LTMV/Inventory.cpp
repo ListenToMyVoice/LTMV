@@ -75,14 +75,7 @@ AActor* UInventory::PickItem(AActor* ItemActor) {
         ItemComp = Cast<UInventoryItem>(item->FindComponentByClass(UInventoryItem::StaticClass()));
 
         if (item == ItemActor) {
-            item->SetReplicates(true);
-            item->SetReplicateMovement(true);
-
             ReturnItem = item;
-
-            ReturnItem->SetReplicates(true);
-            ReturnItem->SetReplicateMovement(true);
-
             return ReturnItem;
         }
     }
