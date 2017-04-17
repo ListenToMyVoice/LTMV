@@ -75,7 +75,7 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
 
     if (!_VoiceAudioComp) _VoiceAudioComp = AudioComponent;
 
-    //AudioComponent->bEnableLowPassFilter = true;
+    //AudioComponent->bEnableLowPassFilter =  true;
     //AudioComponent->LowPassFilterFrequency = 60000;
 }
 

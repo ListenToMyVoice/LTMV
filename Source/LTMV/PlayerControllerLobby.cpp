@@ -56,8 +56,6 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor
 /****************************************** ACTION MAPPINGS **************************************/
 /*************** TRIGGER MENU *************/
 void APlayerControllerLobby::ToogleMenu() {
-    ULibraryUtils::Log(_MapMainMenu);
-    ULibraryUtils::Log(GetWorld()->GetMapName());
     if (!_MapMainMenu.Contains(GetWorld()->GetMapName())) {
         APawn* pawn = GetPawn();
         if (pawn) {
