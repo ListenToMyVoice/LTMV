@@ -3,6 +3,7 @@
 #include "LTMV.h"
 #include "PlayerCharacter.h"
 
+#include "ItfUsableItem.h"
 #include "Inventory.h"
 #include "ItfUsable.h"
 #include "InventoryItem.h"
@@ -253,11 +254,29 @@ void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
 
 /******** USE ITEM LEFT *********/
 void APlayerCharacter::UseLeftPressed() {
+    if (_itemLeft) {
+        TArray<UActorComponent*> componentArray;
+        componentArray = _itemLeft->GetComponentsByTag(UActorComponent::StaticClass(), "UsableItem");
 
+        for (UActorComponent* component : componentArray) {
+            IItfUsableItem* itfObject = Cast<IItfUsableItem>(component);
+            itfObject->Execute_UseItemPressed(component);
+
+        }
+    }
 }
 
 void APlayerCharacter::UseLeftReleased() {
+    if (_itemLeft) {
+        TArray<UActorComponent*> componentArray;
+        componentArray = _itemLeft->GetComponentsByTag(UActorComponent::StaticClass(), "UsableItem");
 
+        for (UActorComponent* component : componentArray) {
+            IItfUsableItem* itfObject = Cast<IItfUsableItem>(component);
+            itfObject->Execute_UseItemReleased(component);
+
+        }
+    }
 }
 
 /******* USE ITEM RIGHT *********/

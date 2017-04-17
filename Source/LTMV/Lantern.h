@@ -28,6 +28,10 @@ public:
 
     void UsingBattery();
 
+    void PowerOff();
+
+    void PowerOn();
+
     /*Inerfaces*/
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Use Item")
     void UseItemPressed();
@@ -41,4 +45,6 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+    bool _isLanternOn;
 };
