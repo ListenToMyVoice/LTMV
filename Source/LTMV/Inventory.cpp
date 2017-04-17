@@ -18,6 +18,11 @@ void UInventory::BeginPlay() {
 void UInventory::AddItem(AActor* item) {
     ULibraryUtils::SetActorEnable(item, false);
 
+    UInventoryItem* ItemToAdd = nullptr;
+
+    ItemToAdd = Cast<UInventoryItem>(item->GetComponentByClass(
+        UInventoryItem::StaticClass()));
+
     UStaticMeshComponent* itemMesh = Cast<UStaticMeshComponent>(item->GetComponentByClass(
         UStaticMeshComponent::StaticClass()));
 
@@ -27,6 +32,7 @@ void UInventory::AddItem(AActor* item) {
     itemMesh->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
     itemMesh->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
 
+    if(ItemToAdd && ItemToAdd->IsEquipped() == false)
     _items.Add(item);
 
 }
@@ -82,7 +88,7 @@ AActor* UInventory::PickItem(FString ItemName) {
         ItemComp = Cast<UInventoryItem>(item->FindComponentByClass(UInventoryItem::StaticClass()));
         //UInventoryItem* InventoryItemComp = item->FindComponentByClass(UInventoryItem::StaticClass());
 
-        if (item->GetName().Equals(ItemName) && ItemComp->IsEquipped() == false) {
+        if (item->GetName().Equals(ItemName)) {
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Picking item: %s from inventory"), *item->GetName()));
             UE_LOG(LogTemp, Warning, TEXT("Picking item: %s from inventory"), *item->GetName());
 
