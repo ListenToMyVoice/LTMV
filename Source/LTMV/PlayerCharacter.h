@@ -40,8 +40,8 @@ public:
     void SaveInventory(AActor* itemActor);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory")
-    void PickItemFromInventory(FString itemName, FKey KeyStruct);
-    void PickItemFromInventory_Implementation(FString itemName, FKey KeyStruct);
+    void PickItemFromInventory(AActor* ItemActor, FKey KeyStruct);
+    void PickItemFromInventory_Implementation(AActor* ItemActor, FKey KeyStruct);
 
     void SetHUDVisible(bool visible);
     bool IsHUDVisible();

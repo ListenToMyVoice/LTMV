@@ -35,7 +35,7 @@ public:
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType,
     //                           FActorComponentTickFunction* ThisTickFunction) override;
 
-    AActor* PickItem(FString ItemName);
+    AActor* PickItem(AActor* ItemActor);
 
 
 };

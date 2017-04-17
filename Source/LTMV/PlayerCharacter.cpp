@@ -561,16 +561,16 @@ UTexture2D* APlayerCharacter::GetItemAt(int itemIndex) {
 }
 
 /*** TAKE ITEM FROM INVENTORY TO HAND ***/
-void APlayerCharacter::PickItemFromInventory(FString itemName, FKey keyStruct) {
+void APlayerCharacter::PickItemFromInventory(AActor* ItemActor, FKey keyStruct) {
     if (this->_inventory)
-        this->PickItemFromInventory_Implementation(itemName, keyStruct);
+        this->PickItemFromInventory_Implementation(ItemActor, keyStruct);
 }
 
-void APlayerCharacter::PickItemFromInventory_Implementation(FString itemName, FKey keyStruct) {
+void APlayerCharacter::PickItemFromInventory_Implementation(AActor* ItemActor, FKey keyStruct) {
     this->_inventory = Cast<UInventory>(this->FindComponentByClass(UInventory::StaticClass()));
     AActor* ItemFromInventory = nullptr;
 
-    ItemFromInventory = _inventory->PickItem(itemName);
+    ItemFromInventory = _inventory->PickItem(ItemActor);
 
     UStaticMeshComponent* ItemMesh = nullptr;
     UInventoryItem* InventoryItemComponent = nullptr;
@@ -594,9 +594,10 @@ void APlayerCharacter::PickItemFromInventory_Implementation(FString itemName, FK
     }
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tecla: %s"), *keyStruct.GetFName().ToString()));
-
-
-    if (keyStruct.GetFName().ToString().Equals("LeftMouseButton")) {
+    
+    if (keyStruct == EKeys::LeftMouseButton) {
+    //if (keyStruct.GetFName().ToString().Equals("LeftMouseButton")) {
+        
         if (ItemMesh) {
 
             if (_itemLeft) {
@@ -628,7 +629,7 @@ void APlayerCharacter::PickItemFromInventory_Implementation(FString itemName, FK
         }
     }
 
-    if (keyStruct.GetFName().ToString().Equals("RightMouseButton")) {
+    if (keyStruct == EKeys::RightMouseButton) {
         if (ItemMesh) {
 
             if (_itemRight) {

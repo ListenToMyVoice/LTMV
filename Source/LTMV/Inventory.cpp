@@ -75,7 +75,7 @@ void UInventory::ShowAllItems() {
     }
 }
 
-AActor* UInventory::PickItem(FString ItemName) {
+AActor* UInventory::PickItem(AActor* ItemActor) {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("KEY PRESSED!!2")));
 
 
@@ -84,13 +84,13 @@ AActor* UInventory::PickItem(FString ItemName) {
     
     for (AActor* item : _items) {
 
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *ItemName));
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM2: %s"), *item->GetName()));
+        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *ItemName));
+        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM2: %s"), *item->GetName()));
 
         ItemComp = Cast<UInventoryItem>(item->FindComponentByClass(UInventoryItem::StaticClass()));
         //UInventoryItem* InventoryItemComp = item->FindComponentByClass(UInventoryItem::StaticClass());
 
-        if (item->GetName().Equals(ItemName)) {
+        if (item == ItemActor) {
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Picking item: %s from inventory"), *item->GetName()));
             UE_LOG(LogTemp, Warning, TEXT("Picking item: %s from inventory"), *item->GetName());
 
