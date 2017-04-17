@@ -582,6 +582,9 @@ void APlayerCharacter::PickItemFromInventory_Implementation(FString itemName, FK
         
         InventoryItemComponent = Cast<UInventoryItem>(ItemFromInventory->GetComponentByClass(
             UInventoryItem::StaticClass()));
+
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hay ItemFromInventory")));
+
     }
 
     if (ItemMesh) {
@@ -614,6 +617,9 @@ void APlayerCharacter::PickItemFromInventory_Implementation(FString itemName, FK
             InventoryItemComponent->SetEquipped(true);
 
             _itemLeft = ItemFromInventory;
+
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Attached succesfully")));
+
 
             /*If the item is equipped in the other hand*/
             if (_itemRight && _itemRight == ItemFromInventory){

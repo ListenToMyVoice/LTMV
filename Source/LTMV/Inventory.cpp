@@ -84,7 +84,9 @@ AActor* UInventory::PickItem(FString ItemName) {
     
     for (AActor* item : _items) {
 
-        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *ItemName));
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *ItemName));
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM2: %s"), *item->GetName()));
+
         ItemComp = Cast<UInventoryItem>(item->FindComponentByClass(UInventoryItem::StaticClass()));
         //UInventoryItem* InventoryItemComp = item->FindComponentByClass(UInventoryItem::StaticClass());
 

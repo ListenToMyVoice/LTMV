@@ -7,16 +7,10 @@
 #include "PlayerCharacter.generated.h"
 
 
-class AItemActor;
 class UItemTakeLeft;
 class UItemTakeRight;
 class UInventory;
 
-struct ItemData {
-    //GENERATED_USTRUCT_BODY()
-    AItemActor* actor;
-    TArray<UActorComponent*> components;
-};
 
 UCLASS()
 class LTMV_API APlayerCharacter : public ACharacter {
