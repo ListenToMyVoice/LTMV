@@ -37,11 +37,7 @@ public:
 
     UInventoryWidget* _inventoryHUD;
 
-    class APlayerCharacter* _PlayerCharacter;
-
     void SetupInventoryWidget(UInventoryWidget* InventoryWidget);
-
-    virtual void Possess(APawn *InPawn) override;
 
     /*************************************** VOICE ***********************************************/
     virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,

@@ -64,51 +64,46 @@ void APlayerCharacter::Tick(float DeltaSeconds) {
 	Raycasting();
 }
 
-void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* playerInput) {
-    check(playerInput);
+void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
+    check(PlayerInput);
 
     /* MOVEMENT */
-    playerInput->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-    playerInput->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-    playerInput->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
-    playerInput->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
+    PlayerInput->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+    PlayerInput->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+    PlayerInput->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
+    PlayerInput->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
-    playerInput->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-    playerInput->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
-    playerInput->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-    playerInput->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+    PlayerInput->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+    PlayerInput->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
+    PlayerInput->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+    PlayerInput->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
 
     /* SERVER */
-    playerInput->BindAction("TakeDropRight", IE_Released, this, &APlayerCharacter::TakeDropRight);
-    playerInput->BindAction("TakeDropLeft", IE_Released, this, &APlayerCharacter::TakeDropLeft);
-    playerInput->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::execOnStartCrouching);
-    playerInput->BindAction("Crouch", IE_Released, this, &APlayerCharacter::execOnEndCrouching);
+    PlayerInput->BindAction("TakeDropRight", IE_Released, this, &APlayerCharacter::TakeDropRight);
+    PlayerInput->BindAction("TakeDropLeft", IE_Released, this, &APlayerCharacter::TakeDropLeft);
+    PlayerInput->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::execOnStartCrouching);
+    PlayerInput->BindAction("Crouch", IE_Released, this, &APlayerCharacter::execOnEndCrouching);
 
-    playerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
+    PlayerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
 	//Mantener push
-	playerInput->BindAction("Press", IE_Pressed, this, &APlayerCharacter::Press);
+    PlayerInput->BindAction("Press", IE_Pressed, this, &APlayerCharacter::Press);
     
     /* USE ITEM */
-    playerInput->BindAction("ClickLeft", IE_Pressed, this, &APlayerCharacter::UseLeftPressed);
-    playerInput->BindAction("ClickLeft", IE_Released, this, &APlayerCharacter::UseLeftReleased);
-    playerInput->BindAction("ClickRight", IE_Pressed, this, &APlayerCharacter::UseRightPressed);
-    playerInput->BindAction("ClickRight", IE_Released, this, &APlayerCharacter::UseRightReleased);
+    PlayerInput->BindAction("ClickLeft", IE_Pressed, this, &APlayerCharacter::UseLeftPressed);
+    PlayerInput->BindAction("ClickLeft", IE_Released, this, &APlayerCharacter::UseLeftReleased);
+    PlayerInput->BindAction("ClickRight", IE_Pressed, this, &APlayerCharacter::UseRightPressed);
+    PlayerInput->BindAction("ClickRight", IE_Released, this, &APlayerCharacter::UseRightReleased);
 }
 
 FHitResult APlayerCharacter::Raycasting() {
-
     bool bHitRayCastFlag = false;
-
-    
-    
-    //FHitResult HitActor;
     FCollisionQueryParams CollisionInfo;
 
     FVector StartRaycast = _PlayerCamera->GetComponentLocation();
     FVector EndRaycast = _PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(hitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (bHitRayCastFlag && hitResult.Actor.IsValid()) {
 
@@ -535,15 +530,8 @@ void APlayerCharacter::MULTI_DropRight_Implementation() {
 /****************************************** ACTIONS **********************************************/
 /*** SAVING ***/
 void APlayerCharacter::SaveInventory(AActor* item) {
-
     this->_inventory = Cast<UInventory>(this->FindComponentByClass(UInventory::StaticClass()));
-    
-    if (_inventory) {
-        _inventory->AddItem(item);
-
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SAVED: %s"), *item->GetName()));
-        UE_LOG(LogTemp, Warning, TEXT("Saved: %s"), *item->GetName());
-    }
+    if (_inventory) _inventory->AddItem(item);
 }
 
 void APlayerCharacter::SetHUDVisible(bool visible) {
@@ -582,9 +570,6 @@ void APlayerCharacter::PickItemFromInventory_Implementation(AActor* ItemActor, F
         
         InventoryItemComponent = Cast<UInventoryItem>(ItemFromInventory->GetComponentByClass(
             UInventoryItem::StaticClass()));
-
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hay ItemFromInventory")));
-
     }
 
     if (ItemMesh) {
@@ -592,14 +577,9 @@ void APlayerCharacter::PickItemFromInventory_Implementation(AActor* ItemActor, F
         ItemMesh->SetIsReplicated(true);
         ItemMesh->SetSimulatePhysics(false);
     }
-
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tecla: %s"), *keyStruct.GetFName().ToString()));
     
     if (keyStruct == EKeys::LeftMouseButton) {
-    //if (keyStruct.GetFName().ToString().Equals("LeftMouseButton")) {
-        
         if (ItemMesh) {
-
             if (_itemLeft) {
                 SaveInventory(_itemLeft);
                 Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
@@ -618,9 +598,7 @@ void APlayerCharacter::PickItemFromInventory_Implementation(AActor* ItemActor, F
             InventoryItemComponent->SetEquipped(true);
 
             _itemLeft = ItemFromInventory;
-
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Attached succesfully")));
-
+            AddRadioDelegates(ItemFromInventory);
 
             /*If the item is equipped in the other hand*/
             if (_itemRight && _itemRight == ItemFromInventory){
@@ -650,6 +628,7 @@ void APlayerCharacter::PickItemFromInventory_Implementation(AActor* ItemActor, F
             InventoryItemComponent->SetEquipped(true);
 
             _itemRight = ItemFromInventory;
+            AddRadioDelegates(ItemFromInventory);
 
             /*If the item is equipped in the other hand*/
             if (_itemLeft && _itemLeft == ItemFromInventory) {

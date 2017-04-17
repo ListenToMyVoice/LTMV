@@ -55,15 +55,6 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
     if (gameMode) gameMode->SERVER_RespawnPlayer(this, info);
 }
 
-void APlayerControllerPlay::Possess(APawn* InPawn) {
-    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(InPawn);
-
-    if (PlayerCharacter) {
-        Super::Possess(InPawn);
-        SetupInventoryWidget(Cast<APlayerCharacter>(GetPawn())->InventoryWidget);
-    }
-}
-
 /***************************************INVENTORY WIDGET********************************************/
 void APlayerControllerPlay::SetupInventoryWidget(UInventoryWidget* InventoryWidget) {
     _inventoryHUD = InventoryWidget;
@@ -88,12 +79,15 @@ void APlayerControllerPlay::SetupInventoryWidget(UInventoryWidget* InventoryWidg
 }
 
 void APlayerControllerPlay::CLIENT_AfterPossessed_Implementation() {
-    if (!_DelegatesBinded) BindDelegates();// CLIENT-SERVER EXCEPTION
+    /* CLIENT-SERVER EXCEPTION  */
+    if (!_DelegatesBinded) BindDelegates();
+    if (GetPawn()) SetupInventoryWidget(Cast<APlayerCharacter>(GetPawn())->InventoryWidget);
 }
 
 void APlayerControllerPlay::OnRep_Pawn() {
     Super::OnRep_Pawn();
     if (!_DelegatesBinded) BindDelegates();
+    if (GetPawn()) SetupInventoryWidget(Cast<APlayerCharacter>(GetPawn())->InventoryWidget);
 }
 
 void APlayerControllerPlay::BindDelegates() {

@@ -40,19 +40,12 @@ void UInventory::AddItem(AActor* item) {
 void UInventory::RemoveItem(AActor* itemToRemove) {
 
     for (AActor* item : _items) {
-        if (itemToRemove == item) {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("REMOVED ITEM: %s"), *item->GetName()));
-            UE_LOG(LogTemp, Warning, TEXT("REMOVED ITEM: %s"), *item->GetName());
-            itemToRemove = item;
-        }
+        if (itemToRemove == item) itemToRemove = item;
     }
-
     _items.Remove(itemToRemove);
-
 }
 
 UTexture2D* UInventory::GetItemAt(int itemIndex) {
-    //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("FIRST ITEM: %s"), *_items[0]->GetName()));
     UInventoryItem* comp;
 
     if (itemIndex < _items.Num()) {
@@ -71,29 +64,17 @@ void UInventory::ShowAllItems() {
     for (AActor* item:_items){
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *item->GetName()));
         UE_LOG(LogTemp, Warning, TEXT("ITEM: %s"), *item->GetName());
-
     }
 }
 
 AActor* UInventory::PickItem(AActor* ItemActor) {
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("KEY PRESSED!!2")));
-
-
     AActor *ReturnItem = nullptr;
     UInventoryItem* ItemComp = nullptr;
     
     for (AActor* item : _items) {
-
-        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *ItemName));
-        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM2: %s"), *item->GetName()));
-
         ItemComp = Cast<UInventoryItem>(item->FindComponentByClass(UInventoryItem::StaticClass()));
-        //UInventoryItem* InventoryItemComp = item->FindComponentByClass(UInventoryItem::StaticClass());
 
         if (item == ItemActor) {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Picking item: %s from inventory"), *item->GetName()));
-            UE_LOG(LogTemp, Warning, TEXT("Picking item: %s from inventory"), *item->GetName());
-
             item->SetReplicates(true);
             item->SetReplicateMovement(true);
 
@@ -116,5 +97,3 @@ UActorComponent* UInventory::GetInventoryItemComponent(AActor* item) {
 
     else return nullptr;
 }
-
-

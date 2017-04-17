@@ -27,13 +27,11 @@ void ULantern::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 /***************************************ACTIONS****************************************************/
 void ULantern::UsingBattery() {    
-
     if (_batteryLife > 0.0 && _batteryLife < 1.0 || _batteryLife < 0) {
         SetComponentTickEnabled(false);
 
         _batteryLife = 0.0;  
         PowerOff();
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Battery run out...")));
         _isLanternOn = false;
     }
 }
