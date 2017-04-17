@@ -7,19 +7,19 @@
 ULantern::ULantern(){
     _batteryLife = 100.0;
     _isLanternOn = false;
+
+    PrimaryComponentTick.bCanEverTick = true;
 }
 
 
 void ULantern::BeginPlay(){
 	Super::BeginPlay();
-    Super::SetComponentTickEnabled(false);
-    Super::PrimaryComponentTick.bCanEverTick = false;
+    SetComponentTickEnabled(false);
 }
 
 
 void ULantern::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction){
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Battery Life: %f"), _batteryLife));
     _batteryLife -= 0.01;
     UsingBattery();
 }
@@ -29,8 +29,7 @@ void ULantern::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 void ULantern::UsingBattery() {    
 
     if (_batteryLife > 0.0 && _batteryLife < 1.0 || _batteryLife < 0) {
-        Super::SetComponentTickEnabled(false);
-        Super::PrimaryComponentTick.bCanEverTick = false;
+        SetComponentTickEnabled(false);
 
         _batteryLife = 0.0;  
         PowerOff();
@@ -50,24 +49,19 @@ float ULantern::GetBatteryLife() {
 
 /******************Interfaces*****************/
 
-void ULantern::UseItemPressed_Implementation() {
-
-
-}
+void ULantern::UseItemPressed_Implementation() {}
 
 void ULantern::UseItemReleased_Implementation() {
     if (!_isLanternOn && _batteryLife > 0) {
         _isLanternOn = true;
         PowerOn();
-        Super::PrimaryComponentTick.bCanEverTick = true;
-        Super::SetComponentTickEnabled(true);
+        SetComponentTickEnabled(true);
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern On...")));
     }
     else if(_isLanternOn) {
         _isLanternOn = false;
         PowerOff();
-        Super::SetComponentTickEnabled(false);
-        Super::PrimaryComponentTick.bCanEverTick = false;
+        SetComponentTickEnabled(false);
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern Off...")));  
     }
 
