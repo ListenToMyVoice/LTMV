@@ -149,11 +149,11 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 
 }
 
-int UDoorState::SwitchState2_Implementation() {
-	return 0;
-}
+//int UDoorState::SwitchState2_Implementation() {
+//	return 0;
+//}
 
-int UDoorState::SwitchState_Implementation() {
+void UDoorState::Use_Implementation() {
 
 	//Solo interactuar si la puerta no está bloqueada
 	if (!_block) {
@@ -169,7 +169,9 @@ int UDoorState::SwitchState_Implementation() {
 			_start_displacement = _max_displacement;
 		}
 	}
+}
 
-    return 0;
+void UDoorState::Press_Implementation() {
+
 }
 
