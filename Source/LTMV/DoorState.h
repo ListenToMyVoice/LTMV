@@ -73,12 +73,9 @@ public:
 
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
-    void Use();
-    virtual void Use_Implementation() override;
-
-    void Press();
-    virtual void Press_Implementation() override;
-	//int SwitchState2();
-	//virtual int SwitchState2_Implementation() override;
-
+    void UsePressed();
+    virtual void UsePressed_Implementation() override;
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
+    void UseReleased();
+    virtual void UseReleased_Implementation() override;
 };

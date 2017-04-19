@@ -153,7 +153,7 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 //	return 0;
 //}
 
-void UDoorState::Use_Implementation() {
+void UDoorState::UsePressed_Implementation() {
 
 	//Solo interactuar si la puerta no está bloqueada
 	if (!_block) {
@@ -171,7 +171,7 @@ void UDoorState::Use_Implementation() {
 	}
 }
 
-void UDoorState::Press_Implementation() {
+void UDoorState::UseReleased_Implementation() {
 
 }
 

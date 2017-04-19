@@ -99,11 +99,17 @@ protected:
     void execOnEndCrouching();
 
     /************** USE *************/
-    void Use();
+    void UsePressed();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_Use(UActorComponent* component);
+    void SERVER_UsePressed(UActorComponent* component);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_Use(UActorComponent* component);
+    void MULTI_UsePressed(UActorComponent* component);
+
+    void UseReleased();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_UseReleased(UActorComponent* component);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_UseReleased(UActorComponent* component);
 
     /******** USE ITEM LEFT *********/
     void UseLeftPressed();
@@ -114,11 +120,7 @@ protected:
     void UseRightReleased();
 
 	/************** PRESS *************/
-	void Press();
-	UFUNCTION(Server, Reliable, WithValidation)
-	void SERVER_Press(UActorComponent* component);
-	UFUNCTION(NetMulticast, Reliable)
-	void MULTI_Press(UActorComponent* component);
+
 
     /********** TAKE ITEM ***********/
     void TakeDropRight();

@@ -85,9 +85,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
     PlayerInput->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::execOnStartCrouching);
     PlayerInput->BindAction("Crouch", IE_Released, this, &APlayerCharacter::execOnEndCrouching);
 
-    PlayerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::Use);
-	//Mantener push
-    PlayerInput->BindAction("Press", IE_Pressed, this, &APlayerCharacter::Press);
+    PlayerInput->BindAction("Use", IE_Pressed, this, &APlayerCharacter::UsePressed);
+    PlayerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::UseReleased);
     
     /* USE ITEM */
     PlayerInput->BindAction("ClickLeft", IE_Pressed, this, &APlayerCharacter::UseLeftPressed);
@@ -204,7 +203,7 @@ bool APlayerCharacter::RayCastCamera(FHitResult &hitActor) {
     return GetWorld()->LineTraceSingleByChannel(hitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 }
 
-void APlayerCharacter::Use() {
+void APlayerCharacter::UsePressed() {
     /* RAYCASTING DETECTION */
     if (hitResult.GetActor()) {
         TArray<UActorComponent*> Components;
@@ -213,23 +212,43 @@ void APlayerCharacter::Use() {
         for (UActorComponent* Component : Components) {
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Component: "), *Component->GetName()));
             if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-                SERVER_Use(Component);
+                SERVER_UsePressed(Component);
             }
         }
     }
 }
 
 
-bool APlayerCharacter::SERVER_Use_Validate(UActorComponent* component) { return true; }
-void APlayerCharacter::SERVER_Use_Implementation(UActorComponent* component) {
-    MULTI_Use(component);
+bool APlayerCharacter::SERVER_UsePressed_Validate(UActorComponent* component) { return true; }
+void APlayerCharacter::SERVER_UsePressed_Implementation(UActorComponent* component) {
+    MULTI_UsePressed(component);
 }
 
-void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
+void APlayerCharacter::MULTI_UsePressed_Implementation(UActorComponent* component) {
     IItfUsable* itfObject = Cast<IItfUsable>(component);
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("HE LLEGAU")));
     ULibraryUtils::Log(FString::Printf(TEXT("HE LLEGAU")));
-    if (itfObject) itfObject->Execute_Use(component);
+    if (itfObject) itfObject->Execute_UsePressed(component);
+}
+
+void APlayerCharacter::UseReleased() {
+    /* RAYCASTING DETECTION */
+    if (hitResult.GetActor()) {
+        UActorComponent* component = hitResult.GetActor()->GetComponentByClass(UActorComponent::StaticClass());
+        if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+            SERVER_UseReleased(component);
+        }
+    }
+}
+bool APlayerCharacter::SERVER_UseReleased_Validate(UActorComponent* component) { return true; }
+void APlayerCharacter::SERVER_UseReleased_Implementation(UActorComponent* component) {
+    MULTI_UseReleased(component);
+}
+
+void APlayerCharacter::MULTI_UseReleased_Implementation(UActorComponent* component) {
+    IItfUsable* itfObject = Cast<IItfUsable>(component);
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("HE LLEGAU")));
+    if (itfObject) itfObject->Execute_UseReleased(component);
 }
 
 /******** USE ITEM LEFT *********/
@@ -288,28 +307,6 @@ void APlayerCharacter::UseRightReleased() {
             }
         }
     }
-}
-
-/*********** PRESS *********/
-void APlayerCharacter::Press() {
-
-	/* RAYCASTING DETECTION */
-	if (hitResult.GetActor()) {
-		UActorComponent* component = hitResult.GetActor()->GetComponentByClass(UActorComponent::StaticClass());
-		if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-			SERVER_Press(component);
-		}
-	}
-}
-bool APlayerCharacter::SERVER_Press_Validate(UActorComponent* component) { return true; }
-void APlayerCharacter::SERVER_Press_Implementation(UActorComponent* component) {
-	MULTI_Press(component);
-}
-
-void APlayerCharacter::MULTI_Press_Implementation(UActorComponent* component) {
-	IItfUsable* itfObject = Cast<IItfUsable>(component);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("HE LLEGAU")));
-	if (itfObject) itfObject->Execute_Press(component);
 }
 
 /********** TAKE & DROP RIGHT HAND ***********/

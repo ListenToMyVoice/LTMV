@@ -11,12 +11,8 @@ class LTMV_API IItfUsable {
     GENERATED_IINTERFACE_BODY()
 
 public:
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Usable")
-    void Use();
-
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pressable")
-	void Press();
-
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Use")
+    void UsePressed();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Use")
+	void UseReleased();
 };

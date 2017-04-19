@@ -12,11 +12,11 @@ void UUseSwitcher::BeginPlay() {
     _switcher.InitSwitcher();
 }
 
-void UUseSwitcher::Use_Implementation() {
+void UUseSwitcher::UsePressed_Implementation() {
     _switcher.ActivateSwitcher();
 }
 
 
-void UUseSwitcher::Press_Implementation() {
+void UUseSwitcher::UseReleased_Implementation() {
 	_switcher.ActivateSwitcher();
 }
