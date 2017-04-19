@@ -8,7 +8,6 @@
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
 #include "InventoryWidget.h"
-#include "Inventory.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -27,11 +26,6 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     _MenuClass = MenuClassFinder.Class;
 
     _DelegatesBinded = false;
-    static ConstructorHelpers::FClassFinder<UInventoryWidget> InventoryWidgetClassFinder(TEXT(
-        "/Game/BluePrints/HUD/InventoryHUD"));
-    InventoryUIClass = InventoryWidgetClassFinder.Class;
-
-    _IsInventoryHidden = true;
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -58,25 +52,15 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
 }
 
 /***************************************INVENTORY WIDGET********************************************/
-void APlayerControllerPlay::SetupInventoryWidget(UInventoryWidget* InventoryWidget) {
-    _inventoryHUD = InventoryWidget;
-
-    // Only create the UI on the local machine (dose not exist on the server.)
-    if (IsLocalPlayerController())
-    {
-        if (InventoryUIClass) // Check the selected UI class is not NULL
-        {
-            if (!InventoryWidget) // If the widget is not created and == NULL
-            {
-                _inventoryHUD = CreateWidget<UInventoryWidget>(this,
-                    InventoryUIClass); // Create Widget
-
-                if (!_inventoryHUD)
-                    return;
-                _inventoryHUD->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
-                _inventoryHUD->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
-                _IsInventoryHidden = true;
-            }
+void APlayerControllerPlay::SetupInventoryWidget() {
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter && IsLocalPlayerController()) {
+        _InventoryWidget = CreateWidget<UInventoryWidget>(this,
+                                                          PlayerCharacter->InventoryUIClass);
+        if (_InventoryWidget) {
+            _InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
+            _InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+            _IsInventoryHidden = true;
         }
     }
 }
@@ -84,13 +68,13 @@ void APlayerControllerPlay::SetupInventoryWidget(UInventoryWidget* InventoryWidg
 void APlayerControllerPlay::CLIENT_AfterPossessed_Implementation() {
     /* CLIENT-SERVER EXCEPTION  */
     if (!_DelegatesBinded) BindDelegates();
-    if (GetPawn()) SetupInventoryWidget(Cast<APlayerCharacter>(GetPawn())->InventoryWidget);
+    SetupInventoryWidget();
 }
 
 void APlayerControllerPlay::OnRep_Pawn() {
     Super::OnRep_Pawn();
     if (!_DelegatesBinded) BindDelegates();
-    if (GetPawn()) SetupInventoryWidget(Cast<APlayerCharacter>(GetPawn())->InventoryWidget);
+    SetupInventoryWidget();
 }
 
 void APlayerControllerPlay::BindDelegates() {
@@ -176,15 +160,15 @@ void APlayerControllerPlay::ToggleInventory() {
     APawn* pawn = GetPawn();
 
     if (pawn)
-        if(_inventoryHUD)
+        if(_InventoryWidget)
             if (_IsInventoryHidden) {
-                _inventoryHUD->SetVisibility(ESlateVisibility::Visible);
+                _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
                 this->bShowMouseCursor = true;
                 this->bEnableClickEvents = true;
                 this->bEnableMouseOverEvents = true;
             }
             else {
-                _inventoryHUD->SetVisibility(ESlateVisibility::Hidden);
+                _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
                 this->bShowMouseCursor = false;
                 this->bEnableClickEvents = false;
                 this->bEnableMouseOverEvents = false;
