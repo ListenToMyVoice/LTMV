@@ -192,7 +192,7 @@ void APlayerCharacter::execOnEndCrouching()
 }
 
 /************** USE *************/
-void APlayerCharacter::Use() {
+void APlayerCharacter::UsePressed() {
     /* RAYCASTING DETECTION */
     if (hitResult.GetActor()) {
         TArray<UActorComponent*> Components;
@@ -214,9 +214,7 @@ void APlayerCharacter::SERVER_UsePressed_Implementation(UActorComponent* compone
 }
 
 void APlayerCharacter::MULTI_UsePressed_Implementation(UActorComponent* component) {
-    IItfUsable* itfObject = Cast<IItfUsable>(component);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("HE LLEGAU")));
-    ULibraryUtils::Log(FString::Printf(TEXT("HE LLEGAU")));
+    IItfUsable* itfObject = Cast<IItfUsable>(component);;
     if (itfObject) itfObject->Execute_UsePressed(component);
 }
 
@@ -236,7 +234,6 @@ void APlayerCharacter::SERVER_UseReleased_Implementation(UActorComponent* compon
 
 void APlayerCharacter::MULTI_UseReleased_Implementation(UActorComponent* component) {
     IItfUsable* itfObject = Cast<IItfUsable>(component);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("HE LLEGAU")));
     if (itfObject) itfObject->Execute_UseReleased(component);
 }
 
@@ -314,12 +311,16 @@ void APlayerCharacter::TakeDropRight() {
 
         else {
             /*REPLACE LEFT HANDPICKITEM ONLY*/
-            if (_itemLeft && !_itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
-                SERVER_DropLeft();
+            if (_itemRight && _itemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+                SERVER_DropRight();
 
-                _itemLeft = hitResult.GetActor();
+                _itemRight = hitResult.GetActor();
                 if (takeComp)
-                    SERVER_TakeDropLeft(_itemLeft);
+                    SERVER_TakeDropRight(_itemRight);
+            }
+            else if (_itemRight && _itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
+                if (takeComp)
+                    SERVER_TakeDropRight(_itemRight);
             }
         }
     }
@@ -332,6 +333,9 @@ void APlayerCharacter::TakeDropRight() {
         /*SAVE ITEM FROM HAND TO INVENTORY*/
         if (_itemRight && _itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
             SaveInventory(_itemRight);
+            /*Coger libraryutils*/
+            UE_LOG(LogTemp, Warning, TEXT("SAVED ITEM: %s"), *_itemRight->GetName());
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SAVED ITEM: %s"), *_itemRight->GetName()));
             Cast<UInventoryItem>(_itemRight->GetComponentByClass(
                 UInventoryItem::StaticClass()))->SetEquipped(false);
             _itemRight = nullptr;
@@ -396,10 +400,14 @@ void APlayerCharacter::TakeDropLeft() {
 
         else {
             /*REPLACE LEFT HANDPICKITEM ONLY*/
-            if (_itemLeft && !_itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+            if (_itemLeft && _itemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
                 SERVER_DropLeft();
 
                 _itemLeft = hitResult.GetActor();
+                if (takeComp)
+                    SERVER_TakeDropLeft(_itemLeft);
+            }
+            else if (_itemLeft && _itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
                 if (takeComp)
                     SERVER_TakeDropLeft(_itemLeft);
             }
@@ -414,6 +422,8 @@ void APlayerCharacter::TakeDropLeft() {
         /*SAVE ITEM FROM HAND TO INVENTORY*/
         if (_itemLeft && _itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
             SaveInventory(_itemLeft);
+            UE_LOG(LogTemp, Warning, TEXT("SAVED ITEM: %s"), *_itemLeft->GetName());
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SAVED ITEM: %s"), *_itemLeft->GetName()));
             Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
                 UInventoryItem::StaticClass()))->SetEquipped(false);
             _itemLeft = nullptr;
@@ -471,7 +481,6 @@ void APlayerCharacter::MULTI_DropLeft_Implementation() {
     
         if (mesh) {
             mesh->SetMobility(EComponentMobility::Movable);
-            mesh->SetIsReplicated(true);
             mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
             mesh->SetSimulatePhysics(true);
         }
@@ -506,7 +515,6 @@ void APlayerCharacter::MULTI_DropRight_Implementation() {
 
         if (mesh) {
             mesh->SetMobility(EComponentMobility::Movable);
-            mesh->SetIsReplicated(true);
             mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
             mesh->SetSimulatePhysics(true);
         }
