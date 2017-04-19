@@ -585,7 +585,6 @@ void APlayerCharacter::MULTI_PickItemFromInventory_Implementation(AActor* ItemAc
 
         if (ItemMesh) {
             ItemMesh->SetMobility(EComponentMobility::Movable);
-            ItemMesh->SetIsReplicated(true);
             ItemMesh->SetSimulatePhysics(false);
         }
 
@@ -625,12 +624,11 @@ void APlayerCharacter::MULTI_PickItemFromInventory_Implementation(AActor* ItemAc
 
         if (KeyStruct == EKeys::RightMouseButton) {
             if (ItemMesh) {
-
                 if (_itemRight && _itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
                     SaveInventory(_itemRight);
                     Cast<UInventoryItem>(_itemRight->GetComponentByClass(
                         UInventoryItem::StaticClass()))->SetEquipped(false);
-                    _itemLeft = nullptr;
+                    _itemRight = nullptr;
                 }
                 if (_itemRight && _itemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
                     SERVER_DropRight();
