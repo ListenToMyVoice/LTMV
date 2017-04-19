@@ -196,14 +196,6 @@ void APlayerCharacter::execOnEndCrouching()
 }
 
 /************** USE *************/
-bool APlayerCharacter::RayCastCamera(FHitResult &hitActor) {
-    FCollisionQueryParams CollisionInfo;
-    FVector StartRaycast = _PlayerCamera->GetComponentLocation();
-    FVector EndRaycast = StartRaycast + (_PlayerCamera->GetComponentRotation().Vector() * RayParameter);
-    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
-    return GetWorld()->LineTraceSingleByChannel(hitActor, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-}
-
 void APlayerCharacter::Use() {
     /* RAYCASTING DETECTION */
     if (hitResult.GetActor()) {
@@ -322,22 +314,19 @@ void APlayerCharacter::TakeDropRight() {
 
         if (!_itemRight) {
             _itemRight = hitResult.GetActor();
-            _itemRight->SetReplicates(true);
-            _itemRight->SetReplicateMovement(true);
             if(takeComp)
                 SERVER_TakeDropRight(_itemRight);
         }
 
         else {
-            /*REPLACE RIGHT HAND ITEM*/
-            SERVER_DropRight();
+            /*REPLACE LEFT HANDPICKITEM ONLY*/
+            if (_itemLeft && !_itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+                SERVER_DropLeft();
 
-            _itemRight = hitResult.GetActor();
-            _itemRight->SetReplicates(true);
-            _itemRight->SetReplicateMovement(true);
-
-            if(takeComp)
-                SERVER_TakeDropRight(_itemRight);
+                _itemLeft = hitResult.GetActor();
+                if (takeComp)
+                    SERVER_TakeDropLeft(_itemLeft);
+            }
         }
     }
 
@@ -345,6 +334,13 @@ void APlayerCharacter::TakeDropRight() {
         /*DROP RIGHT ITEM*/
         if (_itemRight && _itemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
             SERVER_DropRight();
+        }
+        /*SAVE ITEM FROM HAND TO INVENTORY*/
+        if (_itemRight && _itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
+            SaveInventory(_itemRight);
+            Cast<UInventoryItem>(_itemRight->GetComponentByClass(
+                UInventoryItem::StaticClass()))->SetEquipped(false);
+            _itemRight = nullptr;
         }
     }
 
@@ -377,7 +373,6 @@ void APlayerCharacter::MULTI_TakeDropRight_Implementation(AActor* actor) {
             UHandPickItem::StaticClass()));
 
         mesh->SetMobility(EComponentMobility::Movable);
-        mesh->SetIsReplicated(true);
         mesh->SetSimulatePhysics(false);
 
         mesh->AttachToComponent(GetMesh(),
@@ -401,24 +396,19 @@ void APlayerCharacter::TakeDropLeft() {
 
         if (!_itemLeft) {
             _itemLeft = hitResult.GetActor();
-            _itemLeft->SetReplicates(true);
-            _itemLeft->SetReplicateMovement(true);
-
             if(takeComp)
                 SERVER_TakeDropLeft(_itemLeft);
         }
 
         else {
-            /*REPLACE LEFT HAND ITEM*/
-            
-            SERVER_DropLeft();
+            /*REPLACE LEFT HANDPICKITEM ONLY*/
+            if (_itemLeft && !_itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+                SERVER_DropLeft();
 
-            _itemLeft = hitResult.GetActor();
-            _itemLeft->SetReplicates(true);
-            _itemLeft->SetReplicateMovement(true);
-            
-            if(takeComp)
-                SERVER_TakeDropLeft(_itemLeft);
+                _itemLeft = hitResult.GetActor();
+                if (takeComp)
+                    SERVER_TakeDropLeft(_itemLeft);
+            }
         }
     }
 
@@ -426,6 +416,13 @@ void APlayerCharacter::TakeDropLeft() {
         /*DROP LEFT ITEM*/
         if (_itemLeft && _itemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
             SERVER_DropLeft();
+        }
+        /*SAVE ITEM FROM HAND TO INVENTORY*/
+        if (_itemLeft && _itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+            SaveInventory(_itemLeft);
+            Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
+                UInventoryItem::StaticClass()))->SetEquipped(false);
+            _itemLeft = nullptr;
         }
     }
 
@@ -455,7 +452,6 @@ void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
             UHandPickItem::StaticClass()));
 
         mesh->SetMobility(EComponentMobility::Movable);
-        mesh->SetIsReplicated(true);
         mesh->SetSimulatePhysics(false);
 
         mesh->AttachToComponent(GetMesh(),
@@ -595,12 +591,17 @@ void APlayerCharacter::MULTI_PickItemFromInventory_Implementation(AActor* ItemAc
 
         if (KeyStruct == EKeys::LeftMouseButton) {
             if (ItemMesh) {
-                if (_itemLeft) {
+                if (_itemLeft && _itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
                     SaveInventory(_itemLeft);
                     Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
                         UInventoryItem::StaticClass()))->SetEquipped(false);
                     _itemLeft = nullptr;
                 }
+                if (_itemLeft && _itemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+                    SERVER_DropLeft();
+                    return;
+                }
+
 
                 ItemMesh->AttachToComponent(GetMesh(),
                                             FAttachmentTransformRules::KeepRelativeTransform,
@@ -625,11 +626,15 @@ void APlayerCharacter::MULTI_PickItemFromInventory_Implementation(AActor* ItemAc
         if (KeyStruct == EKeys::RightMouseButton) {
             if (ItemMesh) {
 
-                if (_itemRight) {
+                if (_itemRight && _itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
                     SaveInventory(_itemRight);
                     Cast<UInventoryItem>(_itemRight->GetComponentByClass(
                         UInventoryItem::StaticClass()))->SetEquipped(false);
-                    _itemRight = nullptr;
+                    _itemLeft = nullptr;
+                }
+                if (_itemRight && _itemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+                    SERVER_DropRight();
+                    return;
                 }
 
                 ItemMesh->AttachToComponent(GetMesh(),

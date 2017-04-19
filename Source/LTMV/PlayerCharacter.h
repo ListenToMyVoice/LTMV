@@ -143,11 +143,6 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_DropRight();
 
-
-    /* RAYCASTING */
-    UFUNCTION(BlueprintCallable, Category = "Raycasting")
-    bool RayCastCamera(FHitResult &hitActor);
-
     /* RAYCASTING */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
     FHitResult Raycasting();
