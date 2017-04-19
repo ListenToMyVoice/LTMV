@@ -7,11 +7,6 @@
 #include "PlayerCharacter.generated.h"
 
 
-class UItemTakeLeft;
-class UItemTakeRight;
-class UInventory;
-
-
 UCLASS()
 class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
@@ -24,16 +19,21 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
     TSubclassOf<class UInventoryWidget> InventoryUIClass;
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
-    void OnShowInventory();
-
     UFUNCTION(BlueprintCallable, Category = "Inventory")
-    UInventory* GetInventory();
+    class UInventory* GetInventory();
 
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
-        UTexture2D* GetItemAt(int itemIndex);
+    UTexture2D* GetItemAt(int itemIndex);
 
     void SaveInventory(AActor* itemActor);
+
+    /******** USE ITEM LEFT *********/
+    void UseLeftPressed();
+    void UseLeftReleased();
+
+    /******* USE ITEM RIGHT *********/
+    void UseRightPressed();
+    void UseRightReleased();
 
     /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -60,8 +60,6 @@ public:
     APlayerCharacter();
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
-
-    void GetOwnComponents();
 
     UPROPERTY(EditAnywhere, Category = "Raycast")
     float RayParameter;
@@ -105,16 +103,6 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_UseReleased(UActorComponent* component);
 
-    /******** USE ITEM LEFT *********/
-    void UseLeftPressed();
-    void UseLeftReleased();
-
-    /******* USE ITEM RIGHT *********/
-    void UseRightPressed();
-    void UseRightReleased();
-
-	/************** PRESS *************/
-
 
     /********** TAKE ITEM ***********/
     void TakeDropRight();
@@ -151,6 +139,8 @@ protected:
 private:
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UFMODAudioComponent* _StepsAudioComp;
+    UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    class UWidgetInteractionComponent* _WidgetInteractionComp;
     
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;
@@ -179,5 +169,6 @@ private:
 
 public:
     FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }
+    FORCEINLINE UWidgetInteractionComponent* APlayerCharacter::GetWidgetInteractionComp() const { return _WidgetInteractionComp; }
     FORCEINLINE UCameraComponent* APlayerCharacter::GetPlayerCamera() const { return _PlayerCamera; }
 };

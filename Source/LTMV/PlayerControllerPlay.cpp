@@ -32,6 +32,12 @@ void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
 	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &APlayerControllerPlay::ToggleInventory);
+
+    /* USE ITEM */
+    InputComponent->BindAction("ClickLeft", IE_Pressed, this, &APlayerControllerPlay::UseLeftPressed);
+    InputComponent->BindAction("ClickLeft", IE_Released, this, &APlayerControllerPlay::UseLeftReleased);
+    InputComponent->BindAction("ClickRight", IE_Pressed, this, &APlayerControllerPlay::UseRightPressed);
+    InputComponent->BindAction("ClickRight", IE_Released, this, &APlayerControllerPlay::UseRightReleased);
 }
 
 void APlayerControllerPlay::BeginPlay() {
@@ -123,6 +129,43 @@ bool APlayerControllerPlay::IsListen() {
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
+
+/******** USE ITEM LEFT *********/
+void APlayerControllerPlay::UseLeftPressed() {
+    if (_IsInventoryHidden) {
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (PlayerCharacter) {
+            PlayerCharacter->UseLeftPressed();
+            PlayerCharacter->GetWidgetInteractionComp()->PressPointerKey(EKeys::LeftMouseButton);
+        }
+    }
+}
+
+void APlayerControllerPlay::UseLeftReleased() {
+    if (_IsInventoryHidden) {
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (PlayerCharacter) {
+            PlayerCharacter->UseLeftReleased();
+            PlayerCharacter->GetWidgetInteractionComp()->ReleasePointerKey(EKeys::LeftMouseButton);
+        }
+    }
+}
+
+/******* USE ITEM RIGHT *********/
+void APlayerControllerPlay::UseRightPressed() {
+    if (_IsInventoryHidden) {
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (PlayerCharacter) PlayerCharacter->UseRightPressed();
+    }
+}
+
+void APlayerControllerPlay::UseRightReleased() {
+    if (_IsInventoryHidden) {
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (PlayerCharacter) PlayerCharacter->UseRightReleased();
+    }
+}
+
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
     APawn* pawn = GetPawn();

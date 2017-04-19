@@ -33,6 +33,10 @@ protected:
     virtual void SetupInputComponent() override;
 
     /********************************** ACTION MAPPINGS ******************************************/
+    /******** USE ITEM LEFT *********/
+    void UseLeftPressed();
+    void UseLeftReleased();
+
     /*************** TRIGGER MENU *************/
     void ToogleMenu();
 

@@ -62,11 +62,20 @@ protected:
     virtual void SetupInputComponent() override;
 
     /********************************** ACTION MAPPINGS ******************************************/
+    /******** USE ITEM LEFT *********/
+    void UseLeftPressed();
+    void UseLeftReleased();
+
+    /******* USE ITEM RIGHT *********/
+    void UseRightPressed();
+    void UseRightReleased();
+
     /*************** TRIGGER MENU *************/
     void ToogleMenu();
 
     /**************** TRIGGER INVENTORY *************/
     void ToggleInventory();
+
 private:
     UAudioComponent* _VoiceAudioComp;
     bool _IsListen;

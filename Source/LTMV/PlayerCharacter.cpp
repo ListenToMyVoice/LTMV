@@ -12,6 +12,7 @@
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
 #include "Walkie.h"
+#include "Components/WidgetInteractionComponent.h"
 
 APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
@@ -31,6 +32,13 @@ APlayerCharacter::APlayerCharacter() {
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
+    _PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
+    _PlayerCamera->bUsePawnControlRotation = true;
+    _PlayerCamera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("FPVCamera"));
+    _WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
+    _WidgetInteractionComp->InteractionDistance = 1000000000;
+    _WidgetInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
     _Health = 1;
@@ -42,18 +50,6 @@ APlayerCharacter::APlayerCharacter() {
 
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
-    GetOwnComponents();
-}
-
-void APlayerCharacter::GetOwnComponents() {
-    TArray<UActorComponent*> Components;
-    GetComponents(Components);
-
-    for (UActorComponent* Component : Components) {
-        if (Component && Component->IsA<UCameraComponent>()) {
-            _PlayerCamera = Cast<UCameraComponent>(Component);
-        }
-    }
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds) {
@@ -84,12 +80,6 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
     PlayerInput->BindAction("Use", IE_Pressed, this, &APlayerCharacter::UsePressed);
     PlayerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::UseReleased);
-    
-    /* USE ITEM */
-    PlayerInput->BindAction("ClickLeft", IE_Pressed, this, &APlayerCharacter::UseLeftPressed);
-    PlayerInput->BindAction("ClickLeft", IE_Released, this, &APlayerCharacter::UseLeftReleased);
-    PlayerInput->BindAction("ClickRight", IE_Pressed, this, &APlayerCharacter::UseRightPressed);
-    PlayerInput->BindAction("ClickRight", IE_Released, this, &APlayerCharacter::UseRightReleased);
 }
 
 FHitResult APlayerCharacter::Raycasting() {

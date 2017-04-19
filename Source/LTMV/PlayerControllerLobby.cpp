@@ -4,6 +4,7 @@
 #include "PlayerControllerLobby.h"
 
 #include "GameModeLobby.h"
+#include "PlayerCharacter.h"
 
 
 APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
@@ -24,6 +25,10 @@ APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : S
 void APlayerControllerLobby::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerLobby::ToogleMenu);
+
+    /* USE ITEM */
+    InputComponent->BindAction("ClickLeft", IE_Pressed, this, &APlayerControllerLobby::UseLeftPressed);
+    InputComponent->BindAction("ClickLeft", IE_Released, this, &APlayerControllerLobby::UseLeftReleased);
 }
 
 void APlayerControllerLobby::CLIENT_InitialSetup_Implementation() {
@@ -54,6 +59,21 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
+/******** USE ITEM LEFT *********/
+void APlayerControllerLobby::UseLeftPressed() {
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter) {
+        PlayerCharacter->GetWidgetInteractionComp()->PressPointerKey(EKeys::LeftMouseButton);
+    }
+}
+
+void APlayerControllerLobby::UseLeftReleased() {
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter) {
+        PlayerCharacter->GetWidgetInteractionComp()->ReleasePointerKey(EKeys::LeftMouseButton);
+    }
+}
+
 /*************** TRIGGER MENU *************/
 void APlayerControllerLobby::ToogleMenu() {
     if (!_MapMainMenu.Contains(GetWorld()->GetMapName())) {
