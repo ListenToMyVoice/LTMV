@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#include"ItfSwitcheable.h"
+#include"ItfUsable.h"
 
 #include "Components/ActorComponent.h"
 #include "DoorState.generated.h"
@@ -34,7 +34,7 @@ namespace EStateDoor {
 }
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class LTMV_API UDoorState : public UActorComponent, public IItfSwitcheable {
+class LTMV_API UDoorState : public UActorComponent, public IItfUsable {
     GENERATED_BODY()
 private:
 
@@ -73,10 +73,12 @@ public:
 
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
-        int SwitchState();
-    virtual int SwitchState_Implementation() override;
+    void Use();
+    virtual void Use_Implementation() override;
 
-	int SwitchState2();
-	virtual int SwitchState2_Implementation() override;
+    void Press();
+    virtual void Press_Implementation() override;
+	//int SwitchState2();
+	//virtual int SwitchState2_Implementation() override;
 
 };

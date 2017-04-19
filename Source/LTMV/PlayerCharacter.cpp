@@ -5,6 +5,7 @@
 
 #include "Inventory.h"
 #include "ItfUsable.h"
+#include "ItfSwitcheable.h"
 #include "ItfUsableItem.h"
 #include "InventoryItem.h"
 #include "HandPickItem.h"
@@ -205,14 +206,19 @@ bool APlayerCharacter::RayCastCamera(FHitResult &hitActor) {
 
 void APlayerCharacter::Use() {
     /* RAYCASTING DETECTION */
-    FHitResult hitActor;
-    if (RayCastCamera(hitActor)) {
-        UActorComponent* component = hitActor.GetComponent();
-        if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-            SERVER_Use(component);
+    if (hitResult.GetActor()) {
+        TArray<UActorComponent*> Components;
+        hitResult.GetActor()->GetComponents(Components);
+
+        for (UActorComponent* Component : Components) {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Component: "), *Component->GetName()));
+            if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                SERVER_Use(Component);
+            }
         }
     }
 }
+
 
 bool APlayerCharacter::SERVER_Use_Validate(UActorComponent* component) { return true; }
 void APlayerCharacter::SERVER_Use_Implementation(UActorComponent* component) {
@@ -221,6 +227,8 @@ void APlayerCharacter::SERVER_Use_Implementation(UActorComponent* component) {
 
 void APlayerCharacter::MULTI_Use_Implementation(UActorComponent* component) {
     IItfUsable* itfObject = Cast<IItfUsable>(component);
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("HE LLEGAU")));
+    ULibraryUtils::Log(FString::Printf(TEXT("HE LLEGAU")));
     if (itfObject) itfObject->Execute_Use(component);
 }
 
@@ -286,9 +294,8 @@ void APlayerCharacter::UseRightReleased() {
 void APlayerCharacter::Press() {
 
 	/* RAYCASTING DETECTION */
-	FHitResult hitActor;
-	if (RayCastCamera(hitActor)) {
-		UActorComponent* component = hitActor.GetComponent();
+	if (hitResult.GetActor()) {
+		UActorComponent* component = hitResult.GetActor()->GetComponentByClass(UActorComponent::StaticClass());
 		if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
 			SERVER_Press(component);
 		}
@@ -301,6 +308,7 @@ void APlayerCharacter::SERVER_Press_Implementation(UActorComponent* component) {
 
 void APlayerCharacter::MULTI_Press_Implementation(UActorComponent* component) {
 	IItfUsable* itfObject = Cast<IItfUsable>(component);
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("HE LLEGAU")));
 	if (itfObject) itfObject->Execute_Press(component);
 }
 
