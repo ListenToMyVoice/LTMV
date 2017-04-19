@@ -665,7 +665,7 @@ void APlayerCharacter::AddRadioDelegates(AActor* PickedActor) {
         const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
         FString myRole = EnumPtr->GetEnumName((int32)Role);
 
-        ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates: %s"), *myRole), 0, 60);
+        ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
     }
 }
 
