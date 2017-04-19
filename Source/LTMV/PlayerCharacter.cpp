@@ -26,24 +26,18 @@ APlayerCharacter::APlayerCharacter() {
 
     _isAction = false;
 
-    _itemLeftTaken = false;
-    //_activeScenaryItems = {};
-
     /*RAYCAST PARAMETERS*/
     RayParameter = 250.0f;
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
-    //static ConstructorHelpers::FObjectFinder<UObject> Finder(
-    //    TEXT("/Game/FMOD/Desktop/Events/Personaje/pasos"));
-    //_StepsAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
 
     _Health = 1;
 
-    static ConstructorHelpers::FClassFinder<UInventoryWidget> InventoryWidgetClassFinder(TEXT(
-        "/Game/BluePrints/HUD/InventoryHUD"));
-    InventoryUIClass = InventoryWidgetClassFinder.Class;
+    //static ConstructorHelpers::FClassFinder<UInventoryWidget> InventoryWidgetClassFinder(TEXT(
+    //    "/Game/BluePrints/HUD/InventoryHUD"));
+    //InventoryUIClass = InventoryWidgetClassFinder.Class;
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -667,10 +661,6 @@ void APlayerCharacter::AddRadioDelegates(AActor* PickedActor) {
 
         ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
     }
-}
-
-bool APlayerCharacter::IsAction() {
-    return _isAction;
 }
 
 bool APlayerCharacter::ItemFocused() {
