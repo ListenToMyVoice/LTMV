@@ -205,7 +205,7 @@ void APlayerControllerPlay::OnRadioPressed() {
 
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
-            GameplayMutePlayer(OtherPlayerState->UniqueId);
+            ClientMutePlayer(OtherPlayerState->UniqueId);
             ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
                                                *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
         }
@@ -217,7 +217,7 @@ void APlayerControllerPlay::OnRadioReleased() {
 
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
-            GameplayUnmutePlayer(OtherPlayerState->UniqueId);
+            ClientUnmutePlayer(OtherPlayerState->UniqueId);
             ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
                                                *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
         }
