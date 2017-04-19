@@ -19,14 +19,10 @@ class LTMV_API APlayerCharacter : public ACharacter {
 public:
     bool _isVisible;
 
-    /*************INVENTORY************/
+    /************* INVENTORY ************/
     // The class that will be used for the players Inventory UI
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
     TSubclassOf<class UInventoryWidget> InventoryUIClass;
-
-    // The instance of the players Inventory UI Widget
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    class UInventoryWidget* InventoryWidget;
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
     void OnShowInventory();

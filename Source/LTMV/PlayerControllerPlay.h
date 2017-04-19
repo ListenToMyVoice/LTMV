@@ -32,12 +32,9 @@ public:
     void SERVER_CallUpdate(FPlayerInfo info);
 
     /***********************************INVENTORY WIDGET******************************************/
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    TSubclassOf<class UInventoryWidget> InventoryUIClass;
+    UInventoryWidget* _InventoryWidget;
 
-    UInventoryWidget* _inventoryHUD;
-
-    void SetupInventoryWidget(UInventoryWidget* InventoryWidget);
+    void SetupInventoryWidget();
 
     /*************************************** VOICE ***********************************************/
     virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,

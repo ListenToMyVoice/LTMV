@@ -9,7 +9,6 @@
 #include "ItfUsableItem.h"
 #include "InventoryItem.h"
 #include "HandPickItem.h"
-#include "InventoryWidget.h"
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
 #include "Walkie.h"
@@ -41,6 +40,10 @@ APlayerCharacter::APlayerCharacter() {
     //_StepsAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
 
     _Health = 1;
+
+    static ConstructorHelpers::FClassFinder<UInventoryWidget> InventoryWidgetClassFinder(TEXT(
+        "/Game/BluePrints/HUD/InventoryHUD"));
+    InventoryUIClass = InventoryWidgetClassFinder.Class;
 }
 
 void APlayerCharacter::BeginPlay() {

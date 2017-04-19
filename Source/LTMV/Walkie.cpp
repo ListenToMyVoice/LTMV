@@ -8,7 +8,6 @@ UWalkie::UWalkie() {}
 
 void UWalkie::BeginPlay() {
     Super::BeginPlay();
-    GetOwner()->SetReplicates(true);
 }
 
 void UWalkie::UseItemPressed_Implementation() {
