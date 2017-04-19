@@ -30,6 +30,8 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     static ConstructorHelpers::FClassFinder<UInventoryWidget> InventoryWidgetClassFinder(TEXT(
         "/Game/BluePrints/HUD/InventoryHUD"));
     InventoryUIClass = InventoryWidgetClassFinder.Class;
+
+    _IsInventoryHidden = true;
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -72,7 +74,8 @@ void APlayerControllerPlay::SetupInventoryWidget(UInventoryWidget* InventoryWidg
                 if (!_inventoryHUD)
                     return;
                 _inventoryHUD->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
-                _inventoryHUD->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.               
+                _inventoryHUD->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+                _IsInventoryHidden = true;
             }
         }
     }
