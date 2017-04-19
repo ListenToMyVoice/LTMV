@@ -67,8 +67,6 @@ public:
     float RayParameter;
 
 	bool ItemFocused();
-    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
-    bool IsAction();
 
     virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                              class AController* EventInstigator, class AActor* DamageCauser) override;

@@ -157,25 +157,28 @@ void APlayerControllerPlay::ToogleMenu() {
 /**************** TRIGGER INVENTORY *************/
 /*** SHOW INVENTORY ***/
 void APlayerControllerPlay::ToggleInventory() {
-    APawn* pawn = GetPawn();
+    if (GetPawn() && _InventoryWidget) {
+        if (_IsInventoryHidden) {
+            _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+            this->bShowMouseCursor = true;
+            this->bEnableClickEvents = true;
+            this->bEnableMouseOverEvents = true;
 
-    if (pawn)
-        if(_InventoryWidget)
-            if (_IsInventoryHidden) {
-                _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-                this->bShowMouseCursor = true;
-                this->bEnableClickEvents = true;
-                this->bEnableMouseOverEvents = true;
-            }
-            else {
-                _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-                this->bShowMouseCursor = false;
-                this->bEnableClickEvents = false;
-                this->bEnableMouseOverEvents = false;
-            }
-
-            _IsInventoryHidden = !_IsInventoryHidden;
+            FInputModeGameAndUI Mode = FInputModeGameAndUI();
+            Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+            Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
+            SetInputMode(Mode);
+        }
+        else {
+            _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+            this->bShowMouseCursor = false;
+            this->bEnableClickEvents = false;
+            this->bEnableMouseOverEvents = false;
+            SetInputMode(FInputModeGameOnly());
+        }
+        _IsInventoryHidden = !_IsInventoryHidden;
     }
+}
 
 
 /***************** EXIT GAME **************/
