@@ -13,11 +13,11 @@
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
     /* VOICE */
-    //_AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
-    //static ConstructorHelpers::FObjectFinder<UObject> Finder(
-    //    TEXT("/Game/FMOD/Events/Character/Radio/CommandCustom"));
-    //_AudioComp->SetEvent((UFMODEvent*)(Finder.Object));
-    //_AudioComp->bAutoActivate = false;
+    _WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+    static ConstructorHelpers::FObjectFinder<UObject> Finder(
+        TEXT("/Game/FMOD/Desktop/Events/Radio/Interferencia_radio"));
+    _WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
+    _WalkieNoiseAudioComp->bAutoActivate = false;
     _IsListen = false;
 
     /* MENU */
@@ -119,13 +119,13 @@ void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
 }
 
 void APlayerControllerPlay::TickWalkie() {
-    if (_VoiceAudioComp && _AudioComp) {
-        if (_VoiceAudioComp->IsPlaying() && !_AudioComp->IsPlaying()) {
-            _AudioComp->Play();
+    if (_VoiceAudioComp && _WalkieNoiseAudioComp) {
+        if (_VoiceAudioComp->IsPlaying() && !_WalkieNoiseAudioComp->IsPlaying()) {
+            _WalkieNoiseAudioComp->Play();
             _IsListen = true;
         }
-        else if (!_VoiceAudioComp->IsPlaying() && _AudioComp->IsPlaying()) {
-            _AudioComp->Stop();
+        else if (!_VoiceAudioComp->IsPlaying() && _WalkieNoiseAudioComp->IsPlaying()) {
+            _WalkieNoiseAudioComp->Stop();
             _IsListen = false;
         }
     }
@@ -205,7 +205,7 @@ void APlayerControllerPlay::OnRadioPressed() {
 
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
-            GameplayMutePlayer(OtherPlayerState->UniqueId);
+            ClientMutePlayer(OtherPlayerState->UniqueId);
             ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
                                                *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
         }
@@ -217,7 +217,7 @@ void APlayerControllerPlay::OnRadioReleased() {
 
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
-            GameplayUnmutePlayer(OtherPlayerState->UniqueId);
+            ClientUnmutePlayer(OtherPlayerState->UniqueId);
             ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
                                                *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
         }

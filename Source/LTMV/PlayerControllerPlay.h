@@ -13,7 +13,7 @@ class LTMV_API APlayerControllerPlay : public APlayerController {
     GENERATED_BODY()
 
 public:
-    class UFMODAudioComponent* _AudioComp;
+    class UFMODAudioComponent* _WalkieNoiseAudioComp;
 
     APlayerControllerPlay(const FObjectInitializer& OI);
 

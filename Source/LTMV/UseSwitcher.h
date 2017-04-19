@@ -15,19 +15,20 @@ class LTMV_API UUseSwitcher : public UActorComponent, public IItfUsable {
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")
-    FSwitcher _switcher;
+    FSwitcher _SwitcherPressed;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Switch")
+    FSwitcher _SwitcherReleased;
 
     UUseSwitcher();
     virtual void BeginPlay() override;
 
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Use")
-    void Use();
-    virtual void Use_Implementation() override;
-
+    void UsePressed();
+    virtual void UsePressed_Implementation() override;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pressed")
-		void Press();
-	virtual void Press_Implementation() override;
+	void UseReleased();
+	virtual void UseReleased_Implementation() override;
 
 
 };

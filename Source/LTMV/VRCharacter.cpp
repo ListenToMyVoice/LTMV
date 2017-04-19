@@ -237,7 +237,7 @@ void AVRCharacter::SERVER_Use_Implementation(UActorComponent* component) {
 
 void AVRCharacter::MULTI_Use_Implementation(UActorComponent* component) {
     IItfUsable* itfObject = Cast<IItfUsable>(component);
-    if (itfObject) itfObject->Execute_Use(component);
+    if (itfObject) itfObject->Execute_UsePressed(component);
 }
 
 /************** GRAB TRIGGER *************/

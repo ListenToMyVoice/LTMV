@@ -9,14 +9,15 @@ UUseSwitcher::UUseSwitcher() : Super() {
 
 void UUseSwitcher::BeginPlay() {
     Super::BeginPlay();
-    _switcher.InitSwitcher();
+    _SwitcherPressed.InitSwitcher();
+    _SwitcherReleased.InitSwitcher();
 }
 
-void UUseSwitcher::Use_Implementation() {
-    _switcher.ActivateSwitcher();
+void UUseSwitcher::UsePressed_Implementation() {
+    _SwitcherPressed.ActivateSwitcher();
 }
 
 
-void UUseSwitcher::Press_Implementation() {
-	_switcher.ActivateSwitcher();
+void UUseSwitcher::UseReleased_Implementation() {
+    _SwitcherReleased.ActivateSwitcher();
 }
