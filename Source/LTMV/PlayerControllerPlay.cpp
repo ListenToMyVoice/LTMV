@@ -12,11 +12,11 @@
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
     /* VOICE */
-    _WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+    //_WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     static ConstructorHelpers::FObjectFinder<UObject> Finder(
         TEXT("/Game/FMOD/Desktop/Events/Radio/Interferencia_radio"));
-    _WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
-    _WalkieNoiseAudioComp->bAutoActivate = false;
+    //_WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
+    //_WalkieNoiseAudioComp->bAutoActivate = false;
     _IsListen = false;
 
     /* MENU */
@@ -108,7 +108,7 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
 void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
                                       FActorTickFunction & ThisTickFunction) {
     Super::TickActor(DeltaTime, TickType, ThisTickFunction);
-    TickWalkie();
+    //TickWalkie();
 }
 
 void APlayerControllerPlay::TickWalkie() {
