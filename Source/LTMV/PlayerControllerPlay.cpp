@@ -137,7 +137,7 @@ void APlayerControllerPlay::UseLeftPressed() {
         if (_IsInventoryHidden && _IsMenuHidden) {
             PlayerCharacter->UseLeftPressed();
         }
-        else {
+        else if (_IsInventoryHidden) {
             PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
                 PressPointerKey(EKeys::LeftMouseButton);
         }
@@ -146,15 +146,7 @@ void APlayerControllerPlay::UseLeftPressed() {
 
 void APlayerControllerPlay::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) {
-        if (_IsInventoryHidden && _IsMenuHidden) {
-            PlayerCharacter->UseLeftReleased();
-        }
-        else {
-            PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
-                ReleasePointerKey(EKeys::LeftMouseButton);
-        }
-    }
+    if (PlayerCharacter && _IsInventoryHidden && _IsMenuHidden) PlayerCharacter->UseLeftReleased();
 }
 
 /******* USE ITEM RIGHT *********/
