@@ -63,14 +63,16 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor
 void APlayerControllerLobby::UseLeftPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
-        PlayerCharacter->GetWidgetInteractionComp()->PressPointerKey(EKeys::LeftMouseButton);
+        PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
+            PressPointerKey(EKeys::LeftMouseButton);
     }
 }
 
 void APlayerControllerLobby::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
-        PlayerCharacter->GetWidgetInteractionComp()->ReleasePointerKey(EKeys::LeftMouseButton);
+        PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
+            ReleasePointerKey(EKeys::LeftMouseButton);
     }
 }
 

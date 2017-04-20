@@ -12,11 +12,11 @@
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
     /* VOICE */
-    _WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
-    static ConstructorHelpers::FObjectFinder<UObject> Finder(
-        TEXT("/Game/FMOD/Desktop/Events/Radio/Interferencia_radio"));
-    _WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
-    _WalkieNoiseAudioComp->bAutoActivate = false;
+    //_WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+    //static ConstructorHelpers::FObjectFinder<UObject> Finder(
+    //    TEXT("/Game/FMOD/Desktop/Events/Radio/Interferencia_radio"));
+    //_WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
+    //_WalkieNoiseAudioComp->bAutoActivate = false;
     _IsListen = false;
 
     /* MENU */
@@ -108,20 +108,20 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
 void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
                                       FActorTickFunction & ThisTickFunction) {
     Super::TickActor(DeltaTime, TickType, ThisTickFunction);
-    TickWalkie();
+    //TickWalkie();
 }
 
 void APlayerControllerPlay::TickWalkie() {
-    if (_VoiceAudioComp && _WalkieNoiseAudioComp) {
-        if (_VoiceAudioComp->IsPlaying() && !_WalkieNoiseAudioComp->IsPlaying()) {
-            _WalkieNoiseAudioComp->Play();
-            _IsListen = true;
-        }
-        else if (!_VoiceAudioComp->IsPlaying() && _WalkieNoiseAudioComp->IsPlaying()) {
-            _WalkieNoiseAudioComp->Stop();
-            _IsListen = false;
-        }
-    }
+    //if (_VoiceAudioComp && _WalkieNoiseAudioComp) {
+    //    if (_VoiceAudioComp->IsPlaying() && !_WalkieNoiseAudioComp->IsPlaying()) {
+    //        _WalkieNoiseAudioComp->Play();
+    //        _IsListen = true;
+    //    }
+    //    else if (!_VoiceAudioComp->IsPlaying() && _WalkieNoiseAudioComp->IsPlaying()) {
+    //        _WalkieNoiseAudioComp->Stop();
+    //        _IsListen = false;
+    //    }
+    //}
 }
 
 bool APlayerControllerPlay::IsListen() {
@@ -136,7 +136,8 @@ void APlayerControllerPlay::UseLeftPressed() {
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
         if (PlayerCharacter) {
             PlayerCharacter->UseLeftPressed();
-            PlayerCharacter->GetWidgetInteractionComp()->PressPointerKey(EKeys::LeftMouseButton);
+            PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
+                PressPointerKey(EKeys::LeftMouseButton);
         }
     }
 }
@@ -146,7 +147,8 @@ void APlayerControllerPlay::UseLeftReleased() {
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
         if (PlayerCharacter) {
             PlayerCharacter->UseLeftReleased();
-            PlayerCharacter->GetWidgetInteractionComp()->ReleasePointerKey(EKeys::LeftMouseButton);
+            PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
+                ReleasePointerKey(EKeys::LeftMouseButton);
         }
     }
 }
