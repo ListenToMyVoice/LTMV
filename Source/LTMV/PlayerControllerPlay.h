@@ -22,8 +22,7 @@ public:
 
     virtual void BeginPlay() override;
 
-    UFUNCTION(Client, Reliable)
-    void CLIENT_AfterPossessed();
+    void AfterPossessed();
     //This override is because CLIENT_AfterPossessed does not work in host (Client-server)
     UFUNCTION()
     virtual void OnRep_Pawn() override;
@@ -34,7 +33,7 @@ public:
     /***********************************INVENTORY WIDGET******************************************/
     UInventoryWidget* _InventoryWidget;
 
-    void SetupInventoryWidget();
+    void SetupInventoryWidget(APlayerCharacter* PlayerCharacter);
 
     /*************************************** VOICE ***********************************************/
     virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
@@ -79,11 +78,9 @@ protected:
 private:
     UAudioComponent* _VoiceAudioComp;
     bool _IsListen;
-    bool _DelegatesBinded;
+    bool _ClientPossesed;
 
     void TickWalkie();
-
-    void BindDelegates();
 
     /***************** EXIT GAME **************/
     void ExitGame();

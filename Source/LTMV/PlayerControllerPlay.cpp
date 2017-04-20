@@ -25,7 +25,7 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
         "/Game/BluePrints/HUD/MenuPlayActor_BP"));
     _MenuClass = MenuClassFinder.Class;
 
-    _DelegatesBinded = false;
+    _ClientPossesed = false;
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -58,9 +58,8 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
 }
 
 /***************************************INVENTORY WIDGET********************************************/
-void APlayerControllerPlay::SetupInventoryWidget() {
-    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter && IsLocalPlayerController()) {
+void APlayerControllerPlay::SetupInventoryWidget(APlayerCharacter* PlayerCharacter) {
+    if (IsLocalPlayerController()) {
         _InventoryWidget = CreateWidget<UInventoryWidget>(this,
                                                           PlayerCharacter->InventoryUIClass);
         if (_InventoryWidget) {
@@ -71,28 +70,25 @@ void APlayerControllerPlay::SetupInventoryWidget() {
     }
 }
 
-void APlayerControllerPlay::CLIENT_AfterPossessed_Implementation() {
+void APlayerControllerPlay::AfterPossessed() {
     /* CLIENT-SERVER EXCEPTION  */
-    if (!_DelegatesBinded) BindDelegates();
-    SetupInventoryWidget();
+    if (!_ClientPossesed) {
+        UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (!GameInstance || !PlayerCharacter) return;
+
+        if (PlayerCharacter->IsA(GameInstance->_PlayerInfoSaved.CharacterClass)) {
+            PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
+            PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
+            SetupInventoryWidget(PlayerCharacter);
+            _ClientPossesed = true;
+        }
+    }
 }
 
 void APlayerControllerPlay::OnRep_Pawn() {
     Super::OnRep_Pawn();
-    if (!_DelegatesBinded) BindDelegates();
-    SetupInventoryWidget();
-}
-
-void APlayerControllerPlay::BindDelegates() {
-    UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
-    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (!GameInstance || !PlayerCharacter) return;
-
-    if (PlayerCharacter->IsA(GameInstance->_PlayerInfoSaved.CharacterClass)) {
-        PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
-        PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
-        _DelegatesBinded = true;
-    }
+    AfterPossessed();
 }
 
 /*********************************************** VOICE *******************************************/
@@ -166,10 +162,9 @@ void APlayerControllerPlay::UseRightReleased() {
 
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
-    APawn* pawn = GetPawn();
-    if (pawn) {
+    if (GetPawnOrSpectator()) {
         if (_IsMenuHidden) {
-            UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
+            UCameraComponent* cameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->FindComponentByClass<UCameraComponent>());
             if (cameraComp) {
                 FVector position = cameraComp->GetComponentLocation();
                 FRotator rotation = cameraComp->GetComponentRotation();

@@ -41,7 +41,7 @@ void AGameModePlay::SERVER_RespawnPlayer_Implementation(APlayerControllerPlay* P
     APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
     if (actor) {
         PlayerController->Possess(actor);
-        PlayerController->CLIENT_AfterPossessed();
+        PlayerController->AfterPossessed();
 
         if (!_HostController) _HostController = PlayerController;
         else _GuestController = PlayerController;
