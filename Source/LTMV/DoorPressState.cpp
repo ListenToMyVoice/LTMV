@@ -164,7 +164,7 @@ void UDoorPressState::TickComponent( float DeltaTime, ELevelTick TickType, FActo
 }
 
 
-int UDoorPressState::SwitchState2_Implementation() {
+int UDoorPressState::SwitchStateReleased_Implementation() {
 	//Solo interactuar si la puerta no está bloqueada
 	if (!_block) {
 		//Poner la puerta a opening
@@ -174,7 +174,7 @@ int UDoorPressState::SwitchState2_Implementation() {
 	return 0;
 }
 
-int UDoorPressState::SwitchState_Implementation() {
+int UDoorPressState::SwitchStatePressed_Implementation() {
 
 	//Solo interactuar si la puerta no está bloqueada
 	if (!_block) {

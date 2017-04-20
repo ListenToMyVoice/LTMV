@@ -37,13 +37,13 @@ void ULightPressState::TickComponent( float DeltaTime, ELevelTick TickType, FAct
 }
 
 
-int ULightPressState::SwitchState2_Implementation() {
+int ULightPressState::SwitchStateReleased_Implementation() {
 	//Encender la luz durante el press
 	_on = true;
 	_current_state = _on;
 	return 0;
 }
-int ULightPressState::SwitchState_Implementation() {
+int ULightPressState::SwitchStatePressed_Implementation() {
 	//luz apagada en el release
 	_on = false;
 	_current_state = _on;

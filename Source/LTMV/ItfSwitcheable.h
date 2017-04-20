@@ -14,10 +14,10 @@ class LTMV_API IItfSwitcheable {
 public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Switch")
-    int SwitchState();
+    int SwitchStatePressed();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Switch")
-		int SwitchState2();
+    int SwitchStateReleased();
 
 };
 
@@ -68,22 +68,22 @@ public:
         }
     }
 
-    void ActivateSwitcher() {
+    void ActivateSwitcherPress() {
         for (UActorComponent* component : SwitcheableComps) {
             if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
                 IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
-                if (itfObject) itfObject->Execute_SwitchState(component);
+                if (itfObject) itfObject->Execute_SwitchStatePressed(component);
             }
         }
     }
 
 
 
-	void ActivateSwitcher2() {
+	void ActivateSwitcherRelease() {
 		for (UActorComponent* component : SwitcheableComps) {
 			if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
 				IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
-				if (itfObject) itfObject->Execute_SwitchState2(component);
+				if (itfObject) itfObject->Execute_SwitchStateReleased(component);
 			}
 		}
 	}

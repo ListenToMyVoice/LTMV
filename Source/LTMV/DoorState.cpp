@@ -9,7 +9,6 @@ UDoorState::UDoorState() {
 
 void UDoorState::BeginPlay() {
     Super::BeginPlay();
-
 }
 
 void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -146,14 +145,14 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 			StateDoor = EStateDoor::CLOSE;
 		}
 	}
-
 }
 
 //int UDoorState::SwitchState2_Implementation() {
 //	return 0;
 //}
 
-void UDoorState::UsePressed_Implementation() {
+int UDoorState::SwitchStatePressed_Implementation() {
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("PRESSED")));
 
 	//Solo interactuar si la puerta no está bloqueada
 	if (!_block) {
@@ -169,9 +168,12 @@ void UDoorState::UsePressed_Implementation() {
 			_start_displacement = _max_displacement;
 		}
 	}
+    return 0;
 }
 
-void UDoorState::UseReleased_Implementation() {
-
+int UDoorState::SwitchStateReleased_Implementation() {
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("RELEASED")));
+    StateDoor = EStateDoor::CLOSING;
+    return 0;
 }
 

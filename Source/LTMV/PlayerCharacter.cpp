@@ -188,8 +188,7 @@ void APlayerCharacter::UsePressed() {
         TArray<UActorComponent*> Components;
         hitResult.GetActor()->GetComponents(Components);
 
-        for (UActorComponent* Component : Components) {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Component: "), *Component->GetName()));
+        for (UActorComponent* Component : Components) {            
             if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
                 SERVER_UsePressed(Component);
             }
@@ -211,9 +210,13 @@ void APlayerCharacter::MULTI_UsePressed_Implementation(UActorComponent* componen
 void APlayerCharacter::UseReleased() {
     /* RAYCASTING DETECTION */
     if (hitResult.GetActor()) {
-        UActorComponent* component = hitResult.GetActor()->GetComponentByClass(UActorComponent::StaticClass());
-        if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-            SERVER_UseReleased(component);
+        TArray<UActorComponent*> Components;
+        hitResult.GetActor()->GetComponents(Components);
+
+        for (UActorComponent* Component : Components) {
+            if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                SERVER_UseReleased(Component);
+            }
         }
     }
 }

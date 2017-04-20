@@ -14,10 +14,10 @@ void UUseSwitcher::BeginPlay() {
 }
 
 void UUseSwitcher::UsePressed_Implementation() {
-    _SwitcherPressed.ActivateSwitcher();
+    _SwitcherPressed.ActivateSwitcherPress();
 }
 
 
 void UUseSwitcher::UseReleased_Implementation() {
-    _SwitcherReleased.ActivateSwitcher();
+    _SwitcherReleased.ActivateSwitcherRelease();
 }
