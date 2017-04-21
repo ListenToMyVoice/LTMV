@@ -651,11 +651,24 @@ void APlayerCharacter::MULTI_PickItemFromInventory_Implementation(AActor* ItemAc
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
 /* Radio Delegate */
-void APlayerCharacter::AddRadioDelegates(AActor* PickedActor) {
-    UWalkie* Walkie = Cast<UWalkie>(PickedActor->GetComponentByClass(UWalkie::StaticClass()));
-    if (Walkie) {
+void APlayerCharacter::AddRadioDelegates(AActor* Actor) {
+    UWalkie* Walkie = Cast<UWalkie>(Actor->GetComponentByClass(UWalkie::StaticClass()));
+    if (Walkie && !Walkie->_AreDelegatesBinded) {
         _OnRadioPressedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioPressedDelegate, true);
         _OnRadioReleasedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioReleasedDelegate, false);
+
+        const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
+        FString myRole = EnumPtr->GetEnumName((int32)Role);
+
+        ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
+    }
+}
+
+void APlayerCharacter::ClearRadioDelegates(AActor* Actor) {
+    UWalkie* Walkie = Cast<UWalkie>(Actor->GetComponentByClass(UWalkie::StaticClass()));
+    if (Walkie && Walkie->_AreDelegatesBinded) {
+        Walkie->ClearOnRadioDelegate(_OnRadioPressedDelegateHandle, true);
+        Walkie->ClearOnRadioDelegate(_OnRadioReleasedDelegateHandle, false);
 
         const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
         FString myRole = EnumPtr->GetEnumName((int32)Role);

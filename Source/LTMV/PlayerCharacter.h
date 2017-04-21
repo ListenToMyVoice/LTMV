@@ -160,7 +160,8 @@ private:
     /* Radio Delegate */
     FDelegateHandle _OnRadioPressedDelegateHandle;
     FDelegateHandle _OnRadioReleasedDelegateHandle;
-    void AddRadioDelegates(AActor* PickedActor);
+    void AddRadioDelegates(AActor* Actor);
+    void ClearRadioDelegates(AActor* Actor);
 
 public:
     FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }

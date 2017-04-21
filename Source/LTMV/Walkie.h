@@ -14,9 +14,10 @@ class LTMV_API UWalkie : public UActorComponent, public IItfUsableItem {
     GENERATED_BODY()
 
 public:
+    bool _AreDelegatesBinded;
+
     FDelegateHandle AddOnRadioDelegate(FRadioDelegate& RadioDelegate, bool IsPressed);
     void ClearOnRadioDelegate(FDelegateHandle DelegateHandle, bool IsPressed);
-
 
     UWalkie();
 
