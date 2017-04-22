@@ -396,7 +396,7 @@ void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* Actor) {
         ItemMesh->SetSimulatePhysics(false);
         ItemMesh->AttachToComponent(GetMesh(),
                                 FAttachmentTransformRules::KeepRelativeTransform,
-                                TEXT("itemHand_r"));
+                                TEXT("itemHand_l"));
 
         ItemMesh->RelativeLocation = HandPickComp->_locationAttach_R;
         ItemMesh->RelativeRotation = HandPickComp->_rotationAttach_R;
@@ -552,7 +552,6 @@ void APlayerCharacter::AddRadioDelegates(AActor* Actor) {
 
         const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
         FString myRole = EnumPtr->GetEnumName((int32)Role);
-
         ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
     }
 }
@@ -565,7 +564,6 @@ void APlayerCharacter::ClearRadioDelegates(AActor* Actor) {
 
         const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
         FString myRole = EnumPtr->GetEnumName((int32)Role);
-
         ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
     }
 }
