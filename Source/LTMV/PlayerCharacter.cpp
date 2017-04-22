@@ -570,18 +570,6 @@ void APlayerCharacter::ClearRadioDelegates(AActor* Actor) {
     }
 }
 
-void APlayerCharacter::SetHUDVisible(bool visible) {
-    _isVisible = visible;
-}
-
-bool APlayerCharacter::IsHUDVisible() {
-    return _isVisible;
-}
-
-UInventory* APlayerCharacter::GetInventory() {
-    return _Inventory;
-}
-
 UTexture2D* APlayerCharacter::GetItemAt(int itemIndex) {
     return _Inventory->GetItemAt(itemIndex);
 }

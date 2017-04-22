@@ -12,15 +12,13 @@ class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
-    bool _isVisible;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
+    int _Health;
 
     /************* INVENTORY ************/
     // The class that will be used for the players Inventory UI
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
     TSubclassOf<class UInventoryWidget> InventoryUIClass;
-
-    UFUNCTION(BlueprintCallable, Category = "Inventory")
-    class UInventory* GetInventory();
 
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     UTexture2D* GetItemAt(int itemIndex);
@@ -40,12 +38,6 @@ public:
     void SERVER_PickItemInventory(AActor* ItemActor, FKey KeyStruct);
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_PickItemInventory(AActor* ItemActor, FKey KeyStruct);
-
-    void SetHUDVisible(bool visible);
-    bool IsHUDVisible();
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
-    int _Health;
 
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
