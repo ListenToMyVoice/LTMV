@@ -21,11 +21,11 @@ APlayerCharacter::APlayerCharacter() {
     //set our turn rates for input
     _baseTurnRate = 45.f;
     _baseLookUpRate = 45.f;
-    _itemLeft = nullptr;
-    _itemRight = nullptr;
-    _inventory = nullptr;
+    _ItemLeft = nullptr;
+    _ItemRight = nullptr;
+    _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 
-    _isAction = false;
+    _IsAction = false;
 
     /*RAYCAST PARAMETERS*/
     RayParameter = 250.0f;
@@ -42,10 +42,6 @@ APlayerCharacter::APlayerCharacter() {
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
     _Health = 1;
-
-    //static ConstructorHelpers::FClassFinder<UInventoryWidget> InventoryWidgetClassFinder(TEXT(
-    //    "/Game/BluePrints/HUD/InventoryHUD"));
-    //InventoryUIClass = InventoryWidgetClassFinder.Class;
 }
 
 void APlayerCharacter::BeginPlay() {
@@ -56,6 +52,68 @@ void APlayerCharacter::Tick(float DeltaSeconds) {
     Super::Tick(DeltaSeconds);
     //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
 	Raycasting();
+}
+
+FHitResult APlayerCharacter::Raycasting() {
+    bool bHitRayCastFlag = false;
+    FCollisionQueryParams CollisionInfo;
+
+    FVector StartRaycast = _PlayerCamera->GetComponentLocation();
+    FVector EndRaycast = _PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
+
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(hitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+
+    if (bHitRayCastFlag && hitResult.Actor.IsValid()) {
+        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
+        UActorComponent* actorComponent = hitResult.GetComponent();
+
+        components = actorComponent->GetOwner()->GetComponentsByClass(UActorComponent::StaticClass());
+
+        for (UActorComponent* component : components) {
+
+            //Highlight outline colors:
+            //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
+            if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+                    UStaticMeshComponent::StaticClass()));
+
+                lastMeshFocused->SetRenderCustomDepth(true);
+                lastMeshFocused->SetCustomDepthStencilValue(252);
+                bInventoryItemHit = true;
+            }
+            else if (component->GetClass() == UInventoryItem::StaticClass()) {
+                lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+                    UStaticMeshComponent::StaticClass()));
+
+                lastMeshFocused->SetRenderCustomDepth(true);
+                lastMeshFocused->SetCustomDepthStencilValue(253);
+                bInventoryItemHit = true;
+            }
+            else if (component->GetClass() == UHandPickItem::StaticClass()) {
+                lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+                    UStaticMeshComponent::StaticClass()));
+
+                lastMeshFocused->SetRenderCustomDepth(true);
+                lastMeshFocused->SetCustomDepthStencilValue(255);
+                bInventoryItemHit = true;
+            }
+
+            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
+        }
+    }
+
+    //If Raycast is not hitting any actor, disable the outline
+    if (bInventoryItemHit && hitResult.Actor != lastMeshFocused->GetOwner()) {
+
+        lastMeshFocused->SetCustomDepthStencilValue(0);
+        lastMeshFocused->SetRenderCustomDepth(false);
+
+        bInventoryItemHit = false;
+    }
+
+
+    return hitResult;
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -75,76 +133,9 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
     /* SERVER */
     PlayerInput->BindAction("TakeDropRight", IE_Released, this, &APlayerCharacter::TakeDropRight);
     PlayerInput->BindAction("TakeDropLeft", IE_Released, this, &APlayerCharacter::TakeDropLeft);
-    PlayerInput->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::execOnStartCrouching);
-    PlayerInput->BindAction("Crouch", IE_Released, this, &APlayerCharacter::execOnEndCrouching);
 
     PlayerInput->BindAction("Use", IE_Pressed, this, &APlayerCharacter::UsePressed);
     PlayerInput->BindAction("Use", IE_Released, this, &APlayerCharacter::UseReleased);
-}
-
-FHitResult APlayerCharacter::Raycasting() {
-    bool bHitRayCastFlag = false;
-    FCollisionQueryParams CollisionInfo;
-
-    FVector StartRaycast = _PlayerCamera->GetComponentLocation();
-    FVector EndRaycast = _PlayerCamera->GetForwardVector() * RayParameter + StartRaycast;
-
-    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(hitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
-    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
-
-    if (bHitRayCastFlag && hitResult.Actor.IsValid()) {
-
-        _itemFocused = ItemFocused();
-
-        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
-        UActorComponent* actorComponent = hitResult.GetComponent();
-
-        components = actorComponent->GetOwner()->GetComponentsByClass(UActorComponent::StaticClass());
-
-            for (UActorComponent* component : components) {
-
-                //Highlight outline colors:
-                //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
-                if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())){
-                    lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
-                        UStaticMeshComponent::StaticClass()));
-
-                    lastMeshFocused->SetRenderCustomDepth(true);
-                    lastMeshFocused->SetCustomDepthStencilValue(252);
-                    bInventoryItemHit = true;
-                }
-                else if (component->GetClass() == UInventoryItem::StaticClass()) {
-                    lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
-                        UStaticMeshComponent::StaticClass()));
-
-                    lastMeshFocused->SetRenderCustomDepth(true);
-                    lastMeshFocused->SetCustomDepthStencilValue(253);
-                    bInventoryItemHit = true;
-                }
-                else if (component->GetClass() == UHandPickItem::StaticClass()) {
-                    lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
-                        UStaticMeshComponent::StaticClass()));
-
-                    lastMeshFocused->SetRenderCustomDepth(true);
-                    lastMeshFocused->SetCustomDepthStencilValue(255);
-                    bInventoryItemHit = true;
-                }
-
-                //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
-        }
-    }
-    
-    //If Raycast is not hitting any actor, disable the outline
-    if (bInventoryItemHit && hitResult.Actor != lastMeshFocused->GetOwner()) {
-      
-        lastMeshFocused->SetCustomDepthStencilValue(0);
-        lastMeshFocused->SetRenderCustomDepth(false);
-
-        bInventoryItemHit = false;
-    }
-    
-
-    return hitResult;
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
@@ -169,18 +160,6 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
     AddControllerPitchInput(Rate * _baseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-/*********** MOVEMENT ***********/
-
-void APlayerCharacter::execOnStartCrouching()
-{
-    OnStartCrouch(0,0);
-}
-
-void APlayerCharacter::execOnEndCrouching()
-{
-    OnEndCrouch(0, 0);
-}
-
 /************** USE *************/
 void APlayerCharacter::UsePressed() {
     /* RAYCASTING DETECTION */
@@ -189,14 +168,12 @@ void APlayerCharacter::UsePressed() {
         hitResult.GetActor()->GetComponents(Components);
 
         for (UActorComponent* Component : Components) {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Component: "), *Component->GetName()));
             if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
                 SERVER_UsePressed(Component);
             }
         }
     }
 }
-
 
 bool APlayerCharacter::SERVER_UsePressed_Validate(UActorComponent* component) { return true; }
 void APlayerCharacter::SERVER_UsePressed_Implementation(UActorComponent* component) {
@@ -211,9 +188,13 @@ void APlayerCharacter::MULTI_UsePressed_Implementation(UActorComponent* componen
 void APlayerCharacter::UseReleased() {
     /* RAYCASTING DETECTION */
     if (hitResult.GetActor()) {
-        UActorComponent* component = hitResult.GetActor()->GetComponentByClass(UActorComponent::StaticClass());
-        if (component && component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-            SERVER_UseReleased(component);
+        TArray<UActorComponent*> Components;
+        hitResult.GetActor()->GetComponents(Components);
+
+        for (UActorComponent* Component : Components) {
+            if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                SERVER_UseReleased(Component);
+            }
         }
     }
 }
@@ -229,9 +210,9 @@ void APlayerCharacter::MULTI_UseReleased_Implementation(UActorComponent* compone
 
 /******** USE ITEM LEFT *********/
 void APlayerCharacter::UseLeftPressed() {
-    if (_itemLeft) {
+    if (_ItemLeft) {
         TArray<UActorComponent*> Components;
-        _itemLeft->GetComponents(Components);
+        _ItemLeft->GetComponents(Components);
 
         for (UActorComponent* Component : Components) {
             if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
@@ -243,9 +224,9 @@ void APlayerCharacter::UseLeftPressed() {
 }
 
 void APlayerCharacter::UseLeftReleased() {
-    if (_itemLeft) {
+    if (_ItemLeft) {
         TArray<UActorComponent*> Components;
-        _itemLeft->GetComponents(Components);
+        _ItemLeft->GetComponents(Components);
 
         for (UActorComponent* Component : Components) {
             if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
@@ -258,9 +239,9 @@ void APlayerCharacter::UseLeftReleased() {
 
 /******* USE ITEM RIGHT *********/
 void APlayerCharacter::UseRightPressed() {
-    if (_itemRight) {
+    if (_ItemRight) {
         TArray<UActorComponent*> Components;
-        _itemRight->GetComponents(Components);
+        _ItemRight->GetComponents(Components);
 
         for (UActorComponent* Component : Components) {
             if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
@@ -272,9 +253,9 @@ void APlayerCharacter::UseRightPressed() {
 }
 
 void APlayerCharacter::UseRightReleased() {
-    if (_itemRight) {
+    if (_ItemRight) {
         TArray<UActorComponent*> Components;
-        _itemRight->GetComponents(Components);
+        _ItemRight->GetComponents(Components);
 
         for (UActorComponent* Component : Components) {
             if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
@@ -286,176 +267,142 @@ void APlayerCharacter::UseRightReleased() {
 }
 
 /********** TAKE & DROP RIGHT HAND ***********/
-//Cambiar
 void APlayerCharacter::TakeDropRight() {
-
-    if (ItemFocused()) {
-        UActorComponent* takeComp = hitResult.GetActor()->GetComponentByClass(
-            UActorComponent::StaticClass());
-
-        if (!_itemRight) {
-            _itemRight = hitResult.GetActor();
-            if(takeComp)
-                SERVER_TakeDropRight(_itemRight);
+    AActor* ActorFocused = GetItemFocused();
+    if (ActorFocused) {
+        if (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass())) {
+            /* Save scenary inventory item */
+            SERVER_SaveItemInventory(ActorFocused);
         }
-
-        else {
-            /*REPLACE LEFT HANDPICKITEM ONLY*/
-            if (_itemRight && _itemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+        else if(ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
+            if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+                /* Replace item */
                 SERVER_DropRight();
-
-                _itemRight = hitResult.GetActor();
-                if (takeComp)
-                    SERVER_TakeDropRight(_itemRight);
+                SERVER_TakeRight(ActorFocused);
             }
-            else if (_itemRight && _itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
-                if (takeComp)
-                    SERVER_TakeDropRight(_itemRight);
+            else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
+                /* Save hand inventory item */
+                SERVER_SaveItemInventoryRight();
+            }
+            else if (!_ItemRight) {
+                /* Take item */
+                SERVER_TakeRight(ActorFocused);
             }
         }
     }
-
-    else {
-        /*DROP RIGHT ITEM*/
-        if (_itemRight && _itemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
-            SERVER_DropRight();
-        }
-        /*SAVE ITEM FROM HAND TO INVENTORY*/
-        if (_itemRight && _itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
-            SaveInventory(_itemRight);
-            /*Coger libraryutils*/
-            UE_LOG(LogTemp, Warning, TEXT("SAVED ITEM: %s"), *_itemRight->GetName());
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SAVED ITEM: %s"), *_itemRight->GetName()));
-            Cast<UInventoryItem>(_itemRight->GetComponentByClass(
-                UInventoryItem::StaticClass()))->SetEquipped(false);
-            _itemRight = nullptr;
-        }
+    else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+        /* Drop item */
+        SERVER_DropRight();
     }
-
+    else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
+        /* Save hand inventory item */
+        SERVER_SaveItemInventoryRight();
+    }
 }
 
 
 /****TAKE RIGHT***/
-bool APlayerCharacter::SERVER_TakeDropRight_Validate(AActor* actor) { return true; }
-void APlayerCharacter::SERVER_TakeDropRight_Implementation(AActor* actor) {
-    MULTI_TakeDropRight(actor);
+bool APlayerCharacter::SERVER_TakeRight_Validate(AActor* Actor) { return true; }
+void APlayerCharacter::SERVER_TakeRight_Implementation(AActor* Actor) {
+    MULTI_TakeRight(Actor);
 }
 
-void APlayerCharacter::MULTI_TakeDropRight_Implementation(AActor* actor) {
-    _itemRight = actor;
+void APlayerCharacter::MULTI_TakeRight_Implementation(AActor* Actor) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(Actor->GetComponentByClass(
+                                                            UStaticMeshComponent::StaticClass()));
+    UHandPickItem* HandPickComp = Cast<UHandPickItem>(Actor->FindComponentByClass(
+                                                            UHandPickItem::StaticClass()));
+    if (ItemMesh && HandPickComp) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        ItemMesh->SetSimulatePhysics(false);
+        ItemMesh->AttachToComponent(GetMesh(),
+                                FAttachmentTransformRules::KeepRelativeTransform,
+                                TEXT("itemHand_r"));
 
-    UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemRight->GetComponentByClass(
-        UStaticMeshComponent::StaticClass()));
+        ItemMesh->RelativeLocation = HandPickComp->_locationAttach_R;
+        ItemMesh->RelativeRotation = HandPickComp->_rotationAttach_R;
 
-    /****GUESS TAKECOMP***/
-    if (mesh && _itemRight->FindComponentByClass(UInventoryItem::StaticClass())) {
-
-        mesh->SetMobility(EComponentMobility::Movable);
-        SaveInventory(_itemRight);
-        _itemRight = nullptr;
+        Actor->SetActorEnableCollision(false);
+        _ItemRight = Actor;
     }
+}
 
-    else if (mesh && _itemRight->FindComponentByClass(UHandPickItem::StaticClass())) {
+bool APlayerCharacter::SERVER_DropRight_Validate() { return true; }
+void APlayerCharacter::SERVER_DropRight_Implementation() {
+    MULTI_DropRight();
+}
 
-        UHandPickItem* HandPickComp = Cast<UHandPickItem>(_itemRight->FindComponentByClass(
-            UHandPickItem::StaticClass()));
-
-        mesh->SetMobility(EComponentMobility::Movable);
-        mesh->SetSimulatePhysics(false);
-
-        mesh->AttachToComponent(GetMesh(),
-            FAttachmentTransformRules::KeepRelativeTransform,
-            TEXT("itemHand_r"));
-
-        mesh->RelativeLocation = HandPickComp->_locationAttach_R;
-        mesh->RelativeRotation = HandPickComp->_rotationAttach_R;
-
-        _itemRight->SetActorEnableCollision(false);
+void APlayerCharacter::MULTI_DropRight_Implementation() {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ItemRight->GetComponentByClass(
+                                                            UStaticMeshComponent::StaticClass()));
+    if (ItemMesh) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+        ItemMesh->SetSimulatePhysics(true);
+        
+        _ItemRight->SetActorEnableCollision(true);
+        _ItemRight = nullptr;
     }
 }
 
 /********** TAKE & DROP LEFT HAND ***********/
-//Cambiar
 void APlayerCharacter::TakeDropLeft() {
-
-    if (ItemFocused()) {
-        UActorComponent* takeComp = hitResult.GetActor()->GetComponentByClass(
-            UActorComponent::StaticClass());
-
-        if (!_itemLeft) {
-            _itemLeft = hitResult.GetActor();
-            if(takeComp)
-                SERVER_TakeDropLeft(_itemLeft);
+    AActor* ActorFocused = GetItemFocused();
+    if (ActorFocused) {
+        if (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass())) {
+            /* Save scenary inventory item */
+            SERVER_SaveItemInventory(ActorFocused);
         }
-
-        else {
-            /*REPLACE LEFT HANDPICKITEM ONLY*/
-            if (_itemLeft && _itemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+        else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
+            if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+                /* Replace item */
                 SERVER_DropLeft();
-
-                _itemLeft = hitResult.GetActor();
-                if (takeComp)
-                    SERVER_TakeDropLeft(_itemLeft);
+                SERVER_TakeLeft(ActorFocused);
             }
-            else if (_itemLeft && _itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
-                if (takeComp)
-                    SERVER_TakeDropLeft(_itemLeft);
+            else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+                /* Save hand inventory item */
+                SERVER_SaveItemInventoryLeft();
+            }
+            else if (!_ItemLeft) {
+                /* Take item */
+                SERVER_TakeLeft(ActorFocused);
             }
         }
     }
-
-    else {
-        /*DROP LEFT ITEM*/
-        if (_itemLeft && _itemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
-            SERVER_DropLeft();
-        }
-        /*SAVE ITEM FROM HAND TO INVENTORY*/
-        if (_itemLeft && _itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
-            SaveInventory(_itemLeft);
-            UE_LOG(LogTemp, Warning, TEXT("SAVED ITEM: %s"), *_itemLeft->GetName());
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SAVED ITEM: %s"), *_itemLeft->GetName()));
-            Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
-                UInventoryItem::StaticClass()))->SetEquipped(false);
-            _itemLeft = nullptr;
-        }
+    else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+        /* Drop item */
+        SERVER_DropLeft();
     }
-
+    else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+        /* Save hand inventory item */
+        SERVER_SaveItemInventoryLeft();
+    }
 }
+
 
 /****TAKE LEFT***/
-bool APlayerCharacter::SERVER_TakeDropLeft_Validate(AActor* actor) { return true; }
-void APlayerCharacter::SERVER_TakeDropLeft_Implementation(AActor* actor) {
-    MULTI_TakeDropLeft(actor);
+bool APlayerCharacter::SERVER_TakeLeft_Validate(AActor* Actor) { return true; }
+void APlayerCharacter::SERVER_TakeLeft_Implementation(AActor* Actor) {
+    MULTI_TakeLeft(Actor);
 }
 
-void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
-    _itemLeft = actor;
- 
-    UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemLeft->GetComponentByClass(
-        UStaticMeshComponent::StaticClass()));
+void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* Actor) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(Actor->GetComponentByClass(
+                                                            UStaticMeshComponent::StaticClass()));
+    UHandPickItem* HandPickComp = Cast<UHandPickItem>(Actor->FindComponentByClass(
+        UHandPickItem::StaticClass()));
+    if (ItemMesh && HandPickComp) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        ItemMesh->SetSimulatePhysics(false);
+        ItemMesh->AttachToComponent(GetMesh(),
+                                FAttachmentTransformRules::KeepRelativeTransform,
+                                TEXT("itemHand_r"));
 
-    /****GUESS TAKECOMP***/
-    if (mesh && _itemLeft->FindComponentByClass(UInventoryItem::StaticClass())) {
-        mesh->SetMobility(EComponentMobility::Movable);
-        SaveInventory(_itemLeft);
-        _itemLeft = nullptr;
-    }
+        ItemMesh->RelativeLocation = HandPickComp->_locationAttach_R;
+        ItemMesh->RelativeRotation = HandPickComp->_rotationAttach_R;
 
-    else if (mesh && _itemLeft->FindComponentByClass(UHandPickItem::StaticClass())) {
-        UHandPickItem* HandPickComp = Cast<UHandPickItem>(_itemLeft->FindComponentByClass(
-            UHandPickItem::StaticClass()));
-
-        mesh->SetMobility(EComponentMobility::Movable);
-        mesh->SetSimulatePhysics(false);
-
-        mesh->AttachToComponent(GetMesh(),
-            FAttachmentTransformRules::KeepRelativeTransform,
-            TEXT("itemHand_l"));
-
-        mesh->RelativeLocation = HandPickComp->_locationAttach_L;
-        mesh->RelativeRotation = HandPickComp->_rotationAttach_L;
-
-        _itemLeft->SetActorEnableCollision(false);
+        Actor->SetActorEnableCollision(false);
+        _ItemLeft = Actor;
     }
 }
 
@@ -465,192 +412,138 @@ void APlayerCharacter::SERVER_DropLeft_Implementation() {
 }
 
 void APlayerCharacter::MULTI_DropLeft_Implementation() {
-    if (_itemLeft) {
-        UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemLeft->GetComponentByClass(
-            UStaticMeshComponent::StaticClass()));
-    
-        if (mesh) {
-            mesh->SetMobility(EComponentMobility::Movable);
-            mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-            mesh->SetSimulatePhysics(true);
-        }
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ItemLeft->GetComponentByClass(
+                                                            UStaticMeshComponent::StaticClass()));
+    if (ItemMesh) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+        ItemMesh->SetSimulatePhysics(true);
 
-        if (_itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
-            UInventoryItem* inventoryItem = Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
-                UInventoryItem::StaticClass()));
-            inventoryItem->SetEquipped(false);
-            this->_inventory->RemoveItem(_itemLeft);
-
-        }
-
-        _itemLeft->SetActorEnableCollision(true);
-        _itemLeft = nullptr;    
-    
+        _ItemLeft->SetActorEnableCollision(true);
+        _ItemLeft = nullptr;
     }
-
-
 }
 
-bool APlayerCharacter::SERVER_DropRight_Validate() { return true; }
-void APlayerCharacter::SERVER_DropRight_Implementation() {
-    MULTI_DropRight();
+/**************************************** INVENTORY **********************************************/
+bool APlayerCharacter::SERVER_SaveItemInventory_Validate(AActor* Actor) { return true; }
+void APlayerCharacter::SERVER_SaveItemInventory_Implementation(AActor* Actor) {
+    MULTI_SaveItemInventory(Actor);
 }
 
-void APlayerCharacter::MULTI_DropRight_Implementation() {
-
-    if (_itemRight) {
-
-        UStaticMeshComponent* mesh = Cast<UStaticMeshComponent>(_itemRight->GetComponentByClass(
-            UStaticMeshComponent::StaticClass()));
-
-        if (mesh) {
-            mesh->SetMobility(EComponentMobility::Movable);
-            mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-            mesh->SetSimulatePhysics(true);
-        }
-
-        if (_itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
-            UInventoryItem* inventoryItem = Cast<UInventoryItem>(_itemRight->GetComponentByClass(
-                UInventoryItem::StaticClass()));
-            inventoryItem->SetEquipped(false);
-            this->_inventory->RemoveItem(_itemRight);
-
-        }
-
-        _itemRight->SetActorEnableCollision(true);
-        _itemRight = nullptr;
+void APlayerCharacter::MULTI_SaveItemInventory_Implementation(AActor* Actor) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(Actor->GetComponentByClass(
+                                                            UStaticMeshComponent::StaticClass()));
+    if (ItemMesh) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        _Inventory->AddItem(Actor);
     }
-    
 }
 
-/****************************************** ACTIONS **********************************************/
-/*** SAVING ***/
-void APlayerCharacter::SaveInventory(AActor* item) {
-    this->_inventory = Cast<UInventory>(this->FindComponentByClass(UInventory::StaticClass()));
-    if (_inventory) _inventory->AddItem(item);
+bool APlayerCharacter::SERVER_SaveItemInventoryLeft_Validate() { return true; }
+void APlayerCharacter::SERVER_SaveItemInventoryLeft_Implementation() {
+    MULTI_SaveItemInventoryLeft();
 }
 
-void APlayerCharacter::SetHUDVisible(bool visible) {
-    _isVisible = visible;
+void APlayerCharacter::MULTI_SaveItemInventoryLeft_Implementation() {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ItemLeft->GetComponentByClass(
+                                                            UStaticMeshComponent::StaticClass()));
+    if (ItemMesh) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        _Inventory->AddItem(_ItemLeft);
+        _ItemLeft = nullptr;
+    }
 }
 
-bool APlayerCharacter::IsHUDVisible() {
-    return _isVisible;
+bool APlayerCharacter::SERVER_SaveItemInventoryRight_Validate() { return true; }
+void APlayerCharacter::SERVER_SaveItemInventoryRight_Implementation() {
+    MULTI_SaveItemInventoryRight();
 }
 
-UTexture2D* APlayerCharacter::GetItemAt(int itemIndex) {
-    if (this->_inventory)
-        return _inventory->GetItemAt(itemIndex);
-    else return nullptr;
+void APlayerCharacter::MULTI_SaveItemInventoryRight_Implementation() {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ItemRight->GetComponentByClass(
+                                                            UStaticMeshComponent::StaticClass()));
+    if (ItemMesh) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        _Inventory->AddItem(_ItemRight);
+        _ItemRight = nullptr;
+    }
 }
 
-/*** TAKE ITEM FROM INVENTORY TO HAND ***/
-void APlayerCharacter::PickItemFromInventory(AActor* ItemActor, FKey KeyStruct) {
-    SERVER_PickItemFromInventory(ItemActor, KeyStruct);
+void APlayerCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
+    SERVER_PickItemInventory(ItemActor, KeyStruct);
 }
 
-bool APlayerCharacter::SERVER_PickItemFromInventory_Validate(AActor* ItemActor, FKey KeyStruct) { 
-    return true;
-}
-void APlayerCharacter::SERVER_PickItemFromInventory_Implementation(AActor* ItemActor, FKey KeyStruct) {
-    MULTI_PickItemFromInventory(ItemActor, KeyStruct);
+bool APlayerCharacter::SERVER_PickItemInventory_Validate(AActor* ItemActor, FKey KeyStruct) { return true; }
+void APlayerCharacter::SERVER_PickItemInventory_Implementation(AActor* ItemActor, FKey KeyStruct) {
+    MULTI_PickItemInventory(ItemActor, KeyStruct);
 }
 
-void APlayerCharacter::MULTI_PickItemFromInventory_Implementation(AActor* ItemActor, FKey KeyStruct) {
-    this->_inventory = Cast<UInventory>(this->FindComponentByClass(UInventory::StaticClass()));
-    if (_inventory) {
-        AActor* ItemFromInventory = nullptr;
-
-        ItemFromInventory = _inventory->PickItem(ItemActor);
-
-        UStaticMeshComponent* ItemMesh = nullptr;
-        UInventoryItem* InventoryItemComponent = nullptr;
-
-        /*Obtaining item components*/
-        if (ItemFromInventory) {
-            ItemMesh = Cast<UStaticMeshComponent>(ItemFromInventory->GetComponentByClass(
-                UStaticMeshComponent::StaticClass()));
-
-            InventoryItemComponent = Cast<UInventoryItem>(ItemFromInventory->GetComponentByClass(
-                UInventoryItem::StaticClass()));
-        }
-
-        if (ItemMesh) {
+void APlayerCharacter::MULTI_PickItemInventory_Implementation(AActor* ItemActor, FKey KeyStruct) {
+    /*Obtaining item components*/
+    if (ItemActor) {
+        UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
+                                                                UStaticMeshComponent::StaticClass()));
+        UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
+                                                                 UInventoryItem::StaticClass()));
+        if (ItemMesh && InventoryItemComp) {
             ItemMesh->SetMobility(EComponentMobility::Movable);
             ItemMesh->SetSimulatePhysics(false);
-        }
 
-        if (KeyStruct == EKeys::LeftMouseButton) {
-            if (ItemMesh) {
-                if (_itemLeft && _itemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
-                    SaveInventory(_itemLeft);
-                    Cast<UInventoryItem>(_itemLeft->GetComponentByClass(
-                        UInventoryItem::StaticClass()))->SetEquipped(false);
-                    _itemLeft = nullptr;
+            if (KeyStruct == EKeys::LeftMouseButton) {
+                if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+                    /* Save hand inventory item */
+                    SERVER_SaveItemInventoryLeft();
                 }
-                if (_itemLeft && _itemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+                else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+                    /* Drop item */
                     SERVER_DropLeft();
-                    return;
                 }
-
-
                 ItemMesh->AttachToComponent(GetMesh(),
-                                            FAttachmentTransformRules::KeepRelativeTransform,
-                                            TEXT("itemHand_l"));
+                                        FAttachmentTransformRules::KeepRelativeTransform,
+                                        TEXT("itemHand_l"));
 
-                ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_L;
-                ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_L;
+                ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
+                ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
                 ItemMesh->GetOwner()->SetActorHiddenInGame(false);
 
-                InventoryItemComponent->SetEquipped(true);
-
-                _itemLeft = ItemFromInventory;
-                AddRadioDelegates(ItemFromInventory);
+                _ItemLeft = ItemActor;
 
                 /*If the item is equipped in the other hand*/
-                if (_itemRight && _itemRight == ItemFromInventory) {
-                    _itemRight = nullptr;
+                if (_ItemRight && _ItemRight == ItemActor) {
+                    _ItemRight = nullptr;
                 }
             }
-        }
-
-        if (KeyStruct == EKeys::RightMouseButton) {
-            if (ItemMesh) {
-                if (_itemRight && _itemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
-                    SaveInventory(_itemRight);
-                    Cast<UInventoryItem>(_itemRight->GetComponentByClass(
-                        UInventoryItem::StaticClass()))->SetEquipped(false);
-                    _itemRight = nullptr;
+            else if (KeyStruct == EKeys::RightMouseButton) {
+                if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
+                    /* Save hand inventory item */
+                    SERVER_SaveItemInventoryRight();
                 }
-                if (_itemRight && _itemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+                else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+                    /* Drop item */
                     SERVER_DropRight();
-                    return;
                 }
-
                 ItemMesh->AttachToComponent(GetMesh(),
-                                            FAttachmentTransformRules::KeepRelativeTransform,
-                                            TEXT("itemHand_r"));
+                                        FAttachmentTransformRules::KeepRelativeTransform,
+                                        TEXT("itemHand_r"));
 
-                ItemMesh->RelativeLocation = InventoryItemComponent->_locationAttachFromInventory_R;
-                ItemMesh->RelativeRotation = InventoryItemComponent->_rotationAttachFromInventory_R;
+                ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
+                ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
                 ItemMesh->GetOwner()->SetActorHiddenInGame(false);
 
-                InventoryItemComponent->SetEquipped(true);
-
-                _itemRight = ItemFromInventory;
-                AddRadioDelegates(ItemFromInventory);
+                _ItemRight = ItemActor;
 
                 /*If the item is equipped in the other hand*/
-                if (_itemLeft && _itemLeft == ItemFromInventory) {
-                    _itemLeft = nullptr;
+                if (_ItemLeft && _ItemLeft == ItemActor) {
+                    _ItemLeft = nullptr;
                 }
             }
         }
     }
 }
 
+
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
-/* Radio Delegate */
+/******* Radio Delegate *******/
 void APlayerCharacter::AddRadioDelegates(AActor* Actor) {
     UWalkie* Walkie = Cast<UWalkie>(Actor->GetComponentByClass(UWalkie::StaticClass()));
     if (Walkie && !Walkie->_AreDelegatesBinded) {
@@ -677,18 +570,30 @@ void APlayerCharacter::ClearRadioDelegates(AActor* Actor) {
     }
 }
 
-bool APlayerCharacter::ItemFocused() {
-    if(hitResult.GetActor())
-        if (hitResult.GetActor()->GetComponentByClass(UInventoryItem::StaticClass())
-            || hitResult.GetActor()->GetComponentByClass(UHandPickItem::StaticClass())) {
-            return true;
-        }
+void APlayerCharacter::SetHUDVisible(bool visible) {
+    _isVisible = visible;
+}
 
-    return false;
+bool APlayerCharacter::IsHUDVisible() {
+    return _isVisible;
 }
 
 UInventory* APlayerCharacter::GetInventory() {
-    return this->_inventory;
+    return _Inventory;
+}
+
+UTexture2D* APlayerCharacter::GetItemAt(int itemIndex) {
+    return _Inventory->GetItemAt(itemIndex);
+}
+
+AActor* APlayerCharacter::GetItemFocused() {
+    AActor* ActorFocused = hitResult.GetActor();
+    if(ActorFocused && ActorFocused->GetComponentByClass(UStaticMeshComponent::StaticClass()) &&
+                            (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass()) ||
+                             ActorFocused->GetComponentByClass(UHandPickItem::StaticClass()))) {
+        return ActorFocused;
+    }
+    return nullptr;
 }
 
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,

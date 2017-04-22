@@ -25,8 +25,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     UTexture2D* GetItemAt(int itemIndex);
 
-    void SaveInventory(AActor* itemActor);
-
     /******** USE ITEM LEFT *********/
     void UseLeftPressed();
     void UseLeftReleased();
@@ -37,11 +35,11 @@ public:
 
     /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
-    void PickItemFromInventory(AActor* ItemActor, FKey KeyStruct);
+    void PickItemInventory(AActor* ItemActor, FKey KeyStruct);
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_PickItemFromInventory(AActor* ItemActor, FKey KeyStruct);
+    void SERVER_PickItemInventory(AActor* ItemActor, FKey KeyStruct);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_PickItemFromInventory(AActor* ItemActor, FKey KeyStruct);
+    void MULTI_PickItemInventory(AActor* ItemActor, FKey KeyStruct);
 
     void SetHUDVisible(bool visible);
     bool IsHUDVisible();
@@ -64,7 +62,7 @@ public:
     UPROPERTY(EditAnywhere, Category = "Raycast")
     float RayParameter;
 
-	bool ItemFocused();
+	AActor* GetItemFocused();
 
     virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                              class AController* EventInstigator, class AActor* DamageCauser) override;
@@ -86,10 +84,6 @@ protected:
     void TurnAtRate(float Rate);
     void LookUpAtRate(float Rate);
 
-    /*********** CROUCH ***********/
-    void execOnStartCrouching();
-    void execOnEndCrouching();
-
     /************** USE *************/
     void UsePressed();
     UFUNCTION(Server, Reliable, WithValidation)
@@ -108,15 +102,15 @@ protected:
     void TakeDropRight();
     void TakeDropLeft();
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeDropRight(AActor* actor);
+    void SERVER_TakeRight(AActor* Actor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeDropRight(AActor* actor);
+    void MULTI_TakeRight(AActor* Actor);
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeDropLeft(AActor* actor);
+    void SERVER_TakeLeft(AActor* Actor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeDropLeft(AActor* actor);
+    void MULTI_TakeLeft(AActor* Actor);
 
-
+    
     /********** DROP ITEM ***********/
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_DropLeft();
@@ -126,6 +120,23 @@ protected:
     void SERVER_DropRight();
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_DropRight();
+
+
+    /********** INVENTORY ***********/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveItemInventory(AActor* Actor);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_SaveItemInventory(AActor* Actor);
+
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveItemInventoryLeft();
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_SaveItemInventoryLeft();
+
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveItemInventoryRight();
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_SaveItemInventoryRight();
 
     /* RAYCASTING */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
@@ -140,11 +151,10 @@ private:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;
 
-    bool _isAction;
-    AActor* _itemLeft;
-    AActor* _itemRight;
-    UInventory* _inventory;
-    UActorComponent* _component;
+    bool _IsAction;
+    AActor* _ItemLeft;
+    AActor* _ItemRight;
+    UInventory* _Inventory;
 
      //Global HitResult to check actor in every tick:
     FHitResult hitResult;
@@ -154,8 +164,7 @@ private:
     TArray<UActorComponent*> components;
 
     UStaticMeshComponent* lastMeshFocused = nullptr;
-    bool _itemFocused;
-    bool _itemLeftTaken;
+    bool _ItemFocused;
 
     /* Radio Delegate */
     FDelegateHandle _OnRadioPressedDelegateHandle;
