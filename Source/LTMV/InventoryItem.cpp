@@ -5,7 +5,7 @@
 
 
 // Sets default values for this component's properties
-UInventoryItem::UInventoryItem() : Super(), _weight(0){
+UInventoryItem::UInventoryItem() : Super(), _weight(0), _equipped(false) {
     SetComponentTickEnabled(false);
     //_itemImage = UTexture2D::GetAssetUserData()
 }

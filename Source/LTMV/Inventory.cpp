@@ -32,9 +32,10 @@ void UInventory::AddItem(AActor* item) {
     itemMesh->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
     itemMesh->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
 
-    if(ItemToAdd && ItemToAdd->IsEquipped() == false)
-    _items.Add(item);
-
+    if (ItemToAdd && ItemToAdd->IsEquipped() == false) {
+        _items.Add(item);
+        ItemToAdd->SetEquipped(true);
+    }
 }
 
 void UInventory::RemoveItem(AActor* itemToRemove) {

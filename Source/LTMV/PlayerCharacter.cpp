@@ -507,6 +507,7 @@ void APlayerCharacter::MULTI_PickItemInventory_Implementation(AActor* ItemActor,
                 ItemMesh->GetOwner()->SetActorHiddenInGame(false);
 
                 _ItemLeft = ItemActor;
+                AddRadioDelegates(ItemActor);
 
                 /*If the item is equipped in the other hand*/
                 if (_ItemRight && _ItemRight == ItemActor) {
@@ -531,6 +532,7 @@ void APlayerCharacter::MULTI_PickItemInventory_Implementation(AActor* ItemActor,
                 ItemMesh->GetOwner()->SetActorHiddenInGame(false);
 
                 _ItemRight = ItemActor;
+                AddRadioDelegates(ItemActor);
 
                 /*If the item is equipped in the other hand*/
                 if (_ItemLeft && _ItemLeft == ItemActor) {
