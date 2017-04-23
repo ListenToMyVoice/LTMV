@@ -33,7 +33,7 @@ public:
     /***********************************INVENTORY WIDGET******************************************/
     UInventoryWidget* _InventoryWidget;
 
-    void SetupInventoryWidget(APlayerCharacter* PlayerCharacter);
+    void SetupInventoryWidget(AFPCharacter* FPCharacter);
 
     /*************************************** VOICE ***********************************************/
     virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,

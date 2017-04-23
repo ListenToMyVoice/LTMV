@@ -7,6 +7,7 @@
 #include "NWGameInstance.h"
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
+#include "FPCharacter.h"
 #include "InventoryWidget.h"
 
 
@@ -58,10 +59,9 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
 }
 
 /***************************************INVENTORY WIDGET********************************************/
-void APlayerControllerPlay::SetupInventoryWidget(APlayerCharacter* PlayerCharacter) {
-    if (IsLocalPlayerController()) {
-        _InventoryWidget = CreateWidget<UInventoryWidget>(this,
-                                                          PlayerCharacter->InventoryUIClass);
+void APlayerControllerPlay::SetupInventoryWidget(AFPCharacter* FPCharacter) {
+    if (FPCharacter && IsLocalPlayerController()) {
+        _InventoryWidget = CreateWidget<UInventoryWidget>(this, FPCharacter->InventoryUIClass);
         if (_InventoryWidget) {
             _InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
             _InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
@@ -80,7 +80,7 @@ void APlayerControllerPlay::AfterPossessed() {
         if (PlayerCharacter->IsA(GameInstance->_PlayerInfoSaved.CharacterClass)) {
             PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
             PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
-            SetupInventoryWidget(PlayerCharacter);
+            SetupInventoryWidget(Cast<AFPCharacter>(PlayerCharacter));
             _ClientPossesed = true;
         }
     }
