@@ -12,6 +12,9 @@
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
 #include "Walkie.h"
+#include "FMODEvent.h"
+#include "Perception/AISense_Sight.h"
+#include "Perception/AISense_Hearing.h"
 #include "Components/WidgetInteractionComponent.h"
 
 APlayerCharacter::APlayerCharacter() {
@@ -50,6 +53,8 @@ APlayerCharacter::APlayerCharacter() {
 
 void APlayerCharacter::BeginPlay() {
     Super::BeginPlay();
+	UAIPerceptionSystem::RegisterPerceptionStimuliSource(this, UAISense_Sight::StaticClass(), this);
+	UAIPerceptionSystem::RegisterPerceptionStimuliSource(this, UAISense_Hearing::StaticClass(), this);
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds) {
@@ -676,6 +681,14 @@ bool APlayerCharacter::ItemFocused() {
 
 UInventory* APlayerCharacter::GetInventory() {
     return this->_inventory;
+}
+
+/*****************AI****************************/
+void APlayerCharacter::NoiseManager(UFMODEvent* FMODSoundEvent) {
+
+	//if (_StepsAudioComp->Event == FMODSoundEvent) {
+	UAISense_Hearing::ReportNoiseEvent(this, GetActorLocation(), 0.4, this);
+	//}
 }
 
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
