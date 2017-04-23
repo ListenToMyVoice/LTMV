@@ -58,6 +58,23 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor
     }
 }
 
+void APlayerControllerLobby::AfterPossessed() {
+    /* CLIENT-SERVER EXCEPTION  */
+    if (!_ClientPossesed) {
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (PlayerCharacter) {
+            PlayerCharacter->AfterPossessed(true);
+            _ClientPossesed = true;
+        }
+    }
+}
+
+void APlayerControllerLobby::OnRep_Pawn() {
+    Super::OnRep_Pawn();
+    /* CLIENT-SERVER EXCEPTION  */
+    AfterPossessed();
+}
+
 /****************************************** ACTION MAPPINGS **************************************/
 /******** USE ITEM LEFT *********/
 void APlayerControllerLobby::UseLeftPressed() {

@@ -11,14 +11,19 @@ class LTMV_API AFPCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+    /* HUD */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HUD")
+    TSubclassOf<class UUserWidget> _HUDClass;
+
     AFPCharacter();
-    virtual void BeginPlay() override;
-    virtual void Tick(float DeltaSeconds) override;
+    void BeginPlay() override;
+    void AfterPossessed(bool SetInventory) override;
+    void Tick(float DeltaSeconds) override;
 
     /************* INVENTORY ************/
     // The class that will be used for the players Inventory UI
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    TSubclassOf<class UInventoryWidget> InventoryUIClass;
+    TSubclassOf<class UInventoryWidget> _InventoryUIClass;
 
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     UTexture2D* GetItemAt(int itemIndex);
@@ -40,6 +45,11 @@ public:
     void UseRightReleased() override;
 
 protected:
+    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    class UInventory* _Inventory;
+    class UInventoryWidget* _InventoryWidget;
+    bool _IsInventoryHidden;
+
     void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
     /*************************************** ACTION MAPPINGS *************************************/
@@ -52,6 +62,8 @@ protected:
     void TakeDropLeft() override;
 
     /********** INVENTORY ***********/
+    void ToggleInventory();
+
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_SaveItemInventory(AActor* Actor);
     UFUNCTION(NetMulticast, Reliable)
@@ -66,19 +78,21 @@ protected:
     void SERVER_SaveItemInventoryRight();
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_SaveItemInventoryRight();
+    
 
     AActor* GetItemFocused();
 
-    /* RAYCASTING */
+    /* RAYCASTING  */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")
     FHitResult Raycasting();
 
 private:
     float _RayParameter;
     FHitResult hitResult;
-
-    class UInventory* _Inventory;
     
     UStaticMeshComponent* lastMeshFocused = nullptr;
     bool bInventoryItemHit = false;
+
+public:
+    FORCEINLINE UInventory* AFPCharacter::GetInventory() const { return _Inventory; }
 };

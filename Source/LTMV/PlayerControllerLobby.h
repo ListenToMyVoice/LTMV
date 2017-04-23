@@ -20,6 +20,10 @@ public:
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_CallUpdate(FPlayerInfo info, bool changedStatus);
 
+    void AfterPossessed();
+    //This override is because CLIENT_AfterPossessed does not work in host (Client-server)
+    UFUNCTION()
+    void OnRep_Pawn() override;
 
     UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
     void CLIENT_CreateMenu(TSubclassOf<AActor> menuClass);
@@ -41,6 +45,7 @@ protected:
     void ToogleMenu();
 
 private:
+    bool _ClientPossesed;
     FString _MapMainMenu;
 
     /********************************** ACTION MAPPINGS ******************************************/

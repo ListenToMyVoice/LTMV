@@ -26,6 +26,7 @@ public:
 
 
     APlayerCharacter();
+    virtual void AfterPossessed(bool SetInventory);
 
     /******** USE ITEM LEFT *********/
     virtual void UseLeftPressed();

@@ -30,6 +30,8 @@ APlayerCharacter::APlayerCharacter() {
     _Health = 1;
 }
 
+void APlayerCharacter::AfterPossessed(bool SetInventory) {}
+
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
     check(PlayerInput);
 

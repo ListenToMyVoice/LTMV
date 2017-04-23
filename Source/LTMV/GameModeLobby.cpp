@@ -4,7 +4,6 @@
 #include "GameModeLobby.h"
 
 #include "NWGameInstance.h"
-#include "PlayerControllerLobby.h"
 
 
 void AGameModeLobby::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
@@ -17,7 +16,7 @@ void AGameModeLobby::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 
 AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(
-        "/Game/BluePrints/Characters/PlayerCharacter_BP"));
+        "/Game/BluePrints/Characters/FPCharacter_BP"));
     DefaultPawnClass = PlayerPawnClassFinder.Class;
     PlayerControllerClass = APlayerControllerLobby::StaticClass();
 
@@ -50,10 +49,10 @@ void AGameModeLobby::PostLogin(APlayerController* NewPlayer) {
     }
 }
 
-bool AGameModeLobby::SERVER_SwapCharacter_Validate(APlayerController* PlayerController,
+bool AGameModeLobby::SERVER_SwapCharacter_Validate(APlayerControllerLobby* PlayerController,
                                                    FPlayerInfo info,
                                                    bool ChangeStatus) { return true; }
-void AGameModeLobby::SERVER_SwapCharacter_Implementation(APlayerController* PlayerController,
+void AGameModeLobby::SERVER_SwapCharacter_Implementation(APlayerControllerLobby* PlayerController,
                                                          FPlayerInfo info,
                                                          bool ChangeStatus) {
     if (!ChangeStatus) {
@@ -61,7 +60,10 @@ void AGameModeLobby::SERVER_SwapCharacter_Implementation(APlayerController* Play
 
         FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
         APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
-        if (actor) PlayerController->Possess(actor);
+        if (actor) {
+            PlayerController->Possess(actor);
+            PlayerController->AfterPossessed();
+        }
     }
 }
 

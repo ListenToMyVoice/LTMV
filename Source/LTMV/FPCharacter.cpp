@@ -10,6 +10,7 @@
 #include "ItfUsableItem.h"
 #include "HandPickItem.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "InventoryWidget.h"
 
 AFPCharacter::AFPCharacter() : Super() {
     _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
@@ -18,6 +19,7 @@ AFPCharacter::AFPCharacter() : Super() {
 
     _PlayerCamera->bUsePawnControlRotation = true;
     _PlayerCamera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("FPVCamera"));
+    _Inventory->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("inventory"));
     _WidgetInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
@@ -38,10 +40,32 @@ void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 
     PlayerInput->BindAction("Use", IE_Pressed, this, &AFPCharacter::UsePressed);
     PlayerInput->BindAction("Use", IE_Released, this, &AFPCharacter::UseReleased);
+
+    PlayerInput->BindAction("ToggleInventory", IE_Pressed, this, &AFPCharacter::ToggleInventory);
 }
 
 void AFPCharacter::BeginPlay() {
     Super::BeginPlay();
+}
+
+void AFPCharacter::AfterPossessed(bool SetInventory) {
+    Super::AfterPossessed(SetInventory);
+
+    APlayerController* PlayerController = Cast<APlayerController>(GetController());
+    if (PlayerController->IsLocalPlayerController()) {
+        /* HUD */
+        UUserWidget* HUD = CreateWidget<UUserWidget>(PlayerController, _HUDClass);
+        if (HUD) HUD->AddToViewport();
+
+        if (SetInventory) {
+            _InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
+            if (_InventoryWidget) {
+                _InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
+                _InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+                _IsInventoryHidden = true;
+            }
+        }
+    }
 }
 
 void AFPCharacter::Tick(float DeltaSeconds) {
@@ -144,7 +168,7 @@ void AFPCharacter::UseReleased() {
 
 /******** USE ITEM LEFT *********/
 void AFPCharacter::UseLeftPressed() {
-    if (_ItemLeft) {
+    if (_ItemLeft && _IsInventoryHidden) {
         TArray<UActorComponent*> Components;
         _ItemLeft->GetComponents(Components);
 
@@ -155,10 +179,11 @@ void AFPCharacter::UseLeftPressed() {
             }
         }
     }
+    else if (_IsInventoryHidden) _WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
 }
 
 void AFPCharacter::UseLeftReleased() {
-    if (_ItemLeft) {
+    if (_ItemLeft && _IsInventoryHidden) {
         TArray<UActorComponent*> Components;
         _ItemLeft->GetComponents(Components);
 
@@ -173,7 +198,7 @@ void AFPCharacter::UseLeftReleased() {
 
 /******* USE ITEM RIGHT *********/
 void AFPCharacter::UseRightPressed() {
-    if (_ItemRight) {
+    if (_ItemRight && _IsInventoryHidden) {
         TArray<UActorComponent*> Components;
         _ItemRight->GetComponents(Components);
 
@@ -187,7 +212,7 @@ void AFPCharacter::UseRightPressed() {
 }
 
 void AFPCharacter::UseRightReleased() {
-    if (_ItemRight) {
+    if (_ItemRight && _IsInventoryHidden) {
         TArray<UActorComponent*> Components;
         _ItemRight->GetComponents(Components);
 
@@ -265,6 +290,33 @@ void AFPCharacter::TakeDropLeft() {
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
         /* Save hand inventory item */
         SERVER_SaveItemInventoryLeft();
+    }
+}
+
+/**************** TRIGGER INVENTORY *************/
+/*** SHOW INVENTORY ***/
+void AFPCharacter::ToggleInventory() {
+    APlayerController* PlayerController = Cast<APlayerController>(GetController());
+    if (PlayerController && _InventoryWidget) {
+        if (_IsInventoryHidden) {
+            _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+            PlayerController->bShowMouseCursor = true;
+            PlayerController->bEnableClickEvents = true;
+            PlayerController->bEnableMouseOverEvents = true;
+
+            FInputModeGameAndUI Mode = FInputModeGameAndUI();
+            Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+            Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
+            PlayerController->SetInputMode(Mode);
+        }
+        else {
+            _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+            PlayerController->bShowMouseCursor = false;
+            PlayerController->bEnableClickEvents = false;
+            PlayerController->bEnableMouseOverEvents = false;
+            PlayerController->SetInputMode(FInputModeGameOnly());
+        }
+        _IsInventoryHidden = !_IsInventoryHidden;
     }
 }
 

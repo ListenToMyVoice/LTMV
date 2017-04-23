@@ -7,8 +7,6 @@
 #include "NWGameInstance.h"
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
-#include "FPCharacter.h"
-#include "InventoryWidget.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -32,7 +30,6 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
 void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
-	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &APlayerControllerPlay::ToggleInventory);
 
     /* USE ITEM */
     InputComponent->BindAction("ClickLeft", IE_Pressed, this, &APlayerControllerPlay::UseLeftPressed);
@@ -58,18 +55,6 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
     if (gameMode) gameMode->SERVER_RespawnPlayer(this, info);
 }
 
-/***************************************INVENTORY WIDGET********************************************/
-void APlayerControllerPlay::SetupInventoryWidget(AFPCharacter* FPCharacter) {
-    if (FPCharacter && IsLocalPlayerController()) {
-        _InventoryWidget = CreateWidget<UInventoryWidget>(this, FPCharacter->InventoryUIClass);
-        if (_InventoryWidget) {
-            _InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
-            _InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
-            _IsInventoryHidden = true;
-        }
-    }
-}
-
 void APlayerControllerPlay::AfterPossessed() {
     /* CLIENT-SERVER EXCEPTION  */
     if (!_ClientPossesed) {
@@ -80,7 +65,7 @@ void APlayerControllerPlay::AfterPossessed() {
         if (PlayerCharacter->IsA(GameInstance->_PlayerInfoSaved.CharacterClass)) {
             PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
             PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
-            SetupInventoryWidget(Cast<AFPCharacter>(PlayerCharacter));
+            PlayerCharacter->AfterPossessed(true);
             _ClientPossesed = true;
         }
     }
@@ -88,6 +73,7 @@ void APlayerControllerPlay::AfterPossessed() {
 
 void APlayerControllerPlay::OnRep_Pawn() {
     Super::OnRep_Pawn();
+    /* CLIENT-SERVER EXCEPTION  */
     AfterPossessed();
 }
 
@@ -129,35 +115,23 @@ bool APlayerControllerPlay::IsListen() {
 /******** USE ITEM LEFT *********/
 void APlayerControllerPlay::UseLeftPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) {
-        if (_IsInventoryHidden && _IsMenuHidden) {
-            PlayerCharacter->UseLeftPressed();
-        }
-        else if (_IsInventoryHidden) {
-            PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
-                PressPointerKey(EKeys::LeftMouseButton);
-        }
-    }
+    if (PlayerCharacter && _IsMenuHidden) PlayerCharacter->UseLeftPressed();
 }
 
 void APlayerControllerPlay::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter && _IsInventoryHidden && _IsMenuHidden) PlayerCharacter->UseLeftReleased();
+    if (PlayerCharacter && _IsMenuHidden) PlayerCharacter->UseLeftReleased();
 }
 
 /******* USE ITEM RIGHT *********/
 void APlayerControllerPlay::UseRightPressed() {
-    if (_IsInventoryHidden) {
-        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-        if (PlayerCharacter) PlayerCharacter->UseRightPressed();
-    }
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter && _IsMenuHidden) PlayerCharacter->UseRightPressed();
 }
 
 void APlayerControllerPlay::UseRightReleased() {
-    if (_IsInventoryHidden) {
-        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-        if (PlayerCharacter) PlayerCharacter->UseRightReleased();
-    }
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter && _IsMenuHidden) PlayerCharacter->UseRightReleased();
 }
 
 /*************** TRIGGER MENU *************/
@@ -186,33 +160,6 @@ void APlayerControllerPlay::ToogleMenu() {
             ULibraryUtils::SetActorEnable(_MenuActor, false);
         }
         _IsMenuHidden = !_IsMenuHidden;
-    }
-}
-
-
-/**************** TRIGGER INVENTORY *************/
-/*** SHOW INVENTORY ***/
-void APlayerControllerPlay::ToggleInventory() {
-    if (GetPawn() && _InventoryWidget) {
-        if (_IsInventoryHidden) {
-            _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-            this->bShowMouseCursor = true;
-            this->bEnableClickEvents = true;
-            this->bEnableMouseOverEvents = true;
-
-            FInputModeGameAndUI Mode = FInputModeGameAndUI();
-            Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-            Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
-            SetInputMode(Mode);
-        }
-        else {
-            _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-            this->bShowMouseCursor = false;
-            this->bEnableClickEvents = false;
-            this->bEnableMouseOverEvents = false;
-            SetInputMode(FInputModeGameOnly());
-        }
-        _IsInventoryHidden = !_IsInventoryHidden;
     }
 }
 

@@ -18,7 +18,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SwapCharacter(APlayerController* PlayerController, FPlayerInfo info,
+    void SERVER_SwapCharacter(APlayerControllerLobby* PlayerController, FPlayerInfo info,
                               bool ChangeStatus);
 
     UFUNCTION(BlueprintCallable, Category = "Launch Game")

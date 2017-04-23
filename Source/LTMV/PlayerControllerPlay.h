@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "PlayerCharacter.h"
-
 #include "GameFramework/PlayerController.h"
 #include "PlayerControllerPlay.generated.h"
 
@@ -25,15 +23,10 @@ public:
     void AfterPossessed();
     //This override is because CLIENT_AfterPossessed does not work in host (Client-server)
     UFUNCTION()
-    virtual void OnRep_Pawn() override;
+    void OnRep_Pawn() override;
     
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_CallUpdate(FPlayerInfo info);
-
-    /***********************************INVENTORY WIDGET******************************************/
-    UInventoryWidget* _InventoryWidget;
-
-    void SetupInventoryWidget(AFPCharacter* FPCharacter);
 
     /*************************************** VOICE ***********************************************/
     virtual void ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
@@ -56,7 +49,6 @@ protected:
     TSubclassOf<AActor> _MenuClass;
     AActor* _MenuActor;
     bool _IsMenuHidden;
-    bool _IsInventoryHidden;
 
     virtual void SetupInputComponent() override;
 
@@ -71,9 +63,6 @@ protected:
 
     /*************** TRIGGER MENU *************/
     void ToogleMenu();
-
-    /**************** TRIGGER INVENTORY *************/
-    void ToggleInventory();
 
 private:
     UAudioComponent* _VoiceAudioComp;
