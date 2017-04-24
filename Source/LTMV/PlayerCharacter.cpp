@@ -93,7 +93,7 @@ void APlayerCharacter::UseRightPressed(bool IsMenuHidden) {}
 
 void APlayerCharacter::UseRightReleased(bool IsMenuHidden) {}
 
-/********** TAKE & DROP RIGHT HAND ***********/
+/********** TAKE RIGHT HAND ***********/
 void APlayerCharacter::TakeDropRight() {}
 bool APlayerCharacter::SERVER_TakeRight_Validate(AActor* Actor) { return true; }
 void APlayerCharacter::SERVER_TakeRight_Implementation(AActor* Actor) {
@@ -119,24 +119,7 @@ void APlayerCharacter::MULTI_TakeRight_Implementation(AActor* Actor) {
     }
 }
 
-bool APlayerCharacter::SERVER_DropRight_Validate() { return true; }
-void APlayerCharacter::SERVER_DropRight_Implementation() {
-    MULTI_DropRight();
-}
-void APlayerCharacter::MULTI_DropRight_Implementation() {
-    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ItemRight->GetComponentByClass(
-                                                            UStaticMeshComponent::StaticClass()));
-    if (ItemMesh) {
-        ItemMesh->SetMobility(EComponentMobility::Movable);
-        ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-        ItemMesh->SetSimulatePhysics(true);
-        
-        _ItemRight->SetActorEnableCollision(true);
-        _ItemRight = nullptr;
-    }
-}
-
-/********** TAKE & DROP LEFT HAND ***********/
+/********** TAKE LEFT HAND ***********/
 void APlayerCharacter::TakeDropLeft() {}
 bool APlayerCharacter::SERVER_TakeLeft_Validate(AActor* Actor) { return true; }
 void APlayerCharacter::SERVER_TakeLeft_Implementation(AActor* Actor) {
@@ -162,46 +145,51 @@ void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* Actor) {
     }
 }
 
-bool APlayerCharacter::SERVER_DropLeft_Validate() { return true; }
-void APlayerCharacter::SERVER_DropLeft_Implementation() {
-    MULTI_DropLeft();
+/********** DROP HAND ***********/
+bool APlayerCharacter::SERVER_Drop_Validate(AActor* HandPointer) { return true; }
+void APlayerCharacter::SERVER_Drop_Implementation(AActor* HandPointer) {
+    MULTI_Drop(HandPointer);
 }
-void APlayerCharacter::MULTI_DropLeft_Implementation() {
-    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ItemLeft->GetComponentByClass(
+void APlayerCharacter::MULTI_Drop_Implementation(AActor* HandPointer) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(HandPointer->GetComponentByClass(
                                                             UStaticMeshComponent::StaticClass()));
     if (ItemMesh) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         ItemMesh->SetSimulatePhysics(true);
 
-        _ItemLeft->SetActorEnableCollision(true);
-        _ItemLeft = nullptr;
+        HandPointer->SetActorEnableCollision(true);
+        HandPointer = nullptr;
     }
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
 /******* Radio Delegate *******/
-void APlayerCharacter::AddRadioDelegates(AActor* Actor) {
-    UWalkie* Walkie = Cast<UWalkie>(Actor->GetComponentByClass(UWalkie::StaticClass()));
-    if (Walkie && !Walkie->_AreDelegatesBinded) {
-        _OnRadioPressedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioPressedDelegate, true);
-        _OnRadioReleasedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioReleasedDelegate, false);
+void APlayerCharacter::AddRadioDelegates_Implementation(AActor* Actor) {
+    if (Actor) {
+        UWalkie* Walkie = Cast<UWalkie>(Actor->GetComponentByClass(UWalkie::StaticClass()));
+        if (Walkie && !Walkie->_AreDelegatesBinded) {
+            _OnRadioPressedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioPressedDelegate, true);
+            _OnRadioReleasedDelegateHandle = Walkie->AddOnRadioDelegate(_OnRadioReleasedDelegate, false);
 
-        const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-        FString myRole = EnumPtr->GetEnumName((int32)Role);
-        ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
+            const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
+            FString myRole = EnumPtr->GetEnumName((int32)Role);
+            ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
+        }
     }
 }
 
-void APlayerCharacter::ClearRadioDelegates(AActor* Actor) {
-    UWalkie* Walkie = Cast<UWalkie>(Actor->GetComponentByClass(UWalkie::StaticClass()));
-    if (Walkie && Walkie->_AreDelegatesBinded) {
-        Walkie->ClearOnRadioDelegate(_OnRadioPressedDelegateHandle, true);
-        Walkie->ClearOnRadioDelegate(_OnRadioReleasedDelegateHandle, false);
+void APlayerCharacter::ClearRadioDelegates_Implementation(AActor* Actor) {
+    if (Actor) {
+        UWalkie* Walkie = Cast<UWalkie>(Actor->GetComponentByClass(UWalkie::StaticClass()));
+        if (Walkie && Walkie->_AreDelegatesBinded) {
+            Walkie->ClearOnRadioDelegate(_OnRadioPressedDelegateHandle, true);
+            Walkie->ClearOnRadioDelegate(_OnRadioReleasedDelegateHandle, false);
 
-        const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
-        FString myRole = EnumPtr->GetEnumName((int32)Role);
-        ULibraryUtils::Log(FString::Printf(TEXT("ClearRadioDelegates : %s"), *myRole), 0, 60);
+            const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
+            FString myRole = EnumPtr->GetEnumName((int32)Role);
+            ULibraryUtils::Log(FString::Printf(TEXT("ClearRadioDelegates : %s"), *myRole), 0, 60);
+        }
     }
 }
 

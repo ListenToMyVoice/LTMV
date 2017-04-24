@@ -90,18 +90,16 @@ protected:
     
     /********** DROP ITEM ***********/
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_DropLeft();
+    void SERVER_Drop(AActor* HandPointer);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_DropLeft();
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_DropRight();
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_DropRight();
+    void MULTI_Drop(AActor* HandPointer);
 
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_CharacterDead();
 
+    UFUNCTION(Client, Reliable)
     void AddRadioDelegates(AActor* Actor);
+    UFUNCTION(Client, Reliable)
     void ClearRadioDelegates(AActor* Actor);
 
 private:

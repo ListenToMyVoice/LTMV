@@ -32,9 +32,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     void PickItemInventory(AActor* ItemActor, FKey KeyStruct);
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_PickItemInventory(AActor* ItemActor, FKey KeyStruct);
+    void SERVER_PickItemInventoryLeft(AActor* ItemActor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_PickItemInventory(AActor* ItemActor, FKey KeyStruct);
+    void MULTI_PickItemInventoryLeft(AActor* ItemActor);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_PickItemInventoryRight(AActor* ItemActor);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_PickItemInventoryRight(AActor* ItemActor);
 
     /******** USE ITEM LEFT *********/
     void UseLeftPressed(bool IsMenuHidden) override;
@@ -65,19 +69,9 @@ protected:
     void ToggleInventory();
 
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveItemInventory(AActor* Actor);
+    void SERVER_SaveItemInventory(AActor* ItemActor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveItemInventory(AActor* Actor);
-
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveItemInventoryLeft();
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveItemInventoryLeft();
-
-    UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveItemInventoryRight();
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveItemInventoryRight();
+    void MULTI_SaveItemInventory(AActor* ItemActor);
     
 
     AActor* GetItemFocused();

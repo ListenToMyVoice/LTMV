@@ -244,12 +244,12 @@ void AFPCharacter::TakeDropRight() {
         else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
             if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Replace item */
-                SERVER_DropRight();
+                SERVER_Drop(_ItemRight);
                 SERVER_TakeRight(ActorFocused);
             }
             else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
-                SERVER_SaveItemInventoryRight();
+                SERVER_SaveItemInventory(_ItemRight);
             }
             else if (!_ItemRight) {
                 /* Take item */
@@ -259,11 +259,11 @@ void AFPCharacter::TakeDropRight() {
     }
     else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
         /* Drop item */
-        SERVER_DropRight();
+        SERVER_Drop(_ItemRight);
     }
     else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
         /* Save hand inventory item */
-        SERVER_SaveItemInventoryRight();
+        SERVER_SaveItemInventory(_ItemRight);
     }
 }
 
@@ -278,12 +278,12 @@ void AFPCharacter::TakeDropLeft() {
         else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Replace item */
-                SERVER_DropLeft();
+                SERVER_Drop(_ItemLeft);
                 SERVER_TakeLeft(ActorFocused);
             }
             else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
-                SERVER_SaveItemInventoryLeft();
+                SERVER_SaveItemInventory(_ItemLeft);
             }
             else if (!_ItemLeft) {
                 /* Take item */
@@ -293,11 +293,11 @@ void AFPCharacter::TakeDropLeft() {
     }
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
         /* Drop item */
-        SERVER_DropLeft();
+        SERVER_Drop(_ItemLeft);
     }
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
         /* Save hand inventory item */
-        SERVER_SaveItemInventoryLeft();
+        SERVER_SaveItemInventory(_ItemLeft);
     }
 }
 
@@ -329,118 +329,106 @@ void AFPCharacter::ToggleInventory() {
 }
 
 /**************************************** INVENTORY **********************************************/
-bool AFPCharacter::SERVER_SaveItemInventory_Validate(AActor* Actor) { return true; }
-void AFPCharacter::SERVER_SaveItemInventory_Implementation(AActor* Actor) {
-    MULTI_SaveItemInventory(Actor);
+bool AFPCharacter::SERVER_SaveItemInventory_Validate(AActor* ItemActor) { return true; }
+void AFPCharacter::SERVER_SaveItemInventory_Implementation(AActor* ItemActor) {
+    ClearRadioDelegates(ItemActor);
+    MULTI_SaveItemInventory(ItemActor);
 }
-void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* Actor) {
-    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(Actor->GetComponentByClass(
-        UStaticMeshComponent::StaticClass()));
-    if (ItemMesh) {
-        ItemMesh->SetMobility(EComponentMobility::Movable);
-        _Inventory->AddItem(Actor);
-    }
-}
-
-bool AFPCharacter::SERVER_SaveItemInventoryLeft_Validate() { return true; }
-void AFPCharacter::SERVER_SaveItemInventoryLeft_Implementation() {
-    MULTI_SaveItemInventoryLeft();
-}
-void AFPCharacter::MULTI_SaveItemInventoryLeft_Implementation() {
-    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ItemLeft->GetComponentByClass(
-        UStaticMeshComponent::StaticClass()));
-    if (ItemMesh) {
-        ItemMesh->SetMobility(EComponentMobility::Movable);
-        _Inventory->AddItem(_ItemLeft);
-        _ItemLeft = nullptr;
-    }
-}
-
-bool AFPCharacter::SERVER_SaveItemInventoryRight_Validate() { return true; }
-void AFPCharacter::SERVER_SaveItemInventoryRight_Implementation() {
-    MULTI_SaveItemInventoryRight();
-}
-void AFPCharacter::MULTI_SaveItemInventoryRight_Implementation() {
-    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ItemRight->GetComponentByClass(
-        UStaticMeshComponent::StaticClass()));
-    if (ItemMesh) {
-        ItemMesh->SetMobility(EComponentMobility::Movable);
-        _Inventory->AddItem(_ItemRight);
-        _ItemRight = nullptr;
+void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor) {
+    if (ItemActor) {
+        UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
+            UStaticMeshComponent::StaticClass()));
+        if (ItemMesh) {
+            ItemMesh->SetMobility(EComponentMobility::Movable);
+            _Inventory->AddItem(ItemActor);
+            ItemActor = nullptr;
+        }
     }
 }
 
 void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
-    SERVER_PickItemInventory(ItemActor, KeyStruct);
-}
-
-bool AFPCharacter::SERVER_PickItemInventory_Validate(AActor* ItemActor, FKey KeyStruct) { return true; }
-void AFPCharacter::SERVER_PickItemInventory_Implementation(AActor* ItemActor, FKey KeyStruct) {
-    MULTI_PickItemInventory(ItemActor, KeyStruct);
-}
-
-void AFPCharacter::MULTI_PickItemInventory_Implementation(AActor* ItemActor, FKey KeyStruct) {
-    /*Obtaining item components*/
     if (ItemActor) {
-        UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
-            UStaticMeshComponent::StaticClass()));
-        UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
-            UInventoryItem::StaticClass()));
-        if (ItemMesh && InventoryItemComp) {
-            ItemMesh->SetMobility(EComponentMobility::Movable);
-            ItemMesh->SetSimulatePhysics(false);
-
-            if (KeyStruct == EKeys::LeftMouseButton) {
-                if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
-                    /* Save hand inventory item */
-                    SERVER_SaveItemInventoryLeft();
-                }
-                else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
-                    /* Drop item */
-                    SERVER_DropLeft();
-                }
-                ItemMesh->AttachToComponent(GetMesh(),
-                                            FAttachmentTransformRules::KeepRelativeTransform,
-                                            TEXT("itemHand_l"));
-
-                ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
-                ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
-                ItemMesh->GetOwner()->SetActorHiddenInGame(false);
-
-                _ItemLeft = ItemActor;
-                AddRadioDelegates(ItemActor);
-
-                /*If the item is equipped in the other hand*/
-                if (_ItemRight && _ItemRight == ItemActor) {
-                    _ItemRight = nullptr;
-                }
+        if (KeyStruct == EKeys::LeftMouseButton) {
+            if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+                /* Save hand inventory item */
+                SERVER_SaveItemInventory(_ItemLeft);
             }
-            else if (KeyStruct == EKeys::RightMouseButton) {
-                if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
-                    /* Save hand inventory item */
-                    SERVER_SaveItemInventoryRight();
-                }
-                else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
-                    /* Drop item */
-                    SERVER_DropRight();
-                }
-                ItemMesh->AttachToComponent(GetMesh(),
-                                            FAttachmentTransformRules::KeepRelativeTransform,
-                                            TEXT("itemHand_r"));
-
-                ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
-                ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
-                ItemMesh->GetOwner()->SetActorHiddenInGame(false);
-
-                _ItemRight = ItemActor;
-                AddRadioDelegates(ItemActor);
-
-                /*If the item is equipped in the other hand*/
-                if (_ItemLeft && _ItemLeft == ItemActor) {
-                    _ItemLeft = nullptr;
-                }
+            else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+                /* Drop item */
+                SERVER_Drop(_ItemLeft);
             }
+            SERVER_PickItemInventoryLeft(ItemActor);
         }
+        else if (KeyStruct == EKeys::RightMouseButton) {
+            if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
+                /* Save hand inventory item */
+                SERVER_SaveItemInventory(_ItemRight);
+            }
+            else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+                /* Drop item */
+                SERVER_Drop(_ItemRight);
+            }
+            SERVER_PickItemInventoryRight(ItemActor);
+        }
+    }
+}
+
+bool AFPCharacter::SERVER_PickItemInventoryLeft_Validate(AActor* ItemActor) { return true; }
+void AFPCharacter::SERVER_PickItemInventoryLeft_Implementation(AActor* ItemActor) {
+    AddRadioDelegates(ItemActor);
+    MULTI_PickItemInventoryLeft(ItemActor);
+}
+void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+    UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
+        UInventoryItem::StaticClass()));
+
+    if (ItemMesh && InventoryItemComp) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        ItemMesh->SetSimulatePhysics(false);
+        ItemMesh->AttachToComponent(GetMesh(),
+                                    FAttachmentTransformRules::KeepRelativeTransform,
+                                    TEXT("itemHand_l"));
+
+        ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
+        ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
+        ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+
+        _ItemLeft = ItemActor;
+
+        /*If the item is equipped in the other hand*/
+        if (_ItemRight && _ItemRight == ItemActor) _ItemRight = nullptr;
+    }
+}
+
+bool AFPCharacter::SERVER_PickItemInventoryRight_Validate(AActor* ItemActor) { return true; }
+void AFPCharacter::SERVER_PickItemInventoryRight_Implementation(AActor* ItemActor) {
+    AddRadioDelegates(ItemActor);
+    MULTI_PickItemInventoryRight(ItemActor);
+}
+
+void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+    UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
+        UInventoryItem::StaticClass()));
+
+    if (ItemMesh && InventoryItemComp) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        ItemMesh->SetSimulatePhysics(false);
+        ItemMesh->AttachToComponent(GetMesh(),
+                                    FAttachmentTransformRules::KeepRelativeTransform,
+                                    TEXT("itemHand_r"));
+
+        ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_R;
+        ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_R;
+        ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+
+        _ItemRight = ItemActor;
+
+        /*If the item is equipped in the other hand*/
+        if (_ItemLeft && _ItemLeft == ItemActor) _ItemLeft = nullptr;
     }
 }
 
