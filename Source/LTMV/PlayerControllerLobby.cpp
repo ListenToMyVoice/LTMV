@@ -63,7 +63,7 @@ void APlayerControllerLobby::AfterPossessed() {
     if (!_ClientPossesed) {
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
         if (PlayerCharacter) {
-            PlayerCharacter->AfterPossessed(true);
+            PlayerCharacter->AfterPossessed(false);
             _ClientPossesed = true;
         }
     }
@@ -80,16 +80,16 @@ void APlayerControllerLobby::OnRep_Pawn() {
 void APlayerControllerLobby::UseLeftPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
-        PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
-            PressPointerKey(EKeys::LeftMouseButton);
+        bool  MenuBool = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false : _IsMenuHidden;
+        PlayerCharacter->UseLeftPressed(MenuBool);
     }
 }
 
 void APlayerControllerLobby::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
-        PlayerCharacter->FindComponentByClass<UWidgetInteractionComponent>()->
-            ReleasePointerKey(EKeys::LeftMouseButton);
+        bool  MenuBool = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false : _IsMenuHidden;
+        PlayerCharacter->UseLeftReleased(MenuBool);
     }
 }
 

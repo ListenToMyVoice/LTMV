@@ -26,7 +26,7 @@ public:
     TSubclassOf<class UInventoryWidget> _InventoryUIClass;
 
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
-    UTexture2D* GetItemAt(int itemIndex);
+    UTexture2D* GetItemTextureAt(int itemIndex);
 
     /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -37,12 +37,12 @@ public:
     void MULTI_PickItemInventory(AActor* ItemActor, FKey KeyStruct);
 
     /******** USE ITEM LEFT *********/
-    void UseLeftPressed() override;
-    void UseLeftReleased() override;
+    void UseLeftPressed(bool IsMenuHidden) override;
+    void UseLeftReleased(bool IsMenuHidden) override;
 
     /******* USE ITEM RIGHT *********/
-    void UseRightPressed() override;
-    void UseRightReleased() override;
+    void UseRightPressed(bool IsMenuHidden) override;
+    void UseRightReleased(bool IsMenuHidden) override;
 
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

@@ -21,13 +21,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     TArray<AActor*> GetItemsArray();
 
-    UTexture2D* GetItemAt(int itemIndex);
+    UTexture2D* GetItemTextureAt(int itemIndex);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     UActorComponent* GetInventoryItemComponent(AActor* item);
 
     //UFUNCTION(BlueprintNativeEvent, Category = "Inventory", BlueprintCallable)
-    //void OnItemAdd();
+    //void  OnItemAdd();
 
     //void OnItemAdd_Implementation();
 

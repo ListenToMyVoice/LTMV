@@ -46,6 +46,13 @@ void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 
 void AFPCharacter::BeginPlay() {
     Super::BeginPlay();
+
+    APlayerController* PlayerController = Cast<APlayerController>(GetController());
+    if (PlayerController && PlayerController->IsLocalPlayerController()) {
+        /* HUD */
+        UUserWidget* HUD = CreateWidget<UUserWidget>(PlayerController, _HUDClass);
+        if (HUD) HUD->AddToViewport();
+    }
 }
 
 void AFPCharacter::AfterPossessed(bool SetInventory) {
@@ -53,10 +60,6 @@ void AFPCharacter::AfterPossessed(bool SetInventory) {
 
     APlayerController* PlayerController = Cast<APlayerController>(GetController());
     if (PlayerController->IsLocalPlayerController()) {
-        /* HUD */
-        UUserWidget* HUD = CreateWidget<UUserWidget>(PlayerController, _HUDClass);
-        if (HUD) HUD->AddToViewport();
-
         if (SetInventory) {
             _InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
             if (_InventoryWidget) {
@@ -167,37 +170,42 @@ void AFPCharacter::UseReleased() {
 }
 
 /******** USE ITEM LEFT *********/
-void AFPCharacter::UseLeftPressed() {
-    if (_ItemLeft && _IsInventoryHidden) {
-        TArray<UActorComponent*> Components;
-        _ItemLeft->GetComponents(Components);
+void AFPCharacter::UseLeftPressed(bool IsMenuHidden) {
+    if (IsMenuHidden) {
+        if (_ItemLeft && _IsInventoryHidden) {
+            TArray<UActorComponent*> Components;
+            _ItemLeft->GetComponents(Components);
 
-        for (UActorComponent* Component : Components) {
-            if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
-                IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
-                if (ItfObject) ItfObject->Execute_UseItemPressed(Component);
+            for (UActorComponent* Component : Components) {
+                if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
+                    IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
+                    if (ItfObject) ItfObject->Execute_UseItemPressed(Component);
+                }
             }
         }
     }
-    else if (_IsInventoryHidden) _WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
+    else _WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
 }
 
-void AFPCharacter::UseLeftReleased() {
-    if (_ItemLeft && _IsInventoryHidden) {
-        TArray<UActorComponent*> Components;
-        _ItemLeft->GetComponents(Components);
+void AFPCharacter::UseLeftReleased(bool IsMenuHidden) {
+    if (IsMenuHidden) {
+        if (_ItemLeft && _IsInventoryHidden) {
+            TArray<UActorComponent*> Components;
+            _ItemLeft->GetComponents(Components);
 
-        for (UActorComponent* Component : Components) {
-            if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
-                IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
-                if (ItfObject) ItfObject->Execute_UseItemReleased(Component);
+            for (UActorComponent* Component : Components) {
+                if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
+                    IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
+                    if (ItfObject) ItfObject->Execute_UseItemReleased(Component);
+                }
             }
         }
     }
+    else _WidgetInteractionComp->ReleasePointerKey(EKeys::LeftMouseButton);
 }
 
 /******* USE ITEM RIGHT *********/
-void AFPCharacter::UseRightPressed() {
+void AFPCharacter::UseRightPressed(bool IsMenuHidden) {
     if (_ItemRight && _IsInventoryHidden) {
         TArray<UActorComponent*> Components;
         _ItemRight->GetComponents(Components);
@@ -211,7 +219,7 @@ void AFPCharacter::UseRightPressed() {
     }
 }
 
-void AFPCharacter::UseRightReleased() {
+void AFPCharacter::UseRightReleased(bool IsMenuHidden) {
     if (_ItemRight && _IsInventoryHidden) {
         TArray<UActorComponent*> Components;
         _ItemRight->GetComponents(Components);
@@ -437,8 +445,8 @@ void AFPCharacter::MULTI_PickItemInventory_Implementation(AActor* ItemActor, FKe
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
-UTexture2D* AFPCharacter::GetItemAt(int itemIndex) {
-    return _Inventory->GetItemAt(itemIndex);
+UTexture2D* AFPCharacter::GetItemTextureAt(int itemIndex) {
+    return _Inventory->GetItemTextureAt(itemIndex);
 }
 
 AActor* AFPCharacter::GetItemFocused() {

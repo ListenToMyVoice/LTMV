@@ -46,7 +46,7 @@ void UInventory::RemoveItem(AActor* itemToRemove) {
     _items.Remove(itemToRemove);
 }
 
-UTexture2D* UInventory::GetItemAt(int itemIndex) {
+UTexture2D* UInventory::GetItemTextureAt(int itemIndex) {
     UInventoryItem* comp;
 
     if (itemIndex < _items.Num()) {

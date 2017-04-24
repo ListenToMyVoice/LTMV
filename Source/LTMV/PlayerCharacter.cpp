@@ -84,14 +84,14 @@ void APlayerCharacter::MULTI_UseReleased_Implementation(UActorComponent* compone
 }
 
 /******** USE ITEM LEFT *********/
-void APlayerCharacter::UseLeftPressed() {}
+void APlayerCharacter::UseLeftPressed(bool IsMenuHidden) {}
 
-void APlayerCharacter::UseLeftReleased() {}
+void APlayerCharacter::UseLeftReleased(bool IsMenuHidden) {}
 
 /******* USE ITEM RIGHT *********/
-void APlayerCharacter::UseRightPressed() {}
+void APlayerCharacter::UseRightPressed(bool IsMenuHidden) {}
 
-void APlayerCharacter::UseRightReleased() {}
+void APlayerCharacter::UseRightReleased(bool IsMenuHidden) {}
 
 /********** TAKE & DROP RIGHT HAND ***********/
 void APlayerCharacter::TakeDropRight() {}
@@ -201,7 +201,7 @@ void APlayerCharacter::ClearRadioDelegates(AActor* Actor) {
 
         const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
         FString myRole = EnumPtr->GetEnumName((int32)Role);
-        ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
+        ULibraryUtils::Log(FString::Printf(TEXT("ClearRadioDelegates : %s"), *myRole), 0, 60);
     }
 }
 

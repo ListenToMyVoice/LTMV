@@ -29,12 +29,12 @@ public:
     virtual void AfterPossessed(bool SetInventory);
 
     /******** USE ITEM LEFT *********/
-    virtual void UseLeftPressed();
-    virtual void UseLeftReleased();
+    virtual void UseLeftPressed(bool IsMenuHidden);
+    virtual void UseLeftReleased(bool IsMenuHidden);
 
     /******* USE ITEM RIGHT *********/
-    virtual void UseRightPressed();
-    virtual void UseRightReleased();
+    virtual void UseRightPressed(bool IsMenuHidden);
+    virtual void UseRightReleased(bool IsMenuHidden);
 
     virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                              class AController* EventInstigator, class AActor* DamageCauser) override;
