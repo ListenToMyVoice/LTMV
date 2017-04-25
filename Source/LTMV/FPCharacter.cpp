@@ -331,7 +331,7 @@ void AFPCharacter::ToggleInventory() {
 /**************************************** INVENTORY **********************************************/
 bool AFPCharacter::SERVER_SaveItemInventory_Validate(AActor* ItemActor) { return true; }
 void AFPCharacter::SERVER_SaveItemInventory_Implementation(AActor* ItemActor) {
-    ClearRadioDelegates(ItemActor);
+    CLIENT_ClearRadioDelegates(ItemActor);
     MULTI_SaveItemInventory(ItemActor);
 }
 void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor) {
@@ -375,7 +375,7 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
 
 bool AFPCharacter::SERVER_PickItemInventoryLeft_Validate(AActor* ItemActor) { return true; }
 void AFPCharacter::SERVER_PickItemInventoryLeft_Implementation(AActor* ItemActor) {
-    AddRadioDelegates(ItemActor);
+    CLIENT_AddRadioDelegates(ItemActor);
     MULTI_PickItemInventoryLeft(ItemActor);
 }
 void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor) {
@@ -404,7 +404,7 @@ void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor)
 
 bool AFPCharacter::SERVER_PickItemInventoryRight_Validate(AActor* ItemActor) { return true; }
 void AFPCharacter::SERVER_PickItemInventoryRight_Implementation(AActor* ItemActor) {
-    AddRadioDelegates(ItemActor);
+    CLIENT_AddRadioDelegates(ItemActor);
     MULTI_PickItemInventoryRight(ItemActor);
 }
 

@@ -12,6 +12,10 @@ void UWalkie::BeginPlay() {
     Super::BeginPlay();
 }
 
+//void UWalkie::AttachVoiceComponent(UAudioComponent* VoiceAudioComp) {
+//
+//}
+
 void UWalkie::UseItemPressed_Implementation() {
     _RadioPressedEvent.Broadcast();
 }

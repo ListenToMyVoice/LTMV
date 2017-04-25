@@ -81,10 +81,25 @@ void APlayerControllerPlay::OnRep_Pawn() {
 void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& RemoteTalkerId,
                                                       class UAudioComponent* AudioComponent) {
 
-    if (!_VoiceAudioComp) _VoiceAudioComp = AudioComponent;
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (!_VoiceAudioComp && PlayerCharacter) {
+        AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
+        if (WalkieActor) {
+            UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(
+                WalkieActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 
-    //AudioComponent->bEnableLowPassFilter = true;
-    //AudioComponent->LowPassFilterFrequency = 60000;
+            AudioComponent->bOverrideAttenuation = true;
+            AudioComponent->AttachToComponent(MeshComponent, FAttachmentTransformRules::KeepRelativeTransform);
+            _VoiceAudioComp = AudioComponent;
+            ULibraryUtils::Log("Setup Voice");
+        }
+
+        //_VoiceAudioComp->bOverrideAttenuation =  true;
+        //_VoiceAudioComp->SetWorldLocation(PlayerCharacter->GetRadioLocation());
+
+        //_VoiceAudioComp->bEnableLowPassFilter = true;
+        //_VoiceAudioComp->LowPassFilterFrequency = 60000;
+    }
 }
 
 void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,

@@ -43,6 +43,8 @@ public:
     void TurnAtRate(float Rate);
     void LookUpAtRate(float Rate);
 
+    AActor* GetWalkieActor();
+
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;
@@ -98,11 +100,13 @@ protected:
     void MULTI_CharacterDead();
 
     UFUNCTION(Client, Reliable)
-    void AddRadioDelegates(AActor* Actor);
+    void CLIENT_AddRadioDelegates(AActor* Actor);
     UFUNCTION(Client, Reliable)
-    void ClearRadioDelegates(AActor* Actor);
+    void CLIENT_ClearRadioDelegates(AActor* Actor);
 
 private:
+    AActor* _WalkieActor;
+
     /* Radio Delegate */
     FDelegateHandle _OnRadioPressedDelegateHandle;
     FDelegateHandle _OnRadioReleasedDelegateHandle;
