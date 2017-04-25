@@ -88,8 +88,8 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
             UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(
                 WalkieActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 
-            AudioComponent->bOverrideAttenuation = true;
             AudioComponent->AttachToComponent(MeshComponent, FAttachmentTransformRules::KeepRelativeTransform);
+            AudioComponent->bOverrideAttenuation = true;
             _VoiceAudioComp = AudioComponent;
             ULibraryUtils::Log("Setup Voice");
         }
