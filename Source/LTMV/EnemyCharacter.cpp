@@ -28,3 +28,10 @@ void AEnemyCharacter::BeginPlay() {
 void AEnemyCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 }
+
+float AEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+				 class AController* EventInstigator, class AActor* DamageCauser) {
+	ULibraryUtils::Log(FString::Printf(TEXT("Me han dado")), 0, 60);
+	/*The enemy doesn't receive damage*/
+	return 0.0f;
+}

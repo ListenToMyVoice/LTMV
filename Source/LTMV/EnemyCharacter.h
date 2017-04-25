@@ -25,6 +25,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
     int _Damage;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator, class AActor* DamageCauser) override;
+
     AEnemyCharacter(const FObjectInitializer& OI);
 
 protected:
