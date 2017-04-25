@@ -16,11 +16,17 @@ public:
     float _LoseSightRadius;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
     float _VisionAngleDegrees;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+	float _HearingRange;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
     class UBehaviorTree* _BehaviourTree;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI Settings")
+	TSubclassOf<class UAIPerceptionComponent> AIPerceptionComponent;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
     int _Damage;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator, class AActor* DamageCauser) override;
 
     AEnemyCharacter(const FObjectInitializer& OI);
 

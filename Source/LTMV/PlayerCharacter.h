@@ -14,6 +14,10 @@ class LTMV_API APlayerCharacter : public ACharacter {
 public:
     bool _isVisible;
 
+	/***************AI*******************/
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void NoiseManager(UFMODEvent* FMODSoundEvent);
+
     /************* INVENTORY ************/
     // The class that will be used for the players Inventory UI
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")

@@ -17,6 +17,7 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& OI) : Super(OI) {
     _SightRadius = 500.0f;
     _LoseSightRadius = 1000.0f;
     _VisionAngleDegrees = 90.0f;
+	_HearingRange = 1500.0f;
     _Damage = 1;
 }
 
@@ -26,4 +27,11 @@ void AEnemyCharacter::BeginPlay() {
 
 void AEnemyCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
+}
+
+float AEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+				 class AController* EventInstigator, class AActor* DamageCauser) {
+	ULibraryUtils::Log(FString::Printf(TEXT("Me han dado")), 0, 60);
+	/*The enemy doesn't receive damage*/
+	return 0.0f;
 }
