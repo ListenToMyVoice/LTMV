@@ -25,6 +25,13 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     _MenuClass = MenuClassFinder.Class;
 
     _ClientPossesed = false;
+
+
+    static ConstructorHelpers::FObjectFinder<USoundWave> SoundFinder(
+        TEXT("/Game/Maps/Alex/04_-_Black_Night_Of_Magic"));
+    _TestAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Voice Comp"));
+    _TestAudioComp->bAutoActivate = false;
+    _TestAudioComp->SetSound(SoundFinder.Object);
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -56,7 +63,7 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
 }
 
 void APlayerControllerPlay::AfterPossessed() {
-    /* CLIENT-SERVER EXCEPTION  */
+    /* CLIENT-SERVER EXCEPTION */
     if (!_ClientPossesed) {
         UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
@@ -82,40 +89,64 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                                                       class UAudioComponent* AudioComponent) {
 
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (!_VoiceAudioComp && PlayerCharacter) {
-        AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
-        if (WalkieActor) {
-            UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(
-                WalkieActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+    bool FullVolume = false;
+    if (PlayerCharacter) {
+        FullVolume = PlayerCharacter->IsWalkieInHand();
 
-            AudioComponent->AttachToComponent(MeshComponent, FAttachmentTransformRules::KeepRelativeTransform);
-            AudioComponent->bOverrideAttenuation = true;
-            _VoiceAudioComp = AudioComponent;
-            ULibraryUtils::Log("Setup Voice");
+        if (!_VoiceAudioComp) {
+            AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
+            if (WalkieActor) {
+                UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(
+                    WalkieActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+
+                if (MeshComponent) {
+                    AudioComponent->AttachToComponent(MeshComponent,
+                                                      FAttachmentTransformRules::KeepRelativeTransform);
+                    AudioComponent->bOverrideAttenuation = true;
+                    _VoiceAudioComp = AudioComponent;
+
+                    //_WalkieNoiseAudioComp->AttachToComponent(MeshComponent,
+                    //                                         FAttachmentTransformRules::KeepRelativeTransform);
+                    //_WalkieNoiseAudioComp->bOverrideAttenuation = true;
+                    ULibraryUtils::Log("Setup Voice");
+
+                    _TestAudioComp->AttachToComponent(MeshComponent,
+                                                      FAttachmentTransformRules::KeepRelativeTransform);
+                    _TestAudioComp->bOverrideAttenuation = true;
+                    _TestAudioComp->Play();
+                }
+            }
         }
 
-        //_VoiceAudioComp->bOverrideAttenuation =  true;
-        //_VoiceAudioComp->SetWorldLocation(PlayerCharacter->GetRadioLocation());
-
-        //_VoiceAudioComp->bEnableLowPassFilter = true;
-        //_VoiceAudioComp->LowPassFilterFrequency = 60000;
+        if (FullVolume) {
+            _VoiceAudioComp->SetVolumeMultiplier(1.0);
+            //_WalkieNoiseAudioComp->SetVolume(1.0);
+            _TestAudioComp->SetVolumeMultiplier(1.0);
+            ULibraryUtils::Log("VOLUME: 1.0");
+        }
+        else {
+            _VoiceAudioComp->SetVolumeMultiplier(0.05);
+            //_WalkieNoiseAudioComp->SetVolume(0.05);
+            _TestAudioComp->SetVolumeMultiplier(0.05);
+            ULibraryUtils::Log("VOLUME: 0.05");
+        }
     }
 }
 
 void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
                                       FActorTickFunction & ThisTickFunction) {
     Super::TickActor(DeltaTime, TickType, ThisTickFunction);
-    //TickWalkie();
+    TickWalkie();
 }
 
 void APlayerControllerPlay::TickWalkie() {
-    if (_VoiceAudioComp && _WalkieNoiseAudioComp) {
-        if (_VoiceAudioComp->IsPlaying() && !_WalkieNoiseAudioComp->IsPlaying()) {
-            _WalkieNoiseAudioComp->Play();
+    if (_VoiceAudioComp/* && _WalkieNoiseAudioComp*/) {
+        if (_VoiceAudioComp->IsPlaying()/* && !_WalkieNoiseAudioComp->IsPlaying()*/) {
+            //_WalkieNoiseAudioComp->Play();
             _IsListen = true;
         }
-        else if (!_VoiceAudioComp->IsPlaying() && _WalkieNoiseAudioComp->IsPlaying()) {
-            _WalkieNoiseAudioComp->Stop();
+        else if (!_VoiceAudioComp->IsPlaying()/* && _WalkieNoiseAudioComp->IsPlaying()*/) {
+            //_WalkieNoiseAudioComp->Stop();
             _IsListen = false;
         }
     }

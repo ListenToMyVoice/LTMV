@@ -44,6 +44,7 @@ public:
     void LookUpAtRate(float Rate);
 
     AActor* GetWalkieActor();
+    bool IsWalkieInHand();
 
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -92,9 +93,14 @@ protected:
     
     /********** DROP ITEM ***********/
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_Drop(AActor* HandPointer);
+    void SERVER_Drop(AActor* ItemActor, int Hand);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_Drop(AActor* HandPointer);
+    void MULTI_Drop(AActor* ItemActor, int Hand);
+    /*
+    Hand = 0 => void
+    Hand = 1 => _ItemLeft
+    Hand = 2 => _ItemRight
+    */
 
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_CharacterDead();

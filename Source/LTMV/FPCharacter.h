@@ -69,10 +69,14 @@ protected:
     void ToggleInventory();
 
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_SaveItemInventory(AActor* ItemActor);
+    void SERVER_SaveItemInventory(AActor* ItemActor, int Hand);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_SaveItemInventory(AActor* ItemActor);
-    
+    void MULTI_SaveItemInventory(AActor* ItemActor, int Hand);
+    /* 
+    Hand = 0 => void
+    Hand = 1 => _ItemLeft
+    Hand = 2 => _ItemRight
+    */
 
     AActor* GetItemFocused();
 

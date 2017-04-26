@@ -11,8 +11,6 @@ class LTMV_API APlayerControllerPlay : public APlayerController {
     GENERATED_BODY()
 
 public:
-    class UFMODAudioComponent* _WalkieNoiseAudioComp;
-
     APlayerControllerPlay(const FObjectInitializer& OI);
 
     virtual void TickActor(float DeltaTime, enum ELevelTick TickType,
@@ -65,7 +63,9 @@ protected:
     void ToogleMenu();
 
 private:
+    class UFMODAudioComponent* _WalkieNoiseAudioComp;
     UAudioComponent* _VoiceAudioComp;
+    UAudioComponent* _TestAudioComp;
     bool _IsListen;
     bool _ClientPossesed;
 

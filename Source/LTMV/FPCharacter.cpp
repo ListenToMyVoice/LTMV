@@ -239,17 +239,17 @@ void AFPCharacter::TakeDropRight() {
     if (ActorFocused) {
         if (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass())) {
             /* Save scenary inventory item */
-            SERVER_SaveItemInventory(ActorFocused);
+            SERVER_SaveItemInventory(ActorFocused, 0);
         }
         else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
             if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Replace item */
-                SERVER_Drop(_ItemRight);
+                SERVER_Drop(_ItemRight, 2);
                 SERVER_TakeRight(ActorFocused);
             }
             else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
-                SERVER_SaveItemInventory(_ItemRight);
+                SERVER_SaveItemInventory(_ItemRight, 2);
             }
             else if (!_ItemRight) {
                 /* Take item */
@@ -259,11 +259,11 @@ void AFPCharacter::TakeDropRight() {
     }
     else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
         /* Drop item */
-        SERVER_Drop(_ItemRight);
+        SERVER_Drop(_ItemRight, 2);
     }
     else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
         /* Save hand inventory item */
-        SERVER_SaveItemInventory(_ItemRight);
+        SERVER_SaveItemInventory(_ItemRight, 2);
     }
 }
 
@@ -273,17 +273,17 @@ void AFPCharacter::TakeDropLeft() {
     if (ActorFocused) {
         if (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass())) {
             /* Save scenary inventory item */
-            SERVER_SaveItemInventory(ActorFocused);
+            SERVER_SaveItemInventory(ActorFocused, 0);
         }
         else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Replace item */
-                SERVER_Drop(_ItemLeft);
+                SERVER_Drop(_ItemLeft, 1);
                 SERVER_TakeLeft(ActorFocused);
             }
             else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
-                SERVER_SaveItemInventory(_ItemLeft);
+                SERVER_SaveItemInventory(_ItemLeft, 1);
             }
             else if (!_ItemLeft) {
                 /* Take item */
@@ -293,11 +293,11 @@ void AFPCharacter::TakeDropLeft() {
     }
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
         /* Drop item */
-        SERVER_Drop(_ItemLeft);
+        SERVER_Drop(_ItemLeft, 1);
     }
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
         /* Save hand inventory item */
-        SERVER_SaveItemInventory(_ItemLeft);
+        SERVER_SaveItemInventory(_ItemLeft, 1);
     }
 }
 
@@ -329,19 +329,21 @@ void AFPCharacter::ToggleInventory() {
 }
 
 /**************************************** INVENTORY **********************************************/
-bool AFPCharacter::SERVER_SaveItemInventory_Validate(AActor* ItemActor) { return true; }
-void AFPCharacter::SERVER_SaveItemInventory_Implementation(AActor* ItemActor) {
+bool AFPCharacter::SERVER_SaveItemInventory_Validate(AActor* ItemActor, int Hand) { return true; }
+void AFPCharacter::SERVER_SaveItemInventory_Implementation(AActor* ItemActor, int Hand) {
     CLIENT_ClearRadioDelegates(ItemActor);
-    MULTI_SaveItemInventory(ItemActor);
+    MULTI_SaveItemInventory(ItemActor, Hand);
 }
-void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor) {
+void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor, int Hand) {
     if (ItemActor) {
         UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
             UStaticMeshComponent::StaticClass()));
         if (ItemMesh) {
             ItemMesh->SetMobility(EComponentMobility::Movable);
             _Inventory->AddItem(ItemActor);
-            ItemActor = nullptr;
+
+            if (Hand == 1) _ItemLeft = nullptr;
+            else if (Hand == 2) _ItemRight = nullptr;
         }
     }
 }
@@ -351,22 +353,22 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
         if (KeyStruct == EKeys::LeftMouseButton) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
-                SERVER_SaveItemInventory(_ItemLeft);
+                SERVER_SaveItemInventory(_ItemLeft, 1);
             }
             else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Drop item */
-                SERVER_Drop(_ItemLeft);
+                SERVER_Drop(_ItemLeft, 1);
             }
             SERVER_PickItemInventoryLeft(ItemActor);
         }
         else if (KeyStruct == EKeys::RightMouseButton) {
             if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
-                SERVER_SaveItemInventory(_ItemRight);
+                SERVER_SaveItemInventory(_ItemRight, 2);
             }
             else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Drop item */
-                SERVER_Drop(_ItemRight);
+                SERVER_Drop(_ItemRight, 2);
             }
             SERVER_PickItemInventoryRight(ItemActor);
         }

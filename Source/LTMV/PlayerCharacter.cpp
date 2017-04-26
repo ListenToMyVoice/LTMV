@@ -146,25 +146,35 @@ void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* Actor) {
 }
 
 /********** DROP HAND ***********/
-bool APlayerCharacter::SERVER_Drop_Validate(AActor* HandPointer) { return true; }
-void APlayerCharacter::SERVER_Drop_Implementation(AActor* HandPointer) {
-    MULTI_Drop(HandPointer);
+bool APlayerCharacter::SERVER_Drop_Validate(AActor* ItemActor, int Hand) { return true; }
+void APlayerCharacter::SERVER_Drop_Implementation(AActor* ItemActor, int Hand) {
+    MULTI_Drop(ItemActor, Hand);
 }
-void APlayerCharacter::MULTI_Drop_Implementation(AActor* HandPointer) {
-    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(HandPointer->GetComponentByClass(
+void APlayerCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
                                                             UStaticMeshComponent::StaticClass()));
     if (ItemMesh) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         ItemMesh->SetSimulatePhysics(true);
 
-        HandPointer->SetActorEnableCollision(true);
-        HandPointer = nullptr;
+        ItemActor->SetActorEnableCollision(true);
+
+        if (Hand == 1) _ItemLeft = nullptr;
+        else if (Hand == 2) _ItemRight = nullptr;
     }
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
-AActor* APlayerCharacter::GetWalkieActor() { return _WalkieActor ? _WalkieActor : nullptr; }
+AActor* APlayerCharacter::GetWalkieActor() { 
+    return _WalkieActor ? _WalkieActor : nullptr; 
+}
+
+bool APlayerCharacter::IsWalkieInHand() {
+    if (_ItemLeft) ULibraryUtils::Log(FString::Printf(TEXT("_ItemLeft: %s"), *_ItemLeft->GetFName().ToString()));
+    if (_ItemRight) ULibraryUtils::Log(FString::Printf(TEXT("_ItemRight: %s"), *_ItemRight->GetFName().ToString()));
+    return _WalkieActor ? _WalkieActor == _ItemLeft || _WalkieActor == _ItemRight : false;
+}
 
 /******* Radio Delegate *******/
 void APlayerCharacter::CLIENT_AddRadioDelegates_Implementation(AActor* Actor) {
