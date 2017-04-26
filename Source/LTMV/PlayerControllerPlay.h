@@ -65,7 +65,7 @@ protected:
 private:
     class UFMODAudioComponent* _WalkieNoiseAudioComp;
     UAudioComponent* _VoiceAudioComp;
-    UAudioComponent* _TestAudioComp;
+    //UAudioComponent* _TestAudioComp;
     bool _IsListen;
     bool _ClientPossesed;
 

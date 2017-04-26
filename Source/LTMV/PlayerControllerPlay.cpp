@@ -11,11 +11,11 @@
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
     /* VOICE */
-    //_WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+    _WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     static ConstructorHelpers::FObjectFinder<UObject> Finder(
-        TEXT("/Game/FMOD/Desktop/Events/Radio/Interferencia_radio"));
-    //_WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
-    //_WalkieNoiseAudioComp->bAutoActivate = false;
+        TEXT("/Game/FMOD/Events/Radio/Interferencia_radio"));
+    _WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
+    _WalkieNoiseAudioComp->bAutoActivate = false;
     _IsListen = false;
 
     /* MENU */
@@ -27,11 +27,11 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     _ClientPossesed = false;
 
 
-    static ConstructorHelpers::FObjectFinder<USoundWave> SoundFinder(
-        TEXT("/Game/Maps/Alex/04_-_Black_Night_Of_Magic"));
-    _TestAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Voice Comp"));
-    _TestAudioComp->bAutoActivate = false;
-    _TestAudioComp->SetSound(SoundFinder.Object);
+    //static ConstructorHelpers::FObjectFinder<USoundWave> SoundFinder(
+    //    TEXT("/Game/Maps/Alex/04_-_Black_Night_Of_Magic"));
+    //_TestAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Voice Comp"));
+    //_TestAudioComp->bAutoActivate = false;
+    //_TestAudioComp->SetSound(SoundFinder.Object);
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -105,29 +105,29 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                     AudioComponent->bOverrideAttenuation = true;
                     _VoiceAudioComp = AudioComponent;
 
-                    //_WalkieNoiseAudioComp->AttachToComponent(MeshComponent,
-                    //                                         FAttachmentTransformRules::KeepRelativeTransform);
-                    //_WalkieNoiseAudioComp->bOverrideAttenuation = true;
+                    _WalkieNoiseAudioComp->AttachToComponent(MeshComponent,
+                                                             FAttachmentTransformRules::KeepRelativeTransform);
+                    _WalkieNoiseAudioComp->bOverrideAttenuation = true;
                     ULibraryUtils::Log("Setup Voice");
 
-                    _TestAudioComp->AttachToComponent(MeshComponent,
-                                                      FAttachmentTransformRules::KeepRelativeTransform);
-                    _TestAudioComp->bOverrideAttenuation = true;
-                    _TestAudioComp->Play();
+                    //_TestAudioComp->AttachToComponent(MeshComponent,
+                    //                                  FAttachmentTransformRules::KeepRelativeTransform);
+                    //_TestAudioComp->bOverrideAttenuation = true;
+                    //_TestAudioComp->Play();
                 }
             }
         }
 
         if (FullVolume) {
             _VoiceAudioComp->SetVolumeMultiplier(1.0);
-            //_WalkieNoiseAudioComp->SetVolume(1.0);
-            _TestAudioComp->SetVolumeMultiplier(1.0);
+            _WalkieNoiseAudioComp->SetVolume(1.0);
+            //_TestAudioComp->SetVolumeMultiplier(1.0);
             ULibraryUtils::Log("VOLUME: 1.0");
         }
         else {
             _VoiceAudioComp->SetVolumeMultiplier(0.05);
-            //_WalkieNoiseAudioComp->SetVolume(0.05);
-            _TestAudioComp->SetVolumeMultiplier(0.05);
+            _WalkieNoiseAudioComp->SetVolume(0.05);
+            //_TestAudioComp->SetVolumeMultiplier(0.05);
             ULibraryUtils::Log("VOLUME: 0.05");
         }
     }
@@ -140,13 +140,13 @@ void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
 }
 
 void APlayerControllerPlay::TickWalkie() {
-    if (_VoiceAudioComp/* && _WalkieNoiseAudioComp*/) {
-        if (_VoiceAudioComp->IsPlaying()/* && !_WalkieNoiseAudioComp->IsPlaying()*/) {
-            //_WalkieNoiseAudioComp->Play();
+    if (_VoiceAudioComp && _WalkieNoiseAudioComp) {
+        if (_VoiceAudioComp->IsPlaying() && !_WalkieNoiseAudioComp->IsPlaying()) {
+            _WalkieNoiseAudioComp->Play();
             _IsListen = true;
         }
-        else if (!_VoiceAudioComp->IsPlaying()/* && _WalkieNoiseAudioComp->IsPlaying()*/) {
-            //_WalkieNoiseAudioComp->Stop();
+        else if (!_VoiceAudioComp->IsPlaying() && _WalkieNoiseAudioComp->IsPlaying()) {
+            _WalkieNoiseAudioComp->Stop();
             _IsListen = false;
         }
     }
