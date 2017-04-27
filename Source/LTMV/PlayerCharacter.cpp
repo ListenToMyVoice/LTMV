@@ -171,8 +171,6 @@ AActor* APlayerCharacter::GetWalkieActor() {
 }
 
 bool APlayerCharacter::IsWalkieInHand() {
-    if (_ItemLeft) ULibraryUtils::Log(FString::Printf(TEXT("_ItemLeft: %s"), *_ItemLeft->GetFName().ToString()));
-    if (_ItemRight) ULibraryUtils::Log(FString::Printf(TEXT("_ItemRight: %s"), *_ItemRight->GetFName().ToString()));
     return _WalkieActor ? _WalkieActor == _ItemLeft || _WalkieActor == _ItemRight : false;
 }
 

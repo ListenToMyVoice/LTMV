@@ -13,7 +13,7 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     /* VOICE */
     _WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     static ConstructorHelpers::FObjectFinder<UObject> Finder(
-        TEXT("/Game/FMOD/Events/Radio/Interferencia_radio"));
+        TEXT("/Game/FMOD/Desktop/Events/Radio/Interferencia_radio"));
     _WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
     _WalkieNoiseAudioComp->bAutoActivate = false;
     _IsListen = false;
