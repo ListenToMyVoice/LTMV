@@ -11,6 +11,7 @@
 #include "HandPickItem.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "InventoryWidget.h"
+#include "FMODAudioComponent.h"
 
 AFPCharacter::AFPCharacter() : Super() {
     _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
@@ -20,6 +21,7 @@ AFPCharacter::AFPCharacter() : Super() {
     _PlayerCamera->bUsePawnControlRotation = true;
     _PlayerCamera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("FPVCamera"));
     _Inventory->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("inventory"));
+    _StepsAudioComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("Foot"));
     _WidgetInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
