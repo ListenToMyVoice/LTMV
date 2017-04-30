@@ -12,9 +12,9 @@
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
     /* VOICE */
     _WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
-    static ConstructorHelpers::FObjectFinder<UObject> Finder(
-        TEXT("/Game/FMOD/Desktop/Events/Radio/Interferencia_radio"));
-    _WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
+    //static ConstructorHelpers::FObjectFinder<UObject> Finder(
+    //    TEXT("/Game/FMOD/Desktop/Events/Radio/Interferencia_radio"));
+    //_WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
     _WalkieNoiseAudioComp->bAutoActivate = false;
     _IsListen = false;
 
@@ -96,15 +96,17 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
         if (!_VoiceAudioComp) {
             AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
             if (WalkieActor) {
+                UFMODEvent* NoiseEvent = PlayerCharacter->GetWalkieEvent();
                 UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(
                     WalkieActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 
-                if (MeshComponent) {
+                if (MeshComponent && NoiseEvent) {
                     AudioComponent->AttachToComponent(MeshComponent,
                                                       FAttachmentTransformRules::KeepRelativeTransform);
                     AudioComponent->bOverrideAttenuation = true;
                     _VoiceAudioComp = AudioComponent;
 
+                    _WalkieNoiseAudioComp->SetEvent(NoiseEvent);
                     _WalkieNoiseAudioComp->AttachToComponent(MeshComponent,
                                                              FAttachmentTransformRules::KeepRelativeTransform);
                     _WalkieNoiseAudioComp->bOverrideAttenuation = true;

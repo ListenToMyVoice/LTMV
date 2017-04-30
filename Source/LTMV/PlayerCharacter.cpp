@@ -174,6 +174,14 @@ bool APlayerCharacter::IsWalkieInHand() {
     return _WalkieActor ? _WalkieActor == _ItemLeft || _WalkieActor == _ItemRight : false;
 }
 
+UFMODEvent* APlayerCharacter::GetWalkieEvent() {
+    if (_WalkieActor) {
+        UWalkie* Walkie = Cast<UWalkie>(_WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+        return Walkie->_NoiseEvent;
+    }
+    return nullptr;
+}
+
 /******* Radio Delegate *******/
 void APlayerCharacter::CLIENT_AddRadioDelegates_Implementation(AActor* Actor) {
     if (Actor) {

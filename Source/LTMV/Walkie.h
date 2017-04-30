@@ -14,6 +14,8 @@ class LTMV_API UWalkie : public UActorComponent, public IItfUsableItem {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+    UFMODEvent* _NoiseEvent;
     bool _AreDelegatesBinded;
 
     FDelegateHandle AddOnRadioDelegate(FRadioDelegate& RadioDelegate, bool IsPressed);

@@ -45,6 +45,7 @@ public:
 
     AActor* GetWalkieActor();
     bool IsWalkieInHand();
+    class UFMODEvent* GetWalkieEvent();
 
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
