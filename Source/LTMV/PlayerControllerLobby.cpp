@@ -104,7 +104,7 @@ void APlayerControllerLobby::ToogleMenu() {
 
         if (CameraComp) {
             _GameInstance->ToogleMenu(CameraComp->GetComponentLocation(),
-                                      CameraComp->GetComponentRotation());
+                                      CameraComp->GetComponentRotation(), false);
 
             APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
             if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_GameInstance->_IsMenuHidden);

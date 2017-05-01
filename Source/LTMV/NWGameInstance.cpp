@@ -44,6 +44,13 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
         "/Game/BluePrints/HUD/Menu_BP"));
     _MenuClass = MenuClassFinder.Class;
     _IsMenuHidden = true;
+
+    static ConstructorHelpers::FClassFinder<AActor> BoyClassFinder(TEXT(
+        "/Game/BluePrints/Characters/FPCharacterBoy"));
+    _BoyClass = BoyClassFinder.Class;
+    static ConstructorHelpers::FClassFinder<AActor> GirlClassFinder(TEXT(
+        "/Game/BluePrints/Characters/FPCharacterGirl"));
+    _GirlClass = GirlClassFinder.Class;
 }
 
 IOnlineSessionPtr UNWGameInstance::GetSessions() {
@@ -66,7 +73,7 @@ void UNWGameInstance::InitGame() {
             UCameraComponent* CameraComp = Cast<UCameraComponent>(Pawn->FindComponentByClass<UCameraComponent>());
             if (CameraComp) {
                 ToogleMenu(CameraComp->GetComponentLocation(),
-                           CameraComp->GetComponentRotation());
+                           CameraComp->GetComponentRotation(), false);
 
                 APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
                 if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_IsMenuHidden);
@@ -78,6 +85,14 @@ void UNWGameInstance::InitGame() {
 
                     _MenuActor->_Slot_FindGameReleasedDelegate.BindUObject(this,
                                                                &UNWGameInstance::FindOnlineGames);
+
+                    _MenuActor->_Slot_JoinGameReleasedDelegate.BindUObject(this,
+                                                               &UNWGameInstance::JoinOnlineGame);
+
+                    _MenuActor->_Slot_BackToMenuReleasedDelegate.BindUObject(this,
+                                                                 &UNWGameInstance::DestroySession);
+
+                    _MenuActor->InitMenu();
                 }
             }
         }
@@ -86,6 +101,10 @@ void UNWGameInstance::InitGame() {
 
 /**************************************** BLUEPRINTS *********************************************/
 void UNWGameInstance::LaunchLobby() {
+    _PlayerInfoSaved.Name = "host";
+    _PlayerInfoSaved.CharacterClass = _BoyClass;
+    _PlayerInfoSaved.IsHost = true;
+
     DestroySession();
 
     _ServerName = "ServerName";
@@ -99,6 +118,10 @@ void UNWGameInstance::FindOnlineGames() {
 }
 
 void UNWGameInstance::JoinOnlineGame() {
+    _PlayerInfoSaved.Name = "guest";
+    _PlayerInfoSaved.CharacterClass = _GirlClass;
+    _PlayerInfoSaved.IsHost = false;
+
     ULocalPlayer* const Player = GetFirstGamePlayer();
     FOnlineSessionSearchResult SearchResult;
     if (_SessionSearch->SearchResults.Num() > 0) {
@@ -243,10 +266,11 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
 
 
 /************************************ MENU INTERFACE *********************************************/
-void UNWGameInstance::ToogleMenu(FVector Location, FRotator Rotation) {
+void UNWGameInstance::ToogleMenu(FVector Location, FRotator Rotation, bool InPLay) {
     if (_IsMenuHidden) {
         if (_MenuActor) {
-            _MenuActor->BuildMenu_Main();
+            _MenuActor->ResetMenu(InPLay);
+
             ULibraryUtils::SetActorEnable(_MenuActor);
             _MenuActor->SetActorLocationAndRotation(Location,
                                                     Rotation,

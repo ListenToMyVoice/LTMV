@@ -114,9 +114,12 @@ public:
     virtual void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 
     /* MENU INTERFACE */
-    void ToogleMenu(FVector Location, FRotator Rotation);
+    void ToogleMenu(FVector Location, FRotator Rotation, bool InPLay);
 
 protected:
+    TSubclassOf<ACharacter> _BoyClass;
+    TSubclassOf<ACharacter> _GirlClass;
+
     TSharedPtr<class FOnlineSessionSettings> _SessionSettings;
     TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 
