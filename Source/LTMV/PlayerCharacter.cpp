@@ -9,7 +9,8 @@
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
 #include "Walkie.h"
-#include "Components/WidgetInteractionComponent.h"
+#include "MenuInteraction.h"
+
 
 APlayerCharacter::APlayerCharacter() {
     bReplicates = true;
@@ -23,8 +24,8 @@ APlayerCharacter::APlayerCharacter() {
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
     _PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
-    _WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
-    _WidgetInteractionComp->InteractionDistance = 100000;
+    _MenuInteractionComp = CreateDefaultSubobject<UMenuInteraction>(TEXT("Menu Interaction"));
+    _MenuInteractionComp->_RayParameter = 100000;
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
     _Health = 1;

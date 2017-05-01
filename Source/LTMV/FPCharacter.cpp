@@ -9,7 +9,7 @@
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
 #include "HandPickItem.h"
-#include "Components/WidgetInteractionComponent.h"
+#include "MenuInteraction.h"
 #include "InventoryWidget.h"
 #include "FMODAudioComponent.h"
 
@@ -22,7 +22,7 @@ AFPCharacter::AFPCharacter() : Super() {
     _PlayerCamera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("FPVCamera"));
     _Inventory->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("inventory"));
     _StepsAudioComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("Foot"));
-    _WidgetInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+    _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -186,7 +186,7 @@ void AFPCharacter::UseLeftPressed(bool IsMenuHidden) {
             }
         }
     }
-    else _WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
+    else _MenuInteractionComp->PressPointer();
 }
 
 void AFPCharacter::UseLeftReleased(bool IsMenuHidden) {
@@ -203,7 +203,7 @@ void AFPCharacter::UseLeftReleased(bool IsMenuHidden) {
             }
         }
     }
-    else _WidgetInteractionComp->ReleasePointerKey(EKeys::LeftMouseButton);
+    else _MenuInteractionComp->ReleasePointer();
 }
 
 /******* USE ITEM RIGHT *********/

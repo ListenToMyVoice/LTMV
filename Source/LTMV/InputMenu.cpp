@@ -4,15 +4,34 @@
 #include "InputMenu.h"
 
 
-UInputMenu::UInputMenu() : Super() {}
+UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder(
+        TEXT("/Engine/BasicShapes/Cube"));
+    SetStaticMesh(Finder.Object);
+
+    _Color = FColor::Yellow;
+    _HoverColor = FColor::Cyan;
+}
+
+void UInputMenu::BeginPlay() {
+    Super::BeginPlay();
+    _TextRender = Cast<UTextRenderComponent>(GetChildComponent(0));
+}
 
 void UInputMenu::PressEvents() {
     _InputMenuPressedEvent.Broadcast();
 }
 
-
 void UInputMenu::ReleaseEvents() {
     _InputMenuReleasedEvent.Broadcast();
+}
+
+void UInputMenu::HoverInteraction() {
+    if (_TextRender) _TextRender->SetTextRenderColor(_HoverColor);
+}
+
+void UInputMenu::EndhoverInteraction() {
+    if (_TextRender) _TextRender->SetTextRenderColor(_Color);
 }
 
 /*********************************************** DELEGATES ***************************************/

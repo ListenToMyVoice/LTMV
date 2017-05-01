@@ -11,6 +11,8 @@ class LTMV_API UMenuInteraction : public USceneComponent {
 	GENERATED_BODY()
 
 public:	
+    float _RayParameter;
+
 	UMenuInteraction();
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -18,10 +20,11 @@ public:
     void ReleasePointer();
 
 protected:
-    float _RayParameter;
-
 	virtual void BeginPlay() override;
 
     void Activation();
     void Deactivation();
+
+private:
+    class UInputMenu* _TargetInputMenu;
 };

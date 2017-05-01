@@ -3,6 +3,7 @@
 #include "LTMV.h"
 #include "MenuInteraction.h"
 
+#include "InputMenu.h"
 
 UMenuInteraction::UMenuInteraction() {
     PrimaryComponentTick.bCanEverTick = true;
@@ -26,9 +27,15 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
 
     if (GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycast, EndRaycast, ECC_Visibility,
                                              CollisionInfo) && HitResult.Actor.IsValid()) {
-        
-        UActorComponent* Component = HitResult.GetComponent();
-        ULibraryUtils::Log(Component->GetFName().ToString());
+        if (_TargetInputMenu && HitResult.GetComponent() != _TargetInputMenu) {
+            _TargetInputMenu->EndhoverInteraction();
+        }
+
+        _TargetInputMenu = Cast<UInputMenu>(HitResult.GetComponent());
+        if (_TargetInputMenu) _TargetInputMenu->HoverInteraction();
+    }
+    else {
+        if (_TargetInputMenu) _TargetInputMenu->EndhoverInteraction();
     }
 }
 
@@ -43,9 +50,9 @@ void UMenuInteraction::Deactivation() {
 }
 
 void UMenuInteraction::PressPointer() {
-
+    ULibraryUtils::Log("PressPointer");
 }
 
 void UMenuInteraction::ReleasePointer() {
-
+    ULibraryUtils::Log("ReleasePointer");
 }

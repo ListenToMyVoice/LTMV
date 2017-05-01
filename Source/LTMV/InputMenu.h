@@ -12,21 +12,32 @@ class LTMV_API UInputMenu : public UStaticMeshComponent {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
+    FColor _Color;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
+    FColor _HoverColor;
+
     FInputMenuEvent _InputMenuPressedEvent;
     FInputMenuEvent _InputMenuReleasedEvent;
-
-    //FInputMenuDelegate _OnInputMenuPressedDelegate;
-    //FInputMenuDelegate _OnInputMenuReleasedDelegate;
 
     /* Radio Delegate */
     FDelegateHandle _OnInputMenuPressedDelegateHandle;
     FDelegateHandle _OnInputMenuReleasedDelegateHandle;
 
-    UInputMenu();
+    UInputMenu(const FObjectInitializer& OI);
 
     void AddOnInputMenuDelegate(FInputMenuDelegate& InputMenuDelegate, bool IsPressed);
     void ClearOnInputMenuDelegate(bool IsPressed);
 
+    void HoverInteraction();
+    void EndhoverInteraction();
+
     void ReleaseEvents();
     void PressEvents();
+
+protected:
+    virtual void BeginPlay() override;
+
+private:
+    UTextRenderComponent* _TextRender;
 };

@@ -12,21 +12,33 @@ class LTMV_API AMenu : public AActor {
 	GENERATED_BODY()
 	
 public:
-    UInputMenu* _Slot_NewGame;
-    UTextRenderComponent* _Text_NewGame;
-    FInputMenuDelegate _Slot_NewGamePressedDelegate;
-    FInputMenuDelegate _Slot_NewGameReleasedDelegate;
-
-    //UInputMenu* _Slot_Options;
-    //UInputMenu* _Slot_ExitGame;
-
 	AMenu();
     virtual void Tick(float DeltaTime) override;
 
 protected:
+    UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UInputMenu* _Slot_NewGame;
+    UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UTextRenderComponent* _Text_NewGame;
+
+    UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UInputMenu* _Slot_ExitGame;
+    UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UTextRenderComponent* _Text_ExitGame;
+
 	virtual void BeginPlay() override;
 
 private:
-    /***************** EXIT GAME **************/
+    FInputMenuDelegate _Slot_NewGamePressedDelegate;
+    FInputMenuDelegate _Slot_NewGameReleasedDelegate;
+
+    FInputMenuDelegate _Slot_ExitGamePressedDelegate;
+    FInputMenuDelegate _Slot_ExitGameReleasedDelegate;
+
+    void NewGame();
     void ExitGame();
+
+public:
+    FORCEINLINE UInputMenu* AMenu::GetSlot_NewGame() const { return _Slot_NewGame; }
+    FORCEINLINE UTextRenderComponent* AMenu::GetText_NewGame() const { return _Text_NewGame; }
 };
