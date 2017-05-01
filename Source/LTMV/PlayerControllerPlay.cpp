@@ -211,12 +211,6 @@ void APlayerControllerPlay::ToogleMenu() {
     }
 }
 
-
-/***************** EXIT GAME **************/
-void APlayerControllerPlay::ExitGame() {
-    FGenericPlatformMisc::RequestExit(false);
-}
-
 /*********************************************** DELEGATES ***************************************/
 void APlayerControllerPlay::OnRadioPressed() {
     StartTalking();

@@ -70,7 +70,4 @@ private:
     bool _ClientPossesed;
 
     void TickWalkie();
-
-    /***************** EXIT GAME **************/
-    void ExitGame();
 };

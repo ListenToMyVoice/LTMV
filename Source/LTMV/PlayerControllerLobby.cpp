@@ -124,8 +124,3 @@ void APlayerControllerLobby::ToogleMenu() {
         }
     }
 }
-
-/***************** EXIT GAME **************/
-void APlayerControllerLobby::ExitGame() {
-    FGenericPlatformMisc::RequestExit(false);
-}

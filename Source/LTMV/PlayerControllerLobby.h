@@ -47,8 +47,4 @@ protected:
 private:
     bool _ClientPossesed;
     FString _MapMainMenu;
-
-    /********************************** ACTION MAPPINGS ******************************************/
-    /***************** EXIT GAME **************/
-    void ExitGame();
 };
