@@ -9,6 +9,7 @@ UMenuInteraction::UMenuInteraction() {
     PrimaryComponentTick.bCanEverTick = true;
 
     _RayParameter = 5000.0f;
+    _TargetLocked = false;
 }
 
 void UMenuInteraction::BeginPlay() {
@@ -29,13 +30,21 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
                                              CollisionInfo) && HitResult.Actor.IsValid()) {
         if (_TargetInputMenu && HitResult.GetComponent() != _TargetInputMenu) {
             _TargetInputMenu->EndhoverInteraction();
+            _TargetLocked = false;
         }
 
         _TargetInputMenu = Cast<UInputMenu>(HitResult.GetComponent());
-        if (_TargetInputMenu) _TargetInputMenu->HoverInteraction();
+        if (_TargetInputMenu && !_TargetLocked) {
+            _TargetInputMenu->HoverInteraction();
+            _TargetLocked = true;
+        }
     }
     else {
-        if (_TargetInputMenu) _TargetInputMenu->EndhoverInteraction();
+        if (_TargetInputMenu) {
+            _TargetInputMenu->EndhoverInteraction();
+            _TargetInputMenu = nullptr;
+            _TargetLocked = false;
+        }
     }
 }
 

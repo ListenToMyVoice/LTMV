@@ -26,5 +26,6 @@ protected:
     void Deactivation();
 
 private:
+    bool _TargetLocked;
     class UInputMenu* _TargetInputMenu;
 };
