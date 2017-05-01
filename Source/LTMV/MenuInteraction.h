@@ -22,9 +22,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-    void Activation();
-    void Deactivation();
-
 private:
     bool _TargetLocked;
     class UInputMenu* _TargetInputMenu;

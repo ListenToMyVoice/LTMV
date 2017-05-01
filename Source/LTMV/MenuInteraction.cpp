@@ -14,12 +14,15 @@ UMenuInteraction::UMenuInteraction() {
 
 void UMenuInteraction::BeginPlay() {
     Super::BeginPlay();
+
+    SetActive(false);
+    SetComponentTickEnabled(false);
 }
 
 void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
                                      FActorComponentTickFunction* ThisTickFunction) {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+    ULibraryUtils::Log("TickComponent");
     FHitResult HitResult;
     FCollisionQueryParams CollisionInfo;
 
@@ -48,20 +51,10 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
     }
 }
 
-void UMenuInteraction::Activation() {
-    SetActive(true);
-    SetComponentTickEnabled(true);
-}
-
-void UMenuInteraction::Deactivation() {
-    SetActive(false);
-    SetComponentTickEnabled(false);
-}
-
 void UMenuInteraction::PressPointer() {
-    ULibraryUtils::Log("PressPointer");
+    if (_TargetInputMenu) _TargetInputMenu->PressEvents();
 }
 
 void UMenuInteraction::ReleasePointer() {
-    ULibraryUtils::Log("ReleasePointer");
+    if (_TargetInputMenu) _TargetInputMenu->ReleaseEvents();
 }

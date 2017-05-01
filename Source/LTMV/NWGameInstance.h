@@ -24,6 +24,8 @@ class LTMV_API UNWGameInstance : public UGameInstance {
 
 /**************************************** SESSION ************************************************/
 public:
+    bool _IsMenuHidden;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FPlayerInfo _PlayerInfoSaved;
     UPROPERTY(Replicated)
@@ -111,9 +113,16 @@ public:
     FDelegateHandle OnDestroySessionCompleteDelegateHandle;
     virtual void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 
+    /* MENU INTERFACE */
+    void ToogleMenu(FVector Location, FRotator Rotation);
+
 protected:
     TSharedPtr<class FOnlineSessionSettings> _SessionSettings;
     TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 
     IOnlineSessionPtr GetSessions();
+
+private:
+    TSubclassOf<AActor> _MenuClass;
+    AActor* _MenuActor;
 };

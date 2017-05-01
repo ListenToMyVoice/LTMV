@@ -14,6 +14,7 @@ class LTMV_API APlayerControllerLobby : public APlayerController {
 
 public:
     APlayerControllerLobby(const FObjectInitializer& OI);
+    virtual void BeginPlay() override;
 
     UFUNCTION(Client, Reliable)
     void CLIENT_InitialSetup();
@@ -25,14 +26,11 @@ public:
     UFUNCTION()
     void OnRep_Pawn() override;
 
-    UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
-    void CLIENT_CreateMenu(TSubclassOf<AActor> menuClass);
+    //UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
+    //void CLIENT_CreateMenu(TSubclassOf<AActor> menuClass);
 
 protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-    TSubclassOf<AActor> _MenuClass;
-    AActor* _MenuActor;
-    bool _IsMenuHidden;
+    class UNWGameInstance* _GameInstance;
 
     virtual void SetupInputComponent() override;
 

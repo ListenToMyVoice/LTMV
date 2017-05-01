@@ -47,6 +47,8 @@ public:
     bool IsWalkieInHand();
     class UFMODEvent* GetWalkieEvent();
 
+    void ToggleMenuInteraction(bool Activate);
+
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;

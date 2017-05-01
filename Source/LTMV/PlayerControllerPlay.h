@@ -43,10 +43,7 @@ public:
     void CLIENT_GotoState(FName NewState);
 
 protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-    TSubclassOf<AActor> _MenuClass;
-    AActor* _MenuActor;
-    bool _IsMenuHidden;
+    class UNWGameInstance* _GameInstance;
 
     virtual void SetupInputComponent() override;
 

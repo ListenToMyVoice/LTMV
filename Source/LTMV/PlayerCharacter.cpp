@@ -167,6 +167,16 @@ void APlayerCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
+void APlayerCharacter::ToggleMenuInteraction(bool Activate) {
+    UMenuInteraction* MenuInteraction;
+    TArray<UActorComponent*> Components = GetComponentsByClass(UMenuInteraction::StaticClass());
+    for (UActorComponent* Component : Components) {
+        MenuInteraction = Cast<UMenuInteraction>(Component);
+        MenuInteraction->SetActive(Activate);
+        MenuInteraction->SetComponentTickEnabled(Activate);
+    }
+}
+
 AActor* APlayerCharacter::GetWalkieActor() { 
     return _WalkieActor ? _WalkieActor : nullptr; 
 }

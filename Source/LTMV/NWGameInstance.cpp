@@ -3,6 +3,8 @@
 #include "LTMV.h"
 #include "NWGameInstance.h"
 
+#include "PlayerCharacter.h"
+
 
 void UNWGameInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -35,6 +37,12 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
     _MaxPlayers = 2;
     _ServerName = "";
     _SessionOwner = "";
+
+    /* MENU INTERFACE */
+    static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
+        "/Game/BluePrints/HUD/Menu_BP"));
+    _MenuClass = MenuClassFinder.Class;
+    _IsMenuHidden = true;
 }
 
 IOnlineSessionPtr UNWGameInstance::GetSessions() {
@@ -49,7 +57,22 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
     return Sessions;
 }
 
-void UNWGameInstance::InitGame() {}
+void UNWGameInstance::InitGame() {
+    APlayerController* const PlayerController = GetFirstLocalPlayerController();
+    if (PlayerController) {
+        APawn* Pawn = PlayerController->GetPawn();
+        if (Pawn) {
+            UCameraComponent* CameraComp = Cast<UCameraComponent>(Pawn->FindComponentByClass<UCameraComponent>());
+            if (CameraComp) {
+                ToogleMenu(CameraComp->GetComponentLocation(),
+                           CameraComp->GetComponentRotation());
+
+                APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
+                if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_IsMenuHidden);
+            }
+        }
+    }
+}
 
 /**************************************** BLUEPRINTS *********************************************/
 void UNWGameInstance::LaunchLobby(FName ServerName) {
@@ -206,4 +229,26 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
             if (PlayerController) PlayerController->ClientReturnToMainMenu("");
         }
     }
+}
+
+
+/************************************ MENU INTERFACE *********************************************/
+void UNWGameInstance::ToogleMenu(FVector Location, FRotator Rotation) {
+    if (_IsMenuHidden) {
+        if (_MenuActor) {
+            ULibraryUtils::SetActorEnable(_MenuActor);
+            _MenuActor->SetActorLocationAndRotation(Location,
+                                                    Rotation,
+                                                    false,
+                                                    nullptr,
+                                                    ETeleportType::TeleportPhysics);
+        }
+        else {
+            _MenuActor = GetWorld()->SpawnActor(_MenuClass, &Location, &Rotation);
+        }
+    }
+    else {
+        ULibraryUtils::SetActorEnable(_MenuActor, false);
+    }
+    _IsMenuHidden = !_IsMenuHidden;
 }

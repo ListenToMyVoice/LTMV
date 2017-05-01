@@ -35,7 +35,6 @@ AMenu::AMenu() {
 
 void AMenu::BeginPlay() {
     Super::BeginPlay();
-
 }
 
 void AMenu::Tick(float DeltaTime) {
@@ -44,11 +43,9 @@ void AMenu::Tick(float DeltaTime) {
 
 /*********************************** BINDINGS ****************************************************/
 void AMenu::NewGame() {
-    //FGenericPlatformMisc::RequestExit(false);
     ULibraryUtils::Log("NewGame");
 }
 
 void AMenu::ExitGame() {
-    //FGenericPlatformMisc::RequestExit(false);
-    ULibraryUtils::Log("ExitGame");
+    FGenericPlatformMisc::RequestExit(false);
 }
