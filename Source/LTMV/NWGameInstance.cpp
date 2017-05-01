@@ -4,6 +4,7 @@
 #include "NWGameInstance.h"
 
 #include "PlayerCharacter.h"
+#include "Menu.h"
 
 
 void UNWGameInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
@@ -236,6 +237,7 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
 void UNWGameInstance::ToogleMenu(FVector Location, FRotator Rotation) {
     if (_IsMenuHidden) {
         if (_MenuActor) {
+            _MenuActor->BuildMenu_Main();
             ULibraryUtils::SetActorEnable(_MenuActor);
             _MenuActor->SetActorLocationAndRotation(Location,
                                                     Rotation,
@@ -244,7 +246,7 @@ void UNWGameInstance::ToogleMenu(FVector Location, FRotator Rotation) {
                                                     ETeleportType::TeleportPhysics);
         }
         else {
-            _MenuActor = GetWorld()->SpawnActor(_MenuClass, &Location, &Rotation);
+            _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass, &Location, &Rotation));
         }
     }
     else {

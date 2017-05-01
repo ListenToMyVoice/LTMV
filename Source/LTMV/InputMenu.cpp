@@ -11,6 +11,8 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
 
     _Color = FColor::Yellow;
     _HoverColor = FColor::Cyan;
+
+    SetRelativeScale3D(FVector(0.2, 1.2, 0.3));
 }
 
 void UInputMenu::BeginPlay() {

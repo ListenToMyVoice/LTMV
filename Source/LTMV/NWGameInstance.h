@@ -124,5 +124,5 @@ protected:
 
 private:
     TSubclassOf<AActor> _MenuClass;
-    AActor* _MenuActor;
+    class AMenu* _MenuActor;
 };

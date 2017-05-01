@@ -22,12 +22,14 @@ void UMenuInteraction::BeginPlay() {
 void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
                                      FActorComponentTickFunction* ThisTickFunction) {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    ULibraryUtils::Log("TickComponent");
+    
     FHitResult HitResult;
     FCollisionQueryParams CollisionInfo;
 
     FVector StartRaycast = GetComponentLocation();
     FVector EndRaycast = GetForwardVector() * _RayParameter + StartRaycast;
+
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycast, EndRaycast, ECC_Visibility,
                                              CollisionInfo) && HitResult.Actor.IsValid()) {
