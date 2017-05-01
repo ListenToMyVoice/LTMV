@@ -20,7 +20,6 @@ public:
     FInputMenuEvent _InputMenuPressedEvent;
     FInputMenuEvent _InputMenuReleasedEvent;
 
-    /* Radio Delegate */
     FDelegateHandle _OnInputMenuPressedDelegateHandle;
     FDelegateHandle _OnInputMenuReleasedDelegateHandle;
 

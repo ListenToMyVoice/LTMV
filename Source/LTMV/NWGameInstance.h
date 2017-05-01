@@ -46,7 +46,7 @@ public:
 
     /*** BLUEPRINTS ***/
     UFUNCTION(BlueprintCallable, Category = "Session")
-    void LaunchLobby(FName ServerName);
+    void LaunchLobby();
     UFUNCTION(BlueprintCallable, Category = "Session")
     void FindOnlineGames();
     UFUNCTION(BlueprintCallable, Category = "Session")

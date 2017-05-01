@@ -15,6 +15,12 @@ public:
 	AMenu();
     virtual void Tick(float DeltaTime) override;
 
+    FInputMenuDelegate _Slot_HostGamePressedDelegate;
+    FInputMenuDelegate _Slot_HostGameReleasedDelegate;
+
+    FInputMenuDelegate _Slot_FindGamePressedDelegate;
+    FInputMenuDelegate _Slot_FindGameReleasedDelegate;
+
     /*** BINDINGS ***/
     void BuildMenu_Main();
 
@@ -60,12 +66,6 @@ private:
 
     FInputMenuDelegate _Slot_ExitGamePressedDelegate;
     FInputMenuDelegate _Slot_ExitGameReleasedDelegate;
-
-    FInputMenuDelegate _Slot_HostGamePressedDelegate;
-    FInputMenuDelegate _Slot_HostGameReleasedDelegate;
-
-    FInputMenuDelegate _Slot_FindGamePressedDelegate;
-    FInputMenuDelegate _Slot_FindGameReleasedDelegate;
 
     FInputMenuDelegate _Slot_GoBackPressedDelegate;
     FInputMenuDelegate _Slot_GoBackReleasedDelegate;

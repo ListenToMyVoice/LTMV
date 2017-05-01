@@ -70,16 +70,25 @@ void UNWGameInstance::InitGame() {
 
                 APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
                 if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_IsMenuHidden);
+
+                /* BINDING DELEGATES */
+                if (_MenuActor) {
+                    _MenuActor->_Slot_HostGameReleasedDelegate.BindUObject(this,
+                                                               &UNWGameInstance::LaunchLobby);
+
+                    _MenuActor->_Slot_FindGameReleasedDelegate.BindUObject(this,
+                                                               &UNWGameInstance::FindOnlineGames);
+                }
             }
         }
     }
 }
 
 /**************************************** BLUEPRINTS *********************************************/
-void UNWGameInstance::LaunchLobby(FName ServerName) {
+void UNWGameInstance::LaunchLobby() {
     DestroySession();
 
-    _ServerName = ServerName;
+    _ServerName = "ServerName";
     ULocalPlayer* const Player = GetFirstGamePlayer();
     HostSession(Player->GetPreferredUniqueNetId(), GameSessionName, true, true, _MaxPlayers);
 }
