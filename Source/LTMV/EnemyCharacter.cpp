@@ -11,6 +11,7 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& OI) : Super(OI) {
     bReplicateMovement = true;
 
     AIControllerClass = AEnemyController::StaticClass();
+	OnActorHit.AddDynamic(this, &AEnemyCharacter::OnHit);
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
     AutoPossessAI = EAutoPossessAI::Disabled;
@@ -27,6 +28,19 @@ void AEnemyCharacter::BeginPlay() {
 
 void AEnemyCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
+}
+
+void AEnemyCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) {
+	if (OtherActor) {
+		if (OtherActor->IsA(AProjectile::StaticClass())) {
+			// Create a damage event  
+			TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
+			FDamageEvent DamageEvent(ValidDamageTypeClass);
+
+			const float DamageAmount = 0.0f;
+			TakeDamage(DamageAmount, DamageEvent, GetController(), OtherActor);
+		}
+	}
 }
 
 float AEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,

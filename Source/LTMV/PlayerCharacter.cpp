@@ -65,7 +65,7 @@ void APlayerCharacter::Tick(float DeltaSeconds) {
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
     check(PlayerInput);
-
+	
     /* MOVEMENT */
     PlayerInput->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
     PlayerInput->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
@@ -293,6 +293,7 @@ void APlayerCharacter::UseRightReleased() {
 /********** TAKE & DROP RIGHT HAND ***********/
 //Cambiar
 void APlayerCharacter::TakeDropRight() {
+	
 
     if (ItemFocused()) {
         UActorComponent* takeComp = hitResult.GetActor()->GetComponentByClass(
@@ -382,7 +383,6 @@ void APlayerCharacter::MULTI_TakeDropRight_Implementation(AActor* actor) {
 /********** TAKE & DROP LEFT HAND ***********/
 //Cambiar
 void APlayerCharacter::TakeDropLeft() {
-
     if (ItemFocused()) {
         UActorComponent* takeComp = hitResult.GetActor()->GetComponentByClass(
             UActorComponent::StaticClass());

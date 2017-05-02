@@ -2,6 +2,7 @@
 
 #pragma once
 #include "ItfUsableItem.h"
+#include "PlayerCharacter.h"
 
 #include "Components/ActorComponent.h"
 #include "Gun.generated.h"
@@ -14,17 +15,23 @@ class LTMV_API UGun : public UActorComponent, public IItfUsableItem {
 public:	
 	// Sets default values for this component's properties
 	UGun();
+	void OnFire();
+	float RayParameter;	
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	//Only needed to shoot projectile from camera (and make noise?)
+	class APlayerCharacter* _PlayerCharacter;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void SetAmmo(uint8 AmountToSet);
 	void AddAmmo(uint8 AmountToAdd);
 	uint8 GetAmmo();
+
+	/** Projectile class to spawn */
+	UPROPERTY(EditAnywhere, Category = Projectile)
+	TSubclassOf<class AProjectile> _ProjectileClass;
+
+	const UStaticMeshSocket* _Socket;
 
 	/*Inerfaces*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Use Item")
@@ -37,5 +44,5 @@ public:
 		
 private:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Gun Component", meta = (AllowPrivateAccess = "true"))
-	uint8 _ammo;
+	uint8 municion;
 };

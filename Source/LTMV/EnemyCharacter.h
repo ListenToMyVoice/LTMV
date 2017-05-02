@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+#include "Projectile.h"
 
 #include "GameFramework/Character.h"
 #include "EnemyCharacter.generated.h"
@@ -10,6 +11,9 @@ class LTMV_API AEnemyCharacter : public ACharacter {
     GENERATED_BODY()
 
 public:
+	UFUNCTION()
+	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI Settings")
     float _SightRadius;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
