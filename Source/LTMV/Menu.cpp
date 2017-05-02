@@ -164,7 +164,7 @@ void AMenu::BuildMenu_FindGame() {
 }
 
 void AMenu::BuildMenu_PlayGame() {
-    ULibraryUtils::Log("BuildMenu_FindGame");
+    ULibraryUtils::Log("BuildMenu_PlayGame");
     EnableSubmenu(_Menu_Main, false);
     EnableSubmenu(_Menu_NewGame, false);
     EnableSubmenu(_Menu_FindGame, false);
@@ -178,6 +178,7 @@ void AMenu::ExitGame() {
 
 /*********************************** MENU TAB ****************************************************/
 void AMenu::ResetMenu(bool InPlay) {
+    ULibraryUtils::Log("ResetMenu");
     if (InPlay) BuildMenu_PlayGame();
     else BuildMenu_Main();
 }
@@ -191,5 +192,10 @@ void AMenu::EnableSubmenu(USceneComponent* Submenu, bool Enable) {
         Component->SetHiddenInGame(!Enable, true);
         Component->SetComponentTickEnabled(Enable);
         Component->SetVisibility(Enable, true);
+        UStaticMeshComponent* StaticMeshComp = Cast<UStaticMeshComponent>(Component);
+        if (StaticMeshComp) {
+            if(Enable) StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            else  StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        }
     }
 }

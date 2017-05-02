@@ -31,8 +31,10 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
 
     DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
-    if (GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycast, EndRaycast, ECC_Visibility,
-                                             CollisionInfo) && HitResult.Actor.IsValid()) {
+    if (GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycast, EndRaycast,
+                                             ECollisionChannel::ECC_Visibility, CollisionInfo) &&
+        HitResult.Actor.IsValid()) {
+
         if (_TargetInputMenu && HitResult.GetComponent() != _TargetInputMenu) {
             _TargetInputMenu->EndhoverInteraction();
             _TargetLocked = false;

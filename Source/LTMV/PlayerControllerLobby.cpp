@@ -98,16 +98,18 @@ void APlayerControllerLobby::UseLeftReleased() {
 
 /*************** TRIGGER MENU *************/
 void APlayerControllerLobby::ToogleMenu() {
-    if (GetPawnOrSpectator() && _GameInstance) {
-        UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
-                                                              FindComponentByClass<UCameraComponent>());
+    if (!_MapMainMenu.Contains(GetWorld()->GetMapName())) {
+        if (GetPawnOrSpectator() && _GameInstance) {
+            UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
+                                                                  FindComponentByClass<UCameraComponent>());
 
-        if (CameraComp) {
-            _GameInstance->ToogleMenu(CameraComp->GetComponentLocation(),
-                                      CameraComp->GetComponentRotation(), false);
+            if (CameraComp) {
+                _GameInstance->ToogleMenu(CameraComp->GetComponentLocation(),
+                                          CameraComp->GetComponentRotation(), false);
 
-            APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-            if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_GameInstance->_IsMenuHidden);
+                APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+                if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_GameInstance->_IsMenuHidden);
+            }
         }
     }
 }

@@ -29,6 +29,7 @@ void UInputMenu::ReleaseEvents() {
 }
 
 void UInputMenu::HoverInteraction() {
+    ULibraryUtils::Log(GetFName().ToString());
     if (_TextRender) _TextRender->SetTextRenderColor(_HoverColor);
 }
 
