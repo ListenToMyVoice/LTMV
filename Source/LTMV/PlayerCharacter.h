@@ -17,6 +17,8 @@ public:
 	/***************AI*******************/
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void NoiseManager(UFMODEvent* FMODSoundEvent);
+	UFUNCTION()
+	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
     /************* INVENTORY ************/
     // The class that will be used for the players Inventory UI

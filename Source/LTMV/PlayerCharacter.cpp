@@ -3,6 +3,8 @@
 #include "LTMV.h"
 #include "PlayerCharacter.h"
 
+#include "Projectile.h"
+#include "Gun.h"
 #include "Inventory.h"
 #include "ItfUsable.h"
 #include "ItfSwitcheable.h"
@@ -44,6 +46,7 @@ APlayerCharacter::APlayerCharacter() {
 
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
+	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
     _Health = 1;
 
     //static ConstructorHelpers::FClassFinder<UInventoryWidget> InventoryWidgetClassFinder(TEXT(
@@ -453,12 +456,29 @@ void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
         mesh->SetMobility(EComponentMobility::Movable);
         mesh->SetSimulatePhysics(false);
 
-        mesh->AttachToComponent(GetMesh(),
-            FAttachmentTransformRules::KeepRelativeTransform,
-            TEXT("itemHand_l"));
+		if (_itemLeft->FindComponentByClass(UGun::StaticClass()) == false) {
+			mesh->AttachToComponent(GetMesh(),
+				FAttachmentTransformRules::KeepRelativeTransform,
+				TEXT("itemHand_l"));
 
-        mesh->RelativeLocation = HandPickComp->_locationAttach_L;
-        mesh->RelativeRotation = HandPickComp->_rotationAttach_L;
+			mesh->RelativeLocation = HandPickComp->_locationAttach_L;
+			mesh->RelativeRotation = HandPickComp->_rotationAttach_L;
+			ULibraryUtils::Log(FString::Printf(TEXT("Atachado a mano")), 0, 60);
+
+		}
+
+		if(_itemLeft->FindComponentByClass(UGun::StaticClass())) {
+			mesh->SetMobility(EComponentMobility::Movable);
+			mesh->SetSimulatePhysics(false);
+
+			mesh->AttachToComponent(_PlayerCamera,
+				FAttachmentTransformRules::KeepRelativeTransform);
+			mesh->RelativeLocation = HandPickComp->_locationAttach_C;
+			mesh->RelativeRotation = HandPickComp->_rotationAttach_C;
+			ULibraryUtils::Log(FString::Printf(TEXT("Atachado a camara")), 0, 60);
+
+		}
+
 
         _itemLeft->SetActorEnableCollision(false);
     }
@@ -689,6 +709,21 @@ void APlayerCharacter::NoiseManager(UFMODEvent* FMODSoundEvent) {
 	//if (_StepsAudioComp->Event == FMODSoundEvent) {
 	UAISense_Hearing::ReportNoiseEvent(this, GetActorLocation(), 0.4, this);
 	//}
+}
+
+/***********RECEIVE HIT AND DAMAGE*************/
+void APlayerCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) {
+	if (OtherActor) {
+		if (OtherActor->IsA(AProjectile::StaticClass())) {
+			ULibraryUtils::Log(FString::Printf(TEXT("Me muerooo")), 0, 60);
+			// Create a damage event  
+			TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
+			FDamageEvent DamageEvent(ValidDamageTypeClass);
+
+			const float DamageAmount = 1.0f;
+			TakeDamage(DamageAmount, DamageEvent, GetController(), OtherActor);
+		}
+	}
 }
 
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
