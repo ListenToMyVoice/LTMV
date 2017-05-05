@@ -43,6 +43,9 @@ APlayerCharacter::APlayerCharacter() {
     _WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
     _WidgetInteractionComp->InteractionDistance = 1000000000;
     _WidgetInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+	_AlternateMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AlternateMesh"));
+	_AlternateMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+	_AlternateMesh->SetHiddenInGame(true);
 
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
@@ -468,6 +471,11 @@ void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
 		}
 
 		if(_itemLeft->FindComponentByClass(UGun::StaticClass())) {
+			ULibraryUtils::Log(FString::Printf(TEXT("WARNING: Terminar implementación ambas manos y volver a mostrar")),1, 60);
+			_AlternateMesh->SetHiddenInGame(false);
+			GetMesh()->SetHiddenInGame(true);
+			UInventory* bag = Cast<UInventory>(GetComponentByClass(UInventory::StaticClass()));
+			if (bag) { bag->SetHiddenInGame(true); }
 			mesh->SetMobility(EComponentMobility::Movable);
 			mesh->SetSimulatePhysics(false);
 
@@ -476,7 +484,6 @@ void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
 			mesh->RelativeLocation = HandPickComp->_locationAttach_C;
 			mesh->RelativeRotation = HandPickComp->_rotationAttach_C;
 			ULibraryUtils::Log(FString::Printf(TEXT("Atachado a camara")), 0, 60);
-
 		}
 
 
@@ -715,7 +722,6 @@ void APlayerCharacter::NoiseManager(UFMODEvent* FMODSoundEvent) {
 void APlayerCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) {
 	if (OtherActor) {
 		if (OtherActor->IsA(AProjectile::StaticClass())) {
-			ULibraryUtils::Log(FString::Printf(TEXT("Me muerooo")), 0, 60);
 			// Create a damage event  
 			TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
 			FDamageEvent DamageEvent(ValidDamageTypeClass);
