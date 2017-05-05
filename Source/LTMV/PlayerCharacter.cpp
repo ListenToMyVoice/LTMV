@@ -28,6 +28,7 @@ APlayerCharacter::APlayerCharacter() {
     _MenuInteractionComp->_RayParameter = 100000;
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
+	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
     _Health = 1;
 }
 
@@ -224,6 +225,20 @@ void APlayerCharacter::CLIENT_ClearRadioDelegates_Implementation(AActor* Actor) 
             ULibraryUtils::Log(FString::Printf(TEXT("ClearRadioDelegates : %s"), *myRole), 0, 60);
         }
     }
+}
+
+/***********RECEIVE HIT AND DAMAGE*************/
+void APlayerCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) {
+	if (OtherActor) {
+		if (OtherActor->IsA(AProjectile::StaticClass())) {
+			// Create a damage event  
+			TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
+			FDamageEvent DamageEvent(ValidDamageTypeClass);
+
+			const float DamageAmount = 1.0f;
+			TakeDamage(DamageAmount, DamageEvent, GetController(), OtherActor);
+		}
+	}
 }
 
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,

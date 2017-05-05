@@ -53,6 +53,9 @@ public:
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UInventory* _Inventory;
+	UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* _FirstPersonMesh;
+
     class UInventoryWidget* _InventoryWidget;
     bool _IsInventoryHidden;
 
