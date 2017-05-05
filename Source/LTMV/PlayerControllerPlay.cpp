@@ -117,14 +117,17 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                 }
             }
         }
-        else {
-            if (FullVolume) {
+
+        if (FullVolume) {
+            if (_VoiceAudioComp) {
                 _VoiceAudioComp->SetVolumeMultiplier(1.0);
                 _WalkieNoiseAudioComp->SetVolume(1.0);
                 //_TestAudioComp->SetVolumeMultiplier(1.0);
                 ULibraryUtils::Log("VOLUME: 1.0");
             }
-            else {
+        }
+        else {
+            if (_VoiceAudioComp) {
                 _VoiceAudioComp->SetVolumeMultiplier(0.05);
                 _WalkieNoiseAudioComp->SetVolume(0.05);
                 //_TestAudioComp->SetVolumeMultiplier(0.05);
