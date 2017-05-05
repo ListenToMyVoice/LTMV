@@ -66,5 +66,9 @@ private:
     bool _IsListen;
     bool _ClientPossesed;
 
+    /* MENU INTERFACE */
+    TSubclassOf<AActor> _MenuClass;
+    class AMenu* _MenuActor;
+
     void TickWalkie();
 };

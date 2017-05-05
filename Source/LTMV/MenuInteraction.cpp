@@ -7,8 +7,9 @@
 
 UMenuInteraction::UMenuInteraction() {
     PrimaryComponentTick.bCanEverTick = true;
+    bAutoActivate = false;
 
-    _RayParameter = 5000.0f;
+    _RayParameter = 500.0f;
     _TargetLocked = false;
 }
 
@@ -22,7 +23,7 @@ void UMenuInteraction::BeginPlay() {
 void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
                                      FActorComponentTickFunction* ThisTickFunction) {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    
+
     FHitResult HitResult;
     FCollisionQueryParams CollisionInfo;
 

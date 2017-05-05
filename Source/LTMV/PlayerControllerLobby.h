@@ -14,7 +14,6 @@ class LTMV_API APlayerControllerLobby : public APlayerController {
 
 public:
     APlayerControllerLobby(const FObjectInitializer& OI);
-    virtual void BeginPlay() override;
 
     UFUNCTION(Client, Reliable)
     void CLIENT_InitialSetup();
@@ -26,12 +25,12 @@ public:
     UFUNCTION()
     void OnRep_Pawn() override;
 
-    //UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
-    //void CLIENT_CreateMenu(TSubclassOf<AActor> menuClass);
+    UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
+    void CLIENT_CreateMenu(TSubclassOf<AActor> MenuClass);
+
+    void OnFindSessionsComplete(FString SessionOwner);
 
 protected:
-    class UNWGameInstance* _GameInstance;
-
     virtual void SetupInputComponent() override;
 
     /********************************** ACTION MAPPINGS ******************************************/
@@ -45,4 +44,8 @@ protected:
 private:
     bool _ClientPossesed;
     FString _MapMainMenu;
+
+    /* MENU INTERFACE */
+    TSubclassOf<AActor> _MenuClass;
+    class AMenu* _MenuActor;
 };

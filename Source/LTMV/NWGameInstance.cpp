@@ -3,8 +3,8 @@
 #include "LTMV.h"
 #include "NWGameInstance.h"
 
-#include "PlayerCharacter.h"
-#include "Menu.h"
+#include "PlayerControllerLobby.h"
+#include "MenuMain.h"
 
 
 void UNWGameInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
@@ -39,12 +39,6 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
     _ServerName = "";
     _SessionOwner = "";
 
-    /* MENU INTERFACE */
-    static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
-        "/Game/BluePrints/HUD/Menu_BP"));
-    _MenuClass = MenuClassFinder.Class;
-    _IsMenuHidden = true;
-
     static ConstructorHelpers::FClassFinder<AActor> BoyClassFinder(TEXT(
         "/Game/BluePrints/Characters/FPCharacterBoy"));
     _BoyClass = BoyClassFinder.Class;
@@ -66,37 +60,9 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
 }
 
 void UNWGameInstance::InitGame() {
-    APlayerController* const PlayerController = GetFirstLocalPlayerController();
-    if (PlayerController) {
-        APawn* Pawn = PlayerController->GetPawn();
-        if (Pawn) {
-            UCameraComponent* CameraComp = Cast<UCameraComponent>(Pawn->FindComponentByClass<UCameraComponent>());
-            if (CameraComp) {
-                ToogleMenu(CameraComp->GetComponentLocation(),
-                           CameraComp->GetComponentRotation(), false);
-
-                APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
-                if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_IsMenuHidden);
-
-                /* BINDING DELEGATES */
-                if (_MenuActor) {
-                    _MenuActor->_Slot_HostGameReleasedDelegate.BindUObject(this,
-                                                               &UNWGameInstance::LaunchLobby);
-
-                    _MenuActor->_Slot_FindGameReleasedDelegate.BindUObject(this,
-                                                               &UNWGameInstance::FindOnlineGames);
-
-                    _MenuActor->_Slot_JoinGameReleasedDelegate.BindUObject(this,
-                                                               &UNWGameInstance::JoinOnlineGame);
-
-                    _MenuActor->_Slot_BackToMenuReleasedDelegate.BindUObject(this,
-                                                                 &UNWGameInstance::DestroySession);
-
-                    _MenuActor->InitMenu();
-                }
-            }
-        }
-    }
+    APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
+                                                                GetFirstLocalPlayerController());
+    if (PlayerControllerLobby) PlayerControllerLobby->CLIENT_CreateMenu(AMenuMain::StaticClass());
 }
 
 /**************************************** BLUEPRINTS *********************************************/
@@ -226,6 +192,10 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
     else Result = "NO VALID SESSIONS";
 
     _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS FOUND";
+
+    APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
+        GetFirstLocalPlayerController());
+    if (PlayerControllerLobby) PlayerControllerLobby->OnFindSessionsComplete(_SessionOwner);
 }
 
 bool UNWGameInstance::JoinAtSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName,
@@ -262,28 +232,4 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
             if (PlayerController) PlayerController->ClientReturnToMainMenu("");
         }
     }
-}
-
-
-/************************************ MENU INTERFACE *********************************************/
-void UNWGameInstance::ToogleMenu(FVector Location, FRotator Rotation, bool InPLay) {
-    if (_IsMenuHidden) {
-        if (_MenuActor) {
-            _MenuActor->ResetMenu(InPLay);
-
-            ULibraryUtils::SetActorEnable(_MenuActor);
-            _MenuActor->SetActorLocationAndRotation(Location,
-                                                    Rotation,
-                                                    false,
-                                                    nullptr,
-                                                    ETeleportType::TeleportPhysics);
-        }
-        else {
-            _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass, &Location, &Rotation));
-        }
-    }
-    else {
-        ULibraryUtils::SetActorEnable(_MenuActor, false);
-    }
-    _IsMenuHidden = !_IsMenuHidden;
 }

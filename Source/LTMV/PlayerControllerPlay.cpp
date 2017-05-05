@@ -7,6 +7,7 @@
 #include "NWGameInstance.h"
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
+#include "MenuPlay.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -25,6 +26,9 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     //_TestAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Voice Comp"));
     //_TestAudioComp->bAutoActivate = false;
     //_TestAudioComp->SetSound(SoundFinder.Object);
+
+    /* MENU INTERFACE */
+    _MenuClass = AMenuPlay::StaticClass();
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -43,7 +47,9 @@ void APlayerControllerPlay::BeginPlay() {
 
     if (IsLocalController()) {
         _GameInstance = Cast<UNWGameInstance>(GetGameInstance());
-        if (_GameInstance) SERVER_CallUpdate(_GameInstance->_PlayerInfoSaved);
+        if (_GameInstance) {
+            SERVER_CallUpdate(_GameInstance->_PlayerInfoSaved);
+        }
     }
 }
 
@@ -155,37 +161,39 @@ bool APlayerControllerPlay::IsListen() {
 /******** USE ITEM LEFT *********/
 void APlayerControllerPlay::UseLeftPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter && _GameInstance) PlayerCharacter->UseLeftPressed(_GameInstance->_IsMenuHidden);
+    if (PlayerCharacter) PlayerCharacter->UseLeftPressed(_MenuActor->_IsMenuHidden);
 }
 
 void APlayerControllerPlay::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter && _GameInstance) PlayerCharacter->UseLeftReleased(_GameInstance->_IsMenuHidden);
+    if (PlayerCharacter) PlayerCharacter->UseLeftReleased(_MenuActor->_IsMenuHidden);
 }
 
 /******* USE ITEM RIGHT *********/
 void APlayerControllerPlay::UseRightPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter && _GameInstance) PlayerCharacter->UseRightPressed(_GameInstance->_IsMenuHidden);
+    if (PlayerCharacter) PlayerCharacter->UseRightPressed(_MenuActor->_IsMenuHidden);
 }
 
 void APlayerControllerPlay::UseRightReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter && _GameInstance) PlayerCharacter->UseRightReleased(_GameInstance->_IsMenuHidden);
+    if (PlayerCharacter) PlayerCharacter->UseRightReleased(_MenuActor->_IsMenuHidden);
 }
 
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
-    if (GetPawnOrSpectator() && _GameInstance) {
+    if (GetPawnOrSpectator()) {
+        /* MENU INTERFACE */
+        if(!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
+
         UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
                                                               FindComponentByClass<UCameraComponent>());
-
         if (CameraComp) {
-            _GameInstance->ToogleMenu(CameraComp->GetComponentLocation(),
-                                      CameraComp->GetComponentRotation(), true);
+            _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+                                   CameraComp->GetComponentRotation());
 
             APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-            if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_GameInstance->_IsMenuHidden);
+            if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
         }
     }
 }

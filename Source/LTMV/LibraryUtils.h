@@ -55,4 +55,17 @@ public:
         }
         #endif
     }
+
+    static FORCEINLINE bool IsValid(UObject* Obj) {
+        if (!Obj) {
+            return false;
+        }
+        if (!Obj->IsValidLowLevel()) {
+            return false;
+        }
+        if (Obj->IsPendingKill()) {
+            return false;
+        }
+        return true;
+    }
 };
