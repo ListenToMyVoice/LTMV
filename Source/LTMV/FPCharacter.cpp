@@ -306,27 +306,29 @@ void AFPCharacter::TakeDropLeft() {
 /**************** TRIGGER INVENTORY *************/
 /*** SHOW INVENTORY ***/
 void AFPCharacter::ToggleInventory() {
-    APlayerController* PlayerController = Cast<APlayerController>(GetController());
-    if (PlayerController && _InventoryWidget) {
-        if (_IsInventoryHidden) {
-            _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-            PlayerController->bShowMouseCursor = true;
-            PlayerController->bEnableClickEvents = true;
-            PlayerController->bEnableMouseOverEvents = true;
+    if (!_MenuInteractionComp->IsActive()) {
+        APlayerController* PlayerController = Cast<APlayerController>(GetController());
+        if (PlayerController && _InventoryWidget) {
+            if (_IsInventoryHidden) {
+                _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+                PlayerController->bShowMouseCursor = true;
+                PlayerController->bEnableClickEvents = true;
+                PlayerController->bEnableMouseOverEvents = true;
 
-            FInputModeGameAndUI Mode = FInputModeGameAndUI();
-            Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-            Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
-            PlayerController->SetInputMode(Mode);
+                FInputModeGameAndUI Mode = FInputModeGameAndUI();
+                Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+                Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
+                PlayerController->SetInputMode(Mode);
+            }
+            else {
+                _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+                PlayerController->bShowMouseCursor = false;
+                PlayerController->bEnableClickEvents = false;
+                PlayerController->bEnableMouseOverEvents = false;
+                PlayerController->SetInputMode(FInputModeGameOnly());
+            }
+            _IsInventoryHidden = !_IsInventoryHidden;
         }
-        else {
-            _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-            PlayerController->bShowMouseCursor = false;
-            PlayerController->bEnableClickEvents = false;
-            PlayerController->bEnableMouseOverEvents = false;
-            PlayerController->SetInputMode(FInputModeGameOnly());
-        }
-        _IsInventoryHidden = !_IsInventoryHidden;
     }
 }
 
@@ -437,6 +439,12 @@ void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
+void AFPCharacter::ToggleMenuInteraction(bool Activate) {
+    if (!_IsInventoryHidden) ToggleInventory();
+
+    Super::ToggleMenuInteraction(Activate);
+}
+
 UTexture2D* AFPCharacter::GetItemTextureAt(int itemIndex) {
     return _Inventory->GetItemTextureAt(itemIndex);
 }

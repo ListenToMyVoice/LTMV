@@ -85,16 +85,18 @@ void APlayerControllerLobby::OnFindSessionsComplete(FString SessionOwner) {
 void APlayerControllerLobby::UseLeftPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
-        bool  MenuBool = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false : _MenuActor->_IsMenuHidden;
-        PlayerCharacter->UseLeftPressed(MenuBool);
+        bool  IsMenuHidden = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false : 
+                                _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseLeftPressed(IsMenuHidden);
     }
 }
 
 void APlayerControllerLobby::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
-        bool  MenuBool = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false : _MenuActor->_IsMenuHidden;
-        PlayerCharacter->UseLeftReleased(MenuBool);
+        bool  IsMenuHidden = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false :
+                                _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseLeftReleased(IsMenuHidden);
     }
 }
 

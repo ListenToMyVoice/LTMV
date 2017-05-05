@@ -161,23 +161,35 @@ bool APlayerControllerPlay::IsListen() {
 /******** USE ITEM LEFT *********/
 void APlayerControllerPlay::UseLeftPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) PlayerCharacter->UseLeftPressed(_MenuActor->_IsMenuHidden);
+    if (PlayerCharacter) {
+        bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseLeftPressed(IsMenuHidden);
+    }
 }
 
 void APlayerControllerPlay::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) PlayerCharacter->UseLeftReleased(_MenuActor->_IsMenuHidden);
+    if (PlayerCharacter) {
+        bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseLeftReleased(IsMenuHidden);
+    }
 }
 
 /******* USE ITEM RIGHT *********/
 void APlayerControllerPlay::UseRightPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) PlayerCharacter->UseRightPressed(_MenuActor->_IsMenuHidden);
+    if (PlayerCharacter) {
+        bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseRightPressed(IsMenuHidden);
+    }
 }
 
 void APlayerControllerPlay::UseRightReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) PlayerCharacter->UseRightReleased(_MenuActor->_IsMenuHidden);
+    if (PlayerCharacter) {
+        bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseRightReleased(IsMenuHidden);
+    }
 }
 
 /*************** TRIGGER MENU *************/
