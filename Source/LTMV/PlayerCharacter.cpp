@@ -137,8 +137,8 @@ void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* Actor) {
                                 FAttachmentTransformRules::KeepRelativeTransform,
                                 TEXT("itemHand_l"));
 
-        ItemMesh->RelativeLocation = HandPickComp->_locationAttach_R;
-        ItemMesh->RelativeRotation = HandPickComp->_rotationAttach_R;
+        ItemMesh->RelativeLocation = HandPickComp->_locationAttach_L;
+        ItemMesh->RelativeRotation = HandPickComp->_rotationAttach_L;
 
         Actor->SetActorEnableCollision(false);
         _ItemLeft = Actor;
