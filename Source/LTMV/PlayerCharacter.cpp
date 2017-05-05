@@ -39,14 +39,15 @@ APlayerCharacter::APlayerCharacter() {
 
     _PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
     _PlayerCamera->bUsePawnControlRotation = true;
+	_PlayerCamera->SetMobility(EComponentMobility::Movable);
     _PlayerCamera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("FPVCamera"));
     _WidgetInteractionComp = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
     _WidgetInteractionComp->InteractionDistance = 1000000000;
     _WidgetInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
-	_AlternateMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AlternateMesh"));
-	_AlternateMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
-	_AlternateMesh->SetHiddenInGame(true);
+	_ThirdPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ThirdPersonMesh"));
+	_ThirdPersonMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 
+	//GetMesh()->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
 	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
@@ -456,26 +457,7 @@ void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
         UHandPickItem* HandPickComp = Cast<UHandPickItem>(_itemLeft->FindComponentByClass(
             UHandPickItem::StaticClass()));
 
-        mesh->SetMobility(EComponentMobility::Movable);
-        mesh->SetSimulatePhysics(false);
-
-		if (_itemLeft->FindComponentByClass(UGun::StaticClass()) == false) {
-			mesh->AttachToComponent(GetMesh(),
-				FAttachmentTransformRules::KeepRelativeTransform,
-				TEXT("itemHand_l"));
-
-			mesh->RelativeLocation = HandPickComp->_locationAttach_L;
-			mesh->RelativeRotation = HandPickComp->_rotationAttach_L;
-			ULibraryUtils::Log(FString::Printf(TEXT("Atachado a mano")), 0, 60);
-
-		}
-
-		if(_itemLeft->FindComponentByClass(UGun::StaticClass())) {
 			ULibraryUtils::Log(FString::Printf(TEXT("WARNING: Terminar implementación ambas manos y volver a mostrar")),1, 60);
-			_AlternateMesh->SetHiddenInGame(false);
-			GetMesh()->SetHiddenInGame(true);
-			UInventory* bag = Cast<UInventory>(GetComponentByClass(UInventory::StaticClass()));
-			if (bag) { bag->SetHiddenInGame(true); }
 			mesh->SetMobility(EComponentMobility::Movable);
 			mesh->SetSimulatePhysics(false);
 
@@ -484,8 +466,6 @@ void APlayerCharacter::MULTI_TakeDropLeft_Implementation(AActor* actor) {
 			mesh->RelativeLocation = HandPickComp->_locationAttach_C;
 			mesh->RelativeRotation = HandPickComp->_rotationAttach_C;
 			ULibraryUtils::Log(FString::Printf(TEXT("Atachado a camara")), 0, 60);
-		}
-
 
         _itemLeft->SetActorEnableCollision(false);
     }
