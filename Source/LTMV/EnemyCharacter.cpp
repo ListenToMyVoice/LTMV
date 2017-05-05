@@ -11,12 +11,14 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& OI) : Super(OI) {
     bReplicateMovement = true;
 
     AIControllerClass = AEnemyController::StaticClass();
+	OnActorHit.AddDynamic(this, &AEnemyCharacter::OnHit);
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
     AutoPossessAI = EAutoPossessAI::Disabled;
     _SightRadius = 500.0f;
     _LoseSightRadius = 1000.0f;
     _VisionAngleDegrees = 90.0f;
+	_HearingRange = 1500.0f;
     _Damage = 1;
 }
 
@@ -26,4 +28,24 @@ void AEnemyCharacter::BeginPlay() {
 
 void AEnemyCharacter::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
+}
+
+void AEnemyCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) {
+	if (OtherActor) {
+		if (OtherActor->IsA(AProjectile::StaticClass())) {
+			// Create a damage event  
+			TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
+			FDamageEvent DamageEvent(ValidDamageTypeClass);
+
+			const float DamageAmount = 0.0f;
+			TakeDamage(DamageAmount, DamageEvent, GetController(), OtherActor);
+		}
+	}
+}
+
+float AEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+				 class AController* EventInstigator, class AActor* DamageCauser) {
+	ULibraryUtils::Log(FString::Printf(TEXT("Me han dado")), 0, 60);
+	/*The enemy doesn't receive damage*/
+	return 0.0f;
 }

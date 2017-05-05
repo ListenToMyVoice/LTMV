@@ -13,10 +13,12 @@
 
 AEnemyController::AEnemyController(const FObjectInitializer& OI) : Super(OI) {
     _SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	_HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
 
     SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception Component")));
     GetAIPerceptionComponent()->bAutoActivate = true;
     GetAIPerceptionComponent()->ConfigureSense(*_SightConfig);
+	GetAIPerceptionComponent()->ConfigureSense(*_HearingConfig);
     GetAIPerceptionComponent()->SetDominantSense(_SightConfig->GetSenseImplementation());
 
     GetAIPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AEnemyController::PerceptionUpdated);
@@ -30,17 +32,18 @@ void AEnemyController::Possess(APawn* InPawn) {
 
         RunBehaviorTree(Cast<AEnemyCharacter>(GetPawn())->_BehaviourTree);
 
-        ApplySenses(EnemyCharacter->_SightRadius,
-                    EnemyCharacter->_LoseSightRadius,
-                    EnemyCharacter->_VisionAngleDegrees);
+		ApplySenses(EnemyCharacter->_SightRadius,
+			EnemyCharacter->_LoseSightRadius,
+			EnemyCharacter->_VisionAngleDegrees,
+			EnemyCharacter->_HearingRange);
         
         AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
         if (GameState) GameState->_StatueWakeUp = true;
     }
 }
 
-void AEnemyController::ApplySenses(float SightRange, float LoseSightRadius, float VisionAngleDegrees) {
-    /* Sight */
+void AEnemyController::ApplySenses(float SightRange, float LoseSightRadius, float VisionAngleDegrees, float HearingRange) {
+	/* Sight */
     _SightConfig->SightRadius = SightRange;
     _SightConfig->LoseSightRadius = LoseSightRadius;
     _SightConfig->PeripheralVisionAngleDegrees = VisionAngleDegrees;
@@ -49,6 +52,12 @@ void AEnemyController::ApplySenses(float SightRange, float LoseSightRadius, floa
     _SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
     GetAIPerceptionComponent()->ConfigureSense(*_SightConfig);
     GetAIPerceptionComponent()->SetDominantSense(_SightConfig->GetSenseImplementation());
+	/* Hearing */
+	_HearingConfig->HearingRange = HearingRange;
+	_HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
+	_HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	_HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	GetAIPerceptionComponent()->ConfigureSense(*_HearingConfig);
 }
 
 void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
