@@ -117,18 +117,19 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                 }
             }
         }
-
-        if (FullVolume) {
-            _VoiceAudioComp->SetVolumeMultiplier(1.0);
-            _WalkieNoiseAudioComp->SetVolume(1.0);
-            //_TestAudioComp->SetVolumeMultiplier(1.0);
-            ULibraryUtils::Log("VOLUME: 1.0");
-        }
         else {
-            _VoiceAudioComp->SetVolumeMultiplier(0.05);
-            _WalkieNoiseAudioComp->SetVolume(0.05);
-            //_TestAudioComp->SetVolumeMultiplier(0.05);
-            ULibraryUtils::Log("VOLUME: 0.05");
+            if (FullVolume) {
+                _VoiceAudioComp->SetVolumeMultiplier(1.0);
+                _WalkieNoiseAudioComp->SetVolume(1.0);
+                //_TestAudioComp->SetVolumeMultiplier(1.0);
+                ULibraryUtils::Log("VOLUME: 1.0");
+            }
+            else {
+                _VoiceAudioComp->SetVolumeMultiplier(0.05);
+                _WalkieNoiseAudioComp->SetVolume(0.05);
+                //_TestAudioComp->SetVolumeMultiplier(0.05);
+                ULibraryUtils::Log("VOLUME: 0.05");
+            }
         }
     }
 }
