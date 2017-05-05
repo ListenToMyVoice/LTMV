@@ -43,10 +43,7 @@ public:
     void CLIENT_GotoState(FName NewState);
 
 protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-    TSubclassOf<AActor> _MenuClass;
-    AActor* _MenuActor;
-    bool _IsMenuHidden;
+    class UNWGameInstance* _GameInstance;
 
     virtual void SetupInputComponent() override;
 
@@ -69,8 +66,9 @@ private:
     bool _IsListen;
     bool _ClientPossesed;
 
-    void TickWalkie();
+    /* MENU INTERFACE */
+    TSubclassOf<AActor> _MenuClass;
+    class AMenu* _MenuActor;
 
-    /***************** EXIT GAME **************/
-    void ExitGame();
+    void TickWalkie();
 };

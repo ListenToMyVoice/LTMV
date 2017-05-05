@@ -5,21 +5,19 @@
 
 #include "GameModeLobby.h"
 #include "PlayerCharacter.h"
+#include "MenuLobby.h"
 
 
 APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
-    /* MENU */
-    _IsMenuHidden = true;
-    static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
-        "/Game/BluePrints/HUD/MenuLobbyActor_BP"));
-    _MenuClass = MenuClassFinder.Class;
-
     GConfig->GetString(
         TEXT("/Script/EngineSettings.GameMapsSettings"),
         TEXT("GameDefaultMap"),
         _MapMainMenu,
         GEngineIni
     );
+
+    /* MENU INTERFACE */
+    _MenuClass = AMenuLobby::StaticClass();
 }
 
 void APlayerControllerLobby::SetupInputComponent() {
@@ -44,16 +42,19 @@ void APlayerControllerLobby::SERVER_CallUpdate_Implementation(FPlayerInfo info,
     if (gameMode) gameMode->SERVER_SwapCharacter(this, info, changedStatus);
 }
 
-void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor> menuClass) {
-    APawn* pawn = GetPawn();
-    if (pawn) {
-        UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
-        if (cameraComp) {
-            FVector position = cameraComp->GetComponentLocation();
-            FRotator rotation = cameraComp->GetComponentRotation();
+void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor> MenuClass) {
+    /* MENU INTERFACE */
+    if (GetPawnOrSpectator()) {
+        _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(MenuClass));
 
-            // Save a Reference of the spawned actor??
-            GetWorld()->SpawnActor(menuClass, &position, &rotation);
+        UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
+                                                              FindComponentByClass<UCameraComponent>());
+        if (CameraComp) {
+            _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+                                   CameraComp->GetComponentRotation());
+
+            APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+            if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
         }
     }
 }
@@ -75,57 +76,46 @@ void APlayerControllerLobby::OnRep_Pawn() {
     AfterPossessed();
 }
 
+void APlayerControllerLobby::OnFindSessionsComplete(FString SessionOwner) {
+    if (_MenuActor) _MenuActor->OnFindSessionComplete(SessionOwner);
+}
+
 /****************************************** ACTION MAPPINGS **************************************/
 /******** USE ITEM LEFT *********/
 void APlayerControllerLobby::UseLeftPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
-        bool  MenuBool = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false : _IsMenuHidden;
-        PlayerCharacter->UseLeftPressed(MenuBool);
+        bool  IsMenuHidden = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false : 
+                                _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseLeftPressed(IsMenuHidden);
     }
 }
 
 void APlayerControllerLobby::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
-        bool  MenuBool = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false : _IsMenuHidden;
-        PlayerCharacter->UseLeftReleased(MenuBool);
+        bool  IsMenuHidden = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false :
+                                _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseLeftReleased(IsMenuHidden);
     }
 }
 
 /*************** TRIGGER MENU *************/
 void APlayerControllerLobby::ToogleMenu() {
     if (!_MapMainMenu.Contains(GetWorld()->GetMapName())) {
-        APawn* pawn = GetPawn();
-        if (pawn) {
-            if (_IsMenuHidden) {
-                UCameraComponent* cameraComp = Cast<UCameraComponent>(pawn->FindComponentByClass<UCameraComponent>());
-                if (cameraComp) {
-                    FVector position = cameraComp->GetComponentLocation();
-                    FRotator rotation = cameraComp->GetComponentRotation();
+        /* MENU INTERFACE */
+        if (!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
 
-                    if (_MenuActor) {
-                        ULibraryUtils::SetActorEnable(_MenuActor);
-                        _MenuActor->SetActorLocationAndRotation(position,
-                                                                rotation,
-                                                                false,
-                                                                nullptr,
-                                                                ETeleportType::TeleportPhysics);
-                    }
-                    else {
-                        _MenuActor = GetWorld()->SpawnActor(_MenuClass, &position, &rotation);
-                    }
-                }
+        if (GetPawnOrSpectator()) {
+            UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
+                                                                  FindComponentByClass<UCameraComponent>());
+            if (CameraComp) {
+                _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+                                       CameraComp->GetComponentRotation());
+
+                APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+                if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
             }
-            else {
-                ULibraryUtils::SetActorEnable(_MenuActor, false);
-            }
-            _IsMenuHidden = !_IsMenuHidden;
         }
     }
-}
-
-/***************** EXIT GAME **************/
-void APlayerControllerLobby::ExitGame() {
-    FGenericPlatformMisc::RequestExit(false);
 }

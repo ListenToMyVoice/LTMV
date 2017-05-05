@@ -44,7 +44,7 @@ public:
 
     /*** BLUEPRINTS ***/
     UFUNCTION(BlueprintCallable, Category = "Session")
-    void LaunchLobby(FName ServerName);
+    void LaunchLobby();
     UFUNCTION(BlueprintCallable, Category = "Session")
     void FindOnlineGames();
     UFUNCTION(BlueprintCallable, Category = "Session")
@@ -111,7 +111,15 @@ public:
     FDelegateHandle OnDestroySessionCompleteDelegateHandle;
     virtual void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 
+    /* MENU INTERFACE */
+    void ToogleMenu(FVector Location, FRotator Rotation, bool InPLay);
+
+    AActor* GetMenuActor();
+    
 protected:
+    TSubclassOf<ACharacter> _BoyClass;
+    TSubclassOf<ACharacter> _GirlClass;
+
     TSharedPtr<class FOnlineSessionSettings> _SessionSettings;
     TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 

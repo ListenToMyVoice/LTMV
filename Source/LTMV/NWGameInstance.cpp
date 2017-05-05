@@ -3,6 +3,9 @@
 #include "LTMV.h"
 #include "NWGameInstance.h"
 
+#include "PlayerControllerLobby.h"
+#include "MenuMain.h"
+
 
 void UNWGameInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -35,6 +38,13 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
     _MaxPlayers = 2;
     _ServerName = "";
     _SessionOwner = "";
+
+    static ConstructorHelpers::FClassFinder<AActor> BoyClassFinder(TEXT(
+        "/Game/BluePrints/Characters/FPCharacterBoy"));
+    _BoyClass = BoyClassFinder.Class;
+    static ConstructorHelpers::FClassFinder<AActor> GirlClassFinder(TEXT(
+        "/Game/BluePrints/Characters/FPCharacterGirl"));
+    _GirlClass = GirlClassFinder.Class;
 }
 
 IOnlineSessionPtr UNWGameInstance::GetSessions() {
@@ -49,13 +59,21 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
     return Sessions;
 }
 
-void UNWGameInstance::InitGame() {}
+void UNWGameInstance::InitGame() {
+    APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
+                                                                GetFirstLocalPlayerController());
+    if (PlayerControllerLobby) PlayerControllerLobby->CLIENT_CreateMenu(AMenuMain::StaticClass());
+}
 
 /**************************************** BLUEPRINTS *********************************************/
-void UNWGameInstance::LaunchLobby(FName ServerName) {
+void UNWGameInstance::LaunchLobby() {
+    _PlayerInfoSaved.Name = "host";
+    _PlayerInfoSaved.CharacterClass = _BoyClass;
+    _PlayerInfoSaved.IsHost = true;
+
     DestroySession();
 
-    _ServerName = ServerName;
+    _ServerName = "ServerName";
     ULocalPlayer* const Player = GetFirstGamePlayer();
     HostSession(Player->GetPreferredUniqueNetId(), GameSessionName, true, true, _MaxPlayers);
 }
@@ -66,6 +84,10 @@ void UNWGameInstance::FindOnlineGames() {
 }
 
 void UNWGameInstance::JoinOnlineGame() {
+    _PlayerInfoSaved.Name = "guest";
+    _PlayerInfoSaved.CharacterClass = _GirlClass;
+    _PlayerInfoSaved.IsHost = false;
+
     ULocalPlayer* const Player = GetFirstGamePlayer();
     FOnlineSessionSearchResult SearchResult;
     if (_SessionSearch->SearchResults.Num() > 0) {
@@ -170,6 +192,10 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
     else Result = "NO VALID SESSIONS";
 
     _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS FOUND";
+
+    APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
+        GetFirstLocalPlayerController());
+    if (PlayerControllerLobby) PlayerControllerLobby->OnFindSessionsComplete(_SessionOwner);
 }
 
 bool UNWGameInstance::JoinAtSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName,

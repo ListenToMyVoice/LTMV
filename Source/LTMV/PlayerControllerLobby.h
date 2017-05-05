@@ -26,14 +26,11 @@ public:
     void OnRep_Pawn() override;
 
     UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
-    void CLIENT_CreateMenu(TSubclassOf<AActor> menuClass);
+    void CLIENT_CreateMenu(TSubclassOf<AActor> MenuClass);
+
+    void OnFindSessionsComplete(FString SessionOwner);
 
 protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
-    TSubclassOf<AActor> _MenuClass;
-    AActor* _MenuActor;
-    bool _IsMenuHidden;
-
     virtual void SetupInputComponent() override;
 
     /********************************** ACTION MAPPINGS ******************************************/
@@ -48,7 +45,7 @@ private:
     bool _ClientPossesed;
     FString _MapMainMenu;
 
-    /********************************** ACTION MAPPINGS ******************************************/
-    /***************** EXIT GAME **************/
-    void ExitGame();
+    /* MENU INTERFACE */
+    TSubclassOf<AActor> _MenuClass;
+    class AMenu* _MenuActor;
 };

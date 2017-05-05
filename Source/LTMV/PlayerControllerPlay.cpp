@@ -7,6 +7,7 @@
 #include "NWGameInstance.h"
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
+#include "MenuPlay.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -17,13 +18,6 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     //_WalkieNoiseAudioComp->SetEvent((UFMODEvent*)(Finder.Object));
     _WalkieNoiseAudioComp->bAutoActivate = false;
     _IsListen = false;
-
-    /* MENU */
-    _IsMenuHidden = true;
-    static ConstructorHelpers::FClassFinder<AActor> MenuClassFinder(TEXT(
-        "/Game/BluePrints/HUD/MenuPlayActor_BP"));
-    _MenuClass = MenuClassFinder.Class;
-
     _ClientPossesed = false;
 
 
@@ -32,6 +26,9 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     //_TestAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Voice Comp"));
     //_TestAudioComp->bAutoActivate = false;
     //_TestAudioComp->SetSound(SoundFinder.Object);
+
+    /* MENU INTERFACE */
+    _MenuClass = AMenuPlay::StaticClass();
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -49,8 +46,10 @@ void APlayerControllerPlay::BeginPlay() {
     Super::BeginPlay();
 
     if (IsLocalController()) {
-        UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
-        if (GameInstance) SERVER_CallUpdate(GameInstance->_PlayerInfoSaved);
+        _GameInstance = Cast<UNWGameInstance>(GetGameInstance());
+        if (_GameInstance) {
+            SERVER_CallUpdate(_GameInstance->_PlayerInfoSaved);
+        }
     }
 }
 
@@ -65,11 +64,10 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
 void APlayerControllerPlay::AfterPossessed() {
     /* CLIENT-SERVER EXCEPTION */
     if (!_ClientPossesed) {
-        UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-        if (!GameInstance || !PlayerCharacter) return;
+        if (!_GameInstance || !PlayerCharacter) return;
 
-        if (PlayerCharacter->IsA(GameInstance->_PlayerInfoSaved.CharacterClass)) {
+        if (PlayerCharacter->IsA(_GameInstance->_PlayerInfoSaved.CharacterClass)) {
             PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
             PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
             PlayerCharacter->AfterPossessed(true);
@@ -163,58 +161,53 @@ bool APlayerControllerPlay::IsListen() {
 /******** USE ITEM LEFT *********/
 void APlayerControllerPlay::UseLeftPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) PlayerCharacter->UseLeftPressed(_IsMenuHidden);
+    if (PlayerCharacter) {
+        bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseLeftPressed(IsMenuHidden);
+    }
 }
 
 void APlayerControllerPlay::UseLeftReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) PlayerCharacter->UseLeftReleased(_IsMenuHidden);
+    if (PlayerCharacter) {
+        bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseLeftReleased(IsMenuHidden);
+    }
 }
 
 /******* USE ITEM RIGHT *********/
 void APlayerControllerPlay::UseRightPressed() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) PlayerCharacter->UseRightPressed(_IsMenuHidden);
+    if (PlayerCharacter) {
+        bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseRightPressed(IsMenuHidden);
+    }
 }
 
 void APlayerControllerPlay::UseRightReleased() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-    if (PlayerCharacter) PlayerCharacter->UseRightReleased(_IsMenuHidden);
+    if (PlayerCharacter) {
+        bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseRightReleased(IsMenuHidden);
+    }
 }
 
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
     if (GetPawnOrSpectator()) {
-        if (_IsMenuHidden) {
-            UCameraComponent* cameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->FindComponentByClass<UCameraComponent>());
-            if (cameraComp) {
-                FVector position = cameraComp->GetComponentLocation();
-                FRotator rotation = cameraComp->GetComponentRotation();
+        /* MENU INTERFACE */
+        if(!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
 
-                if (_MenuActor) {
-                    ULibraryUtils::SetActorEnable(_MenuActor);
-                    _MenuActor->SetActorLocationAndRotation(position,
-                                                            rotation,
-                                                            false,
-                                                            nullptr,
-                                                            ETeleportType::TeleportPhysics);
-                }
-                else {
-                    _MenuActor = GetWorld()->SpawnActor(_MenuClass, &position, &rotation);
-                }
-            }
+        UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
+                                                              FindComponentByClass<UCameraComponent>());
+        if (CameraComp) {
+            _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+                                   CameraComp->GetComponentRotation());
+
+            APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+            if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
         }
-        else {
-            ULibraryUtils::SetActorEnable(_MenuActor, false);
-        }
-        _IsMenuHidden = !_IsMenuHidden;
     }
-}
-
-
-/***************** EXIT GAME **************/
-void APlayerControllerPlay::ExitGame() {
-    FGenericPlatformMisc::RequestExit(false);
 }
 
 /*********************************************** DELEGATES ***************************************/

@@ -18,6 +18,8 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
     
     PlayerControllerClass = APlayerControllerPlay::StaticClass();
     
+    bUseSeamlessTravel = true;
+
     GameStateClass = AGameStatePlay::StaticClass();
 }
 

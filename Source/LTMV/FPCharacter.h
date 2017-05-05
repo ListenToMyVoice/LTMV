@@ -48,6 +48,8 @@ public:
     void UseRightPressed(bool IsMenuHidden) override;
     void UseRightReleased(bool IsMenuHidden) override;
 
+    void ToggleMenuInteraction(bool Activate) override;
+
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UInventory* _Inventory;

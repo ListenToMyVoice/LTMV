@@ -9,7 +9,7 @@
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
 #include "HandPickItem.h"
-#include "Components/WidgetInteractionComponent.h"
+#include "MenuInteraction.h"
 #include "InventoryWidget.h"
 #include "FMODAudioComponent.h"
 
@@ -22,7 +22,7 @@ AFPCharacter::AFPCharacter() : Super() {
     _PlayerCamera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("FPVCamera"));
     _Inventory->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("inventory"));
     _StepsAudioComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("Foot"));
-    _WidgetInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+    _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -186,7 +186,7 @@ void AFPCharacter::UseLeftPressed(bool IsMenuHidden) {
             }
         }
     }
-    else _WidgetInteractionComp->PressPointerKey(EKeys::LeftMouseButton);
+    else _MenuInteractionComp->PressPointer();
 }
 
 void AFPCharacter::UseLeftReleased(bool IsMenuHidden) {
@@ -203,7 +203,7 @@ void AFPCharacter::UseLeftReleased(bool IsMenuHidden) {
             }
         }
     }
-    else _WidgetInteractionComp->ReleasePointerKey(EKeys::LeftMouseButton);
+    else _MenuInteractionComp->ReleasePointer();
 }
 
 /******* USE ITEM RIGHT *********/
@@ -306,27 +306,29 @@ void AFPCharacter::TakeDropLeft() {
 /**************** TRIGGER INVENTORY *************/
 /*** SHOW INVENTORY ***/
 void AFPCharacter::ToggleInventory() {
-    APlayerController* PlayerController = Cast<APlayerController>(GetController());
-    if (PlayerController && _InventoryWidget) {
-        if (_IsInventoryHidden) {
-            _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-            PlayerController->bShowMouseCursor = true;
-            PlayerController->bEnableClickEvents = true;
-            PlayerController->bEnableMouseOverEvents = true;
+    if (!_MenuInteractionComp->IsActive()) {
+        APlayerController* PlayerController = Cast<APlayerController>(GetController());
+        if (PlayerController && _InventoryWidget) {
+            if (_IsInventoryHidden) {
+                _InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+                PlayerController->bShowMouseCursor = true;
+                PlayerController->bEnableClickEvents = true;
+                PlayerController->bEnableMouseOverEvents = true;
 
-            FInputModeGameAndUI Mode = FInputModeGameAndUI();
-            Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-            Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
-            PlayerController->SetInputMode(Mode);
+                FInputModeGameAndUI Mode = FInputModeGameAndUI();
+                Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+                Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
+                PlayerController->SetInputMode(Mode);
+            }
+            else {
+                _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+                PlayerController->bShowMouseCursor = false;
+                PlayerController->bEnableClickEvents = false;
+                PlayerController->bEnableMouseOverEvents = false;
+                PlayerController->SetInputMode(FInputModeGameOnly());
+            }
+            _IsInventoryHidden = !_IsInventoryHidden;
         }
-        else {
-            _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-            PlayerController->bShowMouseCursor = false;
-            PlayerController->bEnableClickEvents = false;
-            PlayerController->bEnableMouseOverEvents = false;
-            PlayerController->SetInputMode(FInputModeGameOnly());
-        }
-        _IsInventoryHidden = !_IsInventoryHidden;
     }
 }
 
@@ -437,6 +439,12 @@ void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
+void AFPCharacter::ToggleMenuInteraction(bool Activate) {
+    if (!_IsInventoryHidden) ToggleInventory();
+
+    Super::ToggleMenuInteraction(Activate);
+}
+
 UTexture2D* AFPCharacter::GetItemTextureAt(int itemIndex) {
     return _Inventory->GetItemTextureAt(itemIndex);
 }

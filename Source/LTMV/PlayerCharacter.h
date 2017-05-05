@@ -47,13 +47,15 @@ public:
     bool IsWalkieInHand();
     class UFMODEvent* GetWalkieEvent();
 
+    virtual void ToggleMenuInteraction(bool Activate);
+
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UFMODAudioComponent* _StepsAudioComp;
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    class UWidgetInteractionComponent* _WidgetInteractionComp;
+    class UMenuInteraction* _MenuInteractionComp;
 
     AActor* _ItemLeft;
     AActor* _ItemRight;
@@ -121,5 +123,5 @@ private:
 public:
     FORCEINLINE UCameraComponent* APlayerCharacter::GetPlayerCamera() const { return _PlayerCamera; }
     FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }
-    FORCEINLINE UWidgetInteractionComponent* APlayerCharacter::GetWidgetInteractionComp() const { return _WidgetInteractionComp; }
+    FORCEINLINE UMenuInteraction* APlayerCharacter::GetMenuInteractionComp() const { return _MenuInteractionComp; }
 };
