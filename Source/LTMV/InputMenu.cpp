@@ -63,10 +63,12 @@ void UInputMenu::TickComponent(float DeltaTime, ELevelTick TickType,
 }
 
 void UInputMenu::PressEvents() {
+    EndhoverInteraction();
     _InputMenuPressedEvent.Broadcast();
 }
 
 void UInputMenu::ReleaseEvents() {
+    HoverInteraction();
     _InputMenuReleasedEvent.Broadcast();
 }
 
