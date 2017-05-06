@@ -150,21 +150,21 @@ void AMenuMain::ResetMenu() {
 void AMenuMain::BuildMenu_Main() {
     EnableSubmenu(_Menu_NewGame, false);
     EnableSubmenu(_Menu_FindGame, false);
-    EnableSubmenu(_Menu_Main, true);
 
     /* DECORATORS */
     _TopDecorator->AttachToComponent(_Slot_NewGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
     _BottomDecorator->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
+    EnableSubmenu(_Menu_Main, true);
 }
 
 void AMenuMain::BuildMenu_NewGame() {
     EnableSubmenu(_Menu_Main, false);
     EnableSubmenu(_Menu_FindGame, false);
-    EnableSubmenu(_Menu_NewGame, true);
 
     /* DECORATORS */
     _TopDecorator->AttachToComponent(_Slot_HostGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
     _BottomDecorator->AttachToComponent(_Slot_GoBack, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
+    EnableSubmenu(_Menu_NewGame, true);
 }
 
 void AMenuMain::BuildMenu_FindGame() {
@@ -172,6 +172,10 @@ void AMenuMain::BuildMenu_FindGame() {
 
     EnableSubmenu(_Menu_Main, false);
     EnableSubmenu(_Menu_NewGame, false);
+
+    /* DECORATORS */
+    _TopDecorator->AttachToComponent(_Slot_JoinGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
+    _BottomDecorator->AttachToComponent(_Slot_GoBack2, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
     EnableSubmenu(_Menu_FindGame, true);
 
     _Slot_JoinGame->SetActive(false);
@@ -179,10 +183,6 @@ void AMenuMain::BuildMenu_FindGame() {
     _Slot_JoinGame->SetComponentTickEnabled(false);
     _Slot_JoinGame->SetVisibility(false, true);
     _Slot_JoinGame->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-    /* DECORATORS */
-    _TopDecorator->AttachToComponent(_Slot_JoinGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
-    _BottomDecorator->AttachToComponent(_Slot_GoBack2, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
 }
 
 void AMenuMain::OnFindSessionComplete(FString SessionOwner) {

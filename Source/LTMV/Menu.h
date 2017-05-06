@@ -39,8 +39,8 @@ protected:
     UStaticMeshComponent* _TopDecorator;
     UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UStaticMeshComponent* _BottomDecorator;
-    //UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    //UStaticMeshComponent* _MiddleDecorator;
+    UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UStaticMeshComponent* _MiddleDecorator;
 
     virtual void BindDelegates();
     virtual void ResetMenu();
@@ -49,5 +49,5 @@ protected:
 public:
     FORCEINLINE UStaticMeshComponent* AMenu::GetTopDecorator() const { return _TopDecorator; }
     FORCEINLINE UStaticMeshComponent* AMenu::GetBottomDecorator() const { return _BottomDecorator; }
-    //FORCEINLINE UStaticMeshComponent* AMenu::GetMiddleDecorator() const { return _MiddleDecorator; }
+    FORCEINLINE UStaticMeshComponent* AMenu::GetMiddleDecorator() const { return _MiddleDecorator; }
 };

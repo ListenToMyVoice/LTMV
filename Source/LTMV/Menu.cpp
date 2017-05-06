@@ -21,10 +21,11 @@ AMenu::AMenu(const class FObjectInitializer& OI) : Super(OI) {
         TEXT("/Game/Meshes/Static/Menu/menu_2_parte_abajo.menu_2_parte_abajo"));
     _BottomDecorator->SetStaticMesh(Finder2.Object);
 
-    //_MiddleDecorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_MiddleDecorator"));
-    //static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder3(
-    //    TEXT("/Game/Meshes/Static/Menu/menu_2_parte_intermedia.menu_2_parte_intermedia"));
-    //_MiddleDecorator->SetStaticMesh(Finder3.Object);
+    _MiddleDecorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_MiddleDecorator"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder3(
+        TEXT("/Game/Meshes/Static/Menu/menu_2_parte_intermedia.menu_2_parte_intermedia"));
+    _MiddleDecorator->SetStaticMesh(Finder3.Object);
+    _MiddleDecorator->AttachToComponent(_TopDecorator, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketMiddle"));
 }
 
 void AMenu::BindDelegates() {}
