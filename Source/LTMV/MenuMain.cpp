@@ -15,13 +15,13 @@ AMenuMain::AMenuMain(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_NewGame->AttachToComponent(_Menu_Main, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_NewGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_NewGame"));
     _Text_NewGame->SetText(FText::FromString("NEW GAME"));
-    _Text_NewGame->AttachToComponent(_Slot_NewGame, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_NewGame->AttachToComponent(_Slot_NewGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
     _Slot_ExitGame = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_ExitGame"));
     _Slot_ExitGame->AttachToComponent(_Menu_Main, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_ExitGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_ExitGame"));
     _Text_ExitGame->SetText(FText::FromString("EXIT GAME"));
-    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
 
     /*************************************** NEW GAME MENU ***************************************/
@@ -32,19 +32,19 @@ AMenuMain::AMenuMain(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_HostGame->AttachToComponent(_Menu_NewGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_HostGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_HostGame"));
     _Text_HostGame->SetText(FText::FromString("HOST GAME"));
-    _Text_HostGame->AttachToComponent(_Slot_HostGame, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_HostGame->AttachToComponent(_Slot_HostGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
     _Slot_FindGame = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_FindGame"));
     _Slot_FindGame->AttachToComponent(_Menu_NewGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_FindGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_FindGame"));
     _Text_FindGame->SetText(FText::FromString("FIND GAME"));
-    _Text_FindGame->AttachToComponent(_Slot_FindGame, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_FindGame->AttachToComponent(_Slot_FindGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
     _Slot_GoBack = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_GoBack"));
     _Slot_GoBack->AttachToComponent(_Menu_NewGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_GoBack = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_GoBack"));
     _Text_GoBack->SetText(FText::FromString("GO BACK"));
-    _Text_GoBack->AttachToComponent(_Slot_GoBack, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_GoBack->AttachToComponent(_Slot_GoBack, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
 
     /*************************************** FIND GAME MENU **************************************/
@@ -55,13 +55,13 @@ AMenuMain::AMenuMain(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_JoinGame->AttachToComponent(_Menu_FindGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_JoinGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_JoinGame"));
     _Text_JoinGame->SetText(FText::FromString("JOIN GAME"));
-    _Text_JoinGame->AttachToComponent(_Slot_JoinGame, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_JoinGame->AttachToComponent(_Slot_JoinGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
     _Slot_GoBack2 = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_GoBack2"));
     _Slot_GoBack2->AttachToComponent(_Menu_FindGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_GoBack2 = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_GoBack2"));
     _Text_GoBack2->SetText(FText::FromString("GO BACK"));
-    _Text_GoBack2->AttachToComponent(_Slot_GoBack2, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_GoBack2->AttachToComponent(_Slot_GoBack2, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
     BuildLayout();
 }
@@ -76,43 +76,32 @@ void AMenuMain::BuildLayout() {
 
     float VerticalLocation = 0;
     /************************************ MAIN MENU **********************************************/
-    _Menu_Main->RelativeLocation = FVector(200, 0, 0);
-    _Menu_Main->RelativeRotation = FRotator(0, 180, 0);
+    _Menu_Main->RelativeLocation = _SubmenuLocation;
+    _Menu_Main->RelativeRotation = _SubmenuRotator;
 
     _Slot_NewGame->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
-    _Text_NewGame->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
-
     _Slot_ExitGame->RelativeLocation = FVector(0, 0, VerticalLocation);
-    _Text_ExitGame->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
 
     VerticalLocation = 0;
     /*************************************** NEW GAME MENU ***************************************/
-    _Menu_NewGame->RelativeLocation = FVector(200, 0, 0);
-    _Menu_NewGame->RelativeRotation = FRotator(0, 180, 0);
+    _Menu_NewGame->RelativeLocation = _SubmenuLocation;
+    _Menu_NewGame->RelativeRotation = _SubmenuRotator;
 
     _Slot_HostGame->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
-    _Text_HostGame->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
-
     _Slot_FindGame->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
-    _Text_FindGame->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
-
     _Slot_GoBack->RelativeLocation = FVector(0, 0, VerticalLocation);
-    _Text_GoBack->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
 
     VerticalLocation = 0;
     /*************************************** FIND GAME MENU **************************************/
-    _Menu_FindGame->RelativeLocation = FVector(200, 0, 0);
-    _Menu_FindGame->RelativeRotation = FRotator(0, 180, 0);
+    _Menu_FindGame->RelativeLocation = _SubmenuLocation;
+    _Menu_FindGame->RelativeRotation = _SubmenuRotator;
 
     _Slot_JoinGame->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
-    _Text_JoinGame->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
-
     _Slot_GoBack2->RelativeLocation = FVector(0, 0, VerticalLocation);
-    _Text_GoBack2->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
 }
 
 void AMenuMain::BeginPlay() {

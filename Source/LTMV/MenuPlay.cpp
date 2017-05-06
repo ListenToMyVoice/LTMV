@@ -14,13 +14,13 @@ AMenuPlay::AMenuPlay(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_BackToMenu->AttachToComponent(_Menu_PlayGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_BackToMenu = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_BackToMenu"));
     _Text_BackToMenu->SetText(FText::FromString("BACK TO MENU"));
-    _Text_BackToMenu->AttachToComponent(_Slot_BackToMenu, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_BackToMenu->AttachToComponent(_Slot_BackToMenu, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
     _Slot_ExitGame = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_ExitGame2"));
     _Slot_ExitGame->AttachToComponent(_Menu_PlayGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_ExitGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_ExitGame"));
     _Text_ExitGame->SetText(FText::FromString("EXIT GAME"));
-    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
 
     BuildLayout();
 }
@@ -28,15 +28,12 @@ AMenuPlay::AMenuPlay(const class FObjectInitializer& OI) : Super(OI) {
 void AMenuPlay::BuildLayout() {
     float VerticalLocation = 0;
     /************************************ PLAY GAME MENU *****************************************/
-    _Menu_PlayGame->RelativeLocation = FVector(200, 0, 0);
-    _Menu_PlayGame->RelativeRotation = FRotator(0, 180, 0);
+    _Menu_PlayGame->RelativeLocation = _SubmenuLocation;
+    _Menu_PlayGame->RelativeRotation = _SubmenuRotator;
 
     _Slot_BackToMenu->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
-    _Text_BackToMenu->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
-
     _Slot_ExitGame->RelativeLocation = FVector(0, 0, VerticalLocation);
-    _Text_ExitGame->RelativeLocation = FVector(MeshDepth, MeshWidth / 2, 0);
 }
 
 void AMenuPlay::BeginPlay() {
