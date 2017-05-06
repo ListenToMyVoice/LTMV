@@ -146,6 +146,12 @@ void AMenuMain::ResetMenu() {
     BuildMenu_Main();
 }
 
+void AMenuMain::DeactivateMenuMenu() {
+    EnableSubmenu(_Menu_NewGame, false);
+    EnableSubmenu(_Menu_FindGame, false);
+    EnableSubmenu(_Menu_Main, false);
+}
+
 /*********************************** BINDINGS ****************************************************/
 void AMenuMain::BuildMenu_Main() {
     EnableSubmenu(_Menu_NewGame, false);

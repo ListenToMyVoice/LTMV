@@ -66,6 +66,7 @@ protected:
     virtual void BeginPlay() override;
     void BindDelegates() override;
     void ResetMenu() override;
+    void DeactivateMenuMenu() override;
     void BuildLayout() override;
 
 private:

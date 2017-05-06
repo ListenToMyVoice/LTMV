@@ -32,6 +32,8 @@ protected:
     virtual void BeginPlay() override;
     void BindDelegates() override;
     void BuildLayout() override;
+    void ResetMenu() override;
+    void DeactivateMenuMenu() override;
 
 private:
     FInputMenuDelegate _Slot_BackToMenuPressedDelegate;

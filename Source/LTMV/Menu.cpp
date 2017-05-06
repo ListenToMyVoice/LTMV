@@ -32,6 +32,10 @@ void AMenu::BindDelegates() {}
 
 void AMenu::ResetMenu() {}
 
+void AMenu::DeactivateMenuMenu() {
+    //BuildLayout();
+}
+
 void AMenu::BuildLayout() {}
 
 void AMenu::OnFindSessionComplete(FString SessionOwner) {}
@@ -45,6 +49,7 @@ void AMenu::ToogleMenu(FVector Location, FRotator Rotation) {
     }
     else {
         ULibraryUtils::SetActorEnable(this, false);
+        DeactivateMenuMenu();
     }
     _IsMenuHidden = !_IsMenuHidden;
 }
@@ -80,7 +85,9 @@ void AMenu::EnableSubmenu(USceneComponent* Submenu, bool Enable) {
     TArray<USceneComponent*> ChildComponents;
     Submenu->GetChildrenComponents(true, ChildComponents);
 
-    for (USceneComponent* Component : ChildComponents) {
+    for (USceneComponent* Component : ChildComponents) {        
+        //if(Enable) ULibraryUtils::Log(FString::Printf(TEXT("Component (%s) ACTIVATED"), *Component->GetFName().ToString()));
+        //else ULibraryUtils::Log(FString::Printf(TEXT("Component (%s) DEACTIVATED"), *Component->GetFName().ToString()));
         Component->SetActive(Enable);
         Component->SetHiddenInGame(!Enable, true);
         Component->SetComponentTickEnabled(Enable);

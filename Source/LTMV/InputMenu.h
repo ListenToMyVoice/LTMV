@@ -25,6 +25,9 @@ public:
 
     UInputMenu(const FObjectInitializer& OI);
 
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+                               FActorComponentTickFunction* ThisTickFunction) override;
+
     void AddOnInputMenuDelegate(FInputMenuDelegate& InputMenuDelegate, bool IsPressed);
     void ClearOnInputMenuDelegate(bool IsPressed);
 
@@ -34,9 +37,18 @@ public:
     void ReleaseEvents();
     void PressEvents();
 
+    //UFUNCTION()
+    //void OnActivate(UActorComponent* Component, bool bReset);
+    //UFUNCTION()
+    //void OnDeactivate(UActorComponent* Component);
+
 protected:
     virtual void BeginPlay() override;
 
 private:
     UTextRenderComponent* _TextRender;
+    float _NewTime;
+    float _Timer;
+
+    FVector _NextPoint;
 };

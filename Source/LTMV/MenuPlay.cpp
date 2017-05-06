@@ -56,3 +56,11 @@ void AMenuPlay::BindDelegates() {
     _Slot_ExitGameReleasedDelegate.BindUObject(this, &AMenu::OnExitGame);
     _Slot_ExitGame->AddOnInputMenuDelegate(_Slot_ExitGameReleasedDelegate, false);
 }
+
+void AMenuPlay::ResetMenu() {
+    EnableSubmenu(_Menu_PlayGame, true);
+}
+
+void AMenuPlay::DeactivateMenuMenu() {
+    EnableSubmenu(_Menu_PlayGame, false);
+}

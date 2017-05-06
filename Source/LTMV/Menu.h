@@ -44,6 +44,7 @@ protected:
 
     virtual void BindDelegates();
     virtual void ResetMenu();
+    virtual void DeactivateMenuMenu();
     virtual void BuildLayout();
 
 public:
