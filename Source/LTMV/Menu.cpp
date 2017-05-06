@@ -10,7 +10,7 @@ AMenu::AMenu(const class FObjectInitializer& OI) : Super(OI) {
     _IsMenuHidden = true;
     SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Root Component")));
 
-    /*** MENU DECORATORS ***/
+    /*** DECORATORS ***/
     _TopDecorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_TopDecorator"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder(
         TEXT("/Game/Meshes/Static/Menu/menu_2_parte_superior.menu_2_parte_superior"));
@@ -21,10 +21,10 @@ AMenu::AMenu(const class FObjectInitializer& OI) : Super(OI) {
         TEXT("/Game/Meshes/Static/Menu/menu_2_parte_abajo.menu_2_parte_abajo"));
     _BottomDecorator->SetStaticMesh(Finder2.Object);
 
-    _MiddleDecorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_MiddleDecorator"));
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder3(
-        TEXT("/Game/Meshes/Static/Menu/menu_2_parte_intermedia.menu_2_parte_intermedia"));
-    _MiddleDecorator->SetStaticMesh(Finder3.Object);
+    //_MiddleDecorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_MiddleDecorator"));
+    //static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder3(
+    //    TEXT("/Game/Meshes/Static/Menu/menu_2_parte_intermedia.menu_2_parte_intermedia"));
+    //_MiddleDecorator->SetStaticMesh(Finder3.Object);
 }
 
 void AMenu::BindDelegates() {}

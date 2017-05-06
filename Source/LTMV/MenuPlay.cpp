@@ -14,18 +14,20 @@ AMenuPlay::AMenuPlay(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_BackToMenu->AttachToComponent(_Menu_PlayGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_BackToMenu = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_BackToMenu"));
     _Text_BackToMenu->SetText(FText::FromString("BACK TO MENU"));
-    _Text_BackToMenu->AttachToComponent(_Slot_BackToMenu, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_BackToMenu->AttachToComponent(_Slot_BackToMenu, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
     _Slot_ExitGame = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_ExitGame2"));
     _Slot_ExitGame->AttachToComponent(_Menu_PlayGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_ExitGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_ExitGame"));
     _Text_ExitGame->SetText(FText::FromString("EXIT GAME"));
-    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
     BuildLayout();
 }
 
 void AMenuPlay::BuildLayout() {
+    Super::BuildLayout();
+
     float VerticalLocation = 0;
     /************************************ PLAY GAME MENU *****************************************/
     _Menu_PlayGame->RelativeLocation = _SubmenuLocation;

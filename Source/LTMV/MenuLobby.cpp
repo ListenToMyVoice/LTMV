@@ -14,26 +14,33 @@ AMenuLobby::AMenuLobby(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_BackToMenu->AttachToComponent(_Menu_Lobby, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_BackToMenu = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_BackToMenu"));
     _Text_BackToMenu->SetText(FText::FromString("BACK TO MENU"));
-    _Text_BackToMenu->AttachToComponent(_Slot_BackToMenu, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_BackToMenu->AttachToComponent(_Slot_BackToMenu, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
     _Slot_ExitGame = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_ExitGame2"));
     _Slot_ExitGame->AttachToComponent(_Menu_Lobby, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_ExitGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_ExitGame"));
     _Text_ExitGame->SetText(FText::FromString("EXIT GAME"));
-    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
     
     BuildLayout();
 }
 
 void AMenuLobby::BuildLayout() {
+    Super::BuildLayout();
+
     float VerticalLocation = 0;
     /************************************ LOBBY MENU *********************************************/
     _Menu_Lobby->RelativeLocation = _SubmenuLocation;
     _Menu_Lobby->RelativeRotation = _SubmenuRotator;
 
+    VerticalLocation -= MeshHeight;
     _Slot_BackToMenu->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
     _Slot_ExitGame->RelativeLocation = FVector(0, 0, VerticalLocation);
+
+    /* DECORATORS */
+    _TopDecorator->AttachToComponent(_Slot_BackToMenu, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
+    _BottomDecorator->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
 }
 
 void AMenuLobby::BeginPlay() {

@@ -15,13 +15,13 @@ AMenuMain::AMenuMain(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_NewGame->AttachToComponent(_Menu_Main, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_NewGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_NewGame"));
     _Text_NewGame->SetText(FText::FromString("NEW GAME"));
-    _Text_NewGame->AttachToComponent(_Slot_NewGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_NewGame->AttachToComponent(_Slot_NewGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
     _Slot_ExitGame = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_ExitGame"));
     _Slot_ExitGame->AttachToComponent(_Menu_Main, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_ExitGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_ExitGame"));
     _Text_ExitGame->SetText(FText::FromString("EXIT GAME"));
-    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
 
     /*************************************** NEW GAME MENU ***************************************/
@@ -32,19 +32,19 @@ AMenuMain::AMenuMain(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_HostGame->AttachToComponent(_Menu_NewGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_HostGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_HostGame"));
     _Text_HostGame->SetText(FText::FromString("HOST GAME"));
-    _Text_HostGame->AttachToComponent(_Slot_HostGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_HostGame->AttachToComponent(_Slot_HostGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
     _Slot_FindGame = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_FindGame"));
     _Slot_FindGame->AttachToComponent(_Menu_NewGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_FindGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_FindGame"));
     _Text_FindGame->SetText(FText::FromString("FIND GAME"));
-    _Text_FindGame->AttachToComponent(_Slot_FindGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_FindGame->AttachToComponent(_Slot_FindGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
     _Slot_GoBack = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_GoBack"));
     _Slot_GoBack->AttachToComponent(_Menu_NewGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_GoBack = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_GoBack"));
     _Text_GoBack->SetText(FText::FromString("GO BACK"));
-    _Text_GoBack->AttachToComponent(_Slot_GoBack, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_GoBack->AttachToComponent(_Slot_GoBack, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
 
     /*************************************** FIND GAME MENU **************************************/
@@ -55,18 +55,20 @@ AMenuMain::AMenuMain(const class FObjectInitializer& OI) : Super(OI) {
     _Slot_JoinGame->AttachToComponent(_Menu_FindGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_JoinGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_JoinGame"));
     _Text_JoinGame->SetText(FText::FromString("JOIN GAME"));
-    _Text_JoinGame->AttachToComponent(_Slot_JoinGame, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_JoinGame->AttachToComponent(_Slot_JoinGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
     _Slot_GoBack2 = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_GoBack2"));
     _Slot_GoBack2->AttachToComponent(_Menu_FindGame, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_GoBack2 = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_GoBack2"));
     _Text_GoBack2->SetText(FText::FromString("GO BACK"));
-    _Text_GoBack2->AttachToComponent(_Slot_GoBack2, FAttachmentTransformRules::KeepRelativeTransform, FName("Socket"));
+    _Text_GoBack2->AttachToComponent(_Slot_GoBack2, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
     BuildLayout();
 }
 
 void AMenuMain::BuildLayout() {
+    Super::BuildLayout();
+
     //FVector Origin;
     //FVector BoxExtent;
     //float SphereRadius;
@@ -102,6 +104,10 @@ void AMenuMain::BuildLayout() {
     _Slot_JoinGame->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
     _Slot_GoBack2->RelativeLocation = FVector(0, 0, VerticalLocation);
+
+    ///* DECORATORS */
+    //_TopDecorator->AttachToComponent(_Slot_NewGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
+    //_BottomDecorator->AttachToComponent(_Slot_GoBack2, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
 }
 
 void AMenuMain::BeginPlay() {
@@ -145,12 +151,20 @@ void AMenuMain::BuildMenu_Main() {
     EnableSubmenu(_Menu_NewGame, false);
     EnableSubmenu(_Menu_FindGame, false);
     EnableSubmenu(_Menu_Main, true);
+
+    /* DECORATORS */
+    _TopDecorator->AttachToComponent(_Slot_NewGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
+    _BottomDecorator->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
 }
 
 void AMenuMain::BuildMenu_NewGame() {
     EnableSubmenu(_Menu_Main, false);
     EnableSubmenu(_Menu_FindGame, false);
     EnableSubmenu(_Menu_NewGame, true);
+
+    /* DECORATORS */
+    _TopDecorator->AttachToComponent(_Slot_HostGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
+    _BottomDecorator->AttachToComponent(_Slot_GoBack, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
 }
 
 void AMenuMain::BuildMenu_FindGame() {
@@ -165,6 +179,10 @@ void AMenuMain::BuildMenu_FindGame() {
     _Slot_JoinGame->SetComponentTickEnabled(false);
     _Slot_JoinGame->SetVisibility(false, true);
     _Slot_JoinGame->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    /* DECORATORS */
+    _TopDecorator->AttachToComponent(_Slot_JoinGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
+    _BottomDecorator->AttachToComponent(_Slot_GoBack2, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
 }
 
 void AMenuMain::OnFindSessionComplete(FString SessionOwner) {

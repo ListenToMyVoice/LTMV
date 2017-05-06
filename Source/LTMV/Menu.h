@@ -30,17 +30,17 @@ public:
     void EnableSubmenu(USceneComponent* Submenu, bool Enable);
 
 protected:
-    float MeshHeight = 40;
+    float MeshHeight = 30;
     FVector _SubmenuLocation = FVector(200, 0, -200);
     FRotator _SubmenuRotator = FRotator(0, 180, 0);
 
-    /*** MENU DECORATORS ***/
+    /*** DECORATORS ***/
     UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UStaticMeshComponent* _TopDecorator;
     UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UStaticMeshComponent* _BottomDecorator;
-    UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    UStaticMeshComponent* _MiddleDecorator;
+    //UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    //UStaticMeshComponent* _MiddleDecorator;
 
     virtual void BindDelegates();
     virtual void ResetMenu();
@@ -49,5 +49,5 @@ protected:
 public:
     FORCEINLINE UStaticMeshComponent* AMenu::GetTopDecorator() const { return _TopDecorator; }
     FORCEINLINE UStaticMeshComponent* AMenu::GetBottomDecorator() const { return _BottomDecorator; }
-    FORCEINLINE UStaticMeshComponent* AMenu::GetMiddleDecorator() const { return _MiddleDecorator; }
+    //FORCEINLINE UStaticMeshComponent* AMenu::GetMiddleDecorator() const { return _MiddleDecorator; }
 };
