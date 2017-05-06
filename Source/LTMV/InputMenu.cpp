@@ -17,12 +17,18 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
 
 void UInputMenu::BeginPlay() {
     Super::BeginPlay();
-    _TextRender = Cast<UTextRenderComponent>(GetChildComponent(0));
-    if (_TextRender) {
-        _TextRender->SetWorldSize(18);
-        _TextRender->SetTextRenderColor(_Color);
-        _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
-        _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
+    
+    TArray<USceneComponent*> ChildrenComp;
+    GetChildrenComponents(false, ChildrenComp);
+
+    for (USceneComponent* Component : ChildrenComp) {
+        _TextRender = Cast<UTextRenderComponent>(Component);
+        if (_TextRender) {
+            _TextRender->SetWorldSize(12);
+            _TextRender->SetTextRenderColor(_Color);
+            _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
+            _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
+        }
     }
 }
 

@@ -36,6 +36,10 @@ void AMenuPlay::BuildLayout() {
     _Slot_BackToMenu->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
     _Slot_ExitGame->RelativeLocation = FVector(0, 0, VerticalLocation);
+
+    /* DECORATORS */
+    _TopDecorator->AttachToComponent(_Slot_BackToMenu, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
+    _BottomDecorator->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
 }
 
 void AMenuPlay::BeginPlay() {

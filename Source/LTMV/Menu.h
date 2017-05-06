@@ -31,7 +31,7 @@ public:
 
 protected:
     float MeshHeight = 30;
-    FVector _SubmenuLocation = FVector(200, 0, -200);
+    FVector _SubmenuLocation = FVector(200, 0, -150);
     FRotator _SubmenuRotator = FRotator(0, 180, 0);
 
     /*** DECORATORS ***/
