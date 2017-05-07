@@ -174,7 +174,9 @@ void APlayerCharacter::ToggleMenuInteraction(bool Activate) {
     for (UActorComponent* Component : Components) {
         MenuInteraction = Cast<UMenuInteraction>(Component);
         MenuInteraction->SetActive(Activate);
+        MenuInteraction->SetHiddenInGame(!Activate, true);
         MenuInteraction->SetComponentTickEnabled(Activate);
+        MenuInteraction->SetVisibility(Activate, true);
     }
 }
 

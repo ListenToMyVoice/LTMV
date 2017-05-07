@@ -20,9 +20,15 @@ public:
     void ReleasePointer();
 
 protected:
+    UPROPERTY(Category = "Light", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    USpotLightComponent* _Light;
+
 	virtual void BeginPlay() override;
 
 private:
     bool _TargetLocked;
     class UInputMenu* _TargetInputMenu;
+
+public:
+    FORCEINLINE USpotLightComponent* UMenuInteraction::GetLight() const { return _Light; }
 };

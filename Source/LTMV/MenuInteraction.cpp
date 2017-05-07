@@ -11,6 +11,17 @@ UMenuInteraction::UMenuInteraction() {
 
     _RayParameter = 500.0f;
     _TargetLocked = false;
+
+    _Light = CreateDefaultSubobject<USpotLightComponent>(TEXT("Light"));
+    _Light->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+    _Light->SetOuterConeAngle(15);
+    _Light->SetInnerConeAngle(5);
+
+    FLinearColor Color = FLinearColor();
+    Color.R = 0.635;
+    Color.G = 0.635;
+    Color.B = 0.635;
+    _Light->SetLightColor(Color, true);
 }
 
 void UMenuInteraction::BeginPlay() {
