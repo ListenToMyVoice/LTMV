@@ -59,7 +59,7 @@ void UInputMenu::TickComponent(float DeltaTime, ELevelTick TickType,
         _NextPoint.Y = FMath::FRandRange(-1, 1);
         _NextPoint.Z = FMath::FRandRange(-1, 1);
     }
-    AddRelativeLocation(_NextPoint.GetSafeNormal() * 2 * DeltaTime);
+    AddRelativeLocation(_NextPoint.GetSafeNormal() * 1.5 * DeltaTime);
 }
 
 void UInputMenu::PressEvents() {

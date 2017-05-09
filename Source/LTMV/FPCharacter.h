@@ -15,7 +15,7 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HUD")
     TSubclassOf<class UUserWidget> _HUDClass;
 
-    AFPCharacter();
+    AFPCharacter(const FObjectInitializer& OI);
     void BeginPlay() override;
     void AfterPossessed(bool SetInventory) override;
     void Tick(float DeltaSeconds) override;
@@ -91,9 +91,9 @@ protected:
 
 private:
     float _RayParameter;
-    FHitResult hitResult;
+    FHitResult _HitResult;
     
-    UStaticMeshComponent* lastMeshFocused = nullptr;
+    UStaticMeshComponent* _LastMeshFocused = nullptr;
     bool bInventoryItemHit = false;
 
 public:

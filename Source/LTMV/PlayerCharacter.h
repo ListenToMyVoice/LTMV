@@ -25,7 +25,7 @@ public:
     FRadioDelegate _OnRadioReleasedDelegate;
 
 
-    APlayerCharacter();
+    APlayerCharacter(const FObjectInitializer& OI);
     virtual void AfterPossessed(bool SetInventory);
 
     /******** USE ITEM LEFT *********/

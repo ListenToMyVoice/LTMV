@@ -12,7 +12,7 @@
 #include "MenuInteraction.h"
 
 
-APlayerCharacter::APlayerCharacter() {
+APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
     bReplicates = true;
     bReplicateMovement = true;
 

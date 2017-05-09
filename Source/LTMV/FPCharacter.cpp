@@ -13,7 +13,7 @@
 #include "InventoryWidget.h"
 #include "FMODAudioComponent.h"
 
-AFPCharacter::AFPCharacter() : Super() {
+AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
     _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
     /*RAYCAST PARAMETERS*/
     _RayParameter = 250.0f;
@@ -88,12 +88,12 @@ FHitResult AFPCharacter::Raycasting() {
     FVector StartRaycast = _PlayerCamera->GetComponentLocation();
     FVector EndRaycast = _PlayerCamera->GetForwardVector() * _RayParameter + StartRaycast;
 
-    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(hitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+    bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(_HitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
     //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
-    if (bHitRayCastFlag && hitResult.Actor.IsValid()) {
-        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
-        UActorComponent* actorComponent = hitResult.GetComponent();
+    if (bHitRayCastFlag && _HitResult.Actor.IsValid()) {
+        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *_HitResult.Actor->GetName()));
+        UActorComponent* actorComponent = _HitResult.GetComponent();
 
         TArray<UActorComponent*> components = actorComponent->GetOwner()->GetComponentsByClass(UActorComponent::StaticClass());
 
@@ -102,54 +102,54 @@ FHitResult AFPCharacter::Raycasting() {
             //Highlight outline colors:
             //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
             if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-                lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+                _LastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
 
-                lastMeshFocused->SetRenderCustomDepth(true);
-                lastMeshFocused->SetCustomDepthStencilValue(252);
+                _LastMeshFocused->SetRenderCustomDepth(true);
+                _LastMeshFocused->SetCustomDepthStencilValue(252);
                 bInventoryItemHit = true;
             }
             else if (component->GetClass() == UInventoryItem::StaticClass()) {
-                lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+                _LastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
 
-                lastMeshFocused->SetRenderCustomDepth(true);
-                lastMeshFocused->SetCustomDepthStencilValue(253);
+                _LastMeshFocused->SetRenderCustomDepth(true);
+                _LastMeshFocused->SetCustomDepthStencilValue(253);
                 bInventoryItemHit = true;
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {
-                lastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+                _LastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
 
-                lastMeshFocused->SetRenderCustomDepth(true);
-                lastMeshFocused->SetCustomDepthStencilValue(255);
+                _LastMeshFocused->SetRenderCustomDepth(true);
+                _LastMeshFocused->SetCustomDepthStencilValue(255);
                 bInventoryItemHit = true;
             }
 
-            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *hitResult.Actor->GetName()));
+            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *_HitResult.Actor->GetName()));
         }
     }
 
     //If Raycast is not hitting any actor, disable the outline
-    if (bInventoryItemHit && hitResult.Actor != lastMeshFocused->GetOwner()) {
+    if (bInventoryItemHit && _HitResult.Actor != _LastMeshFocused->GetOwner()) {
 
-        lastMeshFocused->SetCustomDepthStencilValue(0);
-        lastMeshFocused->SetRenderCustomDepth(false);
+        _LastMeshFocused->SetCustomDepthStencilValue(0);
+        _LastMeshFocused->SetRenderCustomDepth(false);
 
         bInventoryItemHit = false;
     }
 
 
-    return hitResult;
+    return _HitResult;
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
 /************** USE *************/
 void AFPCharacter::UsePressed() {
     /* RAYCASTING DETECTION */
-    if (hitResult.GetActor()) {
+    if (_HitResult.GetActor()) {
         TArray<UActorComponent*> Components;
-        hitResult.GetActor()->GetComponents(Components);
+        _HitResult.GetActor()->GetComponents(Components);
 
         for (UActorComponent* Component : Components) {
             if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
@@ -161,9 +161,9 @@ void AFPCharacter::UsePressed() {
 
 void AFPCharacter::UseReleased() {
     /* RAYCASTING DETECTION */
-    if (hitResult.GetActor()) {
+    if (_HitResult.GetActor()) {
         TArray<UActorComponent*> Components;
-        hitResult.GetActor()->GetComponents(Components);
+        _HitResult.GetActor()->GetComponents(Components);
 
         for (UActorComponent* Component : Components) {
             if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
@@ -452,7 +452,7 @@ UTexture2D* AFPCharacter::GetItemTextureAt(int itemIndex) {
 }
 
 AActor* AFPCharacter::GetItemFocused() {
-    AActor* ActorFocused = hitResult.GetActor();
+    AActor* ActorFocused = _HitResult.GetActor();
     if (ActorFocused && ActorFocused->GetComponentByClass(UStaticMeshComponent::StaticClass()) &&
         (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass()) ||
          ActorFocused->GetComponentByClass(UHandPickItem::StaticClass()))) {
