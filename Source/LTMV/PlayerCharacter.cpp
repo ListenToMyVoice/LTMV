@@ -65,7 +65,6 @@ void APlayerCharacter::LookUpAtRate(float Rate) {
 }
 
 /************** USE *************/
-void APlayerCharacter::UsePressed() {}
 bool APlayerCharacter::SERVER_UsePressed_Validate(UActorComponent* component) { return true; }
 void APlayerCharacter::SERVER_UsePressed_Implementation(UActorComponent* component) {
     MULTI_UsePressed(component);
@@ -96,7 +95,6 @@ void APlayerCharacter::UseRightPressed(bool IsMenuHidden) {}
 void APlayerCharacter::UseRightReleased(bool IsMenuHidden) {}
 
 /********** TAKE RIGHT HAND ***********/
-void APlayerCharacter::TakeDropRight() {}
 bool APlayerCharacter::SERVER_TakeRight_Validate(AActor* Actor) { return true; }
 void APlayerCharacter::SERVER_TakeRight_Implementation(AActor* Actor) {
     MULTI_TakeRight(Actor);
@@ -122,7 +120,6 @@ void APlayerCharacter::MULTI_TakeRight_Implementation(AActor* Actor) {
 }
 
 /********** TAKE LEFT HAND ***********/
-void APlayerCharacter::TakeDropLeft() {}
 bool APlayerCharacter::SERVER_TakeLeft_Validate(AActor* Actor) { return true; }
 void APlayerCharacter::SERVER_TakeLeft_Implementation(AActor* Actor) {
     MULTI_TakeLeft(Actor);

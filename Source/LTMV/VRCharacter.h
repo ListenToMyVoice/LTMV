@@ -57,11 +57,6 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _RightSphere;
 
-    /*************************************** ACTION MAPPINGS *************************************/
-    /************** USE *************/
-    void UsePressed() override;
-    void UseReleased() override;
-
 private:
     IHeadMountedDisplay* HMD;
 

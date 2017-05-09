@@ -5,7 +5,7 @@
 
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
-#include "GrabItem.h"
+#include "HandPickItem.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -113,8 +113,8 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                              bool bFromSweep, const FHitResult& SweepResult) {
 
     if (SweepResult.Actor.IsValid()) {
-        TArray<UActorComponent*> Components = OtherActor->GetComponentsByClass(
-                                                                    UActorComponent::StaticClass());
+        TArray<UActorComponent*> Components;
+        OtherActor->GetComponents(Components);
 
         UStaticMeshComponent* _StaticMesh;
         bool HitItem = false;
@@ -131,7 +131,7 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                     HitItem = true;
                 }
             }
-            else if (Component->GetClass() == UGrabItem::StaticClass()) {
+            else if (Component->GetClass() == UHandPickItem::StaticClass()) {
                 _StaticMesh = Cast<UStaticMeshComponent>(OtherActor->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
 
@@ -175,11 +175,6 @@ void AVRCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
-/************** USE *************/
-void AVRCharacter::UsePressed() {}
-
-void AVRCharacter::UseReleased() {}
-
 /******** USE ITEM LEFT *********/
 void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
     if (IsMenuHidden) {
@@ -230,7 +225,7 @@ void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
             }
         }
     }
-    else if(_ActorFocusedRight) UseTriggerPressed(_ActorFocusedRight);
+    else if (_ActorFocusedRight) UseTriggerPressed(_ActorFocusedRight);
 }
 
 void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
@@ -250,216 +245,49 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
 
 /*************** USE TRIGGER *************/
 void AVRCharacter::UseTriggerPressed(AActor* ActorFocused) {
-
+    /* CAN BE USED */
+    TArray<UActorComponent*> Components;
+    ActorFocused->GetComponents(Components);
+    for (UActorComponent* Component : Components) {
+        if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+            SERVER_UsePressed(Component);
+        }
+    }
 }
 
 void AVRCharacter::UseTriggerReleased(AActor* ActorFocused) {
-    ///* OVERLAPPING DETECTION */
-    //bool found = false;
-    //TArray<AActor*> Actors;
-    //SphereOverlap->GetOverlappingActors(Actors);
-    //int i = Actors.Num() - 1;
+    /* CAN BE GRABBED */
+    UHandPickItem* HandPickItemComp = Cast<UHandPickItem>(ActorFocused->GetComponentByClass(
+        UHandPickItem::StaticClass()));
+    if (HandPickItemComp) {
+        if (ActorFocused == _ActorFocusedLeft) {
+            UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+                UStaticMeshComponent::StaticClass()));
+            if (_StaticMesh) {
+                _StaticMesh->SetCustomDepthStencilValue(0);
+                _StaticMesh->SetRenderCustomDepth(false);
+            }
 
-    ///* CAN BE GRABBED */
-    //while (!found && i >= 0) {
-    //    if (Cast<AStaticMeshActor>(Actors[i])) {
-    //        const TSet <UActorComponent*> Set = Actors[i]->GetComponents();
-    //        for (UActorComponent* component : Set) {
-    //            if (component->IsA(UGrabItem::StaticClass())) {
-    //                SERVER_GrabItem(true, Cast<UGrabItem>(component));
-    //                found = true;
-    //            }
-    //        }
-    //    }
-    //    i--;
-    //}
+            _ActorFocusedLeft = nullptr;
+        }
+        else if (ActorFocused == _ActorFocusedRight) {
+            UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+                UStaticMeshComponent::StaticClass()));
+            if (_StaticMesh) {
+                _StaticMesh->SetCustomDepthStencilValue(0);
+                _StaticMesh->SetRenderCustomDepth(false);
+            }
+
+            _ActorFocusedRight = nullptr;
+        }
+    }
+
+    /* CAN BE USED */
+    TArray<UActorComponent*> Components;
+    ActorFocused->GetComponents(Components);
+    for (UActorComponent* Component : Components) {
+        if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+            SERVER_UseReleased(Component);
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///************** TRIGGER LEFT *************/
-//void AVRCharacter::TriggerLeft() {
-//    /* OVERLAPPING DETECTION */
-//    bool found = false;
-//    TArray<AActor*> actors;
-//    LeftSphere->GetOverlappingActors(actors);
-//    int i = actors.Num() - 1;
-//
-//    if (!_itemLeft) {
-//        /* CAN BE GRABBED */
-//        while (!found && i >= 0) {
-//            if (Cast<AStaticMeshActor>(actors[i])) {
-//                const TSet <UActorComponent*> set = actors[i]->GetComponents();
-//                for (UActorComponent* component : set) {
-//                    if (component->IsA(UGrabItem::StaticClass())) {
-//                        SERVER_GrabItem(true, Cast<UGrabItem>(component));
-//                        found = true;
-//                    }
-//                }
-//            }
-//            i--;
-//        }
-//
-//        /* CAN BE USED */
-//        i = actors.Num() - 1;
-//        while (!found && i >= 0) {
-//            const TSet <UActorComponent*> set = actors[i]->GetComponents();
-//            for (UActorComponent* component : set) {
-//                if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-//                    SERVER_Use(component);
-//                    found = true;
-//                }
-//            }
-//            i--;
-//        }
-//    }
-//    else {// DROP ITEM
-//        SERVER_DropItem(true);
-//    }
-//}
-//
-///************** TRIGGER RIGHT *************/
-//void AVRCharacter::TriggerRight() {
-//    /* OVERLAPPING DETECTION */
-//    bool found = false;
-//    TArray<AActor*> actors;
-//    RightSphere->GetOverlappingActors(actors);
-//    int i = actors.Num() - 1;
-//
-//    if (!_itemRight) {
-//        /* CAN BE GRABBED */
-//        while (!found && i >= 0) {
-//            if (Cast<AStaticMeshActor>(actors[i])) {
-//                const TSet <UActorComponent*> set = actors[i]->GetComponents();
-//                for (UActorComponent* component : set) {
-//                    if (component->IsA(UGrabItem::StaticClass())) {
-//                        SERVER_GrabItem(false, Cast<UGrabItem>(component));
-//                        found = true;
-//                    }
-//                }
-//            }
-//            i--;
-//        }
-//
-//        /* CAN BE USED */
-//        while (!found && i >= 0) {
-//            const TSet <UActorComponent*> set = actors[i]->GetComponents();
-//            for (UActorComponent* component : set) {
-//                if (component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-//                    SERVER_Use(component);
-//                    found = true;
-//                }
-//            }
-//            i--;
-//        }
-//    }
-//    else {// DROP ITEM
-//        SERVER_DropItem(false);
-//    }
-//}
-//
-///****************************************** ACTIONS **********************************************/
-///*************** USE TRIGGER *************/
-//bool AVRCharacter::SERVER_Use_Validate(UActorComponent* component) { return true; }
-//void AVRCharacter::SERVER_Use_Implementation(UActorComponent* component) {
-//    MULTI_Use(component);
-//}
-//
-//void AVRCharacter::MULTI_Use_Implementation(UActorComponent* component) {
-//    IItfUsable* itfObject = Cast<IItfUsable>(component);
-//    if (itfObject) itfObject->Execute_UsePressed(component);
-//}
-//
-///************** GRAB TRIGGER *************/
-//bool AVRCharacter::SERVER_GrabItem_Validate(bool isLeft, UGrabItem* grabComp) { return true; }
-//void AVRCharacter::SERVER_GrabItem_Implementation(bool isLeft, UGrabItem* grabComp) {
-//    MULTI_GrabItem_Implementation(isLeft, grabComp);
-//}
-//
-//void AVRCharacter::MULTI_GrabItem_Implementation(bool isLeft, UGrabItem* grabComp) {
-//    UStaticMeshComponent* mesh = nullptr;
-//    if (isLeft) {
-//        _itemLeft = Cast<AStaticMeshActor>(grabComp->GetOwner());
-//        mesh = _itemLeft->GetStaticMeshComponent();
-//        mesh->SetSimulatePhysics(false);
-//        mesh->AttachToComponent(SM_LeftHand,
-//                                FAttachmentTransformRules::KeepRelativeTransform,
-//                                TEXT("itemHand"));
-//        mesh->RelativeLocation = grabComp->_locationAttach_L;
-//        mesh->RelativeRotation = grabComp->_rotationAttach_L;
-//        _itemLeft->SetActorEnableCollision(false);
-//    }
-//    else {
-//        _itemRight = Cast<AStaticMeshActor>(grabComp->GetOwner());
-//        mesh = _itemRight->GetStaticMeshComponent();
-//        mesh->SetSimulatePhysics(false);
-//        mesh->AttachToComponent(SM_RightHand,
-//                                FAttachmentTransformRules::KeepRelativeTransform,
-//                                TEXT("itemHand"));
-//        mesh->RelativeLocation = grabComp->_locationAttach_R;
-//        mesh->RelativeRotation = grabComp->_rotationAttach_R;
-//        _itemRight->SetActorEnableCollision(false);
-//    }
-//    UE_LOG(LogTemp, Warning, TEXT("GRAB ITEM"));
-//}
-//
-///************** DROP TRIGGER *************/
-//bool AVRCharacter::SERVER_DropItem_Validate(bool isLeft) { return true; }
-//void AVRCharacter::SERVER_DropItem_Implementation(bool isLeft) {
-//    MULTI_DropItem_Implementation(isLeft);
-//}
-//
-//void AVRCharacter::MULTI_DropItem_Implementation(bool isLeft) {
-//    UStaticMeshComponent* mesh = nullptr;
-//    if (isLeft) {
-//        mesh = _itemLeft->GetStaticMeshComponent();
-//        mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-//        mesh->SetSimulatePhysics(true);
-//        _itemLeft->SetActorEnableCollision(true);
-//        _itemLeft = nullptr;
-//    }
-//    else {
-//        mesh = _itemRight->GetStaticMeshComponent();
-//        mesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-//        mesh->SetSimulatePhysics(true);
-//        _itemRight->SetActorEnableCollision(true);
-//        _itemRight = nullptr;
-//    }
-//    UE_LOG(LogTemp, Warning, TEXT("DROP ITEM"));
-//}

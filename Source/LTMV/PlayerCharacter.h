@@ -68,7 +68,6 @@ protected:
     void MoveRight(float Val);
 
     /************** USE *************/
-    virtual void UsePressed();
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_UsePressed(UActorComponent* component);
     UFUNCTION(NetMulticast, Reliable)
@@ -82,8 +81,6 @@ protected:
 
 
     /********** TAKE ITEM ***********/
-    virtual void TakeDropRight();
-    virtual void TakeDropLeft();
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_TakeRight(AActor* Actor);
     UFUNCTION(NetMulticast, Reliable)

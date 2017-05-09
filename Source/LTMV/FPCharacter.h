@@ -63,12 +63,12 @@ protected:
 
     /*************************************** ACTION MAPPINGS *************************************/
     /************** USE *************/
-    void UsePressed() override;
-    void UseReleased() override;
+    void UsePressed();
+    void UseReleased();
 
     /********** TAKE ITEM ***********/
-    void TakeDropRight() override;
-    void TakeDropLeft() override;
+    void TakeDropRight();
+    void TakeDropLeft();
 
     /********** INVENTORY ***********/
     void ToggleInventory();
