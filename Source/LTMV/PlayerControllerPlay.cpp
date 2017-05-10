@@ -260,7 +260,7 @@ void APlayerControllerPlay::OnRadioReleased() {
 
 /******************************************** GAME FLOW ******************************************/
 void APlayerControllerPlay::CLIENT_Dead_Implementation(const FUniqueNetIdRepl NetId) {
-    ToogleMenu();
+    if(_MenuActor ? _MenuActor->_IsMenuHidden : true) ToogleMenu();
 }
 
 void APlayerControllerPlay::CLIENT_GotoState_Implementation(FName NewState) {
