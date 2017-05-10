@@ -16,7 +16,9 @@ public:
 	UMenuInteraction();
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+    UFUNCTION(BlueprintCallable, Category = "Menu Interaction")
     void PressPointer();
+    UFUNCTION(BlueprintCallable, Category = "Menu Interaction")
     void ReleasePointer();
 
 protected:

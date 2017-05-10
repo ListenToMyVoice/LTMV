@@ -7,6 +7,7 @@
 #include "NWGameInstance.h"
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
+#include "PlayerSpectator.h"
 #include "MenuPlay.h"
 
 
@@ -169,6 +170,10 @@ void APlayerControllerPlay::UseLeftPressed() {
         bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
         PlayerCharacter->UseLeftPressed(IsMenuHidden);
     }
+    else {
+        APlayerSpectator* PlayerSpectator = Cast<APlayerSpectator>(GetSpectatorPawn());
+        if (PlayerSpectator) PlayerSpectator->ClickLeftPressed();
+    }
 }
 
 void APlayerControllerPlay::UseLeftReleased() {
@@ -176,6 +181,10 @@ void APlayerControllerPlay::UseLeftReleased() {
     if (PlayerCharacter) {
         bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
         PlayerCharacter->UseLeftReleased(IsMenuHidden);
+    }
+    else {
+        APlayerSpectator* PlayerSpectator = Cast<APlayerSpectator>(GetSpectatorPawn());
+        if (PlayerSpectator) PlayerSpectator->ClickLeftReleased();
     }
 }
 
@@ -198,7 +207,8 @@ void APlayerControllerPlay::UseRightReleased() {
 
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
-    if (GetPawnOrSpectator()) {
+    APawn* PawnOrSpectator = GetPawnOrSpectator();
+    if (PawnOrSpectator) {
         /* MENU INTERFACE */
         if(!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
 
@@ -208,8 +218,14 @@ void APlayerControllerPlay::ToogleMenu() {
             _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
                                    CameraComp->GetComponentRotation());
 
-            APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-            if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
+            if (PawnOrSpectator->IsA(APlayerCharacter::StaticClass())) {
+                Cast<APlayerCharacter>(PawnOrSpectator)->
+                    ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
+            }
+            else if (PawnOrSpectator->IsA(APlayerSpectator::StaticClass())) {
+                Cast<APlayerSpectator>(PawnOrSpectator)->
+                    ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
+            }
         }
     }
 }
