@@ -54,10 +54,14 @@ void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
     APlayerControllerPlay* PlayerController = Cast<APlayerControllerPlay>(Controller);
     if (PlayerController) {
         PlayerController->ChangeState(NAME_Spectating);
-        PlayerController->CLIENT_GotoState(NAME_Spectating);
-        //PlayerController->GameHasEnded(PlayerController->_MenuActor, false);
 
-        if (_HostController) _HostController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
-        if (_GuestController) _GuestController->CLIENT_Dead(PlayerController->PlayerState->UniqueId);
+        if (_HostController == PlayerController) {
+            _HostController->CLIENT_Dead();
+            if(_GuestController) _GuestController->CLIENT_ShowMenu();
+        }
+        if (_GuestController == PlayerController) {
+            _GuestController->CLIENT_GotoState(NAME_Spectating);
+            _HostController->CLIENT_ShowMenu();
+        }
     }
 }

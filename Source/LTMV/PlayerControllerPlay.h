@@ -38,9 +38,16 @@ public:
     void OnRadioReleased();
 
     UFUNCTION(Client, Reliable)
-    void CLIENT_Dead(const FUniqueNetIdRepl NetId);
+    void CLIENT_Dead();
     UFUNCTION(Client, Reliable)
     void CLIENT_GotoState(FName NewState);
+
+    /*************** TRIGGER MENU *************/
+    void ToogleMenu();
+    UFUNCTION(Client, Reliable)
+    void CLIENT_ShowMenu();
+    UFUNCTION(Client, Reliable)
+    void CLIENT_HideMenu();
 
 protected:
     class UNWGameInstance* _GameInstance;
@@ -55,9 +62,6 @@ protected:
     /******* USE ITEM RIGHT *********/
     void UseRightPressed();
     void UseRightReleased();
-
-    /*************** TRIGGER MENU *************/
-    void ToogleMenu();
 
 private:
     class UFMODAudioComponent* _WalkieNoiseAudioComp;

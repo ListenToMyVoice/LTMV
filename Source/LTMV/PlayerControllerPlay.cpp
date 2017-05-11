@@ -21,7 +21,6 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     _IsListen = false;
     _ClientPossesed = false;
 
-
     //static ConstructorHelpers::FObjectFinder<USoundWave> SoundFinder(
     //    TEXT("/Game/Maps/Alex/04_-_Black_Night_Of_Magic"));
     //_TestAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Voice Comp"));
@@ -207,24 +206,48 @@ void APlayerControllerPlay::UseRightReleased() {
 
 /*************** TRIGGER MENU *************/
 void APlayerControllerPlay::ToogleMenu() {
-    APawn* PawnOrSpectator = GetPawnOrSpectator();
-    if (PawnOrSpectator) {
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter) {
         /* MENU INTERFACE */
         if(!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
 
-        UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
+        UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerCharacter->
                                                               FindComponentByClass<UCameraComponent>());
         if (CameraComp) {
             _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
                                    CameraComp->GetComponentRotation());
+            PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
+        }
+    }
+}
 
-            if (PawnOrSpectator->IsA(APlayerCharacter::StaticClass())) {
-                Cast<APlayerCharacter>(PawnOrSpectator)->
-                    ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
+void APlayerControllerPlay::CLIENT_ShowMenu_Implementation() {
+    if (!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
+    if (_MenuActor->_IsMenuHidden) {
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (PlayerCharacter) {
+            UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerCharacter->
+                                                                  FindComponentByClass<UCameraComponent>());
+            if (CameraComp) {
+                _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+                                       CameraComp->GetComponentRotation());
+                PlayerCharacter->ToggleMenuInteraction(true);
             }
-            else if (PawnOrSpectator->IsA(APlayerSpectator::StaticClass())) {
-                Cast<APlayerSpectator>(PawnOrSpectator)->
-                    ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
+        }
+    }
+}
+
+void APlayerControllerPlay::CLIENT_HideMenu_Implementation() {
+    bool  IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+    if (!IsMenuHidden) {
+        APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+        if (PlayerCharacter) {
+            UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerCharacter->
+                                                                  FindComponentByClass<UCameraComponent>());
+            if (CameraComp) {
+                _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+                                       CameraComp->GetComponentRotation());
+                PlayerCharacter->ToggleMenuInteraction(false);
             }
         }
     }
@@ -259,8 +282,21 @@ void APlayerControllerPlay::OnRadioReleased() {
 }
 
 /******************************************** GAME FLOW ******************************************/
-void APlayerControllerPlay::CLIENT_Dead_Implementation(const FUniqueNetIdRepl NetId) {
-    if(_MenuActor ? _MenuActor->_IsMenuHidden : true) ToogleMenu();
+void APlayerControllerPlay::CLIENT_Dead_Implementation() {
+    bool  IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
+    APlayerSpectator* PlayerSpectator = Cast<APlayerSpectator>(GetSpectatorPawn());
+    if (IsMenuHidden && PlayerSpectator) {
+        /* MENU INTERFACE */
+        if (!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
+
+        UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerSpectator->
+                                                              FindComponentByClass<UCameraComponent>());
+        if (CameraComp) {
+            _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+                                   CameraComp->GetComponentRotation());
+            PlayerSpectator->ToggleMenuInteraction(true);
+        }
+    }
 }
 
 void APlayerControllerPlay::CLIENT_GotoState_Implementation(FName NewState) {
@@ -268,5 +304,6 @@ void APlayerControllerPlay::CLIENT_GotoState_Implementation(FName NewState) {
         FVector Location = GetPawn()->GetActorLocation();
         ClientGotoState(NewState);
         GetSpectatorPawn()->SetActorLocation(Location);
+        CLIENT_Dead();
     }
 }

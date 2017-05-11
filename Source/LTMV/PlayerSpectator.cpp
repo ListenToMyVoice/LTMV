@@ -7,12 +7,16 @@
 
 APlayerSpectator::APlayerSpectator(const FObjectInitializer& OI) : Super(OI){
     _PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
+    _MenuInteractionComp = CreateDefaultSubobject<UMenuInteraction>(TEXT("Menu Interaction"));
+
     _PlayerCamera->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
     _PlayerCamera->bUsePawnControlRotation = true;
-
-    _MenuInteractionComp = CreateDefaultSubobject<UMenuInteraction>(TEXT("Menu Interaction"));
     _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
     _MenuInteractionComp->_RayParameter = 100000;
+}
+
+void APlayerSpectator::BeginPlay() {
+    Super::BeginPlay();
 }
 
 void APlayerSpectator::ToggleMenuInteraction(bool Activate) {
