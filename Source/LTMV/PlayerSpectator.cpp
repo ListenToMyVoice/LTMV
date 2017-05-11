@@ -5,7 +5,10 @@
 
 #include "MenuInteraction.h"
 
-APlayerSpectator::APlayerSpectator(const FObjectInitializer& OI) : Super(OI){
+APlayerSpectator::APlayerSpectator(const FObjectInitializer& OI) : Super(OI) {
+    bUseControllerRotationPitch = true;
+    bUseControllerRotationYaw = true;
+
     _PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
     _MenuInteractionComp = CreateDefaultSubobject<UMenuInteraction>(TEXT("Menu Interaction"));
 
@@ -20,6 +23,7 @@ void APlayerSpectator::BeginPlay() {
 }
 
 void APlayerSpectator::ToggleMenuInteraction(bool Activate) {
+    _MenuInteractionComp->SetActive(Activate);
     _MenuInteractionComp->SetHiddenInGame(!Activate, true);
     _MenuInteractionComp->SetComponentTickEnabled(Activate);
     _MenuInteractionComp->SetVisibility(Activate, true);

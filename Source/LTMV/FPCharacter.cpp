@@ -73,6 +73,8 @@ void AFPCharacter::AfterPossessed(bool SetInventory) {
             }
         }
     }
+
+    ToggleMenuInteraction(false);
 }
 
 void AFPCharacter::Tick(float DeltaSeconds) {
