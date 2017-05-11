@@ -27,6 +27,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
     _MenuInteractionComp = CreateDefaultSubobject<UMenuInteraction>(TEXT("Menu Interaction"));
     _MenuInteractionComp->_RayParameter = 100000;
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
+	_BreathAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio_Breathing"));
 
 	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
     _Health = 1;
@@ -246,7 +247,9 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
                                    class AController* EventInstigator, class AActor* DamageCauser) {
     //Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
     _Health -= DamageAmount;
-    if (_Health <= 0) {
+	//_BreathAudioComp->SetParameter("Respiracion", 1.0f);
+
+	if (_Health <= 0) {
         AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
         if (GameMode) {
             GameMode->SERVER_PlayerDead(GetController());
@@ -254,6 +257,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
         }
     }
     return _Health;
+	
 }
 
 void APlayerCharacter::MULTI_CharacterDead_Implementation() {
