@@ -32,7 +32,9 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
     _Health = 1;
 }
 
-void APlayerCharacter::AfterPossessed(bool SetInventory) {}
+void APlayerCharacter::AfterPossessed(bool SetInventory) {
+    ToggleMenuInteraction(false);
+}
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
     check(PlayerInput);
