@@ -29,6 +29,8 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
 
     HMD = nullptr;
+    _GripStateLeft = EGripEnum::Open;
+    _GripStateRight = EGripEnum::Open;
 
     BuildLeft();
     BuildRight();
@@ -45,7 +47,7 @@ void AVRCharacter::BuildLeft() {
     _LeftHandComp->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
 
     /* MESH */
-    _SM_LeftHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_SM_LeftHand"));
+    _SM_LeftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_LeftHand"));
     _SM_LeftHand->AttachToComponent(_LeftHandComp, FAttachmentTransformRules::KeepRelativeTransform);
 
     /* ADDITIONAL */
@@ -59,7 +61,7 @@ void AVRCharacter::BuildRight() {
     _RightHandComp->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
 
     /* MESH */
-    _SM_RightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_SM_RightHand"));
+    _SM_RightHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_RightHand"));
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
 
     /* ADDITIONAL */
@@ -78,6 +80,10 @@ void AVRCharacter::BeginPlay() {
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
     Super::SetupPlayerInputComponent(PlayerInput);
+
+    /* ACTIONS */
+    PlayerInput->BindAction("DropLeft", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
+    PlayerInput->BindAction("DropRight", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 
     /* VR SPECIFIC */
     PlayerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
@@ -148,10 +154,12 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
             if (OverlappedComponent == _LeftSphere) {
                 ULibraryUtils::Log("OnOverlap Left");
                 _ActorFocusedLeft = OtherActor;
+                _GripStateLeft = EGripEnum::CanGrab;
             }
             else if (OverlappedComponent == _RightSphere) {
                 ULibraryUtils::Log("OnOverlap Right");
                 _ActorFocusedRight = OtherActor;
+                _GripStateRight = EGripEnum::CanGrab;
             }
         }
     }
@@ -162,10 +170,12 @@ void AVRCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
     if (OtherActor == _ActorFocusedLeft) {
         ULibraryUtils::Log("OnEndOverlap Left");
         _ActorFocusedLeft = nullptr;
+        _GripStateLeft = EGripEnum::Open;
     }
     else if (OtherActor == _ActorFocusedRight) {
         ULibraryUtils::Log("OnEndOverlap Right");
         _ActorFocusedRight = nullptr;
+        _GripStateRight = EGripEnum::Open;
     }
 
     UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(OtherActor->GetComponentByClass(
@@ -194,6 +204,9 @@ void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
         else if (_ActorFocusedLeft) UseTriggerPressed(_ActorFocusedLeft);
     }
     else _MenuInteractionComp->PressPointer();
+
+    /* ANIMATION */
+    _GripStateLeft = EGripEnum::Grab;
 }
 
 void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
@@ -212,6 +225,9 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
         else if (_ActorFocusedLeft) UseTriggerReleased(_ActorFocusedLeft);
     }
     else _MenuInteractionComp->ReleasePointer();
+
+    /* ANIMATION */
+    _GripStateLeft = EGripEnum::Open;
 }
 
 /******* USE ITEM RIGHT *********/
@@ -228,6 +244,9 @@ void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
         }
     }
     else if (_ActorFocusedRight) UseTriggerPressed(_ActorFocusedRight);
+
+    /* ANIMATION */
+    _GripStateRight = EGripEnum::Grab;
 }
 
 void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
@@ -243,6 +262,9 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
         }
     }
     else if (_ActorFocusedRight) UseTriggerReleased(_ActorFocusedRight);
+
+    /* ANIMATION */
+    _GripStateRight = EGripEnum::Open;
 }
 
 /*************** USE TRIGGER *************/
@@ -291,5 +313,19 @@ void AVRCharacter::UseTriggerReleased(AActor* ActorFocused) {
         if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
             SERVER_UseReleased(Component);
         }
+    }
+}
+
+void AVRCharacter::DropLeft() {
+    if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+        /* Drop item */
+        SERVER_Drop(_ItemLeft, 1);
+    }
+}
+
+void AVRCharacter::DropRight() {
+    if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+        /* Drop item */
+        SERVER_Drop(_ItemRight, 2);
     }
 }

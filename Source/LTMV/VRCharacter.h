@@ -7,11 +7,23 @@
 
 class UGrabItem;
 
+UENUM(BlueprintType)
+enum class EGripEnum : uint8 {
+    Open 	UMETA(DisplayName = "Open"),
+    CanGrab UMETA(DisplayName = "CanGrab"),
+    Grab	UMETA(DisplayName = "Grab")
+};
+
 UCLASS()
 class LTMV_API AVRCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(BlueprintReadOnly)
+    EGripEnum _GripStateLeft;
+    UPROPERTY(BlueprintReadOnly)
+    EGripEnum _GripStateRight;
+
     AVRCharacter(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
@@ -46,16 +58,24 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* _LeftHandComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    UStaticMeshComponent* _SM_LeftHand;
+    USkeletalMeshComponent* _SM_LeftHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _LeftSphere;
     /*********** RIGHT ***********/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* _RightHandComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    UStaticMeshComponent* _SM_RightHand;
+    USkeletalMeshComponent* _SM_RightHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _RightSphere;
+
+    /*************** USE TRIGGER *************/
+    void UseTriggerPressed(AActor* ActorFocused);
+    void UseTriggerReleased(AActor* ActorFocused);
+
+    /********** TAKE ITEM ***********/
+    void DropLeft();
+    void DropRight();
 
 private:
     IHeadMountedDisplay* HMD;
@@ -77,8 +97,4 @@ private:
     UFUNCTION()
     void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-    /*************** USE TRIGGER *************/
-    void UseTriggerPressed(AActor* ActorFocused);
-    void UseTriggerReleased(AActor* ActorFocused);
 };
