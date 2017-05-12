@@ -70,8 +70,8 @@ protected:
     USphereComponent* _RightSphere;
 
     /*************** USE TRIGGER *************/
-    void UseTriggerPressed(AActor* ActorFocused);
-    void UseTriggerReleased(AActor* ActorFocused);
+    void UseTriggerPressed(AActor*& ActorFocused, USceneComponent* InParent, int Hand);
+    void UseTriggerReleased(AActor*& ActorFocused, USceneComponent* InParent, int Hand);
 
     /********** TAKE ITEM ***********/
     void DropLeft();

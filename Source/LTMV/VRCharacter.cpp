@@ -201,7 +201,7 @@ void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
                 }
             }
         }
-        else if (_ActorFocusedLeft) UseTriggerPressed(_ActorFocusedLeft);
+        else if (_ActorFocusedLeft) UseTriggerPressed(_ActorFocusedLeft, _SM_LeftHand, 1);
     }
     else _MenuInteractionComp->PressPointer();
 
@@ -222,7 +222,7 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
                 }
             }
         }
-        else if (_ActorFocusedLeft) UseTriggerReleased(_ActorFocusedLeft);
+        else if (_ActorFocusedLeft) UseTriggerReleased(_ActorFocusedLeft, _SM_LeftHand, 1);
     }
     else _MenuInteractionComp->ReleasePointer();
 
@@ -243,7 +243,7 @@ void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
             }
         }
     }
-    else if (_ActorFocusedRight) UseTriggerPressed(_ActorFocusedRight);
+    else if (_ActorFocusedRight) UseTriggerPressed(_ActorFocusedRight, _SM_RightHand, 2);
 
     /* ANIMATION */
     _GripStateRight = EGripEnum::Grab;
@@ -261,14 +261,14 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
             }
         }
     }
-    else if (_ActorFocusedRight) UseTriggerReleased(_ActorFocusedRight);
+    else if (_ActorFocusedRight) UseTriggerReleased(_ActorFocusedRight, _SM_RightHand, 2);
 
     /* ANIMATION */
     _GripStateRight = EGripEnum::Open;
 }
 
 /*************** USE TRIGGER *************/
-void AVRCharacter::UseTriggerPressed(AActor* ActorFocused) {
+void AVRCharacter::UseTriggerPressed(AActor*& ActorFocused, USceneComponent* InParent, int Hand) {
     /* CAN BE USED */
     TArray<UActorComponent*> Components;
     ActorFocused->GetComponents(Components);
@@ -279,31 +279,20 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused) {
     }
 }
 
-void AVRCharacter::UseTriggerReleased(AActor* ActorFocused) {
+void AVRCharacter::UseTriggerReleased(AActor*& ActorFocused, USceneComponent* InParent, int Hand) {
     /* CAN BE GRABBED */
     UHandPickItem* HandPickItemComp = Cast<UHandPickItem>(ActorFocused->GetComponentByClass(
         UHandPickItem::StaticClass()));
     if (HandPickItemComp) {
-        if (ActorFocused == _ActorFocusedLeft) {
-            UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
-                UStaticMeshComponent::StaticClass()));
-            if (_StaticMesh) {
-                _StaticMesh->SetCustomDepthStencilValue(0);
-                _StaticMesh->SetRenderCustomDepth(false);
-            }
-
-            _ActorFocusedLeft = nullptr;
+        /* FOCUS */
+        UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+            UStaticMeshComponent::StaticClass()));
+        if (_StaticMesh) {
+            _StaticMesh->SetCustomDepthStencilValue(0);
+            _StaticMesh->SetRenderCustomDepth(false);
         }
-        else if (ActorFocused == _ActorFocusedRight) {
-            UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
-                UStaticMeshComponent::StaticClass()));
-            if (_StaticMesh) {
-                _StaticMesh->SetCustomDepthStencilValue(0);
-                _StaticMesh->SetRenderCustomDepth(false);
-            }
-
-            _ActorFocusedRight = nullptr;
-        }
+        SERVER_Take(ActorFocused, InParent, FName("TakeSocket"), Hand);
+        ActorFocused = nullptr;
     }
 
     /* CAN BE USED */

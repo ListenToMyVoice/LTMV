@@ -96,6 +96,35 @@ void APlayerCharacter::UseRightPressed(bool IsMenuHidden) {}
 
 void APlayerCharacter::UseRightReleased(bool IsMenuHidden) {}
 
+/********** TAKE ITEM ***********/
+bool APlayerCharacter::SERVER_Take_Validate(AActor* Actor, USceneComponent* InParent,
+                                            FName SocketName, int Hand) { return true; }
+void APlayerCharacter::SERVER_Take_Implementation(AActor* Actor, USceneComponent* InParent,
+                                                  FName SocketName, int Hand) {
+    MULTI_Take(Actor, InParent, SocketName, Hand);
+}
+void APlayerCharacter::MULTI_Take_Implementation(AActor* Actor, USceneComponent* InParent,
+                                                 FName SocketName, int Hand) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(Actor->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+    UHandPickItem* HandPickComp = Cast<UHandPickItem>(Actor->FindComponentByClass(
+        UHandPickItem::StaticClass()));
+    if (ItemMesh && HandPickComp) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        ItemMesh->SetSimulatePhysics(false);
+        ItemMesh->AttachToComponent(InParent,
+                                    FAttachmentTransformRules::KeepRelativeTransform,
+                                    SocketName);
+
+        ItemMesh->RelativeLocation = HandPickComp->_locationAttach_R;
+        ItemMesh->RelativeRotation = HandPickComp->_rotationAttach_R;
+
+        Actor->SetActorEnableCollision(false);
+
+        if (Hand == 1) _ItemLeft = Actor;
+        else if (Hand == 2) _ItemRight = Actor;
+    }
+}
 /********** TAKE RIGHT HAND ***********/
 bool APlayerCharacter::SERVER_TakeRight_Validate(AActor* Actor) { return true; }
 void APlayerCharacter::SERVER_TakeRight_Implementation(AActor* Actor) {
