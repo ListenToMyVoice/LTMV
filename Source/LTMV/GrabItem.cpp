@@ -1,0 +1,20 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "LTMV.h"
+#include "GrabItem.h"
+
+
+// Sets default values for this component's properties
+UGrabItem::UGrabItem() : Super(), _locationAttach_L(0.f, 0.f, 0.f),
+                                          _rotationAttach_L(0.f, 0.f, 0.f),
+                                          _locationAttach_R(0.f, 0.f, 0.f), 
+                                          _rotationAttach_R(0.f, 0.f, 0.f),
+										  _locationAttach_C(0.f, 0.f, 0.f),
+										  _rotationAttach_C(0.f, 0.f, 0.f) {}
+
+
+// Called when the game starts
+void UGrabItem::BeginPlay() {
+	Super::BeginPlay();	
+}
+

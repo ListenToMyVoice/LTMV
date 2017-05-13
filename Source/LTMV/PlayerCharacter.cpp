@@ -5,7 +5,7 @@
 
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
-#include "HandPickItem.h"
+#include "GrabItem.h"
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
 #include "Walkie.h"
@@ -107,17 +107,17 @@ void APlayerCharacter::MULTI_Take_Implementation(AActor* Actor, USceneComponent*
                                                  FName SocketName, int Hand) {
     UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(Actor->GetComponentByClass(
         UStaticMeshComponent::StaticClass()));
-    UHandPickItem* HandPickComp = Cast<UHandPickItem>(Actor->FindComponentByClass(
-        UHandPickItem::StaticClass()));
-    if (ItemMesh && HandPickComp) {
+    UGrabItem* GrabItemComp = Cast<UGrabItem>(Actor->FindComponentByClass(
+        UGrabItem::StaticClass()));
+    if (ItemMesh && GrabItemComp) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->SetSimulatePhysics(false);
         ItemMesh->AttachToComponent(InParent,
                                     FAttachmentTransformRules::KeepRelativeTransform,
                                     SocketName);
 
-        ItemMesh->RelativeLocation = HandPickComp->_locationAttach_R;
-        ItemMesh->RelativeRotation = HandPickComp->_rotationAttach_R;
+        ItemMesh->RelativeLocation = GrabItemComp->_locationAttach_R;
+        ItemMesh->RelativeRotation = GrabItemComp->_rotationAttach_R;
 
         Actor->SetActorEnableCollision(false);
 

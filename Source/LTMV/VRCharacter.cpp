@@ -5,7 +5,7 @@
 
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
-#include "HandPickItem.h"
+#include "GrabItem.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -82,8 +82,8 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     Super::SetupPlayerInputComponent(PlayerInput);
 
     /* ACTIONS */
-    PlayerInput->BindAction("DropLeft", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
-    PlayerInput->BindAction("DropRight", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
+    PlayerInput->BindAction("DropLeft", IE_Pressed, this, &AVRCharacter::DropLeft);
+    PlayerInput->BindAction("DropRight", IE_Pressed, this, &AVRCharacter::DropRight);
 
     /* VR SPECIFIC */
     PlayerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
@@ -139,7 +139,7 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                     HitItem = true;
                 }
             }
-            else if (Component->GetClass() == UHandPickItem::StaticClass()) {
+            else if (Component->GetClass() == UGrabItem::StaticClass()) {
                 _StaticMesh = Cast<UStaticMeshComponent>(OtherActor->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
 
@@ -269,51 +269,56 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
 
 /*************** USE TRIGGER *************/
 void AVRCharacter::UseTriggerPressed(AActor*& ActorFocused, USceneComponent* InParent, int Hand) {
+    if (ActorFocused) {
     /* CAN BE USED */
-    TArray<UActorComponent*> Components;
-    ActorFocused->GetComponents(Components);
-    for (UActorComponent* Component : Components) {
-        if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-            SERVER_UsePressed(Component);
+        TArray<UActorComponent*> Components;
+        ActorFocused->GetComponents(Components);
+        for (UActorComponent* Component : Components) {
+            if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                SERVER_UsePressed(Component);
+            }
         }
     }
 }
 
 void AVRCharacter::UseTriggerReleased(AActor*& ActorFocused, USceneComponent* InParent, int Hand) {
-    /* CAN BE GRABBED */
-    UHandPickItem* HandPickItemComp = Cast<UHandPickItem>(ActorFocused->GetComponentByClass(
-        UHandPickItem::StaticClass()));
-    if (HandPickItemComp) {
-        /* FOCUS */
-        UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
-            UStaticMeshComponent::StaticClass()));
-        if (_StaticMesh) {
-            _StaticMesh->SetCustomDepthStencilValue(0);
-            _StaticMesh->SetRenderCustomDepth(false);
+    if (ActorFocused) {
+        /* CAN BE GRABBED */
+        UGrabItem* GrabItemComp = Cast<UGrabItem>(ActorFocused->GetComponentByClass(
+            UGrabItem::StaticClass()));
+        if (GrabItemComp) {
+            /* FOCUS */
+            UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+                UStaticMeshComponent::StaticClass()));
+            if (_StaticMesh) {
+                _StaticMesh->SetCustomDepthStencilValue(0);
+                _StaticMesh->SetRenderCustomDepth(false);
+            }
+            SERVER_Take(ActorFocused, InParent, FName("TakeSocket"), Hand);
+            ActorFocused = nullptr;
         }
-        SERVER_Take(ActorFocused, InParent, FName("TakeSocket"), Hand);
-        ActorFocused = nullptr;
-    }
-
-    /* CAN BE USED */
-    TArray<UActorComponent*> Components;
-    ActorFocused->GetComponents(Components);
-    for (UActorComponent* Component : Components) {
-        if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-            SERVER_UseReleased(Component);
+        else {
+            /* CAN BE USED */
+            TArray<UActorComponent*> Components;
+            ActorFocused->GetComponents(Components);
+            for (UActorComponent* Component : Components) {
+                if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                    SERVER_UseReleased(Component);
+                }
+            }
         }
     }
 }
 
 void AVRCharacter::DropLeft() {
-    if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+    if (_ItemLeft && _ItemLeft->GetComponentByClass(UGrabItem::StaticClass())) {
         /* Drop item */
         SERVER_Drop(_ItemLeft, 1);
     }
 }
 
 void AVRCharacter::DropRight() {
-    if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+    if (_ItemRight && _ItemRight->GetComponentByClass(UGrabItem::StaticClass())) {
         /* Drop item */
         SERVER_Drop(_ItemRight, 2);
     }

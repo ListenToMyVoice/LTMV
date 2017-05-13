@@ -74,7 +74,9 @@ protected:
     void UseTriggerReleased(AActor*& ActorFocused, USceneComponent* InParent, int Hand);
 
     /********** TAKE ITEM ***********/
+    UFUNCTION()
     void DropLeft();
+    UFUNCTION()
     void DropRight();
 
 private:
