@@ -17,5 +17,6 @@
 
 DECLARE_DELEGATE(FRadioDelegate);
 DECLARE_DELEGATE(FInputMenuDelegate);
+DECLARE_DELEGATE(FGrabDelegate);
 
 #endif

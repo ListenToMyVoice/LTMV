@@ -72,9 +72,12 @@ void AVRCharacter::BuildRight() {
 void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
 
+    _GrabDelegateLeft.BindUObject(this, &AVRCharacter::ItemGrabbedLeft);
+    _GrabDelegateRight.BindUObject(this, &AVRCharacter::ItemGrabbedRight);
+
     HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    //HMD->EnableHMD(true);
-    //HMD->EnableStereo(true);
+    HMD->EnableHMD(true);
+    HMD->EnableStereo(true);
     SetupVROptions();
 }
 
@@ -91,7 +94,7 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 }
 
 void AVRCharacter::SetupVROptions() {
-    if (HMD && HMD->IsStereoEnabled()) {
+    if (HMD) {
         HMD->EnablePositionalTracking(bPositionalHeadTracking);
         /* Remove any translation when disabling positional head tracking */
         if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
@@ -100,7 +103,7 @@ void AVRCharacter::SetupVROptions() {
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
-    if (HMD && HMD->IsStereoEnabled()) HMD->ResetOrientationAndPosition();
+    if (HMD) HMD->ResetOrientationAndPosition();
 }
 
 void AVRCharacter::ToggleTrackingSpace() {// T
@@ -222,7 +225,8 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
                 }
             }
         }
-        else if (_ActorFocusedLeft) UseTriggerReleased(_ActorFocusedLeft, _SM_LeftHand, 1);
+        else if (_ActorFocusedLeft || _ActorGrabbing)
+            UseTriggerReleased(_ActorFocusedLeft, _SM_LeftHand, 1);
     }
     else _MenuInteractionComp->ReleasePointer();
 
@@ -230,7 +234,7 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
     _GripStateLeft = EGripEnum::Open;
 }
 
-/******* USE ITEM RIGHT *********/
+/******* USE ITEM RIGHT *** ******/
 void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
     if (_ItemRight) {
         TArray<UActorComponent*> Components;
@@ -261,14 +265,15 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
             }
         }
     }
-    else if (_ActorFocusedRight) UseTriggerReleased(_ActorFocusedRight, _SM_RightHand, 2);
+    else if (_ActorFocusedRight || _ActorGrabbing)
+        UseTriggerReleased(_ActorFocusedRight, _SM_RightHand, 2);
 
     /* ANIMATION */
     _GripStateRight = EGripEnum::Open;
 }
 
 /*************** USE TRIGGER *************/
-void AVRCharacter::UseTriggerPressed(AActor*& ActorFocused, USceneComponent* InParent, int Hand) {
+void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand) {
     if (ActorFocused) {
         /* CAN BE GRABBED */
         UGrabItem* GrabItemComp = Cast<UGrabItem>(ActorFocused->GetComponentByClass(
@@ -296,31 +301,30 @@ void AVRCharacter::UseTriggerPressed(AActor*& ActorFocused, USceneComponent* InP
     }
 }
 
-void AVRCharacter::UseTriggerReleased(AActor*& ActorFocused, USceneComponent* InParent, int Hand) {
-    if (ActorFocused) {
-        /* CAN BE GRABBED */
-        UGrabItem* GrabItemComp = Cast<UGrabItem>(ActorFocused->GetComponentByClass(
+void AVRCharacter::UseTriggerReleased(AActor* ActorFocused, USceneComponent* InParent, int Hand) {
+    if (_ActorGrabbing) {
+        /* DROP GRABBING */
+        UGrabItem* GrabItemComp = Cast<UGrabItem>(_ActorGrabbing->GetComponentByClass(
             UGrabItem::StaticClass()));
         if (GrabItemComp) {
             /* FOCUS */
-            UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+            UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(_ActorGrabbing->GetComponentByClass(
                 UStaticMeshComponent::StaticClass()));
             if (_StaticMesh) {
                 _StaticMesh->SetCustomDepthStencilValue(0);
                 _StaticMesh->SetRenderCustomDepth(false);
             }
             /* Drop item */
-            SERVER_GrabRelease(ActorFocused, Hand);
-            ActorFocused = nullptr;
+            SERVER_GrabRelease(Hand);
         }
-        else {
-            /* CAN BE USED */
-            TArray<UActorComponent*> Components;
-            ActorFocused->GetComponents(Components);
-            for (UActorComponent* Component : Components) {
-                if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-                    SERVER_UseReleased(Component);
-                }
+    }
+    else if (ActorFocused) {
+        /* CAN BE USED */
+        TArray<UActorComponent*> Components;
+        ActorFocused->GetComponents(Components);
+        for (UActorComponent* Component : Components) {
+            if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                SERVER_UseReleased(Component);
             }
         }
     }
@@ -337,34 +341,50 @@ void AVRCharacter::SERVER_GrabPress_Implementation(AActor* Actor, USceneComponen
 }
 void AVRCharacter::MULTI_GrabPress_Implementation(AActor* Actor, USceneComponent* InParent,
                                                   FName SocketName, int Hand) {
+    if (Actor) {
+        _ActorGrabbing = Actor;
+        UGrabItem* GrabItemComp = Cast<UGrabItem>(_ActorGrabbing->FindComponentByClass(
+            UGrabItem::StaticClass()));
+        if (GrabItemComp && InParent) {
+            GrabItemComp->BeginGrab(InParent, SocketName);
+            _ActorGrabbing->SetActorEnableCollision(false);
 
-    UGrabItem* GrabItemComp = Cast<UGrabItem>(Actor->FindComponentByClass(
-        UGrabItem::StaticClass()));
-    if (GrabItemComp && InParent) {
-        GrabItemComp->BeginGrab(InParent, SocketName);
-        Actor->SetActorEnableCollision(false);
-
-        if (Hand == 1) _ItemLeft = Actor;
-        else if (Hand == 2) _ItemRight = Actor;
+            if (Hand == 1) GrabItemComp->AddOnGrabDelegate(_GrabDelegateLeft);
+            else if (Hand == 2) GrabItemComp->AddOnGrabDelegate(_GrabDelegateRight);
+        }
     }
 }
 
-bool AVRCharacter::SERVER_GrabRelease_Validate(AActor* Actor, int Hand) {
+bool AVRCharacter::SERVER_GrabRelease_Validate(int Hand) {
     return true;
 }
-void AVRCharacter::SERVER_GrabRelease_Implementation(AActor* Actor, int Hand) {
-    MULTI_GrabRelease(Actor, Hand);
+void AVRCharacter::SERVER_GrabRelease_Implementation(int Hand) {
+    MULTI_GrabRelease(Hand);
 }
-void AVRCharacter::MULTI_GrabRelease_Implementation(AActor* Actor, int Hand) {
+void AVRCharacter::MULTI_GrabRelease_Implementation(int Hand) {
+    if (_ActorGrabbing) {
+        UGrabItem* GrabItemComp = Cast<UGrabItem>(_ActorGrabbing->FindComponentByClass(
+            UGrabItem::StaticClass()));
+        if (GrabItemComp) {
+            GrabItemComp->EndGrab();
+            _ActorGrabbing->SetActorEnableCollision(true);
+            _ActorGrabbing = nullptr;
+        }
+    }
 
-    UGrabItem* GrabItemComp = Cast<UGrabItem>(Actor->FindComponentByClass(
-        UGrabItem::StaticClass()));
-    if (GrabItemComp) {
-        GrabItemComp->EndGrab();
-        Actor->SetActorEnableCollision(true);
+}
 
-        if (Hand == 1) _ItemLeft = nullptr;
-        else if (Hand == 2) _ItemRight = nullptr;
+void AVRCharacter::ItemGrabbedLeft() {
+    if (_ActorGrabbing) {
+        _ItemLeft = _ActorGrabbing;
+        _ActorGrabbing = nullptr;
+    }
+}
+
+void AVRCharacter::ItemGrabbedRight() {
+    if (_ActorGrabbing) {
+        _ItemRight = _ActorGrabbing;
+        _ActorGrabbing = nullptr;
     }
 }
 

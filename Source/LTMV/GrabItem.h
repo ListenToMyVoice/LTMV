@@ -5,6 +5,7 @@
 #include "Components/ActorComponent.h"
 #include "GrabItem.generated.h"
 
+DECLARE_EVENT(UGrabItem, FGrabEvent);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LTMV_API UGrabItem : public UActorComponent {
@@ -24,6 +25,9 @@ public:
     UPROPERTY(EditAnywhere)
     FRotator _rotationAttach_C;
 
+    FGrabEvent _GrabItemEvent;
+    FDelegateHandle _OnGrabItemDelegateHandle;
+
     UGrabItem();
 
     virtual void TickComponent(float DeltaTime, ELevelTick TickType,
@@ -32,12 +36,15 @@ public:
     void BeginGrab(USceneComponent* Target, FName SocketName);
     void EndGrab();
 
+    void AddOnGrabDelegate(FGrabDelegate& GrabDelegate);
+    void ClearOnGrabDelegate();
+
 protected:
     virtual void BeginPlay() override;
 
 private:
     bool _IsBeingTaked;
-    UStaticMeshComponent* _SourceMesh;
-    UStaticMeshComponent* _TargetMesh;
+    UMeshComponent* _SourceMesh;
+    UMeshComponent* _TargetMesh;
     FName _SocketName;
 };
