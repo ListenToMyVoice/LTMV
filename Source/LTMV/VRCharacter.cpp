@@ -366,25 +366,54 @@ void AVRCharacter::MULTI_GrabRelease_Implementation(int Hand) {
         UGrabItem* GrabItemComp = Cast<UGrabItem>(_ActorGrabbing->FindComponentByClass(
             UGrabItem::StaticClass()));
         if (GrabItemComp) {
-            GrabItemComp->EndGrab();
+            GrabItemComp->EndGrab(true);
             _ActorGrabbing->SetActorEnableCollision(true);
             _ActorGrabbing = nullptr;
         }
     }
-
 }
 
 void AVRCharacter::ItemGrabbedLeft() {
     if (_ActorGrabbing) {
-        _ItemLeft = _ActorGrabbing;
-        _ActorGrabbing = nullptr;
+        UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ActorGrabbing->GetComponentByClass(
+            UStaticMeshComponent::StaticClass()));
+        UGrabItem* GrabItemComp = Cast<UGrabItem>(_ActorGrabbing->FindComponentByClass(
+            UGrabItem::StaticClass()));
+        if (ItemMesh && GrabItemComp) {
+            ItemMesh->SetSimulatePhysics(false);
+            ItemMesh->AttachToComponent(_SM_LeftHand,
+                                        FAttachmentTransformRules::KeepRelativeTransform,
+                                        TEXT("TakeSocket"));
+
+            ItemMesh->RelativeLocation = GrabItemComp->_locationAttach_L;
+            ItemMesh->RelativeRotation = GrabItemComp->_rotationAttach_L;
+
+            _ActorGrabbing->SetActorEnableCollision(false);
+            _ItemLeft = _ActorGrabbing;
+            _ActorGrabbing = nullptr;
+        }
     }
 }
 
 void AVRCharacter::ItemGrabbedRight() {
     if (_ActorGrabbing) {
-        _ItemRight = _ActorGrabbing;
-        _ActorGrabbing = nullptr;
+        UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ActorGrabbing->GetComponentByClass(
+            UStaticMeshComponent::StaticClass()));
+        UGrabItem* GrabItemComp = Cast<UGrabItem>(_ActorGrabbing->FindComponentByClass(
+            UGrabItem::StaticClass()));
+        if (ItemMesh && GrabItemComp) {
+            ItemMesh->SetSimulatePhysics(false);
+            ItemMesh->AttachToComponent(_SM_RightHand,
+                                        FAttachmentTransformRules::KeepRelativeTransform,
+                                        TEXT("TakeSocket"));
+
+            ItemMesh->RelativeLocation = GrabItemComp->_locationAttach_R;
+            ItemMesh->RelativeRotation = GrabItemComp->_rotationAttach_R;
+
+            _ActorGrabbing->SetActorEnableCollision(false);
+            _ItemRight = _ActorGrabbing;
+            _ActorGrabbing = nullptr;
+        }
     }
 }
 

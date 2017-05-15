@@ -12,6 +12,9 @@ class LTMV_API UGrabItem : public UActorComponent {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, Category=Mevement)
+    float _AttachVelocity;
+
     UPROPERTY(EditAnywhere)
     FVector _locationAttach_L;
     UPROPERTY(EditAnywhere)
@@ -34,7 +37,7 @@ public:
                                FActorComponentTickFunction* ThisTickFunction) override;
 
     void BeginGrab(USceneComponent* Target, FName SocketName);
-    void EndGrab();
+    void EndGrab(bool IsReleased = false);
 
     void AddOnGrabDelegate(FGrabDelegate& GrabDelegate);
     void ClearOnGrabDelegate();

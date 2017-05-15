@@ -13,6 +13,7 @@ UGrabItem::UGrabItem() : Super(), _locationAttach_L(0.f, 0.f, 0.f),
     
     PrimaryComponentTick.bCanEverTick = true;
 
+    _AttachVelocity = 25;
     _IsBeingTaked = false;
     _SourceMesh = nullptr;
     _TargetMesh = nullptr;
@@ -37,14 +38,13 @@ void UGrabItem::BeginGrab(USceneComponent* Target, FName SocketName) {
     }
 }
 
-void UGrabItem::EndGrab() {
+void UGrabItem::EndGrab(bool IsReleased) {
     SetComponentTickEnabled(false);
     ClearOnGrabDelegate();
 
-    if (_SourceMesh) {
+    if (IsReleased && _SourceMesh) {
         _SourceMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         _SourceMesh->SetSimulatePhysics(true);
-        ULibraryUtils::Log("EndGrab");
     }
     _TargetMesh = nullptr;
     _IsBeingTaked = false;
@@ -60,10 +60,17 @@ void UGrabItem::TickComponent(float DeltaTime, ELevelTick TickType,
     if (_IsBeingTaked) {
         FVector NewLocation = FMath::VInterpConstantTo(_SourceMesh->GetSocketLocation(_SocketName),
                                                        _TargetMesh->GetComponentLocation(),
-                                                       DeltaTime, 3);
-
+                                                       DeltaTime, _AttachVelocity);
+        FRotator NewRotation = FMath::RInterpConstantTo(_SourceMesh->GetSocketRotation(_SocketName),
+                                                        _TargetMesh->GetComponentRotation(),
+                                                        DeltaTime, _AttachVelocity);
         _SourceMesh->SetWorldLocation(NewLocation);
+        _SourceMesh->SetWorldRotation(NewRotation);
         // DETECT ATTACH FIRE EVENTS
+        if (FVector::Dist(NewLocation, _TargetMesh->GetComponentLocation()) <= 1) {
+            _GrabItemEvent.Broadcast();
+            EndGrab();
+        }
     }
 }
 
