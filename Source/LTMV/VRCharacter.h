@@ -70,10 +70,21 @@ protected:
     USphereComponent* _RightSphere;
 
     /*************** USE TRIGGER *************/
-    void UseTriggerPressed(AActor*& ActorFocused, USceneComponent* InParent, int Hand);
-    void UseTriggerReleased(AActor*& ActorFocused, USceneComponent* InParent, int Hand);
+    void UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand);
+    void UseTriggerReleased(AActor* ActorFocused, USceneComponent* InParent, int Hand);
 
     /********** TAKE ITEM ***********/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_GrabPress(AActor* Actor, USceneComponent* InParent, FName SocketName, int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_GrabPress(AActor* Actor, USceneComponent* InParent, FName SocketName, int Hand);
+
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_GrabRelease(int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_GrabRelease(int Hand);
+
+    /********** DROP ITEM ***********/
     UFUNCTION()
     void DropLeft();
     UFUNCTION()
@@ -84,6 +95,7 @@ private:
 
     AActor* _ActorFocusedLeft;
     AActor* _ActorFocusedRight;
+    AActor* _ActorGrabbing;
 
     UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
     UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
@@ -99,4 +111,10 @@ private:
     UFUNCTION()
     void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+    FGrabDelegate _GrabDelegateLeft;
+    FGrabDelegate _GrabDelegateRight;
+
+    void ItemGrabbedLeft();
+    void ItemGrabbedRight();
 };
