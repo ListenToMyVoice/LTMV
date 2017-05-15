@@ -74,6 +74,17 @@ protected:
     void UseTriggerReleased(AActor*& ActorFocused, USceneComponent* InParent, int Hand);
 
     /********** TAKE ITEM ***********/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_GrabPress(AActor* Actor, USceneComponent* InParent, FName SocketName, int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_GrabPress(AActor* Actor, USceneComponent* InParent, FName SocketName, int Hand);
+
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_GrabRelease(AActor* Actor, int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_GrabRelease(AActor* Actor, int Hand);
+
+    /********** DROP ITEM ***********/
     UFUNCTION()
     void DropLeft();
     UFUNCTION()

@@ -270,12 +270,27 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
 /*************** USE TRIGGER *************/
 void AVRCharacter::UseTriggerPressed(AActor*& ActorFocused, USceneComponent* InParent, int Hand) {
     if (ActorFocused) {
-    /* CAN BE USED */
-        TArray<UActorComponent*> Components;
-        ActorFocused->GetComponents(Components);
-        for (UActorComponent* Component : Components) {
-            if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
-                SERVER_UsePressed(Component);
+        /* CAN BE GRABBED */
+        UGrabItem* GrabItemComp = Cast<UGrabItem>(ActorFocused->GetComponentByClass(
+            UGrabItem::StaticClass()));
+        if (GrabItemComp) {
+            /* FOCUS */
+            UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+                UStaticMeshComponent::StaticClass()));
+            if (_StaticMesh) {
+                _StaticMesh->SetCustomDepthStencilValue(0);
+                _StaticMesh->SetRenderCustomDepth(false);
+            }
+            SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
+        }
+        else {
+            /* CAN BE USED */
+            TArray<UActorComponent*> Components;
+            ActorFocused->GetComponents(Components);
+            for (UActorComponent* Component : Components) {
+                if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+                    SERVER_UsePressed(Component);
+                }
             }
         }
     }
@@ -294,7 +309,8 @@ void AVRCharacter::UseTriggerReleased(AActor*& ActorFocused, USceneComponent* In
                 _StaticMesh->SetCustomDepthStencilValue(0);
                 _StaticMesh->SetRenderCustomDepth(false);
             }
-            SERVER_Take(ActorFocused, InParent, FName("TakeSocket"), Hand);
+            /* Drop item */
+            SERVER_GrabRelease(ActorFocused, Hand);
             ActorFocused = nullptr;
         }
         else {
@@ -307,6 +323,48 @@ void AVRCharacter::UseTriggerReleased(AActor*& ActorFocused, USceneComponent* In
                 }
             }
         }
+    }
+}
+
+/********** TAKE ITEM ***********/
+bool AVRCharacter::SERVER_GrabPress_Validate(AActor* Actor, USceneComponent* InParent,
+                                             FName SocketName, int Hand) {
+    return true;
+}
+void AVRCharacter::SERVER_GrabPress_Implementation(AActor* Actor, USceneComponent* InParent,
+                                                   FName SocketName, int Hand) {
+    MULTI_GrabPress(Actor, InParent, SocketName, Hand);
+}
+void AVRCharacter::MULTI_GrabPress_Implementation(AActor* Actor, USceneComponent* InParent,
+                                                  FName SocketName, int Hand) {
+
+    UGrabItem* GrabItemComp = Cast<UGrabItem>(Actor->FindComponentByClass(
+        UGrabItem::StaticClass()));
+    if (GrabItemComp && InParent) {
+        GrabItemComp->BeginGrab(InParent, SocketName);
+        Actor->SetActorEnableCollision(false);
+
+        if (Hand == 1) _ItemLeft = Actor;
+        else if (Hand == 2) _ItemRight = Actor;
+    }
+}
+
+bool AVRCharacter::SERVER_GrabRelease_Validate(AActor* Actor, int Hand) {
+    return true;
+}
+void AVRCharacter::SERVER_GrabRelease_Implementation(AActor* Actor, int Hand) {
+    MULTI_GrabRelease(Actor, Hand);
+}
+void AVRCharacter::MULTI_GrabRelease_Implementation(AActor* Actor, int Hand) {
+
+    UGrabItem* GrabItemComp = Cast<UGrabItem>(Actor->FindComponentByClass(
+        UGrabItem::StaticClass()));
+    if (GrabItemComp) {
+        GrabItemComp->EndGrab();
+        Actor->SetActorEnableCollision(true);
+
+        if (Hand == 1) _ItemLeft = nullptr;
+        else if (Hand == 2) _ItemRight = nullptr;
     }
 }
 
