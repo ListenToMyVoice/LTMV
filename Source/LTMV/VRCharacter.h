@@ -81,7 +81,8 @@ protected:
     void DropRight();
 
     /*********** MOVEMENT ***********/
-    void TurnAtRate(float Value) override;
+    void MoveForward(float Value) override;
+    void TurnVRCharacter();
 
 protected:
     /******** VR PROPERTIES *********/

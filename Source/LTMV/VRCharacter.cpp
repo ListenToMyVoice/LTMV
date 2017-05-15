@@ -45,15 +45,19 @@ void AVRCharacter::BuildLeft() {
     _LeftHandComp = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("_LeftHandComp"));
     _LeftHandComp->Hand = EControllerHand::Left;
     _LeftHandComp->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftHandComp->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
 
     /* MESH */
     _SM_LeftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_LeftHand"));
     _SM_LeftHand->AttachToComponent(_LeftHandComp, FAttachmentTransformRules::KeepRelativeTransform);
+    _SM_LeftHand->SetWorldScale3D(FVector(1.0f, 1.0f, -1.0f));
+    _SM_LeftHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_LeftHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
 
     /* ADDITIONAL */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
     _LeftSphere->SetSphereRadius(10.f);
 }
 
@@ -61,15 +65,18 @@ void AVRCharacter::BuildRight() {
     _RightHandComp = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("_RightHandComp"));
     _RightHandComp->Hand = EControllerHand::Right;
     _RightHandComp->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightHandComp->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
 
     /* MESH */
     _SM_RightHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_RightHand"));
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
+    _SM_RightHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_RightHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
 
     /* ADDITIONAL */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
     _RightSphere->SetSphereRadius(10.f);
 }
 
@@ -83,6 +90,8 @@ void AVRCharacter::BeginPlay() {
         SetupVROptions();
     }
 
+    UE_LOG(LogTemp, Warning, TEXT("Current player orientation: %s"), *this->GetActorRotation().ToString());
+    UE_LOG(LogTemp, Warning, TEXT("Current player vector: %s"), *this->GetActorForwardVector().ToString());
     TargetOrientation = this->GetActorRotation();
 }
 
@@ -98,7 +107,7 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 
     /* MOVEMENT */
-    PlayerInput->BindAxis("TurnAtRate", this, &AVRCharacter::TurnAtRate);
+    PlayerInput->BindAction("TurnVRCharacter", IE_Pressed, this, &AVRCharacter::TurnVRCharacter);
 }
 
 void AVRCharacter::SetupVROptions() {
@@ -130,12 +139,20 @@ void AVRCharacter::ToggleTrackingSpace() {// T
     //}
 }
 
-void AVRCharacter::TurnAtRate(float Value) {
+void AVRCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
-        FVector VRCameraForwardVector = _PlayerCamera->GetForwardVector();
-        TargetOrientation.Yaw = VRCameraForwardVector.Rotation().Yaw;
-        AddControllerYawInput(TargetOrientation.Yaw);
-    }    
+        AddMovementInput(this->GetActorForwardVector(), Value);
+        UE_LOG(LogTemp, Warning, TEXT("Forward vector: %s"), *this->GetActorForwardVector().ToString());
+    }
+}
+
+void AVRCharacter::TurnVRCharacter() {
+    FVector VRCameraForwardVector = _PlayerCamera->GetForwardVector();
+    TargetOrientation.Yaw = VRCameraForwardVector.Rotation().Yaw;
+    this->SetActorRotation(TargetOrientation);
+
+    UE_LOG(LogTemp, Warning, TEXT("Current player orientation: %s"), *this->GetActorRotation().ToString());
+    UE_LOG(LogTemp, Warning, TEXT("Current player vector: %s"), *this->GetActorForwardVector().ToString());
 }
 
 /************** OVERLAPPING *************/
