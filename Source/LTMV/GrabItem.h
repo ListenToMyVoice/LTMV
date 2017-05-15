@@ -5,13 +5,15 @@
 #include "Components/ActorComponent.h"
 #include "GrabItem.generated.h"
 
+DECLARE_EVENT(UGrabItem, FGrabEvent);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class LTMV_API UGrabItem : public UActorComponent
-{
-	GENERATED_BODY()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class LTMV_API UGrabItem : public UActorComponent {
+    GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, Category=Mevement)
+    float _AttachVelocity;
 
     UPROPERTY(EditAnywhere)
     FVector _locationAttach_L;
@@ -21,14 +23,31 @@ public:
     FVector _locationAttach_R;
     UPROPERTY(EditAnywhere)
     FRotator _rotationAttach_R;
-	UPROPERTY(EditAnyWhere)
-	FVector _locationAttach_C;
-	UPROPERTY(EditAnywhere)
-	FRotator _rotationAttach_C;
+    UPROPERTY(EditAnyWhere)
+    FVector _locationAttach_C;
+    UPROPERTY(EditAnywhere)
+    FRotator _rotationAttach_C;
 
+    FGrabEvent _GrabItemEvent;
+    FDelegateHandle _OnGrabItemDelegateHandle;
 
-	UGrabItem();
+    UGrabItem();
 
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+                               FActorComponentTickFunction* ThisTickFunction) override;
+
+    void BeginGrab(USceneComponent* Target, FName SocketName);
+    void EndGrab(bool IsReleased = false);
+
+    void AddOnGrabDelegate(FGrabDelegate& GrabDelegate);
+    void ClearOnGrabDelegate();
+
+protected:
     virtual void BeginPlay() override;
 
+private:
+    bool _IsBeingTaked;
+    UMeshComponent* _SourceMesh;
+    UMeshComponent* _TargetMesh;
+    FName _SocketName;
 };

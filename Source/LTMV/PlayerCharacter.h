@@ -82,13 +82,6 @@ protected:
 
     /********** TAKE ITEM ***********/
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_Take(AActor* Actor, USceneComponent* InParent, FName SocketName, int Hand);
-    UFUNCTION(NetMulticast, Reliable)
-    void MULTI_Take(AActor* Actor, USceneComponent* InParent, FName SocketName, int Hand);
-
-
-
-    UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_TakeRight(AActor* Actor);
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_TakeRight(AActor* Actor);
