@@ -27,6 +27,7 @@ public:
     AVRCharacter(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
+    void Tick(float deltaTime) override;
 
     void SetupVROptions();
     void ResetHMDOrigin();
@@ -78,6 +79,14 @@ protected:
     void DropLeft();
     UFUNCTION()
     void DropRight();
+
+    /*********** MOVEMENT ***********/
+    void TurnAtRate(float Value) override;
+
+protected:
+    /******** VR PROPERTIES *********/
+    UPROPERTY(BlueprintReadWrite)
+    FRotator TargetOrientation;
 
 private:
     IHeadMountedDisplay* HMD;

@@ -49,10 +49,12 @@ void AVRCharacter::BuildLeft() {
     /* MESH */
     _SM_LeftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_LeftHand"));
     _SM_LeftHand->AttachToComponent(_LeftHandComp, FAttachmentTransformRules::KeepRelativeTransform);
+    _SM_LeftHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
 
     /* ADDITIONAL */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftSphere->SetSphereRadius(10.f);
 }
 
 void AVRCharacter::BuildRight() {
@@ -63,19 +65,25 @@ void AVRCharacter::BuildRight() {
     /* MESH */
     _SM_RightHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_RightHand"));
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
+    _SM_RightHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
 
     /* ADDITIONAL */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightSphere->SetSphereRadius(10.f);
 }
 
 void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
 
-    HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    //HMD->EnableHMD(true);
-    //HMD->EnableStereo(true);
-    SetupVROptions();
+    if (HMD == nullptr) {
+        HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
+        HMD->EnableHMD(true);
+        HMD->EnableStereo(true);
+        SetupVROptions();
+    }
+
+    TargetOrientation = this->GetActorRotation();
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -88,6 +96,9 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     /* VR SPECIFIC */
     PlayerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
     PlayerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
+
+    /* MOVEMENT */
+    PlayerInput->BindAxis("TurnAtRate", this, &AVRCharacter::TurnAtRate);
 }
 
 void AVRCharacter::SetupVROptions() {
@@ -103,6 +114,10 @@ void AVRCharacter::ResetHMDOrigin() {// R
     if (HMD && HMD->IsStereoEnabled()) HMD->ResetOrientationAndPosition();
 }
 
+void AVRCharacter::Tick(float deltaTime) {
+
+}
+
 void AVRCharacter::ToggleTrackingSpace() {// T
     // TODO: Fix module includes for SteamVR
 
@@ -113,6 +128,14 @@ void AVRCharacter::ToggleTrackingSpace() {// T
     // 	ESteamVRTrackingSpace TrackingSpace = SteamVRHMD->GetTrackingSpace();
     // 	SteamVRHMD->SetTrackingSpace(TrackingSpace == ESteamVRTrackingSpace::Seated ? ESteamVRTrackingSpace::Standing : ESteamVRTrackingSpace::Seated);
     //}
+}
+
+void AVRCharacter::TurnAtRate(float Value) {
+    if (Value != 0.0f) {
+        FVector VRCameraForwardVector = _PlayerCamera->GetForwardVector();
+        TargetOrientation.Yaw = VRCameraForwardVector.Rotation().Yaw;
+        AddControllerYawInput(TargetOrientation.Yaw);
+    }    
 }
 
 /************** OVERLAPPING *************/

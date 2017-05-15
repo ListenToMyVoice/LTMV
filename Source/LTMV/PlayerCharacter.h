@@ -40,8 +40,8 @@ public:
                              class AController* EventInstigator, class AActor* DamageCauser) override;
     
     /*********** MOVEMENT ***********/
-    void TurnAtRate(float Rate);
-    void LookUpAtRate(float Rate);
+    virtual void TurnAtRate(float Rate);
+    virtual void LookUpAtRate(float Rate);
 
     AActor* GetWalkieActor();
     bool IsWalkieInHand();
@@ -64,8 +64,8 @@ protected:
 
     /*************************************** ACTION MAPPINGS *************************************/
     /*********** MOVEMENT ***********/
-    void MoveForward(float Val);
-    void MoveRight(float Val);
+    virtual void MoveForward(float Val);
+    virtual void MoveRight(float Val);
 
     /************** USE *************/
     UFUNCTION(Server, Reliable, WithValidation)
