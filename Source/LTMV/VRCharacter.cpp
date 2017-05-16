@@ -150,10 +150,11 @@ void AVRCharacter::MoveForward(float Value) {
 }
 
 void AVRCharacter::TurnVRCharacter() {
-    FVector VRCameraForwardVector = _PlayerCamera->GetForwardVector();
-    TargetOrientation.Yaw = VRCameraForwardVector.Rotation().Yaw;
-    this->SetActorRotation(TargetOrientation);
-
+    float _YawValue = _PlayerCamera->GetForwardVector().Rotation().Yaw - this->GetActorForwardVector().Rotation().Yaw;
+    // TargetOrientation.Yaw = VRCameraForwardVector.Rotation().Yaw;
+    // this->SetActorRotation(TargetOrientation);
+    AddControllerYawInput(_YawValue);
+    HMD->ResetOrientation(_YawValue);
     UE_LOG(LogTemp, Warning, TEXT("Current player orientation: %s"), *this->GetActorRotation().ToString());
     UE_LOG(LogTemp, Warning, TEXT("Current player vector: %s"), *this->GetActorForwardVector().ToString());
 }
