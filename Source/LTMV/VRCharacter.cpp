@@ -85,8 +85,6 @@ void AVRCharacter::BeginPlay() {
 
     if (HMD == nullptr) {
         HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-        HMD->EnableHMD(true);
-        HMD->EnableStereo(true);
         SetupVROptions();
     }
 

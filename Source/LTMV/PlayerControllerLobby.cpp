@@ -27,6 +27,8 @@ void APlayerControllerLobby::SetupInputComponent() {
     /* USE ITEM */
     InputComponent->BindAction("ClickLeft", IE_Pressed, this, &APlayerControllerLobby::UseLeftPressed);
     InputComponent->BindAction("ClickLeft", IE_Released, this, &APlayerControllerLobby::UseLeftReleased);
+    InputComponent->BindAction("ClickRight", IE_Pressed, this, &APlayerControllerLobby::UseRightPressed);
+    InputComponent->BindAction("ClickRight", IE_Released, this, &APlayerControllerLobby::UseRightReleased);
 }
 
 void APlayerControllerLobby::CLIENT_InitialSetup_Implementation() {
@@ -97,6 +99,25 @@ void APlayerControllerLobby::UseLeftReleased() {
         bool  IsMenuHidden = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false :
                                 _MenuActor ? _MenuActor->_IsMenuHidden : true;
         PlayerCharacter->UseLeftReleased(IsMenuHidden);
+    }
+}
+
+/******** USE ITEM RIGHT *********/
+void APlayerControllerLobby::UseRightPressed() {
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter) {
+        bool  IsMenuHidden = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false :
+            _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseRightPressed(IsMenuHidden);
+    }
+}
+
+void APlayerControllerLobby::UseRightReleased() {
+    APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+    if (PlayerCharacter) {
+        bool  IsMenuHidden = _MapMainMenu.Contains(GetWorld()->GetMapName()) ? false :
+            _MenuActor ? _MenuActor->_IsMenuHidden : true;
+        PlayerCharacter->UseRightReleased(IsMenuHidden);
     }
 }
 

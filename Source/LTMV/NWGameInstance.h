@@ -24,6 +24,7 @@ class LTMV_API UNWGameInstance : public UGameInstance {
 
 /**************************************** SESSION ************************************************/
 public:
+    bool _IsVRMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FPlayerInfo _PlayerInfoSaved;
     UPROPERTY(Replicated)
@@ -119,6 +120,11 @@ public:
 protected:
     TSubclassOf<ACharacter> _BoyClass;
     TSubclassOf<ACharacter> _GirlClass;
+    TSubclassOf<ACharacter> _VRBoyClass;
+    TSubclassOf<ACharacter> _VRGirlClass;
+
+    TSubclassOf<ACharacter> _DefaultCharacterClass;
+    TSubclassOf<ACharacter> _VRDefaultCharacterClass;
 
     TSharedPtr<class FOnlineSessionSettings> _SessionSettings;
     TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
