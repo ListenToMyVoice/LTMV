@@ -93,9 +93,6 @@ void AVRCharacter::BeginPlay() {
     _GrabDelegateLeft.BindUObject(this, &AVRCharacter::ItemGrabbedLeft);
     _GrabDelegateRight.BindUObject(this, &AVRCharacter::ItemGrabbedRight);
 
-    UE_LOG(LogTemp, Warning, TEXT("Current player orientation: %s"), *this->GetActorRotation().ToString());
-    UE_LOG(LogTemp, Warning, TEXT("Current player vector: %s"), *this->GetActorForwardVector().ToString());
-    TargetOrientation = this->GetActorRotation();
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -144,15 +141,12 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 
 void AVRCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
-        AddMovementInput(this->GetActorForwardVector(), Value);
-        UE_LOG(LogTemp, Warning, TEXT("Forward vector: %s"), *this->GetActorForwardVector().ToString());
+        AddMovementInput(GetActorForwardVector(), Value);
     }
 }
 
 void AVRCharacter::TurnVRCharacter() {
-    float _YawValue = _PlayerCamera->GetForwardVector().Rotation().Yaw - this->GetActorForwardVector().Rotation().Yaw;
-    // TargetOrientation.Yaw = VRCameraForwardVector.Rotation().Yaw;
-    // this->SetActorRotation(TargetOrientation);
+    float _YawValue = _PlayerCamera->GetForwardVector().Rotation().Yaw;
     AddControllerYawInput(_YawValue);
     HMD->ResetOrientation(_YawValue);
     UE_LOG(LogTemp, Warning, TEXT("Current player orientation: %s"), *this->GetActorRotation().ToString());

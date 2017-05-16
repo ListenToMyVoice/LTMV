@@ -95,11 +95,6 @@ protected:
     void MoveForward(float Value) override;
     void TurnVRCharacter();
 
-protected:
-    /******** VR PROPERTIES *********/
-    UPROPERTY(BlueprintReadWrite)
-    FRotator TargetOrientation;
-
 private:
     IHeadMountedDisplay* HMD;
 
