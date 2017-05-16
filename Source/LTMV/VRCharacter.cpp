@@ -126,10 +126,6 @@ void AVRCharacter::ResetHMDOrigin() {// R
     if (HMD) HMD->ResetOrientationAndPosition();
 }
 
-void AVRCharacter::Tick(float deltaTime) {
-
-}
-
 void AVRCharacter::ToggleTrackingSpace() {// T
     // TODO: Fix module includes for SteamVR
 
@@ -277,37 +273,43 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
 
 /******* USE ITEM RIGHT *** ******/
 void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
-    if (_ItemRight) {
-        TArray<UActorComponent*> Components;
-        _ItemRight->GetComponents(Components);
+    if (IsMenuHidden) {
+        if (_ItemRight) {
+            TArray<UActorComponent*> Components;
+            _ItemRight->GetComponents(Components);
 
-        for (UActorComponent* Component : Components) {
-            if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
-                IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
-                if (ItfObject) ItfObject->Execute_UseItemPressed(Component);
+            for (UActorComponent* Component : Components) {
+                if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
+                    IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
+                    if (ItfObject) ItfObject->Execute_UseItemPressed(Component);
+                }
             }
         }
+        else if (_ActorFocusedRight) UseTriggerPressed(_ActorFocusedRight, _SM_RightHand, 2);
     }
-    else if (_ActorFocusedRight) UseTriggerPressed(_ActorFocusedRight, _SM_RightHand, 2);
+    else _MenuInteractionComp->PressPointer();
 
     /* ANIMATION */
     _GripStateRight = EGripEnum::Grab;
 }
 
 void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
-    if (_ItemRight) {
-        TArray<UActorComponent*> Components;
-        _ItemRight->GetComponents(Components);
+    if (IsMenuHidden) {
+        if (_ItemRight) {
+            TArray<UActorComponent*> Components;
+            _ItemRight->GetComponents(Components);
 
-        for (UActorComponent* Component : Components) {
-            if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
-                IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
-                if (ItfObject) ItfObject->Execute_UseItemReleased(Component);
+            for (UActorComponent* Component : Components) {
+                if (Component->GetClass()->ImplementsInterface(UItfUsableItem::StaticClass())) {
+                    IItfUsableItem* ItfObject = Cast<IItfUsableItem>(Component);
+                    if (ItfObject) ItfObject->Execute_UseItemReleased(Component);
+                }
             }
         }
+        else if (_ActorFocusedRight || _ActorGrabbing)
+            UseTriggerReleased(_ActorFocusedRight, _SM_RightHand, 2);
     }
-    else if (_ActorFocusedRight || _ActorGrabbing)
-        UseTriggerReleased(_ActorFocusedRight, _SM_RightHand, 2);
+    else _MenuInteractionComp->ReleasePointer();
 
     /* ANIMATION */
     _GripStateRight = EGripEnum::Open;

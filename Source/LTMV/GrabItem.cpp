@@ -14,6 +14,7 @@ UGrabItem::UGrabItem() : Super(), _locationAttach_L(0.f, 0.f, 0.f),
     PrimaryComponentTick.bCanEverTick = true;
 
     _AttachVelocity = 25;
+    _AttachDistance = 3;
     _IsBeingTaked = false;
     _SourceMesh = nullptr;
     _TargetMesh = nullptr;
@@ -66,8 +67,8 @@ void UGrabItem::TickComponent(float DeltaTime, ELevelTick TickType,
                                                         DeltaTime, _AttachVelocity);
         _SourceMesh->SetWorldLocation(NewLocation);
         _SourceMesh->SetWorldRotation(NewRotation);
-        // DETECT ATTACH FIRE EVENTS
-        if (FVector::Dist(NewLocation, _TargetMesh->GetComponentLocation()) <= 1) {
+        
+        if (FVector::Dist(NewLocation, _TargetMesh->GetComponentLocation()) <= _AttachDistance) {
             _GrabItemEvent.Broadcast();
             EndGrab();
         }
