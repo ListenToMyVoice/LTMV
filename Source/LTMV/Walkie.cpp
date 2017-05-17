@@ -13,13 +13,11 @@ void UWalkie::BeginPlay() {
 }
 
 void UWalkie::UseItemPressed_Implementation() {
-    ULibraryUtils::Log("UseItemPressed_Implementation");
     _RadioPressedEvent.Broadcast();
 }
 
 
 void UWalkie::UseItemReleased_Implementation() {
-    ULibraryUtils::Log("UseItemReleased_Implementation");
     _RadioReleasedEvent.Broadcast();
 }
 
