@@ -9,8 +9,10 @@
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
+#include "IMotionController.h"
 #include "MotionControllerComponent.h"
 #include "SteamVRChaperoneComponent.h"
+
 
 AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     PrimaryActorTick.bCanEverTick = true;
@@ -58,7 +60,7 @@ void AVRCharacter::BuildLeft() {
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
     _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-    _LeftSphere->SetSphereRadius(10.f);
+    _LeftSphere->SetSphereRadius(12.5f);
 }
 
 void AVRCharacter::BuildRight() {
@@ -77,7 +79,7 @@ void AVRCharacter::BuildRight() {
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
     _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-    _RightSphere->SetSphereRadius(10.f);
+    _RightSphere->SetSphereRadius(12.5f);
 }
 
 void AVRCharacter::BeginPlay() {
@@ -91,9 +93,19 @@ void AVRCharacter::BeginPlay() {
     _GrabDelegateLeft.BindUObject(this, &AVRCharacter::ItemGrabbedLeft);
     _GrabDelegateRight.BindUObject(this, &AVRCharacter::ItemGrabbedRight);
 
-    UE_LOG(LogTemp, Warning, TEXT("Current player orientation: %s"), *this->GetActorRotation().ToString());
-    UE_LOG(LogTemp, Warning, TEXT("Current player vector: %s"), *this->GetActorForwardVector().ToString());
-    TargetOrientation = this->GetActorRotation();
+    CalculateMeshArmExtension();
+}
+
+void AVRCharacter::Tick(float deltaTime) {
+    Super::Tick(deltaTime);
+
+    DebugSensors();
+    DebugController(_LeftHandComp->Hand);
+    DebugController(_RightHandComp->Hand);
+
+    // Transfers via data IK positions
+    UpdateHMDLocationAndRotation();
+    UpdateControllersLocationAndRotation();
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -117,7 +129,7 @@ void AVRCharacter::SetupVROptions() {
         /* Remove any translation when disabling positional head tracking */
         if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
     }
-    ResetHMDOrigin();
+    //ResetHMDOrigin();
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
@@ -136,21 +148,17 @@ void AVRCharacter::ToggleTrackingSpace() {// T
     //}
 }
 
-void AVRCharacter::MoveForward(float Value) {
-    if (Value != 0.0f) {
-        AddMovementInput(this->GetActorForwardVector(), Value);
-        UE_LOG(LogTemp, Warning, TEXT("Forward vector: %s"), *this->GetActorForwardVector().ToString());
-    }
-}
-
 void AVRCharacter::TurnVRCharacter() {
-    float _YawValue = _PlayerCamera->GetForwardVector().Rotation().Yaw - this->GetActorForwardVector().Rotation().Yaw;
-    // TargetOrientation.Yaw = VRCameraForwardVector.Rotation().Yaw;
-    // this->SetActorRotation(TargetOrientation);
-    AddControllerYawInput(_YawValue);
-    HMD->ResetOrientation(_YawValue);
-    UE_LOG(LogTemp, Warning, TEXT("Current player orientation: %s"), *this->GetActorRotation().ToString());
-    UE_LOG(LogTemp, Warning, TEXT("Current player vector: %s"), *this->GetActorForwardVector().ToString());
+    float _CameraYawValue = _PlayerCamera->GetComponentRotation().Yaw;
+    float _PlayerYawValue = GetActorRotation().Yaw;
+    float _YawRelativeValue = _PlayerYawValue - _CameraYawValue;
+
+    AddControllerYawInput(_YawRelativeValue);
+    HMD->ResetOrientation(_CameraYawValue);
+
+    UE_LOG(LogTemp, Warning, TEXT("Camera orientation: %f"), _CameraYawValue);
+    UE_LOG(LogTemp, Warning, TEXT("Player orientation: %f"), _PlayerYawValue);
+    UE_LOG(LogTemp, Warning, TEXT("Relative orientation: %f"), _YawRelativeValue);
 }
 
 /************** OVERLAPPING *************/
@@ -469,5 +477,83 @@ void AVRCharacter::DropRight() {
     if (_ItemRight && _ItemRight->GetComponentByClass(UGrabItem::StaticClass())) {
         /* Drop item */
         SERVER_Drop(_ItemRight, 2);
+    }
+}
+
+/************ VR CHARACTER IK FEATURES *************/
+void AVRCharacter::UpdateHMDLocationAndRotation() {
+    _HMDWorldPosition = _PlayerCamera->GetComponentLocation();
+    _HMDWorldOrientation = _PlayerCamera->GetComponentRotation();
+}
+
+void AVRCharacter::UpdateControllersLocationAndRotation() {
+    TArray<IMotionController*> MotionControllers = IModularFeatures::Get().GetModularFeatureImplementations<IMotionController>(IMotionController::GetModularFeatureName());
+    MotionControllers[0]->GetControllerOrientationAndPosition(0, _LeftHandComp->Hand, _LeftControllerOrientation, _LeftControllerPosition);
+    MotionControllers[0]->GetControllerOrientationAndPosition(0, _RightHandComp->Hand, _RightControllerOrientation, _RightControllerPosition);
+    _LeftControllerPosition += this->GetActorLocation();
+    _RightControllerPosition += this->GetActorLocation();
+}
+
+/************ VR CHARACTER CALIBRATION FEATURES *************/
+
+void AVRCharacter::CalculateMeshArmExtension() {
+    if (GetMesh() != nullptr) {
+        FVector Hand = GetMesh()->GetBoneLocation(TEXT("hand_l"));
+        FVector Arm = GetMesh()->GetBoneLocation(TEXT("lowerarm_l"));
+        FVector Shoulder = GetMesh()->GetBoneLocation(TEXT("upperarm_l"));
+        MaxMeshArmExtension = (Arm - Hand).Size() + (Shoulder - Arm).Size();
+    }
+    else {
+        UE_LOG(LogTemp, Warning, TEXT("Longitud de brazo no calculado. No existe malla de personaje."))
+    }
+}
+
+/************ VR CHARACTER DEBUG FEATURES *************/
+
+void AVRCharacter::DebugSensors() {
+
+    FVector Origin;
+    FQuat Orientation;
+    float LeftFOV, RightFOV, TopFOV, BottomFOV, SensorDistance, NearPlane, FarPlane;
+
+    for (uint8 SensorIndex = 0; SensorIndex < HMD->GetNumOfTrackingSensors(); ++SensorIndex) {
+        bool isAvailable = HMD->GetTrackingSensorProperties(SensorIndex, Origin, Orientation,
+            LeftFOV, RightFOV, TopFOV, BottomFOV,
+            SensorDistance, NearPlane, FarPlane);
+        if (isAvailable) {
+            UE_LOG(LogTemp, Warning, TEXT("Sensor con indice %d en posicion: %s"), SensorIndex, *Origin.ToString());
+            Origin += this->GetActorLocation();
+            DrawDebugBox(GetWorld(), Origin, FVector(5.f, 5.f, 5.f), Orientation, FColor::Blue, true);
+        }
+        else {
+            UE_LOG(LogTemp, Warning, TEXT("Sensor con indice %d no disponible."), SensorIndex);
+        }
+    }
+}
+
+void AVRCharacter::DebugController(EControllerHand Hand) {
+
+    FVector Position;
+    FRotator Orientation;
+
+    TArray<IMotionController*> MotionControllers = IModularFeatures::Get().GetModularFeatureImplementations<IMotionController>(IMotionController::GetModularFeatureName());
+    ETrackingStatus DeviceTracked = MotionControllers[0]->GetControllerTrackingStatus(0, Hand);
+
+    switch (DeviceTracked) {
+    case(ETrackingStatus::NotTracked):
+        UE_LOG(LogTemp, Warning, TEXT("El mando no realiza seguimiento."));
+        break;
+    case(ETrackingStatus::Tracked):
+    case(ETrackingStatus::InertialOnly):
+        bool bControllerValidAndTracked = MotionControllers[0]->GetControllerOrientationAndPosition(0, Hand, Orientation, Position);
+        if (bControllerValidAndTracked) {
+            Position += this->GetActorLocation();
+            DrawDebugBox(GetWorld(), Position, FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Black);
+            break;
+        }
+        else {
+            UE_LOG(LogTemp, Warning, TEXT("El mando no es valido o no realiza seguimiento."));
+            break;
+        }
     }
 }
