@@ -7,11 +7,23 @@
 
 class UGrabItem;
 
+UENUM(BlueprintType)
+enum class EGripEnum : uint8 {
+    Open 	UMETA(DisplayName = "Open"),
+    CanGrab UMETA(DisplayName = "CanGrab"),
+    Grab	UMETA(DisplayName = "Grab")
+};
+
 UCLASS()
 class LTMV_API AVRCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(BlueprintReadOnly)
+    EGripEnum _GripStateLeft;
+    UPROPERTY(BlueprintReadOnly)
+    EGripEnum _GripStateRight;
+
     AVRCharacter(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
@@ -46,22 +58,53 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* _LeftHandComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    UStaticMeshComponent* _SM_LeftHand;
+    USkeletalMeshComponent* _SM_LeftHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _LeftSphere;
     /*********** RIGHT ***********/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* _RightHandComp;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    UStaticMeshComponent* _SM_RightHand;
+    USkeletalMeshComponent* _SM_RightHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _RightSphere;
+
+    /*************** USE TRIGGER *************/
+    void UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand);
+    void UseTriggerReleased(AActor* ActorFocused, USceneComponent* InParent, int Hand);
+
+    /********** TAKE ITEM ***********/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_GrabPress(AActor* Actor, USceneComponent* InParent, FName SocketName, int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_GrabPress(AActor* Actor, USceneComponent* InParent, FName SocketName, int Hand);
+
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_GrabRelease(int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_GrabRelease(int Hand);
+
+    /********** DROP ITEM ***********/
+    UFUNCTION()
+    void DropLeft();
+    UFUNCTION()
+    void DropRight();
+
+    /*********** MOVEMENT ***********/
+    void MoveForward(float Value) override;
+    void TurnVRCharacter();
+
+protected:
+    /******** VR PROPERTIES *********/
+    UPROPERTY(BlueprintReadWrite)
+    FRotator TargetOrientation;
 
 private:
     IHeadMountedDisplay* HMD;
 
     AActor* _ActorFocusedLeft;
     AActor* _ActorFocusedRight;
+    AActor* _ActorGrabbing;
 
     UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
     UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
@@ -70,13 +113,17 @@ private:
     void BuildRight();
 
     /*** OVERLAPPING ***/
+    UFUNCTION()
     void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
                    bool bFromSweep, const FHitResult& SweepResult);
+    UFUNCTION()
     void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-    /*************** USE TRIGGER *************/
-    void UseTriggerPressed(AActor* ActorFocused);
-    void UseTriggerReleased(AActor* ActorFocused);
+    FGrabDelegate _GrabDelegateLeft;
+    FGrabDelegate _GrabDelegateRight;
+
+    void ItemGrabbedLeft();
+    void ItemGrabbedRight();
 };

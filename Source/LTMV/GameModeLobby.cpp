@@ -15,9 +15,7 @@ void AGameModeLobby::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 }
 
 AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
-    static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(
-        "/Game/BluePrints/Characters/FPCharacter_BP"));
-    DefaultPawnClass = PlayerPawnClassFinder.Class;
+    DefaultPawnClass = nullptr;
     PlayerControllerClass = APlayerControllerLobby::StaticClass();
 
     bUseSeamlessTravel = true;

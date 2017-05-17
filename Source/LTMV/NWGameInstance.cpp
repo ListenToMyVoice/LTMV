@@ -6,6 +6,9 @@
 #include "PlayerControllerLobby.h"
 #include "MenuMain.h"
 
+/* VR Includes */
+#include "HeadMountedDisplay.h"
+
 
 void UNWGameInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -38,6 +41,7 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
     _MaxPlayers = 2;
     _ServerName = "";
     _SessionOwner = "";
+    _IsVRMode = false;
 
     static ConstructorHelpers::FClassFinder<AActor> BoyClassFinder(TEXT(
         "/Game/BluePrints/Characters/FPCharacterBoy"));
@@ -45,6 +49,21 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FClassFinder<AActor> GirlClassFinder(TEXT(
         "/Game/BluePrints/Characters/FPCharacterGirl"));
     _GirlClass = GirlClassFinder.Class;
+
+    static ConstructorHelpers::FClassFinder<AActor> VRBoyClassFinder(TEXT(
+        "/Game/BluePrints/Characters/VRCharacterBoy"));
+    _VRBoyClass = VRBoyClassFinder.Class;
+    static ConstructorHelpers::FClassFinder<AActor> VRGirlClassFinder(TEXT(
+        "/Game/BluePrints/Characters/VRCharacterGirl"));
+    _VRGirlClass = VRGirlClassFinder.Class;
+
+    static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT(
+        "/Game/BluePrints/Characters/FPCharacter_BP"));
+    _DefaultCharacterClass = PlayerPawnClassFinder.Class;
+
+    static ConstructorHelpers::FClassFinder<APawn> PlayerVRPawnClassFinder(TEXT(
+        "/Game/BluePrints/Characters/VRCharacter_BP"));
+    _VRDefaultCharacterClass = PlayerVRPawnClassFinder.Class;
 }
 
 IOnlineSessionPtr UNWGameInstance::GetSessions() {
@@ -60,15 +79,40 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
 }
 
 void UNWGameInstance::InitGame() {
+    /* SWITCH PLAYER MODE */
+    if (FParse::Param(FCommandLine::Get(), TEXT("vr"))) _IsVRMode = true;
+
+    if(GEngine) {
+        IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
+        if (HMD) {
+            HMD->EnableHMD(_IsVRMode);
+            HMD->EnableStereo(_IsVRMode);
+        }
+    }
+    ULibraryUtils::Log(FString::Printf(TEXT("_IsVRMode: %s"), _IsVRMode ? TEXT("true") : TEXT("false")));
+
+
     APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
                                                                 GetFirstLocalPlayerController());
-    if (PlayerControllerLobby) PlayerControllerLobby->CLIENT_CreateMenu(AMenuMain::StaticClass());
+    AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
+    if (PlayerControllerLobby && GameMode) {
+        TSubclassOf<ACharacter> CharacterClass = _IsVRMode ? _VRDefaultCharacterClass :
+                                                             _DefaultCharacterClass;
+        FTransform Transform = GameMode->FindPlayerStart(PlayerControllerLobby, TEXT("playerstart"))
+                                            ->GetActorTransform();
+        APawn* Actor = Cast<APawn>(GetWorld()->SpawnActor(CharacterClass, &Transform));
+        if (Actor) {
+            PlayerControllerLobby->Possess(Actor);
+        }
+
+        PlayerControllerLobby->CLIENT_CreateMenu(AMenuMain::StaticClass());
+    }
 }
 
 /**************************************** BLUEPRINTS *********************************************/
 void UNWGameInstance::LaunchLobby() {
     _PlayerInfoSaved.Name = "host";
-    _PlayerInfoSaved.CharacterClass = _BoyClass;
+    _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
     _PlayerInfoSaved.IsHost = true;
 
     DestroySession();
@@ -85,7 +129,7 @@ void UNWGameInstance::FindOnlineGames() {
 
 void UNWGameInstance::JoinOnlineGame() {
     _PlayerInfoSaved.Name = "guest";
-    _PlayerInfoSaved.CharacterClass = _GirlClass;
+    _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
     _PlayerInfoSaved.IsHost = false;
 
     ULocalPlayer* const Player = GetFirstGamePlayer();
