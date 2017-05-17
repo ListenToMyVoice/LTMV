@@ -116,7 +116,7 @@ void AVRCharacter::SetupVROptions() {
         /* Remove any translation when disabling positional head tracking */
         if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
     }
-    ResetHMDOrigin();
+    //ResetHMDOrigin();
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
@@ -147,10 +147,10 @@ void AVRCharacter::MoveForward(float Value) {
 
 void AVRCharacter::TurnVRCharacter() {
     float _YawValue = _PlayerCamera->GetForwardVector().Rotation().Yaw;
-    AddControllerYawInput(_YawValue);
+    UE_LOG(LogTemp, Warning, TEXT("Rotacion camara: %f"), _YawValue);
+    UE_LOG(LogTemp, Warning, TEXT("Rotacion personaje: %f"), this->GetActorRotation().Yaw + _YawValue);
+    AddControllerYawInput(this->GetActorRotation().Yaw + _YawValue);
     HMD->ResetOrientation(_YawValue);
-    UE_LOG(LogTemp, Warning, TEXT("Current player orientation: %s"), *this->GetActorRotation().ToString());
-    UE_LOG(LogTemp, Warning, TEXT("Current player vector: %s"), *this->GetActorForwardVector().ToString());
 }
 
 /************** OVERLAPPING *************/
