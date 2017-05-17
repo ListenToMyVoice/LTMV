@@ -10,6 +10,7 @@
 #include "GameModePlay.h"
 #include "Walkie.h"
 #include "MenuInteraction.h"
+#include "UnrealMathUtility.h"
 
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
@@ -28,9 +29,16 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
     _MenuInteractionComp->_RayParameter = 100000;
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 	_BreathAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio_Breathing"));
+	_PostProcessComp = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcess Volume Component"));
+	_PostProcessComp->BlendWeight = 0;
 
 	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
-    _Health = 1;
+    _Health = 3;
+}
+
+void APlayerCharacter::Tick(float DeltaSeconds) {
+	_PostProcessComp->BlendWeight = FMath::FInterpTo(_PostProcessComp->BlendWeight, 0.0, DeltaSeconds, 1.0);
+	ULibraryUtils::Log(FString::Printf(TEXT("BlendWeight: %f"), _PostProcessComp->BlendWeight), 0, 60);
 }
 
 void APlayerCharacter::AfterPossessed(bool SetInventory) {
@@ -41,7 +49,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
     check(PlayerInput);
 
     /* MOVEMENT */
-    PlayerInput->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
+	PlayerInput->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
     PlayerInput->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 }
 
@@ -236,7 +244,6 @@ void APlayerCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector Norm
 			// Create a damage event  
 			TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
 			FDamageEvent DamageEvent(ValidDamageTypeClass);
-
 			const float DamageAmount = 1.0f;
 			TakeDamage(DamageAmount, DamageEvent, GetController(), OtherActor);
 		}
@@ -245,12 +252,27 @@ void APlayerCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector Norm
 
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                                    class AController* EventInstigator, class AActor* DamageCauser) {
+	
     //Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-    _Health -= DamageAmount;
-	//_BreathAudioComp->SetParameter("Respiracion", 1.0f);
+    _Health -= DamageAmount;	//_BreathAudioComp->SetParameter("Respiracion", 1.0f);
+	
+	/*Fade to red when take damage*/
+	FLinearColor damageColor(255.0f, 1.0f, 1.0f, 1.0f);
+	_PostProcessComp->BlendWeight = 1;
+	_PostProcessComp->bUnbound = false;
+	//_PostProcessComp->Settings.bOverride_SceneColorTint = 1;
+	//_PostProcessComp->Settings.SceneColorTint = damageColor;
+
+	_PostProcessComp->Settings.bOverride_SceneFringeIntensity = 1;
+	_PostProcessComp->Settings.SceneFringeIntensity = 5.0f;
+
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &APlayerCharacter::RemovePostProcess, 3.0f, false);
+
+	//_PostProcessComp->Settings.bOverride_SceneColorTint = 0;
+	//_PostProcessComp->Settings.bOverride_SceneFringeIntensity = 0;
 
 	if (_Health <= 0) {
-        AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
+		AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
         if (GameMode) {
             GameMode->SERVER_PlayerDead(GetController());
             MULTI_CharacterDead();
@@ -264,4 +286,10 @@ void APlayerCharacter::MULTI_CharacterDead_Implementation() {
     Cast<UPrimitiveComponent>(GetRootComponent())->SetCollisionProfileName(FName("Ragdoll"));
     SetActorEnableCollision(true);
     GetMesh()->SetSimulatePhysics(true);
+}
+
+void APlayerCharacter::RemovePostProcess() {
+	if (_PostProcessComp) {
+		_PostProcessComp->BlendWeight = 0;
+	}
 }
