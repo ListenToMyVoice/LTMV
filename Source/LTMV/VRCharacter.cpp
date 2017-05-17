@@ -99,9 +99,8 @@ void AVRCharacter::BeginPlay() {
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
-    DebugSensors();
-    DebugController(_LeftHandComp->Hand);
-    DebugController(_RightHandComp->Hand);
+    // DebugController(_LeftHandComp->Hand);
+    // DebugController(_RightHandComp->Hand);
 
     // Transfers via data IK positions
     UpdateHMDLocationAndRotation();
@@ -529,7 +528,7 @@ void AVRCharacter::DebugSensors() {
         if (isAvailable) {
             UE_LOG(LogTemp, Warning, TEXT("Sensor con indice %d en posicion: %s"), SensorIndex, *Origin.ToString());
             Origin += this->GetActorLocation();
-            DrawDebugBox(GetWorld(), Origin, FVector(5.f, 5.f, 5.f), Orientation, FColor::Blue, true);
+            DrawDebugBox(GetWorld(), Origin, FVector(5.f, 5.f, 5.f), Orientation, FColor::Blue);
         }
         else {
             UE_LOG(LogTemp, Warning, TEXT("Sensor con indice %d no disponible."), SensorIndex);
