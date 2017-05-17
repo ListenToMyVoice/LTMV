@@ -29,6 +29,8 @@ void UMenuInteraction::BeginPlay() {
 
     SetActive(false);
     SetComponentTickEnabled(false);
+    SetHiddenInGame(true, true);
+    SetVisibility(false, true);
 }
 
 void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,

@@ -37,6 +37,9 @@ protected:
     /******** USE ITEM LEFT *********/
     void UseLeftPressed();
     void UseLeftReleased();
+    /******** USE ITEM RIGHT *********/
+    void UseRightPressed();
+    void UseRightReleased();
 
     /*************** TRIGGER MENU *************/
     void ToogleMenu();

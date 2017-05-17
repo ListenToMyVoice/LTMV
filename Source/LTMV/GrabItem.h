@@ -12,8 +12,10 @@ class LTMV_API UGrabItem : public UActorComponent {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, Category=Mevement)
+    UPROPERTY(EditAnywhere, Category=Movement)
     float _AttachVelocity;
+    UPROPERTY(EditAnywhere, Category = Movement)
+    float _AttachDistance;
 
     UPROPERTY(EditAnywhere)
     FVector _locationAttach_L;

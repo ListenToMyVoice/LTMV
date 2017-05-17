@@ -27,7 +27,7 @@ public:
     AVRCharacter(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
-    void Tick(float deltaTime) override;
+    virtual void Tick(float deltaTime) override;
 
     void SetupVROptions();
     void ResetHMDOrigin();
@@ -92,8 +92,14 @@ protected:
     void DropRight();
 
     /*********** MOVEMENT ***********/
-    void MoveForward(float Value) override;
+    UFUNCTION()
     void TurnVRCharacter();
+
+    /************* IK **************/
+    UFUNCTION()
+    void UpdateHMDLocationAndRotation();
+    UFUNCTION()
+    void UpdateControllersLocationAndRotation();
 
 private:
     IHeadMountedDisplay* HMD;
@@ -122,4 +128,30 @@ private:
 
     void ItemGrabbedLeft();
     void ItemGrabbedRight();
+
+protected:
+    /*** IK PROPERTIES ***/
+    UPROPERTY(BlueprintReadOnly, Category = "IK")
+    FVector _HMDWorldPosition;
+    UPROPERTY(BlueprintReadOnly, Category = "IK")
+    FRotator _HMDWorldOrientation;
+    UPROPERTY(BlueprintReadOnly, Category = "IK")
+    FVector _LeftControllerPosition;
+    UPROPERTY(BlueprintReadOnly, Category = "IK")
+    FRotator _LeftControllerOrientation;
+    UPROPERTY(BlueprintReadOnly, Category = "IK")
+    FVector _RightControllerPosition;
+    UPROPERTY(BlueprintReadOnly, Category = "IK")
+    FRotator _RightControllerOrientation;
+
+    /*** CALIBRATION PROPERTIES ***/
+    UFUNCTION()
+    void CalculateMeshArmExtension();
+    UPROPERTY(BlueprintReadOnly, Category = "VR Calibration")
+    float MaxMeshArmExtension;
+
+public:
+    /* Debug Features */
+    void DebugSensors();
+    void DebugController(EControllerHand DeviceHand);
 };
