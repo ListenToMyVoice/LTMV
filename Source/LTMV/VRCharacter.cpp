@@ -416,6 +416,8 @@ void AVRCharacter::MULTI_GrabRelease_Implementation(int Hand) {
 
 void AVRCharacter::ItemGrabbedLeft() {
     if (_ActorGrabbing) {
+        CLIENT_AddRadioDelegates(_ActorGrabbing);
+
         UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ActorGrabbing->GetComponentByClass(
             UStaticMeshComponent::StaticClass()));
         UGrabItem* GrabItemComp = Cast<UGrabItem>(_ActorGrabbing->FindComponentByClass(
@@ -438,6 +440,8 @@ void AVRCharacter::ItemGrabbedLeft() {
 
 void AVRCharacter::ItemGrabbedRight() {
     if (_ActorGrabbing) {
+        CLIENT_AddRadioDelegates(_ActorGrabbing);
+
         UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(_ActorGrabbing->GetComponentByClass(
             UStaticMeshComponent::StaticClass()));
         UGrabItem* GrabItemComp = Cast<UGrabItem>(_ActorGrabbing->FindComponentByClass(
@@ -460,6 +464,7 @@ void AVRCharacter::ItemGrabbedRight() {
 
 void AVRCharacter::DropLeft() {
     if (_ItemLeft && _ItemLeft->GetComponentByClass(UGrabItem::StaticClass())) {
+        CLIENT_ClearRadioDelegates(_ItemLeft);
         /* Drop item */
         SERVER_Drop(_ItemLeft, 1);
     }
@@ -467,6 +472,7 @@ void AVRCharacter::DropLeft() {
 
 void AVRCharacter::DropRight() {
     if (_ItemRight && _ItemRight->GetComponentByClass(UGrabItem::StaticClass())) {
+        CLIENT_ClearRadioDelegates(_ItemLeft);
         /* Drop item */
         SERVER_Drop(_ItemRight, 2);
     }
