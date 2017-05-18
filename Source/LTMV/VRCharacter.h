@@ -99,6 +99,12 @@ protected:
     UPROPERTY(BlueprintReadWrite)
     FRotator TargetOrientation;
 
+    /********** UPDATE ANIMATIONS ***********/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_UpdateAnimation(EGripEnum NewAnim, int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_UpdateAnimation(EGripEnum NewAnim, int Hand);
+
 private:
     IHeadMountedDisplay* HMD;
 
