@@ -104,8 +104,8 @@ void AVRCharacter::BeginPlay() {
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
-    // DebugController(_LeftHandComp->Hand);
-    // DebugController(_RightHandComp->Hand);
+    //DebugController(_LeftHandComp->Hand);
+    //DebugController(_RightHandComp->Hand);
 
     // Transfers via data IK positions
     UpdateHMDLocationAndRotation();
