@@ -110,6 +110,27 @@ void AVRCharacter::Tick(float deltaTime) {
     // Transfers via data IK positions
     UpdateHMDLocationAndRotation();
     UpdateControllersLocationAndRotation();
+
+    SERVER_UpdateComponentPosition(_LeftHandComp, _LeftHandComp->RelativeLocation,
+                                                  _LeftHandComp->RelativeRotation);
+
+    SERVER_UpdateComponentPosition(_RightHandComp, _RightHandComp->RelativeLocation,
+                                                   _RightHandComp->RelativeRotation);
+}
+
+/********** UPDATE LOCATIONS ***********/
+bool AVRCharacter::SERVER_UpdateComponentPosition_Validate(USceneComponent* Component,
+                                                           FVector Location,
+                                                           FRotator Rotation) { return true; }
+void AVRCharacter::SERVER_UpdateComponentPosition_Implementation(USceneComponent* Component,
+                                                                 FVector Location,
+                                                                 FRotator Rotation) {
+    MULTI_UpdateComponentPosition(Component, Location, Rotation);
+}
+void AVRCharacter::MULTI_UpdateComponentPosition_Implementation(USceneComponent* Component,
+                                                                FVector Location,
+                                                                FRotator Rotation) {
+    Component->SetRelativeLocationAndRotation(Location, Rotation);
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
