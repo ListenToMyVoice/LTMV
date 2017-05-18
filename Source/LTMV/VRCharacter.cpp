@@ -18,6 +18,13 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     PrimaryActorTick.bCanEverTick = true;
     bPositionalHeadTracking = true;
 
+    static ConstructorHelpers::FObjectFinder<UForceFeedbackEffect> FFFinderLeft(
+        TEXT("/Game/BluePrints/Effects/RumbleLightLeft"));
+    _RumbleOverLapLeft = FFFinderLeft.Object;
+    static ConstructorHelpers::FObjectFinder<UForceFeedbackEffect> FFFinderRight(
+        TEXT("/Game/BluePrints/Effects/RumbleLightRight"));
+    _RumbleOverLapRight = FFFinderRight.Object;
+
     GetCharacterMovement()->MaxWalkSpeed = 240.0f;
     GetCharacterMovement()->MaxFlySpeed = 240.0f;
     GetCharacterMovement()->MaxCustomMovementSpeed = 240.0f;
@@ -199,8 +206,8 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
         UStaticMeshComponent* _StaticMesh;
         bool HitItem = false;
         for (UActorComponent* Component : Components) {
-            //Highlight outline colors:
-            //GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
+            // Highlight outline colors:
+            // GREEN: 252 | BLUE: 253 | ORANGE: 254 | WHITE: 255
             if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
                 _StaticMesh = Cast<UStaticMeshComponent>(OtherActor->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
@@ -223,12 +230,17 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
             }
         }
         if (HitItem) {
+            APlayerController* PlayerController = Cast<APlayerController>(GetController());
             if (OverlappedComponent == _LeftSphere) {
                 _ActorFocusedLeft = OtherActor;
+                if (PlayerController)
+                    PlayerController->ClientPlayForceFeedback(_RumbleOverLapLeft, false, "rumble");
                 SERVER_UpdateAnimation(EGripEnum::CanGrab, 1);
             }
             else if (OverlappedComponent == _RightSphere) {
                 _ActorFocusedRight = OtherActor;
+                if (PlayerController)
+                    PlayerController->ClientPlayForceFeedback(_RumbleOverLapRight, false, "rumble");
                 SERVER_UpdateAnimation(EGripEnum::CanGrab, 2);
             }
         }

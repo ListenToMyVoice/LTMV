@@ -19,6 +19,11 @@ class LTMV_API AVRCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rumble")
+    UForceFeedbackEffect * _RumbleOverLapLeft;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rumble")
+    UForceFeedbackEffect * _RumbleOverLapRight;
+
     UPROPERTY(BlueprintReadOnly)
     EGripEnum _GripStateLeft;
     UPROPERTY(BlueprintReadOnly)
