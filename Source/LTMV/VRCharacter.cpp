@@ -60,7 +60,7 @@ void AVRCharacter::BuildLeft() {
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
     _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-    _LeftSphere->SetSphereRadius(12.5f);
+    _LeftSphere->SetSphereRadius(10.f);
 }
 
 void AVRCharacter::BuildRight() {
@@ -79,7 +79,7 @@ void AVRCharacter::BuildRight() {
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
     _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-    _RightSphere->SetSphereRadius(12.5f);
+    _RightSphere->SetSphereRadius(10.f);
 }
 
 void AVRCharacter::BeginPlay() {
@@ -203,14 +203,12 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
         }
         if (HitItem) {
             if (OverlappedComponent == _LeftSphere) {
-                ULibraryUtils::Log("OnOverlap Left");
                 _ActorFocusedLeft = OtherActor;
-                _GripStateLeft = EGripEnum::CanGrab;
+                SERVER_UpdateAnimation(EGripEnum::CanGrab, 1);
             }
             else if (OverlappedComponent == _RightSphere) {
-                ULibraryUtils::Log("OnOverlap Right");
                 _ActorFocusedRight = OtherActor;
-                _GripStateRight = EGripEnum::CanGrab;
+                SERVER_UpdateAnimation(EGripEnum::CanGrab, 2);
             }
         }
     }
@@ -219,14 +217,12 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 void AVRCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
     if (OtherActor == _ActorFocusedLeft) {
-        ULibraryUtils::Log("OnEndOverlap Left");
         _ActorFocusedLeft = nullptr;
-        _GripStateLeft = EGripEnum::Open;
+        SERVER_UpdateAnimation(EGripEnum::Open, 1);
     }
     else if (OtherActor == _ActorFocusedRight) {
-        ULibraryUtils::Log("OnEndOverlap Right");
         _ActorFocusedRight = nullptr;
-        _GripStateRight = EGripEnum::Open;
+        SERVER_UpdateAnimation(EGripEnum::Open, 2);
     }
 
     UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(OtherActor->GetComponentByClass(
@@ -257,7 +253,7 @@ void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
     else _MenuInteractionComp->PressPointer();
 
     /* ANIMATION */
-    _GripStateLeft = EGripEnum::Grab;
+    SERVER_UpdateAnimation(EGripEnum::Grab, 1);
 }
 
 void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
@@ -279,7 +275,7 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
     else _MenuInteractionComp->ReleasePointer();
 
     /* ANIMATION */
-    _GripStateLeft = EGripEnum::Open;
+    SERVER_UpdateAnimation(EGripEnum::Open, 1);
 }
 
 /******* USE ITEM RIGHT *** ******/
@@ -301,7 +297,7 @@ void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
     else _MenuInteractionComp->PressPointer();
 
     /* ANIMATION */
-    _GripStateRight = EGripEnum::Grab;
+    SERVER_UpdateAnimation(EGripEnum::Grab, 2);
 }
 
 void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
@@ -323,7 +319,7 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
     else _MenuInteractionComp->ReleasePointer();
 
     /* ANIMATION */
-    _GripStateRight = EGripEnum::Open;
+    SERVER_UpdateAnimation(EGripEnum::Open, 2);
 }
 
 /*************** USE TRIGGER *************/
@@ -566,5 +562,21 @@ void AVRCharacter::DebugController(EControllerHand Hand) {
             UE_LOG(LogTemp, Warning, TEXT("El mando no es valido o no realiza seguimiento."));
             break;
         }
+    }
+}
+
+/********** UPDATE ANIMATIONS ***********/
+bool AVRCharacter::SERVER_UpdateAnimation_Validate(EGripEnum NewAnim, int Hand) {
+    return true;
+}
+void AVRCharacter::SERVER_UpdateAnimation_Implementation(EGripEnum NewAnim, int Hand) {
+    MULTI_UpdateAnimation(NewAnim, Hand);
+}
+void AVRCharacter::MULTI_UpdateAnimation_Implementation(EGripEnum NewAnim, int Hand) {
+    if (Hand == 1) {
+        _GripStateLeft = NewAnim;
+    }
+    else if (Hand == 2) {
+        _GripStateRight = NewAnim;
     }
 }
