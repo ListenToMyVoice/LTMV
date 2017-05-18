@@ -186,12 +186,7 @@ void AVRCharacter::TurnVRCharacter() {
     float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
 
     AddControllerYawInput(_YawRelativeValue);
-    //HMD->ResetOrientation(_CameraYawValue);
-
-    UE_LOG(LogTemp, Warning, TEXT("Camera orientation: %f"), _CameraYawValue);
-    UE_LOG(LogTemp, Warning, TEXT("Player orientation: %f"), _PlayerYawValue);
-    UE_LOG(LogTemp, Warning, TEXT("Relative orientation: %f"), _YawRelativeValue);
-
+    HMD->ResetOrientation(0.f);
 }
 
 /************** OVERLAPPING *************/
