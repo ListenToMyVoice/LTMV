@@ -90,6 +90,11 @@ void AVRCharacter::BeginPlay() {
         SetupVROptions();
     }
 
+    if (IsPlayerControlled()) {
+        APlayerController* const PC = Cast<APlayerController>(GetController());
+        PC->InputYawScale = 1.0f;
+    }
+    
     _GrabDelegateLeft.BindUObject(this, &AVRCharacter::ItemGrabbedLeft);
     _GrabDelegateRight.BindUObject(this, &AVRCharacter::ItemGrabbedRight);
 
@@ -152,12 +157,13 @@ void AVRCharacter::TurnVRCharacter() {
     float _PlayerYawValue = GetActorRotation().Yaw;
     float _YawRelativeValue = _PlayerYawValue - _CameraYawValue;
 
-    AddControllerYawInput(_YawRelativeValue);
-    HMD->ResetOrientation(_CameraYawValue);
+    AddControllerYawInput(-_YawRelativeValue);
+    //HMD->ResetOrientation(_CameraYawValue);
 
     UE_LOG(LogTemp, Warning, TEXT("Camera orientation: %f"), _CameraYawValue);
     UE_LOG(LogTemp, Warning, TEXT("Player orientation: %f"), _PlayerYawValue);
     UE_LOG(LogTemp, Warning, TEXT("Relative orientation: %f"), _YawRelativeValue);
+
 }
 
 /************** OVERLAPPING *************/
