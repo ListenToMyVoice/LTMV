@@ -31,6 +31,9 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     GetCharacterMovement()->MaxWalkSpeedCrouched = 120.0f;
     GetCharacterMovement()->MaxSwimSpeed = 120.0f;
 
+    GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+    GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
@@ -67,7 +70,7 @@ void AVRCharacter::BuildLeft() {
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
     _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-    _LeftSphere->SetSphereRadius(10.f);
+    _LeftSphere->SetSphereRadius(12.5f);
 }
 
 void AVRCharacter::BuildRight() {
@@ -86,7 +89,7 @@ void AVRCharacter::BuildRight() {
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
     _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-    _RightSphere->SetSphereRadius(10.f);
+    _RightSphere->SetSphereRadius(12.5f);
 }
 
 void AVRCharacter::BeginPlay() {
@@ -186,7 +189,9 @@ void AVRCharacter::TurnVRCharacter() {
     float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
 
     AddControllerYawInput(_YawRelativeValue);
+    SetActorRotation(FRotator(0.0f, _YawRelativeValue, 0.0f));
     HMD->ResetOrientation(0.f);
+
 }
 
 /************** OVERLAPPING *************/
