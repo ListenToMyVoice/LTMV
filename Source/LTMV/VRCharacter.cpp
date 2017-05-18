@@ -183,9 +183,9 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 void AVRCharacter::TurnVRCharacter() {
     float _CameraYawValue = _PlayerCamera->GetComponentRotation().Yaw;
     float _PlayerYawValue = GetActorRotation().Yaw;
-    float _YawRelativeValue = _PlayerYawValue - _CameraYawValue;
+    float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
 
-    AddControllerYawInput(-_YawRelativeValue);
+    AddControllerYawInput(_YawRelativeValue);
     //HMD->ResetOrientation(_CameraYawValue);
 
     UE_LOG(LogTemp, Warning, TEXT("Camera orientation: %f"), _CameraYawValue);
