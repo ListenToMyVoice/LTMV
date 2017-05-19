@@ -159,9 +159,10 @@ void AVRCharacter::SetupVROptions() {
     if (HMD) {
         HMD->EnablePositionalTracking(bPositionalHeadTracking);
         /* Remove any translation when disabling positional head tracking */
-        if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
+        //if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
+        _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
+        HMD->ResetOrientationAndPosition();
     }
-    //ResetHMDOrigin();
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
