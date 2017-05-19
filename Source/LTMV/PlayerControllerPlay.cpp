@@ -194,6 +194,10 @@ void APlayerControllerPlay::UseRightPressed() {
         bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
         PlayerCharacter->UseRightPressed(IsMenuHidden);
     }
+    else {
+        APlayerSpectator* PlayerSpectator = Cast<APlayerSpectator>(GetSpectatorPawn());
+        if (PlayerSpectator) PlayerSpectator->ClickLeftPressed();
+    }
 }
 
 void APlayerControllerPlay::UseRightReleased() {
@@ -201,6 +205,10 @@ void APlayerControllerPlay::UseRightReleased() {
     if (PlayerCharacter) {
         bool IsMenuHidden = _MenuActor ? _MenuActor->_IsMenuHidden : true;
         PlayerCharacter->UseRightReleased(IsMenuHidden);
+    }
+    else {
+        APlayerSpectator* PlayerSpectator = Cast<APlayerSpectator>(GetSpectatorPawn());
+        if (PlayerSpectator) PlayerSpectator->ClickLeftReleased();
     }
 }
 
