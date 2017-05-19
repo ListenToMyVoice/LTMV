@@ -18,6 +18,8 @@ public:
     float _baseLookUpRate;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
     int _Health;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
+	float _DamageDisappearVelocity;
 
 	void Tick(float DeltaSeconds) override;
 
@@ -120,6 +122,7 @@ protected:
 
 	/***********POST PROCESS***********/
 	FTimerHandle TimerHandle;
+	bool _Damaged;
 	void RemovePostProcess();
 
 private:
