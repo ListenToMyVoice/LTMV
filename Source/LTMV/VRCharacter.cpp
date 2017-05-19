@@ -92,10 +92,8 @@ void AVRCharacter::BuildRight() {
 void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
 
-    if (HMD == nullptr) {
-        HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-        SetupVROptions();
-    }
+    HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
+    if (HMD) HMD->EnablePositionalTracking(bPositionalHeadTracking);
 
     if (IsPlayerControlled()) {
         APlayerController* const PC = Cast<APlayerController>(GetController());
@@ -153,16 +151,6 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 
     /* MOVEMENT */
     PlayerInput->BindAction("TurnVRCharacter", IE_Pressed, this, &AVRCharacter::TurnVRCharacter);
-}
-
-void AVRCharacter::SetupVROptions() {
-    if (HMD) {
-        HMD->EnablePositionalTracking(bPositionalHeadTracking);
-        /* Remove any translation when disabling positional head tracking */
-        //if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
-        _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
-        HMD->ResetOrientationAndPosition();
-    }
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
