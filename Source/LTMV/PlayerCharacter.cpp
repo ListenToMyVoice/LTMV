@@ -29,6 +29,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 	_BreathAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio_Breathing"));
 	_PostProcessComp = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcess Volume Component"));
+    _PostProcessComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 	_PostProcessComp->BlendWeight = 0;
 	_DamageDisappearVelocity = 0.3;
 
@@ -38,6 +39,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds) {
+    Super::Tick(DeltaSeconds);
 	if (_Damaged) {
 		_PostProcessComp->BlendWeight = FMath::FInterpTo(_PostProcessComp->BlendWeight, 0.0, DeltaSeconds, _DamageDisappearVelocity);
 		if (_PostProcessComp->BlendWeight == 0) {
@@ -63,7 +65,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 /*********** MOVEMENT ***********/
 void APlayerCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
-        AddMovementInput(GetActorForwardVector(), Value);
+        AddMovementInput(_PlayerCamera->GetForwardVector(), Value);
     }
 }
 
@@ -181,7 +183,7 @@ void APlayerCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
     }
 }
 
-/****************************************** AUXILIAR FUNCTIONS ***********************************/
+/****************************************** AUXILIAR FUNCTIONS * **********************************/
 void APlayerCharacter::ToggleMenuInteraction(bool Activate) {
     UMenuInteraction* MenuInteraction;
     TArray<UActorComponent*> Components = GetComponentsByClass(UMenuInteraction::StaticClass());
@@ -272,6 +274,8 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 	_PostProcessComp->Settings.bOverride_SceneFringeIntensity = true;
 	_PostProcessComp->Settings.SceneFringeIntensity = 5.0f;
 	_Damaged = true;
+    //_PostProcessComp->Settings.bOverride_SceneColorTint = 1;
+    //_PostProcessComp->Settings.SceneColorTint = damageColor;
 
 	if (_Health <= 0) {
 		AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
