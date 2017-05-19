@@ -265,10 +265,11 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 	
 	/*Fade to red when take damage*/
 	FLinearColor damageColor(255.0f, 1.0f, 1.0f, 1.0f);
+
 	_PostProcessComp->BlendWeight = 1;
 	_PostProcessComp->bUnbound = false;
 
-	_PostProcessComp->Settings.bOverride_SceneFringeIntensity = 1;
+	_PostProcessComp->Settings.bOverride_SceneFringeIntensity = true;
 	_PostProcessComp->Settings.SceneFringeIntensity = 5.0f;
 	_Damaged = true;
 
