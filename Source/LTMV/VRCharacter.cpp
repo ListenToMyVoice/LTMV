@@ -43,6 +43,8 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
 
     HMD = nullptr;
+    this->BaseEyeHeight = 0.f;
+    this->CrouchedEyeHeight = 0.f;
     _GripStateLeft = EGripEnum::Open;
     _GripStateRight = EGripEnum::Open;
 
@@ -67,12 +69,14 @@ void AVRCharacter::BuildLeft() {
     _SM_LeftHand->SetWorldScale3D(FVector(1.0f, 1.0f, -1.0f));
     _SM_LeftHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_LeftHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
+    _SM_LeftHand->SetHiddenInGame(true);
+    _SM_LeftHand->SetVisibility(false);
 
     /* ADDITIONAL */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
-    _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-    _LeftSphere->SetSphereRadius(12.5f);
+    _LeftSphere->SetRelativeLocation(FVector(20.f, 0.f, 0.f));
+    _LeftSphere->SetSphereRadius(15.f);
 }
 
 void AVRCharacter::BuildRight() {
@@ -86,12 +90,14 @@ void AVRCharacter::BuildRight() {
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
     _SM_RightHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_RightHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
+    _SM_RightHand->SetHiddenInGame(true);
+    _SM_RightHand->SetVisibility(false);
 
     /* ADDITIONAL */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
-    _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-    _RightSphere->SetSphereRadius(12.5f);
+    _RightSphere->SetRelativeLocation(FVector(20.f, 0.f, 0.f));
+    _RightSphere->SetSphereRadius(15.f);
 }
 
 void AVRCharacter::BeginPlay() {
@@ -115,9 +121,6 @@ void AVRCharacter::BeginPlay() {
 
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
-
-    //DebugController(_LeftHandComp->Hand);
-    //DebugController(_RightHandComp->Hand);
 
     // Transfers via data IK positions
     UpdateHeadIK();
@@ -190,16 +193,13 @@ void AVRCharacter::MoveForward(float Value) {
 }
 
 void AVRCharacter::TurnVRCharacter() {
-    UE_LOG(LogTemp, Warning, TEXT("Directo VROrigin: %s"), *_VROriginComp->GetForwardVector().ToString());
     float _CameraYawValue = _PlayerCamera->GetComponentRotation().Yaw;
     float _PlayerYawValue = GetActorRotation().Yaw;
     float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
 
     AddControllerYawInput(_YawRelativeValue);
     SetActorRotation(FRotator(0.0f, _YawRelativeValue, 0.0f));
-    UE_LOG(LogTemp, Warning, TEXT("Directo VROrigin: %s"), *_VROriginComp->GetForwardVector().ToString());
     HMD->ResetOrientation();
-
 }
 
 /************** OVERLAPPING *************/
@@ -536,9 +536,9 @@ void AVRCharacter::UpdateHeadIK() {
 
 void AVRCharacter::UpdateHandIK() {
     _LeftControllerPosition = _LeftHandComp->GetComponentLocation();
-    _LeftControllerOrientation = _LeftHandComp->GetComponentRotation();
+    _LeftControllerOrientation = _SM_LeftHand->GetComponentRotation();
     _RightControllerPosition = _RightHandComp->GetComponentLocation();
-    _RightControllerOrientation = _RightHandComp->GetComponentRotation();
+    _RightControllerOrientation = _SM_RightHand->GetComponentRotation();
 }
 
 /************ VR CHARACTER CALIBRATION FEATURES *************/
