@@ -36,6 +36,8 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
 
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    _VROriginComp->SetRelativeLocation(FVector(10.f, 0.f, 80.f));
+
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
@@ -118,8 +120,8 @@ void AVRCharacter::Tick(float deltaTime) {
     //DebugController(_RightHandComp->Hand);
 
     // Transfers via data IK positions
-    UpdateHMDLocationAndRotation();
-    UpdateControllersLocationAndRotation();
+    UpdateHeadIK();
+    UpdateHandIK();
 
     SERVER_UpdateComponentPosition(_LeftHandComp, _LeftHandComp->RelativeLocation,
                                                   _LeftHandComp->RelativeRotation);
@@ -183,14 +185,20 @@ void AVRCharacter::ToggleTrackingSpace() {// T
     //}
 }
 
+void AVRCharacter::MoveForward(float Value) {
+    AddMovementInput(GetActorForwardVector(), Value);
+}
+
 void AVRCharacter::TurnVRCharacter() {
+    UE_LOG(LogTemp, Warning, TEXT("Directo VROrigin: %s"), *_VROriginComp->GetForwardVector().ToString());
     float _CameraYawValue = _PlayerCamera->GetComponentRotation().Yaw;
     float _PlayerYawValue = GetActorRotation().Yaw;
     float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
 
     AddControllerYawInput(_YawRelativeValue);
     SetActorRotation(FRotator(0.0f, _YawRelativeValue, 0.0f));
-    HMD->ResetOrientation(0.f);
+    UE_LOG(LogTemp, Warning, TEXT("Directo VROrigin: %s"), *_VROriginComp->GetForwardVector().ToString());
+    HMD->ResetOrientation();
 
 }
 
@@ -521,17 +529,16 @@ void AVRCharacter::DropRight() {
 }
 
 /************ VR CHARACTER IK FEATURES *************/
-void AVRCharacter::UpdateHMDLocationAndRotation() {
+void AVRCharacter::UpdateHeadIK() {
     _HMDWorldPosition = _PlayerCamera->GetComponentLocation();
     _HMDWorldOrientation = _PlayerCamera->GetComponentRotation();
 }
 
-void AVRCharacter::UpdateControllersLocationAndRotation() {
-    TArray<IMotionController*> MotionControllers = IModularFeatures::Get().GetModularFeatureImplementations<IMotionController>(IMotionController::GetModularFeatureName());
-    MotionControllers[0]->GetControllerOrientationAndPosition(0, _LeftHandComp->Hand, _LeftControllerOrientation, _LeftControllerPosition);
-    MotionControllers[0]->GetControllerOrientationAndPosition(0, _RightHandComp->Hand, _RightControllerOrientation, _RightControllerPosition);
-    _LeftControllerPosition += this->GetActorLocation();
-    _RightControllerPosition += this->GetActorLocation();
+void AVRCharacter::UpdateHandIK() {
+    _LeftControllerPosition = _LeftHandComp->GetComponentLocation();
+    _LeftControllerOrientation = _LeftHandComp->GetComponentRotation();
+    _RightControllerPosition = _RightHandComp->GetComponentLocation();
+    _RightControllerOrientation = _RightHandComp->GetComponentRotation();
 }
 
 /************ VR CHARACTER CALIBRATION FEATURES *************/
@@ -581,21 +588,33 @@ void AVRCharacter::DebugController(EControllerHand Hand) {
 
     switch (DeviceTracked) {
     case(ETrackingStatus::NotTracked):
-        UE_LOG(LogTemp, Warning, TEXT("El mando no realiza seguimiento."));
+        //UE_LOG(LogTemp, Warning, TEXT("El mando no realiza seguimiento."));
         break;
     case(ETrackingStatus::Tracked):
     case(ETrackingStatus::InertialOnly):
         bool bControllerValidAndTracked = MotionControllers[0]->GetControllerOrientationAndPosition(0, Hand, Orientation, Position);
         if (bControllerValidAndTracked) {
-            Position += this->GetActorLocation();
-            DrawDebugBox(GetWorld(), Position, FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Black);
+            DrawDebugBox(GetWorld(), Position, FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Blue);
+            DrawDebugBox(GetWorld(), GetControllerByHand(Hand)->GetComponentLocation(), FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Red);
             break;
         }
         else {
-            UE_LOG(LogTemp, Warning, TEXT("El mando no es valido o no realiza seguimiento."));
+            //UE_LOG(LogTemp, Warning, TEXT("El mando no es valido o no realiza seguimiento."));
             break;
         }
     }
+}
+
+UMotionControllerComponent* AVRCharacter::GetControllerByHand(EControllerHand Hand) {
+    switch (Hand) {
+    case EControllerHand::Left:
+        return _LeftHandComp;
+        break;
+    case EControllerHand::Right:
+        return _RightHandComp;
+        break;
+    }
+    return nullptr;
 }
 
 /********** UPDATE ANIMATIONS ***********/
