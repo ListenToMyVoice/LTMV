@@ -16,9 +16,12 @@ public:
     float _baseTurnRate;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float _baseLookUpRate;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
     int _Health;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Life")
+	float _DamageDisappearVelocity;
+
+	void Tick(float DeltaSeconds) override;
 
     /* Radio Delegate */
     FRadioDelegate _OnRadioPressedDelegate;
@@ -58,6 +61,8 @@ protected:
 	class UFMODAudioComponent* _BreathAudioComp;
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UMenuInteraction* _MenuInteractionComp;
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UPostProcessComponent* _PostProcessComp;
 
     AActor* _ItemLeft;
     AActor* _ItemRight;
@@ -114,6 +119,11 @@ protected:
 
 	UFUNCTION()
 	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
+
+	/***********POST PROCESS***********/
+	FTimerHandle TimerHandle;
+	bool _Damaged;
+	void RemovePostProcess();
 
 private:
     AActor* _WalkieActor;

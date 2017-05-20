@@ -80,6 +80,7 @@ void AFPCharacter::Tick(float DeltaSeconds) {
     Super::Tick(DeltaSeconds);
     //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
     Raycasting();
+
 }
 
 FHitResult AFPCharacter::Raycasting() {
