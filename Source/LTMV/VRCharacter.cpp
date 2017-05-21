@@ -30,13 +30,13 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     GetCharacterMovement()->MaxCustomMovementSpeed = 240.0f;
     GetCharacterMovement()->MaxWalkSpeedCrouched = 120.0f;
     GetCharacterMovement()->MaxSwimSpeed = 120.0f;
-
-    GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
-    GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
-
+    
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
     _VROriginComp->SetRelativeLocation(FVector(10.f, 0.f, 80.f));
+
+    GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+    GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
@@ -112,7 +112,7 @@ void AVRCharacter::BeginPlay() {
         APlayerController* const PC = Cast<APlayerController>(GetController());
         PC->InputYawScale = 1.0f;
     }
-    
+
     _GrabDelegateLeft.BindUObject(this, &AVRCharacter::ItemGrabbedLeft);
     _GrabDelegateRight.BindUObject(this, &AVRCharacter::ItemGrabbedRight);
 
@@ -122,15 +122,17 @@ void AVRCharacter::BeginPlay() {
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
-    // Transfers via data IK positions
-    UpdateHeadIK();
-    UpdateHandIK();
+    UpdateMesh();
 
+    // Transfers via data IK positions
+    UpdateIK();
+    
     SERVER_UpdateComponentPosition(_LeftHandComp, _LeftHandComp->RelativeLocation,
                                                   _LeftHandComp->RelativeRotation);
 
     SERVER_UpdateComponentPosition(_RightHandComp, _RightHandComp->RelativeLocation,
                                                    _RightHandComp->RelativeRotation);
+
 }
 
 /********** UPDATE LOCATIONS ***********/
@@ -190,6 +192,15 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 
 void AVRCharacter::MoveForward(float Value) {
     AddMovementInput(GetActorForwardVector(), Value);
+}
+
+void AVRCharacter::UpdateMesh() {
+    FVector CameraHorizontalLocation = _PlayerCamera->GetComponentLocation();
+    CameraHorizontalLocation.Z = 0.f;
+
+    GetMesh()->SetWorldLocation(FVector(CameraHorizontalLocation.X,
+                                        CameraHorizontalLocation.Y,
+                                        GetMesh()->GetComponentLocation().Z));
 }
 
 void AVRCharacter::TurnVRCharacter() {
@@ -529,12 +540,8 @@ void AVRCharacter::DropRight() {
 }
 
 /************ VR CHARACTER IK FEATURES *************/
-void AVRCharacter::UpdateHeadIK() {
-    _HMDWorldPosition = _PlayerCamera->GetComponentLocation();
+void AVRCharacter::UpdateIK() {
     _HMDWorldOrientation = _PlayerCamera->GetComponentRotation();
-}
-
-void AVRCharacter::UpdateHandIK() {
     _LeftControllerPosition = _LeftHandComp->GetComponentLocation();
     _LeftControllerOrientation = _SM_LeftHand->GetComponentRotation();
     _RightControllerPosition = _RightHandComp->GetComponentLocation();

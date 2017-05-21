@@ -102,12 +102,11 @@ protected:
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
     void TurnVRCharacter();
+    void UpdateMesh();
 
     /************* IK **************/
     UFUNCTION()
-    void UpdateHeadIK();
-    UFUNCTION()
-    void UpdateHandIK();
+    void UpdateIK();
 
     /********** UPDATE ANIMATIONS ***********/
     UFUNCTION(Server, Reliable, WithValidation)
@@ -151,8 +150,6 @@ private:
 
 protected:
     /*** IK PROPERTIES ***/
-    UPROPERTY(BlueprintReadOnly, Category = "IK")
-    FVector _HMDWorldPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _HMDWorldOrientation;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
