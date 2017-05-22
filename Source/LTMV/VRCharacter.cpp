@@ -33,6 +33,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
 
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    _VROriginComp->RelativeLocation.Z -= 100;
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
@@ -92,10 +93,8 @@ void AVRCharacter::BuildRight() {
 void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
 
-    if (HMD == nullptr) {
-        HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-        SetupVROptions();
-    }
+    HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
+    if (HMD) HMD->EnablePositionalTracking(bPositionalHeadTracking);
 
     if (IsPlayerControlled()) {
         APlayerController* const PC = Cast<APlayerController>(GetController());
@@ -153,15 +152,6 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 
     /* MOVEMENT */
     PlayerInput->BindAction("TurnVRCharacter", IE_Pressed, this, &AVRCharacter::TurnVRCharacter);
-}
-
-void AVRCharacter::SetupVROptions() {
-    if (HMD) {
-        HMD->EnablePositionalTracking(bPositionalHeadTracking);
-        /* Remove any translation when disabling positional head tracking */
-        if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
-    }
-    //ResetHMDOrigin();
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R

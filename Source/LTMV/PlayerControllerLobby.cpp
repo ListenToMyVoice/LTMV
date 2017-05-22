@@ -32,8 +32,8 @@ void APlayerControllerLobby::SetupInputComponent() {
 }
 
 void APlayerControllerLobby::CLIENT_InitialSetup_Implementation() {
-    UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
-    if (gameInstance) SERVER_CallUpdate(gameInstance->_PlayerInfoSaved, false);
+    UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
+    if (GameInstance) SERVER_CallUpdate(GameInstance->_PlayerInfoSaved, false);
 }
 
 bool APlayerControllerLobby::SERVER_CallUpdate_Validate(FPlayerInfo info,
@@ -52,7 +52,13 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor
         UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
                                                               FindComponentByClass<UCameraComponent>());
         if (CameraComp) {
-            _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+            FVector Location = CameraComp->GetComponentLocation();
+            UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
+            if (GameInstance && GameInstance->_IsVRMode) {
+                Location.Z += 200;
+                Location.X += 50;
+            }
+            _MenuActor->ToogleMenu(Location,
                                    CameraComp->GetComponentRotation());
 
             APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());

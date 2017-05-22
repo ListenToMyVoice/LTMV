@@ -13,8 +13,8 @@ UGrabItem::UGrabItem() : Super(), _locationAttach_L(0.f, 0.f, 0.f),
     
     PrimaryComponentTick.bCanEverTick = true;
 
-    _AttachVelocity = 25;
-    _AttachDistance = 3;
+    _AttachVelocity = 80;
+    _AttachDistance = 5;
     _IsBeingTaked = false;
     _SourceMesh = nullptr;
     _TargetMesh = nullptr;
