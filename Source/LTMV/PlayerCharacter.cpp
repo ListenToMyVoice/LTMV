@@ -28,9 +28,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
     _MenuInteractionComp->_RayParameter = 100000;
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 	_BreathAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio_Breathing"));
-	_PostProcessComp = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcess Volume Component"));
-    _PostProcessComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
-	_PostProcessComp->BlendWeight = 0;
+	_PlayerCamera->PostProcessBlendWeight = 0;
 	_DamageDisappearVelocity = 0.3;
 
 	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
@@ -41,12 +39,12 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
 void APlayerCharacter::Tick(float DeltaSeconds) {
     Super::Tick(DeltaSeconds);
 	if (_Damaged) {
-		_PostProcessComp->BlendWeight = FMath::FInterpTo(_PostProcessComp->BlendWeight, 0.0, DeltaSeconds, _DamageDisappearVelocity);
-		if (_PostProcessComp->BlendWeight == 0) {
+		_PlayerCamera->PostProcessBlendWeight = FMath::FInterpTo(_PlayerCamera->PostProcessBlendWeight, 0.0, DeltaSeconds, _DamageDisappearVelocity);
+		if (_PlayerCamera->PostProcessBlendWeight == 0) {
 			_Damaged = !_Damaged;
 		}
-
 	}
+	CheckFloorMaterial();
 }
 
 void APlayerCharacter::AfterPossessed(bool SetInventory) {
@@ -61,11 +59,37 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
     PlayerInput->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 }
 
+/**********************************PHYSIC MATERIALS***********************************************/
+void APlayerCharacter::CheckFloorMaterial() {
+	_FootSocket = GetMesh()->GetSocketByName("Foot");
+	bool bRaycastHit = false;
+	FCollisionQueryParams CollisionInfo;
+	CollisionInfo.bReturnPhysicalMaterial = true;
+	FVector StartFootRaycast;
+	FVector EndFootRaycast;
+
+	if (_FootSocket) {
+		StartFootRaycast = _FootSocket->GetSocketLocation(GetMesh());
+		EndFootRaycast = StartFootRaycast - (0, 0, 150);
+	}
+
+	bRaycastHit = GetWorld()->LineTraceSingleByChannel(_FootHitResult, StartFootRaycast, EndFootRaycast, ECC_Visibility, CollisionInfo);
+	if (_StepsAudioComp) {
+		if (_FootHitResult.PhysMaterial.IsValid() && _FootHitResult.PhysMaterial->GetName().Equals("Earth")) {
+			_StepsAudioComp->SetParameter("Humedad", 0.0f);
+		}
+		else {
+			_StepsAudioComp->SetParameter("Humedad", 1.0f);
+		}
+	}
+}
+
 /****************************************** ACTION MAPPINGS **************************************/
 /*********** MOVEMENT ***********/
 void APlayerCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
         AddMovementInput(_PlayerCamera->GetForwardVector(), Value);
+		CheckFloorMaterial();
     }
 }
 
@@ -89,7 +113,7 @@ void APlayerCharacter::SERVER_UsePressed_Implementation(UActorComponent* compone
     MULTI_UsePressed(component);
 }
 void APlayerCharacter::MULTI_UsePressed_Implementation(UActorComponent* component) {
-    IItfUsable* itfObject = Cast<IItfUsable>(component);;
+    IItfUsable* itfObject = Cast<IItfUsable>(component);
     if (itfObject) itfObject->Execute_UsePressed(component);
 }
 
@@ -259,23 +283,13 @@ void APlayerCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector Norm
 }
 
 float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
-                                   class AController* EventInstigator, class AActor* DamageCauser) {
-	
-	
+                                   class AController* EventInstigator, class AActor* DamageCauser) {	
     _Health -= DamageAmount;	
-	//_BreathAudioComp->SetParameter("Respiracion", 1.0f);
-	
 	/*Fade to red when take damage*/
-	FLinearColor damageColor(255.0f, 1.0f, 1.0f, 1.0f);
-
-	_PostProcessComp->BlendWeight = 1;
-	_PostProcessComp->bUnbound = false;
-
-	_PostProcessComp->Settings.bOverride_SceneFringeIntensity = true;
-	_PostProcessComp->Settings.SceneFringeIntensity = 5.0f;
+	_PlayerCamera->PostProcessBlendWeight = 1;
+	_PlayerCamera->PostProcessSettings.bOverride_SceneFringeIntensity = true;
+	_PlayerCamera->PostProcessSettings.SceneFringeIntensity = 5.0f;
 	_Damaged = true;
-    //_PostProcessComp->Settings.bOverride_SceneColorTint = 1;
-    //_PostProcessComp->Settings.SceneColorTint = damageColor;
 
 	if (_Health <= 0) {
 		AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
@@ -284,8 +298,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
             MULTI_CharacterDead();
         }
     }
-    return _Health;
-	
+    return _Health;	
 }
 
 void APlayerCharacter::MULTI_CharacterDead_Implementation() {
