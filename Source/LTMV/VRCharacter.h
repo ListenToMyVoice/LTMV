@@ -102,9 +102,10 @@ protected:
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
     void TurnVRCharacter();
-    void UpdateMesh();
 
     /************* IK **************/
+    FVector HeadCameraOffset;
+    FVector BodyCameraOffset;
     UFUNCTION()
     void UpdateIK();
 
@@ -148,8 +149,19 @@ private:
     void ItemGrabbedLeft();
     void ItemGrabbedRight();
 
+    bool bHeadTurn;
+    bool bHeadTurning;
+
+    void UpdateMeshPostitionWithCamera();
+    void UpdateMeshRotationWithCamera();
+
+    void CheckHeadTurn();
+    void TurnBody();
+
 protected:
     /*** IK PROPERTIES ***/
+    UPROPERTY(BlueprintReadOnly, Category = "IK")
+    FVector _HMDWorldPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _HMDWorldOrientation;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
