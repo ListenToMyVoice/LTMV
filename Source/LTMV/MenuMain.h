@@ -26,9 +26,28 @@ protected:
     UTextRenderComponent* _Text_NewGame;
 
     UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UInputMenu* _Slot_Options;
+    UPROPERTY(Category = "Menu Text", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UTextRenderComponent* _Text_Options;
+
+    UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UInputMenu* _Slot_ExitGame;
     UPROPERTY(Category = "Menu Text", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UTextRenderComponent* _Text_ExitGame;
+
+    /*** OPTIONS MENU ***/
+    UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    USceneComponent* _Menu_Options;
+
+    UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UInputMenu* _Slot_ComfortMode;
+    UPROPERTY(Category = "Menu Text", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UTextRenderComponent* _Text_ComfortMode;
+
+    UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UInputMenu* _Slot_GoBack3;
+    UPROPERTY(Category = "Menu Text", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UTextRenderComponent* _Text_GoBack3;
 
     /*** NEW GAME MENU ***/
     UPROPERTY(Category = "Menu Input", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -82,6 +101,12 @@ private:
     FInputMenuDelegate _Slot_NewGamePressedDelegate;
     FInputMenuDelegate _Slot_NewGameReleasedDelegate;
 
+    FInputMenuDelegate _Slot_OptionsPressedDelegate;
+    FInputMenuDelegate _Slot_OptionsReleasedDelegate;
+
+    FInputMenuDelegate _Slot_OptionsComfortModePressedDelegate;
+    FInputMenuDelegate _Slot_OptionsComfortModeReleasedDelegate;
+
     FInputMenuDelegate _Slot_ExitGamePressedDelegate;
     FInputMenuDelegate _Slot_ExitGameReleasedDelegate;
 
@@ -91,10 +116,16 @@ private:
     FInputMenuDelegate _Slot_GoBack2PressedDelegate;
     FInputMenuDelegate _Slot_GoBack2ReleasedDelegate;
 
+    FInputMenuDelegate _Slot_GoBack3PressedDelegate;
+    FInputMenuDelegate _Slot_GoBack3ReleasedDelegate;
+
     /*** BINDINGS ***/
     void BuildMenu_Main();
+    void BuildMenu_Options();
     void BuildMenu_NewGame();
     void BuildMenu_FindGame();
+    /* OPTIONS */
+    void OptionComfortMode();
 
 public:
     FORCEINLINE USceneComponent* AMenuMain::GetMenu_Main() const { return _Menu_Main; }

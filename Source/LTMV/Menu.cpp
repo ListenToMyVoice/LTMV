@@ -80,6 +80,16 @@ void AMenu::OnJoinGame() {
     if (GameInstance) GameInstance->JoinOnlineGame();
 }
 
+bool AMenu::OnOptionsComfortMode() {
+    bool Result = false;
+    UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetWorld()->GetGameInstance());
+    if (GameInstance) {
+        Result = !GameInstance->_MenuOptions.bComfortMode;
+        GameInstance->_MenuOptions.bComfortMode = Result;
+    }
+    return Result;
+}
+
 /*********************************** MENU TAB ****************************************************/
 void AMenu::EnableSubmenu(USceneComponent* Submenu, bool Enable) {
     TArray<USceneComponent*> ChildComponents;

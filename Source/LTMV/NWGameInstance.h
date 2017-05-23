@@ -18,6 +18,15 @@ public:
     bool IsHost;
 };
 
+USTRUCT(BlueprintType, Category = "Menu Options")
+struct FMenuOptions {
+    GENERATED_USTRUCT_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Options")
+    bool bComfortMode;
+};
+
 UCLASS()
 class LTMV_API UNWGameInstance : public UGameInstance {
     GENERATED_BODY()
@@ -25,6 +34,8 @@ class LTMV_API UNWGameInstance : public UGameInstance {
 /**************************************** SESSION ************************************************/
 public:
     bool _IsVRMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
+    FMenuOptions _MenuOptions;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FPlayerInfo _PlayerInfoSaved;
     UPROPERTY(Replicated)

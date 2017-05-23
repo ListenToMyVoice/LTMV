@@ -23,6 +23,7 @@ public:
     void OnFindGame();
     void OnJoinGame();
     void OnBackToMenu();
+    bool OnOptionsComfortMode();
 
     virtual void OnFindSessionComplete(FString SessionOwner);
 

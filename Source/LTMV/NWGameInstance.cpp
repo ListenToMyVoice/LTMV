@@ -64,6 +64,8 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FClassFinder<APawn> PlayerVRPawnClassFinder(TEXT(
         "/Game/BluePrints/Characters/VRCharacter_BP"));
     _VRDefaultCharacterClass = PlayerVRPawnClassFinder.Class;
+
+    _MenuOptions.bComfortMode = false;
 }
 
 IOnlineSessionPtr UNWGameInstance::GetSessions() {

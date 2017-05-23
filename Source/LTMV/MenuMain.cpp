@@ -17,11 +17,35 @@ AMenuMain::AMenuMain(const class FObjectInitializer& OI) : Super(OI) {
     _Text_NewGame->SetText(FText::FromString("NEW GAME"));
     _Text_NewGame->AttachToComponent(_Slot_NewGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
+    _Slot_Options = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_Options"));
+    _Slot_Options->AttachToComponent(_Menu_Main, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_Options = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_Options"));
+    _Text_Options->SetText(FText::FromString("OPTIONS"));
+    _Text_Options->AttachToComponent(_Slot_Options, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
+
     _Slot_ExitGame = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_ExitGame"));
     _Slot_ExitGame->AttachToComponent(_Menu_Main, FAttachmentTransformRules::KeepRelativeTransform);
     _Text_ExitGame = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_ExitGame"));
     _Text_ExitGame->SetText(FText::FromString("EXIT GAME"));
     _Text_ExitGame->AttachToComponent(_Slot_ExitGame, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
+
+
+    /**************************************** OPTIONS MENU ***************************************/
+    _Menu_Options = CreateDefaultSubobject<USceneComponent>(TEXT("_Menu_Options"));
+    _Menu_Options->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+    _Slot_ComfortMode = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_ComfortMode"));
+    _Slot_ComfortMode->AttachToComponent(_Menu_Options, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_ComfortMode = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_ComfortMode"));
+    _Text_ComfortMode->SetText(FText::FromString("COMFORT MODE OFF"));
+    _Text_ComfortMode->AttachToComponent(_Slot_ComfortMode, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
+    _Text_ComfortMode->SetWorldSize(10);
+
+    _Slot_GoBack3 = CreateDefaultSubobject<UInputMenu>(TEXT("_Slot_GoBack3"));
+    _Slot_GoBack3->AttachToComponent(_Menu_Options, FAttachmentTransformRules::KeepRelativeTransform);
+    _Text_GoBack3 = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_Text_GoBack3"));
+    _Text_GoBack3->SetText(FText::FromString("GO BACK"));
+    _Text_GoBack3->AttachToComponent(_Slot_GoBack3, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketText"));
 
 
     /*************************************** NEW GAME MENU ***************************************/
@@ -83,7 +107,18 @@ void AMenuMain::BuildLayout() {
 
     _Slot_NewGame->RelativeLocation = FVector(0, 0, VerticalLocation);
     VerticalLocation -= MeshHeight;
+    _Slot_Options->RelativeLocation = FVector(0, 0, VerticalLocation);
+    VerticalLocation -= MeshHeight;
     _Slot_ExitGame->RelativeLocation = FVector(0, 0, VerticalLocation);
+
+    VerticalLocation = 0;
+    /************************************** OPTIONS MENU *****************************************/
+    _Menu_Options->RelativeLocation = _SubmenuLocation;
+    _Menu_Options->RelativeRotation = _SubmenuRotator;
+
+    _Slot_ComfortMode->RelativeLocation = FVector(0, 0, VerticalLocation);
+    VerticalLocation -= MeshHeight;
+    _Slot_GoBack3->RelativeLocation = FVector(0, 0, VerticalLocation);
 
     VerticalLocation = 0;
     /*************************************** NEW GAME MENU ***************************************/
@@ -121,8 +156,18 @@ void AMenuMain::BindDelegates() {
     _Slot_NewGameReleasedDelegate.BindUObject(this, &AMenuMain::BuildMenu_NewGame);
     _Slot_NewGame->AddOnInputMenuDelegate(_Slot_NewGameReleasedDelegate, false);
 
+    _Slot_OptionsReleasedDelegate.BindUObject(this, &AMenuMain::BuildMenu_Options);
+    _Slot_Options->AddOnInputMenuDelegate(_Slot_OptionsReleasedDelegate, false);
+
     _Slot_ExitGameReleasedDelegate.BindUObject(this, &AMenu::OnExitGame);
     _Slot_ExitGame->AddOnInputMenuDelegate(_Slot_ExitGameReleasedDelegate, false);
+
+    /*** OPTIONS MENU ***/
+    _Slot_OptionsComfortModeReleasedDelegate.BindUObject(this, &AMenuMain::OptionComfortMode);
+    _Slot_ComfortMode->AddOnInputMenuDelegate(_Slot_OptionsComfortModeReleasedDelegate, false);
+
+    _Slot_GoBack3ReleasedDelegate.BindUObject(this, &AMenuMain::BuildMenu_Main);
+    _Slot_GoBack3->AddOnInputMenuDelegate(_Slot_GoBack3ReleasedDelegate, false);
 
     /*** NEW GAME MENU ***/
     _Slot_HostGameReleasedDelegate.BindUObject(this, &AMenu::OnHostSession);
@@ -147,6 +192,7 @@ void AMenuMain::ResetMenu() {
 }
 
 void AMenuMain::DeactivateMenuMenu() {
+    EnableSubmenu(_Menu_Options, false);
     EnableSubmenu(_Menu_NewGame, false);
     EnableSubmenu(_Menu_FindGame, false);
     EnableSubmenu(_Menu_Main, false);
@@ -154,6 +200,7 @@ void AMenuMain::DeactivateMenuMenu() {
 
 /*********************************** BINDINGS ****************************************************/
 void AMenuMain::BuildMenu_Main() {
+    EnableSubmenu(_Menu_Options, false);
     EnableSubmenu(_Menu_NewGame, false);
     EnableSubmenu(_Menu_FindGame, false);
 
@@ -163,7 +210,19 @@ void AMenuMain::BuildMenu_Main() {
     EnableSubmenu(_Menu_Main, true);
 }
 
+void AMenuMain::BuildMenu_Options() {
+    EnableSubmenu(_Menu_NewGame, false);
+    EnableSubmenu(_Menu_Main, false);
+    EnableSubmenu(_Menu_FindGame, false);
+
+    /* DECORATORS */
+    _TopDecorator->AttachToComponent(_Slot_ComfortMode, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketTop"));
+    _BottomDecorator->AttachToComponent(_Slot_GoBack3, FAttachmentTransformRules::KeepRelativeTransform, FName("SocketBottom"));
+    EnableSubmenu(_Menu_Options, true);
+}
+
 void AMenuMain::BuildMenu_NewGame() {
+    EnableSubmenu(_Menu_Options, false);
     EnableSubmenu(_Menu_Main, false);
     EnableSubmenu(_Menu_FindGame, false);
 
@@ -176,6 +235,7 @@ void AMenuMain::BuildMenu_NewGame() {
 void AMenuMain::BuildMenu_FindGame() {
     OnFindGame();
 
+    EnableSubmenu(_Menu_Options, false);
     EnableSubmenu(_Menu_Main, false);
     EnableSubmenu(_Menu_NewGame, false);
 
@@ -199,4 +259,13 @@ void AMenuMain::OnFindSessionComplete(FString SessionOwner) {
     _Slot_JoinGame->SetComponentTickEnabled(true);
     _Slot_JoinGame->SetVisibility(true, true);
     _Slot_JoinGame->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void AMenuMain::OptionComfortMode() {
+    if (OnOptionsComfortMode()) {
+        _Text_ComfortMode->SetText(FText::FromString("COMFORT MODE ON"));
+    }
+    else {
+        _Text_ComfortMode->SetText(FText::FromString("COMFORT MODE OFF"));
+    }
 }
