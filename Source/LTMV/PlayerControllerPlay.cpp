@@ -8,7 +8,6 @@
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
 #include "PlayerSpectator.h"
-#include "MenuPlay.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -26,9 +25,6 @@ APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Sup
     //_TestAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Voice Comp"));
     //_TestAudioComp->bAutoActivate = false;
     //_TestAudioComp->SetSound(SoundFinder.Object);
-
-    /* MENU INTERFACE */
-    _MenuClass = AMenuPlay::StaticClass();
 }
 
 void APlayerControllerPlay::SetupInputComponent() {
@@ -217,7 +213,7 @@ void APlayerControllerPlay::ToogleMenu() {
     APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
     if (PlayerCharacter) {
         /* MENU INTERFACE */
-        if(!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
+        if(!_MenuActor) CreateMenuActor();
 
         UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerCharacter->
                                                               FindComponentByClass<UCameraComponent>());
@@ -229,8 +225,13 @@ void APlayerControllerPlay::ToogleMenu() {
     }
 }
 
+void APlayerControllerPlay::CreateMenuActor() {
+    UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
+    if (GameInstance) _MenuActor = GameInstance->CreateMenuPlay();
+}
+
 void APlayerControllerPlay::CLIENT_ShowMenu_Implementation() {
-    if (!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
+    if (!_MenuActor) CreateMenuActor();
     if (_MenuActor->_IsMenuHidden) {
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
         if (PlayerCharacter) {
@@ -295,7 +296,7 @@ void APlayerControllerPlay::CLIENT_Dead_Implementation() {
     APlayerSpectator* PlayerSpectator = Cast<APlayerSpectator>(GetSpectatorPawn());
     if (IsMenuHidden && PlayerSpectator) {
         /* MENU INTERFACE */
-        if (!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
+        if (!_MenuActor) CreateMenuActor();
 
         UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerSpectator->
                                                               FindComponentByClass<UCameraComponent>());

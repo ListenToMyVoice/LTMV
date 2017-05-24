@@ -14,10 +14,17 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _Color = FColor::Black;
     _HoverColor = FColor::Red;
 
+    _TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_TextRender"));
+    _TextRender->SetWorldSize(12);
+    _TextRender->SetTextRenderColor(_Color);
+    _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
+    _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
+
     _NextPoint = FVector();
     _NewTime = 0;
     _Timer = 0;
 
+    _NavigateMenuIndex = -1;
     //OnComponentActivated.AddDynamic(this, &UInputMenu::OnActivate);
     //OnComponentDeactivated.AddDynamic(this, &UInputMenu::OnDeactivate);
 }
@@ -31,21 +38,10 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
 //}
 
 void UInputMenu::BeginPlay() {
-    Super::BeginPlay();
-
-    TArray<USceneComponent*> ChildrenComp;
-    GetChildrenComponents(false, ChildrenComp);
-
-    for (USceneComponent* Component : ChildrenComp) {
-        _TextRender = Cast<UTextRenderComponent>(Component);
-        if (_TextRender) {
-            _TextRender->SetWorldSize(12);
-            _TextRender->SetTextRenderColor(_Color);
-            _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
-            _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
-            break;
-        }
-    }
+    _TextRender->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform,
+                                   FName("SocketText"));
+    _TextRender->SetText(FText::FromString(GetFName().ToString()));
+    _TextRender->RegisterComponent();
 }
 
 void UInputMenu::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -81,16 +77,16 @@ void UInputMenu::EndhoverInteraction() {
 }
 
 /*********************************************** DELEGATES ***************************************/
-void UInputMenu::AddOnInputMenuDelegate(FInputMenuDelegate& InputMenuDelegate, bool IsPressed) {
-    if (IsPressed) {
-        _OnInputMenuPressedDelegateHandle = _InputMenuPressedEvent.Add(InputMenuDelegate);
-    }
-    else {
-        _OnInputMenuReleasedDelegateHandle = _InputMenuReleasedEvent.Add(InputMenuDelegate);
-    }
+void UInputMenu::AddOnInputMenuDelegate() {
+    if(_InputMenuPressedDelegate.IsBound())
+        _OnInputMenuPressedDelegateHandle = _InputMenuPressedEvent.Add(_InputMenuPressedDelegate);
+    
+    if (_InputMenuReleasedDelegate.IsBound())
+        _OnInputMenuReleasedDelegateHandle = _InputMenuReleasedEvent.Add(_InputMenuReleasedDelegate);
+
 }
 
-void UInputMenu::ClearOnInputMenuDelegate(bool IsPressed) {
-    if (IsPressed) _InputMenuPressedEvent.Remove(_OnInputMenuPressedDelegateHandle);
-    else _InputMenuReleasedEvent.Remove(_OnInputMenuReleasedDelegateHandle);
+void UInputMenu::ClearOnInputMenuDelegate() {
+    _InputMenuPressedEvent.Remove(_OnInputMenuPressedDelegateHandle);
+    _InputMenuReleasedEvent.Remove(_OnInputMenuReleasedDelegateHandle);
 }

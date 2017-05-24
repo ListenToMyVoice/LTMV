@@ -26,9 +26,7 @@ public:
     void OnRep_Pawn() override;
 
     UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
-    void CLIENT_CreateMenu(TSubclassOf<AActor> MenuClass);
-
-    void OnFindSessionsComplete(FString SessionOwner);
+    void CLIENT_CreateMenu();
 
 protected:
     virtual void SetupInputComponent() override;
@@ -49,6 +47,6 @@ private:
     FString _MapMainMenu;
 
     /* MENU INTERFACE */
-    TSubclassOf<AActor> _MenuClass;
-    class AMenu* _MenuActor;
+    class AMenu3D* _MenuActor;
+    void CreateMenuActor(bool IsMainMenu);
 };

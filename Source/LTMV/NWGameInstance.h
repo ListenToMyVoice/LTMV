@@ -5,6 +5,9 @@
 #include "Engine/GameInstance.h"
 #include "NWGameInstance.generated.h"
 
+
+class AMenu3D;
+
 USTRUCT(BlueprintType, Category = "Player Info")
 struct FPlayerInfo {
     GENERATED_USTRUCT_BODY()
@@ -124,9 +127,12 @@ public:
     virtual void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 
     /* MENU INTERFACE */
-    void ToogleMenu(FVector Location, FRotator Rotation, bool InPLay);
-
-    AActor* GetMenuActor();
+    AMenu3D* CreateMenuMain();
+    AMenu3D* CreateMenuLobby();
+    AMenu3D* CreateMenuPlay();
+    /* BINDINGS */
+    void OnExitGame();
+    void SwitchComfortMode();
     
 protected:
     TSubclassOf<ACharacter> _BoyClass;
@@ -141,4 +147,8 @@ protected:
     TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 
     IOnlineSessionPtr GetSessions();
+
+private:
+    /* MENU INTERFACE */
+    class AMenu3D* _MenuActor;
 };

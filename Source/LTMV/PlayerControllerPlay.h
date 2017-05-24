@@ -71,8 +71,8 @@ private:
     bool _ClientPossesed;
 
     /* MENU INTERFACE */
-    TSubclassOf<AActor> _MenuClass;
-    class AMenu* _MenuActor;
+    class AMenu3D* _MenuActor;
+    void CreateMenuActor();
 
     void TickWalkie();
 };

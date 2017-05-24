@@ -4,7 +4,8 @@
 #include "NWGameInstance.h"
 
 #include "PlayerControllerLobby.h"
-#include "MenuMain.h"
+#include "Menu3D.h"
+#include "InputMenu.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -107,7 +108,7 @@ void UNWGameInstance::InitGame() {
             PlayerControllerLobby->Possess(Actor);
         }
 
-        PlayerControllerLobby->CLIENT_CreateMenu(AMenuMain::StaticClass());
+        PlayerControllerLobby->CLIENT_CreateMenu();
     }
 }
 
@@ -238,10 +239,6 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
     else Result = "NO VALID SESSIONS";
 
     _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS FOUND";
-
-    APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
-        GetFirstLocalPlayerController());
-    if (PlayerControllerLobby) PlayerControllerLobby->OnFindSessionsComplete(_SessionOwner);
 }
 
 bool UNWGameInstance::JoinAtSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName,
@@ -278,4 +275,81 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
             if (PlayerController) PlayerController->ClientReturnToMainMenu("");
         }
     }
+}
+
+/*********************************** MENU INTERFACE **********************************************/
+AMenu3D* UNWGameInstance::CreateMenuMain() {
+    _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
+
+    /*** (0)MAIN MENU ***/
+    UMenuPanel* MenuMain = NewObject<UMenuPanel>(_MenuActor, FName("MenuMain"));
+    UInputMenu* Slot_NewGame = NewObject<UInputMenu>(_MenuActor, FName("NEW GAME"));
+    Slot_NewGame->_NavigateMenuIndex = 1;
+    UInputMenu* Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPTIONS"));
+    Slot_Options->_NavigateMenuIndex = 2;
+    UInputMenu* Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("EXIT GAME"));
+    Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnExitGame);
+    Slot_ExitGame->AddOnInputMenuDelegate();
+
+    _MenuActor->AddSubmenu(MenuMain);
+    MenuMain->AddMenuInput(Slot_NewGame);
+    MenuMain->AddMenuInput(Slot_Options);
+    MenuMain->AddMenuInput(Slot_ExitGame);
+
+    ///*** (1)NEW GAME MENU ***/
+    //UMenuPanel* MenuNewGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuNewGame"));
+    //UInputMenu* Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("Slot_HostGame"));
+    //Slot_HostGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::LaunchLobby);
+    //Slot_HostGame->AddOnInputMenuDelegate();
+    //UInputMenu* Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("Slot_FindGame"));
+    //Slot_FindGame->_NavigateMenuIndex = 3;
+    //Slot_FindGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::FindOnlineGames);
+    //Slot_FindGame->AddOnInputMenuDelegate();
+
+    //_MenuActor->AddSubmenu(MenuNewGame);
+    //MenuNewGame->AddMenuInput(Slot_HostGame);
+    //MenuNewGame->AddMenuInput(Slot_FindGame);
+
+    ///*** (2)OPTIONS MENU ***/
+    //UMenuPanel* MenuOptions = NewObject<UMenuPanel>(_MenuActor, FName("MenuOptions"));
+    //UInputMenu* Slot_ComfortMode = NewObject<UInputMenu>(_MenuActor, FName("Slot_ComfortMode"));
+    //Slot_ComfortMode->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::SwitchComfortMode);
+    //Slot_ComfortMode->AddOnInputMenuDelegate();
+
+    //_MenuActor->AddSubmenu(MenuOptions);
+    //MenuOptions->AddMenuInput(Slot_ComfortMode);
+
+    ///*** (3)FIND GAME MENU ***/
+    //UMenuPanel* MenuFindGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuFindGame"));
+    //UInputMenu* Slot_JoinGame = NewObject<UInputMenu>(_MenuActor, FName("Slot_JoinGame"));
+    //Slot_JoinGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::JoinOnlineGame);
+    //Slot_JoinGame->AddOnInputMenuDelegate();
+
+    //_MenuActor->AddSubmenu(MenuFindGame);
+    //MenuFindGame->AddMenuInput(Slot_JoinGame);
+
+    ULibraryUtils::Log("MENU CREATED");
+
+    return _MenuActor;
+}
+
+AMenu3D* UNWGameInstance::CreateMenuLobby() {
+    _MenuActor = NewObject<AMenu3D>(_MenuActor, FName("MENU"));
+
+    return _MenuActor;
+}
+
+AMenu3D* UNWGameInstance::CreateMenuPlay() {
+    _MenuActor = NewObject<AMenu3D>(_MenuActor, FName("MENU"));
+
+    return _MenuActor;
+}
+
+/*********************************** BINDINGS ****************************************************/
+void UNWGameInstance::OnExitGame() {
+    FGenericPlatformMisc::RequestExit(false);
+}
+
+void UNWGameInstance::SwitchComfortMode() {
+    _MenuOptions.bComfortMode = !_MenuOptions.bComfortMode;
 }

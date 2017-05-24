@@ -5,7 +5,7 @@
 
 #include "GameModeLobby.h"
 #include "PlayerCharacter.h"
-#include "MenuLobby.h"
+#include "Menu3D.h"
 
 
 APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
@@ -15,9 +15,6 @@ APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : S
         _MapMainMenu,
         GEngineIni
     );
-
-    /* MENU INTERFACE */
-    _MenuClass = AMenuLobby::StaticClass();
 }
 
 void APlayerControllerLobby::SetupInputComponent() {
@@ -44,10 +41,10 @@ void APlayerControllerLobby::SERVER_CallUpdate_Implementation(FPlayerInfo info,
     if (gameMode) gameMode->SERVER_SwapCharacter(this, info, changedStatus);
 }
 
-void APlayerControllerLobby::CLIENT_CreateMenu_Implementation(TSubclassOf<AActor> MenuClass) {
+void APlayerControllerLobby::CLIENT_CreateMenu_Implementation() {
     /* MENU INTERFACE */
     if (GetPawnOrSpectator()) {
-        _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(MenuClass));
+        CreateMenuActor(true);
 
         UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
                                                               FindComponentByClass<UCameraComponent>());
@@ -82,10 +79,6 @@ void APlayerControllerLobby::OnRep_Pawn() {
     Super::OnRep_Pawn();
     /* CLIENT-SERVER EXCEPTION  */
     AfterPossessed();
-}
-
-void APlayerControllerLobby::OnFindSessionsComplete(FString SessionOwner) {
-    if (_MenuActor) _MenuActor->OnFindSessionComplete(SessionOwner);
 }
 
 /****************************************** ACTION MAPPINGS **************************************/
@@ -131,7 +124,7 @@ void APlayerControllerLobby::UseRightReleased() {
 void APlayerControllerLobby::ToogleMenu() {
     if (!_MapMainMenu.Contains(GetWorld()->GetMapName())) {
         /* MENU INTERFACE */
-        if (!_MenuActor) _MenuActor = Cast<AMenu>(GetWorld()->SpawnActor(_MenuClass));
+        if (!_MenuActor) CreateMenuActor(false);
 
         if (GetPawnOrSpectator()) {
             UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
@@ -144,5 +137,21 @@ void APlayerControllerLobby::ToogleMenu() {
                 if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
             }
         }
+    }
+}
+
+void APlayerControllerLobby::CreateMenuActor(bool IsMainMenu) {
+    UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
+    if (GameInstance) {
+        ULibraryUtils::Log("GameInstance");
+        if (IsMainMenu) {
+            _MenuActor = GameInstance->CreateMenuMain();
+        }
+        else {
+            _MenuActor = GameInstance->CreateMenuLobby();
+        }
+    }
+    else {
+        ULibraryUtils::Log("NO GameInstance");
     }
 }

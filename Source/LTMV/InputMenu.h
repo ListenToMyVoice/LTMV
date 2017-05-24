@@ -12,9 +12,14 @@ class LTMV_API UInputMenu : public UStaticMeshComponent {
     GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
+    int _NavigateMenuIndex;
+    float _MeshHeight = 30;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text Menu")
+    UTextRenderComponent* _TextRender;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text Menu")
     FColor _Color;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text Menu")
     FColor _HoverColor;
 
     FInputMenuEvent _InputMenuPressedEvent;
@@ -23,13 +28,16 @@ public:
     FDelegateHandle _OnInputMenuPressedDelegateHandle;
     FDelegateHandle _OnInputMenuReleasedDelegateHandle;
 
+    FInputMenuDelegate _InputMenuPressedDelegate;
+    FInputMenuDelegate _InputMenuReleasedDelegate;
+
     UInputMenu(const FObjectInitializer& OI);
 
     virtual void TickComponent(float DeltaTime, ELevelTick TickType,
                                FActorComponentTickFunction* ThisTickFunction) override;
 
-    void AddOnInputMenuDelegate(FInputMenuDelegate& InputMenuDelegate, bool IsPressed);
-    void ClearOnInputMenuDelegate(bool IsPressed);
+    void AddOnInputMenuDelegate();
+    void ClearOnInputMenuDelegate();
 
     void HoverInteraction();
     void EndhoverInteraction();
@@ -43,10 +51,9 @@ public:
     //void OnDeactivate(UActorComponent* Component);
 
 protected:
-    virtual void BeginPlay() override;
+    void BeginPlay() override;
 
 private:
-    UTextRenderComponent* _TextRender;
     float _NewTime;
     float _Timer;
 
