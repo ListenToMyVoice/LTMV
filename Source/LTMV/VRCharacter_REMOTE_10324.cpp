@@ -33,8 +33,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-    _VROriginComp->RelativeLocation.Z -= 100;
-    //_VROriginComp->SetRelativeLocation(FVector(15.f, 0.f, 75.f));
+    _VROriginComp->SetRelativeLocation(FVector(15.f, 0.f, 75.f));
 
     GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
@@ -104,8 +103,10 @@ void AVRCharacter::BuildRight() {
 void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
 
-    HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    if (HMD) HMD->EnablePositionalTracking(bPositionalHeadTracking);
+    if (HMD == nullptr) {
+        HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
+        SetupVROptions();
+    }
 
     if (IsPlayerControlled()) {
         APlayerController* const PC = Cast<APlayerController>(GetController());
@@ -221,6 +222,15 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 
     /* MOVEMENT */
     PlayerInput->BindAction("TurnVRCharacter", IE_Pressed, this, &AVRCharacter::TurnVRCharacter);
+}
+
+void AVRCharacter::SetupVROptions() {
+    if (HMD) {
+        HMD->EnablePositionalTracking(bPositionalHeadTracking);
+        /* Remove any translation when disabling positional head tracking */
+        if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
+    }
+    //ResetHMDOrigin();
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R

@@ -30,22 +30,14 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     GetCharacterMovement()->MaxCustomMovementSpeed = 240.0f;
     GetCharacterMovement()->MaxWalkSpeedCrouched = 120.0f;
     GetCharacterMovement()->MaxSwimSpeed = 120.0f;
-    
+
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-    _VROriginComp->RelativeLocation.Z -= 100;
-    //_VROriginComp->SetRelativeLocation(FVector(15.f, 0.f, 75.f));
-
-    GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
-    GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
-
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
 
     HMD = nullptr;
-    this->BaseEyeHeight = 0.f;
-    this->CrouchedEyeHeight = 0.f;
     _GripStateLeft = EGripEnum::Open;
     _GripStateRight = EGripEnum::Open;
 
@@ -70,14 +62,12 @@ void AVRCharacter::BuildLeft() {
     _SM_LeftHand->SetWorldScale3D(FVector(1.0f, 1.0f, -1.0f));
     _SM_LeftHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_LeftHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
-    _SM_LeftHand->SetHiddenInGame(true);
-    _SM_LeftHand->SetVisibility(false);
 
     /* ADDITIONAL */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
-    _LeftSphere->SetRelativeLocation(FVector(20.f, 0.f, 0.f));
-    _LeftSphere->SetSphereRadius(15.f);
+    _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+    _LeftSphere->SetSphereRadius(10.f);
 }
 
 void AVRCharacter::BuildRight() {
@@ -91,36 +81,27 @@ void AVRCharacter::BuildRight() {
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
     _SM_RightHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_RightHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
-    _SM_RightHand->SetHiddenInGame(true);
-    _SM_RightHand->SetVisibility(false);
 
     /* ADDITIONAL */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
-    _RightSphere->SetRelativeLocation(FVector(20.f, 0.f, 0.f));
-    _RightSphere->SetSphereRadius(15.f);
+    _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+    _RightSphere->SetSphereRadius(10.f);
 }
 
 void AVRCharacter::BeginPlay() {
     Super::BeginPlay();
 
-    HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
-    if (HMD) HMD->EnablePositionalTracking(bPositionalHeadTracking);
+    if (HMD == nullptr) {
+        HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());
+        SetupVROptions();
+    }
 
     if (IsPlayerControlled()) {
         APlayerController* const PC = Cast<APlayerController>(GetController());
         PC->InputYawScale = 1.0f;
     }
-
-    if (GetMesh() != nullptr) {
-        HeadCameraOffset = GetMesh()->GetBoneLocation(TEXT("head")) - _PlayerCamera->GetComponentLocation();
-        BodyCameraOffset = GetMesh()->GetComponentLocation() - _PlayerCamera->GetComponentLocation();
-        BodyCameraOffset.Z = GetMesh()->GetComponentLocation().Z;
-    }
-
-    bHeadTurn = false;
-    bHeadTurning = false;
-
+    
     _GrabDelegateLeft.BindUObject(this, &AVRCharacter::ItemGrabbedLeft);
     _GrabDelegateRight.BindUObject(this, &AVRCharacter::ItemGrabbedRight);
 
@@ -130,67 +111,18 @@ void AVRCharacter::BeginPlay() {
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
-    UpdateMeshPostitionWithCamera();
-    UpdateMeshRotationWithCamera();
+    //DebugController(_LeftHandComp->Hand);
+    //DebugController(_RightHandComp->Hand);
 
     // Transfers via data IK positions
-    UpdateIK();
-    
+    UpdateHMDLocationAndRotation();
+    UpdateControllersLocationAndRotation();
+
     SERVER_UpdateComponentPosition(_LeftHandComp, _LeftHandComp->RelativeLocation,
                                                   _LeftHandComp->RelativeRotation);
 
     SERVER_UpdateComponentPosition(_RightHandComp, _RightHandComp->RelativeLocation,
                                                    _RightHandComp->RelativeRotation);
-
-}
-
-void AVRCharacter::UpdateMeshPostitionWithCamera() {
-    GetMesh()->SetWorldLocation(_PlayerCamera->GetComponentLocation() + BodyCameraOffset -
-        FVector(0.f, 0.f, _PlayerCamera->GetComponentLocation().Z));
-}
-
-void AVRCharacter::UpdateMeshRotationWithCamera() {
-    if (!bHeadTurn && !bHeadTurning) {
-        CheckHeadTurn();
-        bHeadTurn = false;
-    }
-
-    if (bHeadTurning) {
-        TurnBody();
-    }
-}
-
-void AVRCharacter::CheckHeadTurn() {
-    float MeshYaw = GetMesh()->GetComponentRotation().Yaw + 90.f;
-    float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
-    float RelativeYaw = CameraYaw - MeshYaw;
-
-    if (RelativeYaw >= 60.0f || RelativeYaw <= -60.f) {
-        bHeadTurn = true;
-        bHeadTurning = true;
-    }
-}
-
-void AVRCharacter::TurnBody() {
-    float InterpSpeed = 2.f / GetWorld()->DeltaTimeSeconds;
-    FRotator CurrentRotation = GetMesh()->GetComponentRotation();
-
-    FRotator TargetRotation = FRotator(GetMesh()->GetComponentRotation().Pitch,
-                                       _PlayerCamera->GetComponentRotation().Yaw - 90.f,
-                                       GetMesh()->GetComponentRotation().Roll);
-
-    CurrentRotation = FMath::RInterpConstantTo(CurrentRotation,
-                                               TargetRotation,
-                                               GetWorld()->DeltaTimeSeconds,
-                                               InterpSpeed);
-
-    GetMesh()->SetWorldRotation(CurrentRotation);
-
-    float MeshYaw = GetMesh()->GetComponentRotation().Yaw + 90.f;
-    float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
-    float RelativeYaw = CameraYaw - MeshYaw;
-
-    if (FMath::Abs(RelativeYaw) < 1E-2) { bHeadTurning = false; }
 }
 
 /********** UPDATE LOCATIONS ***********/
@@ -223,6 +155,15 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("TurnVRCharacter", IE_Pressed, this, &AVRCharacter::TurnVRCharacter);
 }
 
+void AVRCharacter::SetupVROptions() {
+    if (HMD) {
+        HMD->EnablePositionalTracking(bPositionalHeadTracking);
+        /* Remove any translation when disabling positional head tracking */
+        if (!bPositionalHeadTracking) _PlayerCamera->SetRelativeLocation(FVector(0, 0, 0));
+    }
+    //ResetHMDOrigin();
+}
+
 void AVRCharacter::ResetHMDOrigin() {// R
     if (HMD) HMD->ResetOrientationAndPosition();
 }
@@ -239,18 +180,18 @@ void AVRCharacter::ToggleTrackingSpace() {// T
     //}
 }
 
-void AVRCharacter::MoveForward(float Value) {
-    AddMovementInput(GetMesh()->GetRightVector(), Value);
-}
-
 void AVRCharacter::TurnVRCharacter() {
     float _CameraYawValue = _PlayerCamera->GetComponentRotation().Yaw;
     float _PlayerYawValue = GetActorRotation().Yaw;
-    float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
+    float _YawRelativeValue = _PlayerYawValue - _CameraYawValue;
 
-    AddControllerYawInput(_YawRelativeValue);
-    SetActorRotation(FRotator(GetActorRotation().Pitch, _YawRelativeValue, GetActorRotation().Roll));
-    HMD->ResetOrientation();
+    AddControllerYawInput(-_YawRelativeValue);
+    //HMD->ResetOrientation(_CameraYawValue);
+
+    UE_LOG(LogTemp, Warning, TEXT("Camera orientation: %f"), _CameraYawValue);
+    UE_LOG(LogTemp, Warning, TEXT("Player orientation: %f"), _PlayerYawValue);
+    UE_LOG(LogTemp, Warning, TEXT("Relative orientation: %f"), _YawRelativeValue);
+
 }
 
 /************** OVERLAPPING *************/
@@ -580,13 +521,17 @@ void AVRCharacter::DropRight() {
 }
 
 /************ VR CHARACTER IK FEATURES *************/
-void AVRCharacter::UpdateIK() {
-    _HMDWorldPosition = _PlayerCamera->GetComponentLocation() + HeadCameraOffset;
+void AVRCharacter::UpdateHMDLocationAndRotation() {
+    _HMDWorldPosition = _PlayerCamera->GetComponentLocation();
     _HMDWorldOrientation = _PlayerCamera->GetComponentRotation();
-    _LeftControllerPosition = _LeftHandComp->GetComponentLocation();
-    _LeftControllerOrientation = _SM_LeftHand->GetComponentRotation();
-    _RightControllerPosition = _RightHandComp->GetComponentLocation();
-    _RightControllerOrientation = _SM_RightHand->GetComponentRotation();
+}
+
+void AVRCharacter::UpdateControllersLocationAndRotation() {
+    TArray<IMotionController*> MotionControllers = IModularFeatures::Get().GetModularFeatureImplementations<IMotionController>(IMotionController::GetModularFeatureName());
+    MotionControllers[0]->GetControllerOrientationAndPosition(0, _LeftHandComp->Hand, _LeftControllerOrientation, _LeftControllerPosition);
+    MotionControllers[0]->GetControllerOrientationAndPosition(0, _RightHandComp->Hand, _RightControllerOrientation, _RightControllerPosition);
+    _LeftControllerPosition += this->GetActorLocation();
+    _RightControllerPosition += this->GetActorLocation();
 }
 
 /************ VR CHARACTER CALIBRATION FEATURES *************/
@@ -636,33 +581,21 @@ void AVRCharacter::DebugController(EControllerHand Hand) {
 
     switch (DeviceTracked) {
     case(ETrackingStatus::NotTracked):
-        //UE_LOG(LogTemp, Warning, TEXT("El mando no realiza seguimiento."));
+        UE_LOG(LogTemp, Warning, TEXT("El mando no realiza seguimiento."));
         break;
     case(ETrackingStatus::Tracked):
     case(ETrackingStatus::InertialOnly):
         bool bControllerValidAndTracked = MotionControllers[0]->GetControllerOrientationAndPosition(0, Hand, Orientation, Position);
         if (bControllerValidAndTracked) {
-            DrawDebugBox(GetWorld(), Position, FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Blue);
-            DrawDebugBox(GetWorld(), GetControllerByHand(Hand)->GetComponentLocation(), FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Red);
+            Position += this->GetActorLocation();
+            DrawDebugBox(GetWorld(), Position, FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Black);
             break;
         }
         else {
-            //UE_LOG(LogTemp, Warning, TEXT("El mando no es valido o no realiza seguimiento."));
+            UE_LOG(LogTemp, Warning, TEXT("El mando no es valido o no realiza seguimiento."));
             break;
         }
     }
-}
-
-UMotionControllerComponent* AVRCharacter::GetControllerByHand(EControllerHand Hand) {
-    switch (Hand) {
-    case EControllerHand::Left:
-        return _LeftHandComp;
-        break;
-    case EControllerHand::Right:
-        return _RightHandComp;
-        break;
-    }
-    return nullptr;
 }
 
 /********** UPDATE ANIMATIONS ***********/

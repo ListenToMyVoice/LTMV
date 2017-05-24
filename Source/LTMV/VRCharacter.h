@@ -3,6 +3,7 @@
 #pragma once
 
 #include "PlayerCharacter.h"
+#include "MotionControllerComponent.h"
 #include "VRCharacter.generated.h"
 
 class UGrabItem;
@@ -47,6 +48,8 @@ public:
     /******* USE ITEM RIGHT *********/
     void UseRightPressed(bool IsMenuHidden) override;
     void UseRightReleased(bool IsMenuHidden) override;
+
+    UMotionControllerComponent* GetControllerByHand(EControllerHand Hand);
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
@@ -97,14 +100,14 @@ protected:
     void DropRight();
 
     /*********** MOVEMENT ***********/
-    UFUNCTION()
+    void MoveForward(float Value) override;
     void TurnVRCharacter();
 
     /************* IK **************/
+    FVector HeadCameraOffset;
+    FVector BodyCameraOffset;
     UFUNCTION()
-    void UpdateHMDLocationAndRotation();
-    UFUNCTION()
-    void UpdateControllersLocationAndRotation();
+    void UpdateIK();
 
     /********** UPDATE ANIMATIONS ***********/
     UFUNCTION(Server, Reliable, WithValidation)
@@ -145,6 +148,15 @@ private:
 
     void ItemGrabbedLeft();
     void ItemGrabbedRight();
+
+    bool bHeadTurn;
+    bool bHeadTurning;
+
+    void UpdateMeshPostitionWithCamera();
+    void UpdateMeshRotationWithCamera();
+
+    void CheckHeadTurn();
+    void TurnBody();
 
 protected:
     /*** IK PROPERTIES ***/
