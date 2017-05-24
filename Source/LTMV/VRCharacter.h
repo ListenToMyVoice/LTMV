@@ -105,7 +105,6 @@ protected:
 
     /************* IK **************/
     FVector HeadCameraOffset;
-    FVector BodyCameraOffset;
     UFUNCTION()
     void UpdateIK();
 
@@ -149,14 +148,26 @@ private:
     void ItemGrabbedLeft();
     void ItemGrabbedRight();
 
+public:
+    /*** MESH FOLLOW WITH CAMERA ***/
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera-Mesh follow")
+    float MaxHeadTurnValue;
+
+private:
+    FVector BodyCameraOffset;
+    FVector InitialBodyCameraOffset;
+
     bool bHeadTurn;
     bool bHeadTurning;
 
+    UFUNCTION()
     void UpdateMeshPostitionWithCamera();
+    UFUNCTION()
     void UpdateMeshRotationWithCamera();
 
     void CheckHeadTurn();
     void TurnBody();
+    /**/
 
 protected:
     /*** IK PROPERTIES ***/
