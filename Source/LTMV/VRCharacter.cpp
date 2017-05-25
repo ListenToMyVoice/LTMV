@@ -33,8 +33,9 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-    //_VROriginComp->RelativeLocation.Z -= 100;
     _VROriginComp->SetRelativeLocation(FVector(15.f, 0.f, 75.f));
+    //_VROriginComp->RelativeLocation.Z -= 100;
+    
 
     GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
@@ -48,7 +49,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     this->CrouchedEyeHeight = 0.f;
     _GripStateLeft = EGripEnum::Open;
     _GripStateRight = EGripEnum::Open;
-    MaxHeadTurnValue = 70.f;
+    MaxHeadTurnValue = 80.f;
 
     BuildLeft();
     BuildRight();
@@ -117,7 +118,6 @@ void AVRCharacter::BeginPlay() {
         HeadCameraOffset = GetMesh()->GetBoneLocation(TEXT("head")) - _PlayerCamera->GetComponentLocation();
         BodyCameraOffset = GetMesh()->GetComponentLocation() - _PlayerCamera->GetComponentLocation();
         BodyCameraOffset.Z = GetMesh()->GetComponentLocation().Z;
-        InitialBodyCameraOffset = BodyCameraOffset;
     }
 
     bHeadTurn = false;
@@ -133,7 +133,9 @@ void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
     UpdateMeshPostitionWithCamera();
-    UpdateMeshRotationWithCamera();
+
+    // TODO: ARREGLAR LA ROTATION SOBRE SI MISMO CUANDO SE USA EL GIRO CON MODO COMFORT
+    //UpdateMeshRotationWithCamera();
 
     UpdateIK();
     
@@ -190,11 +192,7 @@ void AVRCharacter::TurnBody() {
 
     GetMesh()->SetWorldRotation(NextRotation);
 
-    float MeshYaw = GetMesh()->GetComponentRotation().Yaw + 90.f;
-    float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
-    float RelativeYaw = CameraYaw - MeshYaw;
-
-    if (FMath::Abs(RelativeYaw) < 1E-2) { bHeadTurning = false; }
+    if ((NextRotation - TargetRotation).IsNearlyZero()) { bHeadTurning = false; }
 }
 
 /********** UPDATE LOCATIONS ***********/
@@ -257,21 +255,21 @@ void AVRCharacter::TurnVRCharacter() {
 
     AddControllerYawInput(_YawRelativeValue);
     SetActorRotation(FRotator(GetActorRotation().Pitch, _YawRelativeValue, GetActorRotation().Roll));
-    GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
-                                         _PlayerCamera->GetComponentRotation().Yaw - 90.f,
-                                         GetMesh()->GetComponentRotation().Roll));
 
-    UE_LOG(LogTemp, Warning, TEXT("Actor FV: %s"), *GetActorForwardVector().ToString());
-    UE_LOG(LogTemp, Warning, TEXT("Mesh FV: %s"), *GetMesh()->GetForwardVector().ToString());
-
-    UE_LOG(LogTemp, Warning, TEXT("Actor Yaw Value: %f"), _YawRelativeValue);
-    UE_LOG(LogTemp, Warning, TEXT("Mesh Yaw Value: %f"), _MeshYawRelativeValue);
     HMD->ResetOrientation();
 
-    float Rotation1 = BodyCameraOffset.Rotation().GetNormalized().Yaw;
     BodyCameraOffset = BodyCameraOffset.RotateAngleAxis(_MeshYawRelativeValue, _VROriginComp->GetUpVector());
-    float RotationRel = BodyCameraOffset.Rotation().GetNormalized().Yaw - Rotation1;
-    UE_LOG(LogTemp, Warning, TEXT("Offset vector rotation: %f"), RotationRel);
+
+    // TODO: ARREGLAR QUE EL PERSONAJE PUEDA ROTAR SOBRE SI MISMO CUANDO SUPERA UN ANGULO
+    //
+    // GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
+    //                                      _PlayerCamera->GetComponentRotation().Yaw - 90.f,
+    //                                      GetMesh()->GetComponentRotation().Roll));
+    // 
+    // if (bHeadTurn || bHeadTurn) {
+    //     bHeadTurn = false;
+    //     bHeadTurning = false;
+    // }
 }
 
 /************** OVERLAPPING *************/

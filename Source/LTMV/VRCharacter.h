@@ -35,7 +35,6 @@ public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
     virtual void Tick(float deltaTime) override;
 
-    void SetupVROptions();
     void ResetHMDOrigin();
 
     /* Toggle between Seated and Standing VR Tracking */
@@ -155,7 +154,6 @@ public:
 
 private:
     FVector BodyCameraOffset;
-    FVector InitialBodyCameraOffset;
 
     bool bHeadTurn;
     bool bHeadTurning;
