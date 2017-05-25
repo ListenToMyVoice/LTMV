@@ -13,11 +13,14 @@ class LTMV_API UMenuPanel : public USceneComponent {
     GENERATED_BODY()
 
 public:
+    float _PanelHeight;
+
     UMenuPanel();
     void AddMenuInput(UInputMenu* NewSlot);
 
     void EnablePanel(bool Enable);
     UInputMenu* GetInputMenuAt(int Index);
+    UInputMenu* GetInputMenuLast();
 
 protected:
     TArray<UInputMenu*> _MenuInputs;

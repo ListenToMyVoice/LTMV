@@ -24,7 +24,6 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _NewTime = 0;
     _Timer = 0;
 
-    _NavigateMenuIndex = -1;
     //OnComponentActivated.AddDynamic(this, &UInputMenu::OnActivate);
     //OnComponentDeactivated.AddDynamic(this, &UInputMenu::OnDeactivate);
 }
@@ -60,12 +59,12 @@ void UInputMenu::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UInputMenu::PressEvents() {
     EndhoverInteraction();
-    _InputMenuPressedEvent.Broadcast();
+    _InputMenuPressedEvent.Broadcast(this);
 }
 
 void UInputMenu::ReleaseEvents() {
     HoverInteraction();
-    _InputMenuReleasedEvent.Broadcast();
+    _InputMenuReleasedEvent.Broadcast(this);
 }
 
 void UInputMenu::HoverInteraction() {
@@ -83,7 +82,6 @@ void UInputMenu::AddOnInputMenuDelegate() {
     
     if (_InputMenuReleasedDelegate.IsBound())
         _OnInputMenuReleasedDelegateHandle = _InputMenuReleasedEvent.Add(_InputMenuReleasedDelegate);
-
 }
 
 void UInputMenu::ClearOnInputMenuDelegate() {

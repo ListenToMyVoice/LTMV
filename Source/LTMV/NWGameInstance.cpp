@@ -279,16 +279,20 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
 
 /*********************************** MENU INTERFACE **********************************************/
 AMenu3D* UNWGameInstance::CreateMenuMain() {
+    if (_MenuActor) _MenuActor->Destroy();
+
     _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
 
     /*** (0)MAIN MENU ***/
     UMenuPanel* MenuMain = NewObject<UMenuPanel>(_MenuActor, FName("MenuMain"));
     UInputMenu* Slot_NewGame = NewObject<UInputMenu>(_MenuActor, FName("NEW GAME"));
-    Slot_NewGame->_NavigateMenuIndex = 1;
+    Slot_NewGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonNewGame);
+    Slot_NewGame->AddOnInputMenuDelegate();
     UInputMenu* Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPTIONS"));
-    Slot_Options->_NavigateMenuIndex = 2;
+    Slot_Options->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonOptions);
+    Slot_Options->AddOnInputMenuDelegate();
     UInputMenu* Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("EXIT GAME"));
-    Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnExitGame);
+    Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonExitGame);
     Slot_ExitGame->AddOnInputMenuDelegate();
 
     _MenuActor->AddSubmenu(MenuMain);
@@ -296,37 +300,36 @@ AMenu3D* UNWGameInstance::CreateMenuMain() {
     MenuMain->AddMenuInput(Slot_Options);
     MenuMain->AddMenuInput(Slot_ExitGame);
 
-    ///*** (1)NEW GAME MENU ***/
-    //UMenuPanel* MenuNewGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuNewGame"));
-    //UInputMenu* Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("Slot_HostGame"));
-    //Slot_HostGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::LaunchLobby);
-    //Slot_HostGame->AddOnInputMenuDelegate();
-    //UInputMenu* Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("Slot_FindGame"));
-    //Slot_FindGame->_NavigateMenuIndex = 3;
-    //Slot_FindGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::FindOnlineGames);
-    //Slot_FindGame->AddOnInputMenuDelegate();
+    /*** (1)NEW GAME MENU ***/
+    UMenuPanel* MenuNewGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuNewGame"));
+    UInputMenu* Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("HOST GAME"));
+    Slot_HostGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonHostGame);
+    Slot_HostGame->AddOnInputMenuDelegate();
+    UInputMenu* Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("FIND GAME"));
+    Slot_FindGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonFindGame);
+    Slot_FindGame->AddOnInputMenuDelegate();
 
-    //_MenuActor->AddSubmenu(MenuNewGame);
-    //MenuNewGame->AddMenuInput(Slot_HostGame);
-    //MenuNewGame->AddMenuInput(Slot_FindGame);
+    _MenuActor->AddSubmenu(MenuNewGame);
+    MenuNewGame->AddMenuInput(Slot_HostGame);
+    MenuNewGame->AddMenuInput(Slot_FindGame);
 
-    ///*** (2)OPTIONS MENU ***/
-    //UMenuPanel* MenuOptions = NewObject<UMenuPanel>(_MenuActor, FName("MenuOptions"));
-    //UInputMenu* Slot_ComfortMode = NewObject<UInputMenu>(_MenuActor, FName("Slot_ComfortMode"));
-    //Slot_ComfortMode->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::SwitchComfortMode);
-    //Slot_ComfortMode->AddOnInputMenuDelegate();
+    /*** (2)OPTIONS MENU ***/
+    UMenuPanel* MenuOptions = NewObject<UMenuPanel>(_MenuActor, FName("MenuOptions"));
+    UInputMenu* Slot_ComfortMode = NewObject<UInputMenu>(_MenuActor, FName("COMFORT OFF"));
+    Slot_ComfortMode->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonSwitchComfortMode);
+    Slot_ComfortMode->AddOnInputMenuDelegate();
 
-    //_MenuActor->AddSubmenu(MenuOptions);
-    //MenuOptions->AddMenuInput(Slot_ComfortMode);
+    _MenuActor->AddSubmenu(MenuOptions);
+    MenuOptions->AddMenuInput(Slot_ComfortMode);
 
-    ///*** (3)FIND GAME MENU ***/
-    //UMenuPanel* MenuFindGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuFindGame"));
-    //UInputMenu* Slot_JoinGame = NewObject<UInputMenu>(_MenuActor, FName("Slot_JoinGame"));
-    //Slot_JoinGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::JoinOnlineGame);
-    //Slot_JoinGame->AddOnInputMenuDelegate();
+    /*** (3)FIND GAME MENU ***/
+    UMenuPanel* MenuFindGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuFindGame"));
+    UInputMenu* Slot_JoinGame = NewObject<UInputMenu>(_MenuActor, FName("JOIN GAME"));
+    Slot_JoinGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonJoinGame);
+    Slot_JoinGame->AddOnInputMenuDelegate();
 
-    //_MenuActor->AddSubmenu(MenuFindGame);
-    //MenuFindGame->AddMenuInput(Slot_JoinGame);
+    _MenuActor->AddSubmenu(MenuFindGame);
+    MenuFindGame->AddMenuInput(Slot_JoinGame);
 
     ULibraryUtils::Log("MENU CREATED");
 
@@ -334,22 +337,47 @@ AMenu3D* UNWGameInstance::CreateMenuMain() {
 }
 
 AMenu3D* UNWGameInstance::CreateMenuLobby() {
+    if (_MenuActor) _MenuActor->Destroy();
+
     _MenuActor = NewObject<AMenu3D>(_MenuActor, FName("MENU"));
 
     return _MenuActor;
 }
 
 AMenu3D* UNWGameInstance::CreateMenuPlay() {
+    if (_MenuActor) _MenuActor->Destroy();
+
     _MenuActor = NewObject<AMenu3D>(_MenuActor, FName("MENU"));
 
     return _MenuActor;
 }
 
 /*********************************** BINDINGS ****************************************************/
-void UNWGameInstance::OnExitGame() {
+void UNWGameInstance::OnButtonNewGame(UInputMenu* InputMenu) {
+    _MenuActor->SetSubmenuByIndex(1);
+}
+
+void UNWGameInstance::OnButtonOptions(UInputMenu* InputMenu) {
+    _MenuActor->SetSubmenuByIndex(2);
+}
+
+void UNWGameInstance::OnButtonExitGame(UInputMenu* InputMenu) {
     FGenericPlatformMisc::RequestExit(false);
 }
 
-void UNWGameInstance::SwitchComfortMode() {
+void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
+    LaunchLobby();
+}
+
+void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
+    FindOnlineGames();
+    _MenuActor->SetSubmenuByIndex(3);
+}
+
+void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {
+    JoinOnlineGame();
+}
+
+void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
     _MenuOptions.bComfortMode = !_MenuOptions.bComfortMode;
 }

@@ -7,6 +7,7 @@
 
 
 class AMenu3D;
+class UInputMenu;
 
 USTRUCT(BlueprintType, Category = "Player Info")
 struct FPlayerInfo {
@@ -131,8 +132,15 @@ public:
     AMenu3D* CreateMenuLobby();
     AMenu3D* CreateMenuPlay();
     /* BINDINGS */
-    void OnExitGame();
-    void SwitchComfortMode();
+    void OnButtonNewGame(UInputMenu* InputMenu);
+    void OnButtonOptions(UInputMenu* InputMenu);
+    void OnButtonExitGame(UInputMenu* InputMenu);
+
+    void OnButtonHostGame(UInputMenu* InputMenu);
+    void OnButtonFindGame(UInputMenu* InputMenu);
+
+    void OnButtonJoinGame(UInputMenu* InputMenu);
+    void OnButtonSwitchComfortMode(UInputMenu* InputMenu);
     
 protected:
     TSubclassOf<ACharacter> _BoyClass;
@@ -150,5 +158,5 @@ protected:
 
 private:
     /* MENU INTERFACE */
-    class AMenu3D* _MenuActor;
+    AMenu3D* _MenuActor;
 };

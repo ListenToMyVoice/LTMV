@@ -7,6 +7,7 @@
 
 
 class UMenuPanel;
+class UInputMenu;
 
 UCLASS()
 class LTMV_API AMenu3D : public AActor {
@@ -19,6 +20,7 @@ public:
     void ToogleMenu(FVector Location, FRotator Rotation);
 
     void AddSubmenu(UMenuPanel* Submenu);
+    void SetSubmenuByIndex(int Index);
 
 protected:
     FVector _SubmenuLocation = FVector(0, 0, 20);
@@ -32,9 +34,17 @@ protected:
     UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UStaticMeshComponent* _MiddleDecorator;
 
+    UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UInputMenu* _BackSubmenu;
+
+    void EnableBackSubmenu(bool Enable);
+
     /*** PANELS ***/
     TArray<UMenuPanel*> _Submenus;
 
+    /* BINDINGS */
+    void OnButtonBack(UInputMenu* InputMenu);
+
 private:
-    void SetSubmenuByIndex(int Index);
+    TArray<int> _Breadcrumb;
 };

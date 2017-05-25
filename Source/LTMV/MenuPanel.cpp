@@ -7,6 +7,7 @@
 
 UMenuPanel::UMenuPanel() : Super() {
     _MenuInputs = {};
+    _PanelHeight = 0;
 }
 
 void UMenuPanel::AddMenuInput(UInputMenu* NewSlot) {
@@ -22,12 +23,11 @@ void UMenuPanel::AddMenuInput(UInputMenu* NewSlot) {
     }
 
     _MenuInputs.Add(NewSlot);
+    _PanelHeight += NewSlot->_MeshHeight;
 }
 
 void UMenuPanel::EnablePanel(bool Enable) {
     for (UInputMenu* InputMenu : _MenuInputs) {
-        //if(Enable) ULibraryUtils::Log(FString::Printf(TEXT("Component (%s) ACTIVATED"), *Component->GetFName().ToString()));
-        //else ULibraryUtils::Log(FString::Printf(TEXT("Component (%s) DEACTIVATED"), *Component->GetFName().ToString()));
         InputMenu->SetActive(Enable);
         InputMenu->SetHiddenInGame(!Enable, true);
         InputMenu->SetComponentTickEnabled(Enable);
@@ -41,5 +41,10 @@ UInputMenu* UMenuPanel::GetInputMenuAt(int Index) {
     UInputMenu* Input;
     _MenuInputs.Find(Input, Index);
     return Input;
+
+}
+
+UInputMenu* UMenuPanel::GetInputMenuLast() {
+    return _MenuInputs.Top();
 
 }

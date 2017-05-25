@@ -5,14 +5,15 @@
 #include "Components/StaticMeshComponent.h"
 #include "InputMenu.generated.h"
 
-DECLARE_EVENT(UInputMenu, FInputMenuEvent);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LTMV_API UInputMenu : public UStaticMeshComponent {
     GENERATED_BODY()
 
 public:
-    int _NavigateMenuIndex;
+    DECLARE_EVENT_OneParam(UInputMenu, FInputMenuEvent, UInputMenu*);
+    DECLARE_DELEGATE_OneParam(FInputMenuDelegate, UInputMenu*);
+
     float _MeshHeight = 30;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text Menu")

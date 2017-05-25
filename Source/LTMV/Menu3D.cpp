@@ -4,6 +4,7 @@
 #include "Menu3D.h"
 
 #include "MenuPanel.h"
+#include "InputMenu.h"
 
 
 AMenu3D::AMenu3D(const class FObjectInitializer& OI) : Super(OI) {
@@ -27,14 +28,18 @@ AMenu3D::AMenu3D(const class FObjectInitializer& OI) : Super(OI) {
         TEXT("/Game/Meshes/Static/Menu/menu_2_parte_intermedia.menu_2_parte_intermedia"));
     _MiddleDecorator->SetStaticMesh(Finder3.Object);
     
+    _BackSubmenu = CreateDefaultSubobject<UInputMenu>(TEXT("BACK"));
+    _BackSubmenu->_InputMenuReleasedDelegate.BindUObject(this, &AMenu3D::OnButtonBack);
+    _BackSubmenu->AddOnInputMenuDelegate();
 
+    _BackSubmenu->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
     _TopDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
     _BottomDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    _MiddleDecorator->AttachToComponent(_TopDecorator, FAttachmentTransformRules::KeepRelativeTransform,
-                                        FName("SocketMiddle"));
+    _MiddleDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
     _IsMenuHidden = true;
     _Submenus = {};
+    _Breadcrumb = {};
 }
 
 void AMenu3D::AddSubmenu(UMenuPanel* Submenu) {
@@ -65,11 +70,42 @@ void AMenu3D::SetSubmenuByIndex(int Index) {
     for (int i = 0; i < _Submenus.Num(); i++) {
         if (i == Index) {
             _Submenus[i]->EnablePanel(true);
-            _BottomDecorator->AttachToComponent(_Submenus[i], FAttachmentTransformRules::KeepRelativeTransform);
-            _BottomDecorator->RelativeLocation = FVector(0, 0, -50);
+
+            if (Index == 0) {
+                EnableBackSubmenu(false);
+            }
+            else {
+                EnableBackSubmenu(true);
+                _BackSubmenu->AttachToComponent(_Submenus[i]->GetInputMenuLast(),
+                                                FAttachmentTransformRules::KeepRelativeTransform);
+                _BackSubmenu->RelativeLocation = FVector(0, 0, -_BackSubmenu->_MeshHeight);
+            }
+            _BottomDecorator->RelativeLocation = FVector(0, 0, -_Submenus[i]->_PanelHeight);
+            _Breadcrumb.Add(Index);
         }
         else {
             _Submenus[i]->EnablePanel(false);
         }
     }
+
+    if (Index < 0) _Breadcrumb.Reset();
+}
+
+void AMenu3D::EnableBackSubmenu(bool Enable) {
+    _BackSubmenu->SetActive(Enable);
+    _BackSubmenu->SetHiddenInGame(!Enable, true);
+    _BackSubmenu->SetComponentTickEnabled(Enable);
+    _BackSubmenu->SetVisibility(Enable, true);
+    if (Enable) _BackSubmenu->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    else  _BackSubmenu->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+/*********************************** BINDINGS ****************************************************/
+void AMenu3D::OnButtonBack(UInputMenu* InputMenu) {
+    //_Breadcrumb.Remove(_Breadcrumb.Num() - 1);
+    _Breadcrumb.RemoveAt(_Breadcrumb.Num() - 1);
+    int Aux = _Breadcrumb.Top();
+    _Breadcrumb.RemoveAt(_Breadcrumb.Num() - 1);
+
+    SetSubmenuByIndex(Aux);
 }
