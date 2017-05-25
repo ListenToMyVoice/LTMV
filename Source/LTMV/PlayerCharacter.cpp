@@ -170,17 +170,19 @@ void APlayerCharacter::SERVER_TakeLeft_Implementation(AActor* Actor) {
 void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* Actor) {
     UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(Actor->GetComponentByClass(
                                                             UStaticMeshComponent::StaticClass()));
+	
     UHandPickItem* HandPickComp = Cast<UHandPickItem>(Actor->FindComponentByClass(
         UHandPickItem::StaticClass()));
     if (ItemMesh && HandPickComp) {
+		const UStaticMeshSocket* GripSocket = ItemMesh->GetSocketByName(TEXT("Grip"));
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(TEXT("itemHand_l"));
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->SetSimulatePhysics(false);
-        ItemMesh->AttachToComponent(GetMesh(),
-                                FAttachmentTransformRules::KeepRelativeTransform,
-                                TEXT("itemHand_l"));
-
-        ItemMesh->RelativeLocation = HandPickComp->_locationAttach_L;
-        ItemMesh->RelativeRotation = HandPickComp->_rotationAttach_L;
+		ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "itemHand_l");
+		
+		ItemMesh->SetRelativeLocation(HandSocket->RelativeLocation);
+		ItemMesh->RelativeRotation = GripSocket->RelativeRotation;
+		
 
         Actor->SetActorEnableCollision(false);
         _ItemLeft = Actor;
