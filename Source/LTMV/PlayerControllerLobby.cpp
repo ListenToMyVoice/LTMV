@@ -131,7 +131,10 @@ void APlayerControllerLobby::ToogleMenu() {
             UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
                                                                   FindComponentByClass<UCameraComponent>());
             if (CameraComp) {
-                _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+                FVector Location = CameraComp->GetComponentLocation() +
+                                  (CameraComp->GetForwardVector().GetSafeNormal() * 200);
+                
+                _MenuActor->ToogleMenu(Location,
                                        CameraComp->GetComponentRotation());
 
                 APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());

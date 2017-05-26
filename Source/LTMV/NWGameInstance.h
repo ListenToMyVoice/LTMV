@@ -141,6 +141,8 @@ public:
 
     void OnButtonJoinGame(UInputMenu* InputMenu);
     void OnButtonSwitchComfortMode(UInputMenu* InputMenu);
+
+    void OnButtonBackToMenu(UInputMenu* InputMenu);
     
 protected:
     TSubclassOf<ACharacter> _BoyClass;

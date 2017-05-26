@@ -218,7 +218,10 @@ void APlayerControllerPlay::ToogleMenu() {
         UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerCharacter->
                                                               FindComponentByClass<UCameraComponent>());
         if (CameraComp) {
-            _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+            FVector Location = CameraComp->GetComponentLocation() +
+                              (CameraComp->GetForwardVector().GetSafeNormal() * 200);
+
+            _MenuActor->ToogleMenu(Location,
                                    CameraComp->GetComponentRotation());
             PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
         }

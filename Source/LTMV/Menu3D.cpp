@@ -9,8 +9,7 @@
 
 AMenu3D::AMenu3D(const class FObjectInitializer& OI) : Super(OI) {
     PrimaryActorTick.bCanEverTick = true;
-    //SetActorRotation(FRotator(0, 180, 0));
-    AddActorWorldRotation(FRotator(0, 180, 0));
+
     SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Root Component")));
 
     /*** DECORATORS ***/
@@ -58,11 +57,8 @@ void AMenu3D::AddSubmenu(UMenuPanel* Submenu) {
 
 void AMenu3D::ToogleMenu(FVector Location, FRotator Rotation) {
     if (_IsMenuHidden) {
-        Rotation.Yaw = 180;
-
         SetSubmenuByIndex(0);
         ULibraryUtils::SetActorEnable(this);
-
         SetActorLocationAndRotation(Location, Rotation, false, nullptr, ETeleportType::TeleportPhysics);
     }
     else {

@@ -283,7 +283,7 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
 
 /*********************************** MENU INTERFACE **********************************************/
 AMenu3D* UNWGameInstance::CreateMenuMain() {
-    if (_MenuActor) _MenuActor->Destroy();
+    if (ULibraryUtils::IsValid(_MenuActor)) _MenuActor->Destroy();
 
     _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
 
@@ -339,17 +339,26 @@ AMenu3D* UNWGameInstance::CreateMenuMain() {
 }
 
 AMenu3D* UNWGameInstance::CreateMenuLobby() {
-    if (_MenuActor) _MenuActor->Destroy();
-
-    _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
-
-    return _MenuActor;
+    return CreateMenuPlay();
 }
 
 AMenu3D* UNWGameInstance::CreateMenuPlay() {
-    if (_MenuActor) _MenuActor->Destroy();
+    if (ULibraryUtils::IsValid(_MenuActor)) _MenuActor->Destroy();
 
     _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
+
+    /*** (0)PLAY MENU ***/
+    UMenuPanel* MenuPlay = NewObject<UMenuPanel>(_MenuActor, FName("MenuPlay"));
+    UInputMenu* Slot_BackToMenu = NewObject<UInputMenu>(_MenuActor, FName("BACK TO MENU"));
+    Slot_BackToMenu->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonBackToMenu);
+    Slot_BackToMenu->AddOnInputMenuDelegate();
+    UInputMenu* Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("EXIT GAME"));
+    Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonExitGame);
+    Slot_ExitGame->AddOnInputMenuDelegate();
+
+    _MenuActor->AddSubmenu(MenuPlay);
+    MenuPlay->AddMenuInput(Slot_BackToMenu);
+    MenuPlay->AddMenuInput(Slot_ExitGame);
 
     return _MenuActor;
 }
@@ -383,4 +392,8 @@ void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {
 
 void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
     _MenuOptions.bComfortMode = !_MenuOptions.bComfortMode;
+}
+
+void UNWGameInstance::OnButtonBackToMenu(UInputMenu* InputMenu) {
+    DestroySession();
 }
