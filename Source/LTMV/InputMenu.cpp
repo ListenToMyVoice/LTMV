@@ -11,8 +11,8 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
         TEXT("StaticMesh'/Game/Art/Common/Menu/Meshes/menu2_cajaprueba.menu2_cajaprueba'"));
     SetStaticMesh(Finder.Object);
 
-    _Color = FColor::Black;
-    _HoverColor = FColor::Red;
+    _Color = FColor::FromHex("293E3DFF"); 
+    _HoverColor = FColor::FromHex("A8FFFAFF");
 
     _TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_TextRender"));
     _TextRender->SetWorldSize(12);
