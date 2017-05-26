@@ -19,10 +19,10 @@ AMenu3D::AMenu3D(const class FObjectInitializer& OI) : Super(OI) {
         TEXT("StaticMesh'/Game/Art/Common/Menu/Meshes/menu2_parte_superior.menu2_parte_superior'"));
     _TopDecorator->SetStaticMesh(Finder.Object);
 
-    //_BottomDecorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_BottomDecorator"));
-    //static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder2(
-    //    TEXT("StaticMesh'/Game/Art/Common/Menu/Meshes/menu2_parte_abajo.menu2_parte_abajo'"));
-    //_BottomDecorator->SetStaticMesh(Finder2.Object);
+    _BottomDecorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_BottomDecorator"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder2(
+        TEXT("StaticMesh'/Game/Art/Common/Menu/Meshes/menu2_parte_abajo.menu2_parte_abajo'"));
+    _BottomDecorator->SetStaticMesh(Finder2.Object);
 
     //_MiddleDecorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("_MiddleDecorator"));
     //static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder3(
@@ -35,7 +35,7 @@ AMenu3D::AMenu3D(const class FObjectInitializer& OI) : Super(OI) {
 
     _BackSubmenu->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
     _TopDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    //_BottomDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+    _BottomDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
     //_MiddleDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
     _IsMenuHidden = true;
@@ -72,7 +72,7 @@ void AMenu3D::SetSubmenuByIndex(const int& Index) {
         if (i == Index) {
             _Submenus[i]->EnablePanel(true);
 
-            PlaceBackButton(!(Index == 0), _Submenus[i]->_PanelHeight);
+            PlaceDecorators(!(Index == 0), _Submenus[i]->_PanelHeight);
             _Breadcrumb.Add(Index);
         }
         else {
@@ -101,12 +101,22 @@ void AMenu3D::OnButtonBack(UInputMenu* InputMenu) {
 }
 
 /*********************************** AUXILIAR ****************************************************/
-void AMenu3D::PlaceBackButton(bool Place, float PanelHeight) {
-    if (Place) {
+void AMenu3D::PlaceDecorators(bool PlaceBackButton, float PanelHeight) {
+    FVector Location = FVector(0, 0, -PanelHeight);
+    if (PlaceBackButton) {
         _BackSubmenu->Enable(true);
         _BackSubmenu->SetRelativeLocation(FVector(0, 0, -PanelHeight));
+
+        FVector Origin;
+        FVector BoxExtent;
+        float SphereRadius;
+
+        UKismetSystemLibrary::GetComponentBounds(_BackSubmenu, Origin, BoxExtent, SphereRadius);
+        Location.Z -= (2 * BoxExtent.Z) + 10;
     }
     else {
         _BackSubmenu->Enable(false);
     }
+
+    _BottomDecorator->SetRelativeLocation(Location);
 }

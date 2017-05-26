@@ -44,5 +44,5 @@ protected:
 private:
     TArray<int> _Breadcrumb;
 
-    void PlaceBackButton(bool Place, float PanelHeight);
+    void PlaceDecorators(bool PlaceBackButton, float PanelHeight);
 };

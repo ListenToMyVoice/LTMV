@@ -59,10 +59,7 @@ void UInputMenu::TickComponent(float DeltaTime, ELevelTick TickType,
     //AddRelativeLocation(_NextPoint.GetSafeNormal() * 1.5 * DeltaTime);
 
     /* LOADING */
-    if (_IsLoading) {
-        FRotator NewRotation = FRotator(0, 0, 1.5 * DeltaTime);
-        AddRelativeRotation(NewRotation);
-    }
+    if (_IsLoading) AddRelativeRotation(FRotator(0, 150 * DeltaTime, 0));
 }
 
 void UInputMenu::PressEvents() {
