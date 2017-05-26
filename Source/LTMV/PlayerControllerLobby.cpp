@@ -143,15 +143,11 @@ void APlayerControllerLobby::ToogleMenu() {
 void APlayerControllerLobby::CreateMenuActor(bool IsMainMenu) {
     UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
     if (GameInstance) {
-        ULibraryUtils::Log("GameInstance");
         if (IsMainMenu) {
             _MenuActor = GameInstance->CreateMenuMain();
         }
         else {
             _MenuActor = GameInstance->CreateMenuLobby();
         }
-    }
-    else {
-        ULibraryUtils::Log("NO GameInstance");
     }
 }

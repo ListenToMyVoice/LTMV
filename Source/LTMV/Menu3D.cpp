@@ -66,19 +66,19 @@ void AMenu3D::ToogleMenu(FVector Location, FRotator Rotation) {
     _IsMenuHidden = !_IsMenuHidden;
 }
 
-void AMenu3D::SetSubmenuByIndex(int Index) {
+void AMenu3D::SetSubmenuByIndex(const int& Index) {
     for (int i = 0; i < _Submenus.Num(); i++) {
         if (i == Index) {
             _Submenus[i]->EnablePanel(true);
 
             if (Index == 0) {
-                EnableBackSubmenu(false);
+                _BackSubmenu->Enable(false);
             }
             else {
-                EnableBackSubmenu(true);
-                _BackSubmenu->AttachToComponent(_Submenus[i]->GetInputMenuLast(),
-                                                FAttachmentTransformRules::KeepRelativeTransform);
-                _BackSubmenu->RelativeLocation = FVector(0, 0, -_BackSubmenu->_MeshHeight);
+                _BackSubmenu->Enable(true);
+                //_BackSubmenu->AttachToComponent(_Submenus[i]->GetInputMenuLast(),
+                //                                FAttachmentTransformRules::KeepRelativeTransform);
+                _BackSubmenu->RelativeLocation = FVector(0, 0, -_BackSubmenu->_MeshHeight-50);
             }
             _BottomDecorator->RelativeLocation = FVector(0, 0, -_Submenus[i]->_PanelHeight);
             _Breadcrumb.Add(Index);
@@ -91,18 +91,16 @@ void AMenu3D::SetSubmenuByIndex(int Index) {
     if (Index < 0) _Breadcrumb.Reset();
 }
 
-void AMenu3D::EnableBackSubmenu(bool Enable) {
-    _BackSubmenu->SetActive(Enable);
-    _BackSubmenu->SetHiddenInGame(!Enable, true);
-    _BackSubmenu->SetComponentTickEnabled(Enable);
-    _BackSubmenu->SetVisibility(Enable, true);
-    if (Enable) _BackSubmenu->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    else  _BackSubmenu->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+void AMenu3D::SetInputMenuLoading(int IndexPanel, int IndexInputMenu, bool IsLoading,
+                                  FString Text) {
+    if (IndexPanel < _Submenus.Num()) {
+        UInputMenu* InputMenu = _Submenus[IndexPanel]->GetInputMenuAt(IndexInputMenu);
+        if(InputMenu) InputMenu->SetLoading(IsLoading, Text);
+    }
 }
 
 /*********************************** BINDINGS ****************************************************/
 void AMenu3D::OnButtonBack(UInputMenu* InputMenu) {
-    //_Breadcrumb.Remove(_Breadcrumb.Num() - 1);
     _Breadcrumb.RemoveAt(_Breadcrumb.Num() - 1);
     int Aux = _Breadcrumb.Top();
     _Breadcrumb.RemoveAt(_Breadcrumb.Num() - 1);

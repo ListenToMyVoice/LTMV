@@ -228,17 +228,21 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
                                        _SessionSearch->SearchResults.Num()), 3, 15);
     IOnlineSessionPtr Sessions = GetSessions();
     FString Result = "";
+    bool Ok = false;
     if (Sessions.IsValid()) {
         Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
         for (int32 i = 0; i < _SessionSearch->SearchResults.Num(); i++) {
             if (_SessionSearch->SearchResults[i].Session.NumOpenPublicConnections > 0) {
                 Result = _SessionSearch->SearchResults[i].Session.OwningUserName;
+                Ok = true;
             }
         }
     }
     else Result = "NO VALID SESSIONS";
 
     _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS FOUND";
+
+    if (Ok) _MenuActor->SetInputMenuLoading(3, 0, false, "");
 }
 
 bool UNWGameInstance::JoinAtSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName,
@@ -331,15 +335,13 @@ AMenu3D* UNWGameInstance::CreateMenuMain() {
     _MenuActor->AddSubmenu(MenuFindGame);
     MenuFindGame->AddMenuInput(Slot_JoinGame);
 
-    ULibraryUtils::Log("MENU CREATED");
-
     return _MenuActor;
 }
 
 AMenu3D* UNWGameInstance::CreateMenuLobby() {
     if (_MenuActor) _MenuActor->Destroy();
 
-    _MenuActor = NewObject<AMenu3D>(_MenuActor, FName("MENU"));
+    _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
 
     return _MenuActor;
 }
@@ -347,7 +349,7 @@ AMenu3D* UNWGameInstance::CreateMenuLobby() {
 AMenu3D* UNWGameInstance::CreateMenuPlay() {
     if (_MenuActor) _MenuActor->Destroy();
 
-    _MenuActor = NewObject<AMenu3D>(_MenuActor, FName("MENU"));
+    _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
 
     return _MenuActor;
 }
@@ -372,6 +374,7 @@ void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
 void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
     FindOnlineGames();
     _MenuActor->SetSubmenuByIndex(3);
+    _MenuActor->SetInputMenuLoading(3, 0, true, "LOADING...");
 }
 
 void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {

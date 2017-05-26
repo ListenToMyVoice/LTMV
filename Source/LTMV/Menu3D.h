@@ -20,7 +20,8 @@ public:
     void ToogleMenu(FVector Location, FRotator Rotation);
 
     void AddSubmenu(UMenuPanel* Submenu);
-    void SetSubmenuByIndex(int Index);
+    void SetSubmenuByIndex(const int& Index);
+    void SetInputMenuLoading(int IndexPanel, int IndexInputMenu, bool IsLoading, FString Text);
 
 protected:
     FVector _SubmenuLocation = FVector(0, 0, 20);
@@ -36,8 +37,6 @@ protected:
 
     UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UInputMenu* _BackSubmenu;
-
-    void EnableBackSubmenu(bool Enable);
 
     /*** PANELS ***/
     TArray<UMenuPanel*> _Submenus;

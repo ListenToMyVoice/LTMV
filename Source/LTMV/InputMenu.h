@@ -37,6 +37,9 @@ public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType,
                                FActorComponentTickFunction* ThisTickFunction) override;
 
+    void Enable(bool Enable);
+    void SetLoading(bool IsLoading, FString Text);
+
     void AddOnInputMenuDelegate();
     void ClearOnInputMenuDelegate();
 
@@ -55,6 +58,8 @@ protected:
     void BeginPlay() override;
 
 private:
+    FText _PrevText;
+    bool _IsLoading;
     float _NewTime;
     float _Timer;
 

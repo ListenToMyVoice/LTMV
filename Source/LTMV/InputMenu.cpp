@@ -24,6 +24,8 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _NewTime = 0;
     _Timer = 0;
 
+    _IsLoading = false;
+
     //OnComponentActivated.AddDynamic(this, &UInputMenu::OnActivate);
     //OnComponentDeactivated.AddDynamic(this, &UInputMenu::OnDeactivate);
 }
@@ -46,25 +48,35 @@ void UInputMenu::BeginPlay() {
 void UInputMenu::TickComponent(float DeltaTime, ELevelTick TickType,
                                FActorComponentTickFunction* ThisTickFunction) {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    _Timer += DeltaTime;
-    if (_Timer >= _NewTime) {
-        _NewTime = _Timer + 0.5;
+    //_Timer += DeltaTime;
+    //if (_Timer >= _NewTime) {
+    //    _NewTime = _Timer + 0.5;
 
-        _NextPoint.X = FMath::FRandRange(-1, 1);
-        _NextPoint.Y = FMath::FRandRange(-1, 1);
-        _NextPoint.Z = FMath::FRandRange(-1, 1);
+    //    _NextPoint.X = FMath::FRandRange(-1, 1);
+    //    _NextPoint.Y = FMath::FRandRange(-1, 1);
+    //    _NextPoint.Z = FMath::FRandRange(-1, 1);
+    //}
+    //AddRelativeLocation(_NextPoint.GetSafeNormal() * 1.5 * DeltaTime);
+
+    /* LOADING */
+    if (_IsLoading) {
+        FRotator NewRotation = FRotator(0, 0, 1.5 * DeltaTime);
+        AddRelativeRotation(NewRotation);
     }
-    AddRelativeLocation(_NextPoint.GetSafeNormal() * 1.5 * DeltaTime);
 }
 
 void UInputMenu::PressEvents() {
-    EndhoverInteraction();
-    _InputMenuPressedEvent.Broadcast(this);
+    if (!_IsLoading) {
+        EndhoverInteraction();
+        _InputMenuPressedEvent.Broadcast(this);
+    }
 }
 
 void UInputMenu::ReleaseEvents() {
-    HoverInteraction();
-    _InputMenuReleasedEvent.Broadcast(this);
+    if (!_IsLoading) {
+        HoverInteraction();
+        _InputMenuReleasedEvent.Broadcast(this);
+    }
 }
 
 void UInputMenu::HoverInteraction() {
@@ -73,6 +85,37 @@ void UInputMenu::HoverInteraction() {
 
 void UInputMenu::EndhoverInteraction() {
     if (_TextRender) _TextRender->SetTextRenderColor(_Color);
+}
+
+void UInputMenu::Enable(bool Enable) {
+    SetActive(Enable);
+    SetHiddenInGame(!Enable, true);
+    SetComponentTickEnabled(Enable);
+    SetVisibility(Enable, true);
+    if (Enable) SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    else SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void UInputMenu::SetLoading(bool IsLoading, FString Text) {
+    _IsLoading = IsLoading;
+    if (_IsLoading) {
+        _PrevText = _TextRender->Text;
+        _TextRender->SetText(FText::FromString(Text));
+        ULibraryUtils::Log("LOADING");
+    }
+    else {
+        _TextRender->SetText(_PrevText);
+        SetRelativeRotation(FRotator(0, 0, 0));
+        ULibraryUtils::Log("END LOADING");
+    }
+
+    //if (_IsLoading) {
+    //    _PrevText = _TextRender->Text;
+    //    _TextRender->SetText(FText::FromString(Text));
+    //}
+    //else {
+    //    _TextRender->SetText(_PrevText);
+    //}
 }
 
 /*********************************************** DELEGATES ***************************************/
