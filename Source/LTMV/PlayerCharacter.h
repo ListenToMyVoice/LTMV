@@ -61,8 +61,6 @@ protected:
 	class UFMODAudioComponent* _BreathAudioComp;
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UMenuInteraction* _MenuInteractionComp;
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UPostProcessComponent* _PostProcessComp;
 
     AActor* _ItemLeft;
     AActor* _ItemRight;
@@ -121,9 +119,7 @@ protected:
 	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	/***********POST PROCESS***********/
-	FTimerHandle TimerHandle;
 	bool _Damaged;
-	void RemovePostProcess();
 
 private:
     AActor* _WalkieActor;
@@ -131,6 +127,11 @@ private:
     /* Radio Delegate */
     FDelegateHandle _OnRadioPressedDelegateHandle;
     FDelegateHandle _OnRadioReleasedDelegateHandle;
+
+	/*Physic Materials*/
+	const USkeletalMeshSocket* _FootSocket;
+	void CheckFloorMaterial();
+	FHitResult _FootHitResult;
 
 public:
     FORCEINLINE UCameraComponent* APlayerCharacter::GetPlayerCamera() const { return _PlayerCamera; }

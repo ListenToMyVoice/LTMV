@@ -80,7 +80,6 @@ void AFPCharacter::Tick(float DeltaSeconds) {
     Super::Tick(DeltaSeconds);
     //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
     Raycasting();
-
 }
 
 FHitResult AFPCharacter::Raycasting() {
@@ -91,6 +90,7 @@ FHitResult AFPCharacter::Raycasting() {
     FVector EndRaycast = _PlayerCamera->GetForwardVector() * _RayParameter + StartRaycast;
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(_HitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
+
     //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (bHitRayCastFlag && _HitResult.Actor.IsValid()) {

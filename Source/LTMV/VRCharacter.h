@@ -3,6 +3,7 @@
 #pragma once
 
 #include "PlayerCharacter.h"
+#include "MotionControllerComponent.h"
 #include "VRCharacter.generated.h"
 
 class UGrabItem;
@@ -34,7 +35,6 @@ public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
     virtual void Tick(float deltaTime) override;
 
-    void SetupVROptions();
     void ResetHMDOrigin();
 
     /* Toggle between Seated and Standing VR Tracking */
@@ -47,6 +47,8 @@ public:
     /******* USE ITEM RIGHT *********/
     void UseRightPressed(bool IsMenuHidden) override;
     void UseRightReleased(bool IsMenuHidden) override;
+
+    UMotionControllerComponent* GetControllerByHand(EControllerHand Hand);
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
@@ -97,14 +99,13 @@ protected:
     void DropRight();
 
     /*********** MOVEMENT ***********/
-    UFUNCTION()
+    void MoveForward(float Value) override;
     void TurnVRCharacter();
 
     /************* IK **************/
+    FVector HeadCameraOffset;
     UFUNCTION()
-    void UpdateHMDLocationAndRotation();
-    UFUNCTION()
-    void UpdateControllersLocationAndRotation();
+    void UpdateIK();
 
     /********** UPDATE ANIMATIONS ***********/
     UFUNCTION(Server, Reliable, WithValidation)
@@ -145,6 +146,26 @@ private:
 
     void ItemGrabbedLeft();
     void ItemGrabbedRight();
+
+public:
+    /*** MESH FOLLOW WITH CAMERA ***/
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera-Mesh follow")
+    float MaxHeadTurnValue;
+
+private:
+    FVector BodyCameraOffset;
+
+    bool bHeadTurn;
+    bool bHeadTurning;
+
+    UFUNCTION()
+    void UpdateMeshPostitionWithCamera();
+    UFUNCTION()
+    void UpdateMeshRotationWithCamera();
+
+    void CheckHeadTurn();
+    void TurnBody();
+    /**/
 
 protected:
     /*** IK PROPERTIES ***/
