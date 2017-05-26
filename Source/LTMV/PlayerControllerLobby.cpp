@@ -50,6 +50,7 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation() {
                                                               FindComponentByClass<UCameraComponent>());
         if (CameraComp) {
             FVector Location = CameraComp->GetComponentLocation();
+            Location.X += 200;
             UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
             if (GameInstance && GameInstance->_IsVRMode) {
                 Location.Z += 200;

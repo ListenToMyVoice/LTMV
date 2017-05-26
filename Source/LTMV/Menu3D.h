@@ -42,6 +42,7 @@ protected:
     void OnButtonBack(UInputMenu* InputMenu);
 
 private:
+    float _BackMenuSize;
     TArray<int> _Breadcrumb;
 
     void PlaceDecorators(bool PlaceBackButton, float PanelHeight);
