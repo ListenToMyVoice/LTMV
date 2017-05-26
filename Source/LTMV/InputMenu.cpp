@@ -48,15 +48,15 @@ void UInputMenu::BeginPlay() {
 void UInputMenu::TickComponent(float DeltaTime, ELevelTick TickType,
                                FActorComponentTickFunction* ThisTickFunction) {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    //_Timer += DeltaTime;
-    //if (_Timer >= _NewTime) {
-    //    _NewTime = _Timer + 0.5;
+    _Timer += DeltaTime;
+    if (_Timer >= _NewTime) {
+        _NewTime = _Timer + 0.5;
 
-    //    _NextPoint.X = FMath::FRandRange(-1, 1);
-    //    _NextPoint.Y = FMath::FRandRange(-1, 1);
-    //    _NextPoint.Z = FMath::FRandRange(-1, 1);
-    //}
-    //AddRelativeLocation(_NextPoint.GetSafeNormal() * 1.5 * DeltaTime);
+        _NextPoint.X = FMath::FRandRange(-1, 1);
+        _NextPoint.Y = FMath::FRandRange(-1, 1);
+        _NextPoint.Z = FMath::FRandRange(-1, 1);
+    }
+    AddRelativeLocation(_NextPoint.GetSafeNormal() * 1.5 * DeltaTime);
 
     /* LOADING */
     if (_IsLoading) AddRelativeRotation(FRotator(0, 150 * DeltaTime, 0));
@@ -98,21 +98,11 @@ void UInputMenu::SetLoading(bool IsLoading, FString Text) {
     if (_IsLoading) {
         _PrevText = _TextRender->Text;
         _TextRender->SetText(FText::FromString(Text));
-        ULibraryUtils::Log("LOADING");
     }
     else {
-        _TextRender->SetText(_PrevText);
+        _TextRender->SetText(Text.IsEmpty() ? _PrevText : FText::FromString(Text));
         SetRelativeRotation(FRotator(0, 0, 0));
-        ULibraryUtils::Log("END LOADING");
     }
-
-    //if (_IsLoading) {
-    //    _PrevText = _TextRender->Text;
-    //    _TextRender->SetText(FText::FromString(Text));
-    //}
-    //else {
-    //    _TextRender->SetText(_PrevText);
-    //}
 }
 
 /*********************************************** DELEGATES ***************************************/

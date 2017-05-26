@@ -243,6 +243,7 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
     _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS FOUND";
 
     if (Ok) _MenuActor->SetInputMenuLoading(3, 0, false, "");
+    else _MenuActor->SetInputMenuLoading(3, 0, false, _SessionOwner);
 }
 
 bool UNWGameInstance::JoinAtSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName,
@@ -383,7 +384,7 @@ void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
 void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
     FindOnlineGames();
     _MenuActor->SetSubmenuByIndex(3);
-    _MenuActor->SetInputMenuLoading(3, 0, true, "LOADING...");
+    _MenuActor->SetInputMenuLoading(3, 0, true, "SEARCHING...");
 }
 
 void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {

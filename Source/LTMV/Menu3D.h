@@ -35,7 +35,7 @@ protected:
     UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UInputMenu* _BackSubmenu;
 
-    /*** PANELS ***/
+    /*** PANELS  ***/
     TArray<UMenuPanel*> _Submenus;
 
     /* BINDINGS */
