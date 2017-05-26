@@ -7,26 +7,25 @@
 
 UMenuPanel::UMenuPanel() : Super() {
     _MenuInputs = {};
-    _PanelHeight = 0;
+
+    _Margin = 10;
+    _PanelHeight = _Margin;
 }
 
 void UMenuPanel::AddMenuInput(UInputMenu* NewSlot) {
     NewSlot->RegisterComponent();
 
-    //if (_MenuInputs.Num() == 0) {
-    //    NewSlot->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-    //    NewSlot->RelativeLocation = FVector(0, 0, 0);
-    //}
-    //else {
-    //    NewSlot->AttachToComponent(_MenuInputs.Top(), FAttachmentTransformRules::KeepRelativeTransform);
-    //    NewSlot->RelativeLocation = FVector(0, 0, -NewSlot->_MeshHeight);
-    //}
-
     NewSlot->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-    NewSlot->RelativeLocation = FVector(0, 0, -NewSlot->_MeshHeight*_MenuInputs.Num());
+    NewSlot->RelativeLocation = FVector(0, 0, -_PanelHeight);
 
     _MenuInputs.Add(NewSlot);
-    _PanelHeight += NewSlot->_MeshHeight;
+
+    FVector Origin;
+    FVector BoxExtent;
+    float SphereRadius;
+
+    UKismetSystemLibrary::GetComponentBounds(NewSlot, Origin, BoxExtent, SphereRadius);
+    _PanelHeight += (2*BoxExtent.Z) +  _Margin;
 }
 
 void UMenuPanel::EnablePanel(bool Enable) {

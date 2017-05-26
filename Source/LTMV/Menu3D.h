@@ -24,9 +24,6 @@ public:
     void SetInputMenuLoading(int IndexPanel, int IndexInputMenu, bool IsLoading, FString Text);
 
 protected:
-    FVector _SubmenuLocation = FVector(0, 0, 20);
-    FRotator _SubmenuRotator = FRotator(0, 180, 0);
-
     /*** DECORATORS ***/
     UPROPERTY(Category = "Menu Decorator", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UStaticMeshComponent* _TopDecorator;
@@ -46,4 +43,6 @@ protected:
 
 private:
     TArray<int> _Breadcrumb;
+
+    void PlaceBackButton(bool Place, float PanelHeight);
 };

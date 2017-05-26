@@ -14,7 +14,6 @@ public:
     DECLARE_EVENT_OneParam(UInputMenu, FInputMenuEvent, UInputMenu*);
     DECLARE_DELEGATE_OneParam(FInputMenuDelegate, UInputMenu*);
 
-    float _MeshHeight = 30;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text Menu")
     UTextRenderComponent* _TextRender;

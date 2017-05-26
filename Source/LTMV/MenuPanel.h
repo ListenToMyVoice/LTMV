@@ -13,6 +13,7 @@ class LTMV_API UMenuPanel : public USceneComponent {
     GENERATED_BODY()
 
 public:
+    float _Margin;
     float _PanelHeight;
 
     UMenuPanel();
