@@ -50,7 +50,7 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation() {
                                                               FindComponentByClass<UCameraComponent>());
         if (CameraComp) {
             FVector Location = CameraComp->GetComponentLocation();
-            Location.X += 200;
+            Location.X += 400;
             UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
             if (GameInstance && GameInstance->_IsVRMode) {
                 Location.Z += 200;
@@ -60,7 +60,10 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation() {
                                    CameraComp->GetComponentRotation());
 
             APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-            if (PlayerCharacter) PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
+            if (PlayerCharacter) {
+                PlayerCharacter->ToggleMenuInteraction(!_MenuActor->_IsMenuHidden);
+                PlayerCharacter->GetCharacterMovement()->MaxWalkSpeed = 10.0f;
+            }
         }
     }
 }
