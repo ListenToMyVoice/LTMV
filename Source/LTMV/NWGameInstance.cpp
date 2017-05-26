@@ -238,9 +238,9 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
             }
         }
     }
-    else Result = "NO VALID SESSIONS";
+    else Result = "INVALID SESSIONS";
 
-    _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS FOUND";
+    _SessionOwner = Result.Len() > 0 ? Result : "NO SESSIONS";
 
     if (Ok) _MenuActor->SetInputMenuLoading(3, 0, false, "");
     else _MenuActor->SetInputMenuLoading(3, 0, false, _SessionOwner);
@@ -393,6 +393,8 @@ void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {
 
 void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
     _MenuOptions.bComfortMode = !_MenuOptions.bComfortMode;
+    FString NewText = _MenuOptions.bComfortMode ? "COMFORT ON" : "COMFORT OFF";
+    InputMenu->_TextRender->SetText(FText::FromString(NewText));
 }
 
 void UNWGameInstance::OnButtonBackToMenu(UInputMenu* InputMenu) {
