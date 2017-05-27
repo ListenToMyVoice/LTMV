@@ -21,9 +21,7 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
 
     _NextPoint = FVector();
-    _NewTime = 0;
-    _Timer = 0;
-
+    bool _IsFlee = false;
     _IsLoading = false;
 
     //OnComponentActivated.AddDynamic(this, &UInputMenu::OnActivate);
@@ -45,21 +43,33 @@ void UInputMenu::BeginPlay() {
     _TextRender->RegisterComponent();
 }
 
+void UInputMenu::Init(const FVector MenuPanelLocation) {
+    _InitialLocation = MenuPanelLocation;
+    RelativeLocation = _InitialLocation;
+
+    UpdateNextPoint();
+    bool _IsFlee = true;
+}
+
 void UInputMenu::TickComponent(float DeltaTime, ELevelTick TickType,
                                FActorComponentTickFunction* ThisTickFunction) {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    _Timer += DeltaTime;
-    if (_Timer >= _NewTime) {
-        _NewTime = _Timer + 0.5;
 
-        _NextPoint.X = FMath::FRandRange(-1, 1);
-        _NextPoint.Y = FMath::FRandRange(-1, 1);
-        _NextPoint.Z = FMath::FRandRange(-1, 1);
+    if (FVector::Dist(RelativeLocation, _NextPoint) <= 3) {
+        if (_IsFlee) _NextPoint = _InitialLocation;
+        else UpdateNextPoint();
+        _IsFlee = !_IsFlee;
     }
-    AddRelativeLocation(_NextPoint.GetSafeNormal() * 1.5 * DeltaTime);
+    AddRelativeLocation((_NextPoint - RelativeLocation).GetSafeNormal() * 1.5 * DeltaTime);
 
     /* LOADING */
     if (_IsLoading) AddRelativeRotation(FRotator(0, 150 * DeltaTime, 0));
+}
+
+void UInputMenu::UpdateNextPoint() {
+    _NextPoint.X = _InitialLocation.X + FMath::FRandRange(-5, 5);
+    _NextPoint.Y = _InitialLocation.Y + FMath::FRandRange(-5, 5);
+    _NextPoint.Z = _InitialLocation.Z + FMath::FRandRange(-5, 5);
 }
 
 void UInputMenu::PressEvents() {

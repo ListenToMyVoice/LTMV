@@ -16,7 +16,7 @@ void UMenuPanel::AddMenuInput(UInputMenu* NewSlot) {
     NewSlot->RegisterComponent();
 
     NewSlot->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-    NewSlot->RelativeLocation = FVector(0, 0, -_PanelHeight);
+    NewSlot->Init(FVector(0, 0, -_PanelHeight));
 
     _MenuInputs.Add(NewSlot);
 

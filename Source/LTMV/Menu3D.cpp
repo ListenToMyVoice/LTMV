@@ -106,7 +106,7 @@ void AMenu3D::PlaceDecorators(bool PlaceBackButton, float PanelHeight) {
     FVector Location = FVector(0, 0, -PanelHeight);
     if (PlaceBackButton) {
         _BackSubmenu->Enable(true);
-        _BackSubmenu->SetRelativeLocation(FVector(0, 0, -PanelHeight));
+        _BackSubmenu->Init(FVector(0, 0, -PanelHeight));
 
         Location.Z -= _BackMenuSize + 10;
     }

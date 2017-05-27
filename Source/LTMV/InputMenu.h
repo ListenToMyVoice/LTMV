@@ -48,6 +48,8 @@ public:
     void ReleaseEvents();
     void PressEvents();
 
+    void Init(const FVector MenuPanelLocation);
+
     //UFUNCTION()
     //void OnActivate(UActorComponent* Component, bool bReset);
     //UFUNCTION()
@@ -57,10 +59,12 @@ protected:
     void BeginPlay() override;
 
 private:
+    FVector _InitialLocation;
+    FVector _NextPoint;
+    bool _IsFlee;
+
     FText _PrevText;
     bool _IsLoading;
-    float _NewTime;
-    float _Timer;
 
-    FVector _NextPoint;
+    void UpdateNextPoint();
 };
