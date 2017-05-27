@@ -3,6 +3,8 @@
 #include "LTMV.h"
 #include "InputMenu.h"
 
+#include "FMODAudioComponent.h"
+
 
 UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     PrimaryComponentTick.bCanEverTick = true;
@@ -19,6 +21,12 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _TextRender->SetTextRenderColor(_Color);
     _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
     _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
+
+    _AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("_AudioComp"));
+    static ConstructorHelpers::FObjectFinder<UObject> Finder2(
+        TEXT("FMODEvent'/Game/FMOD/Events/UI/Tic.Tic'"));
+    _AudioComp->SetEvent((UFMODEvent*)(Finder2.Object));
+    _AudioComp->bAutoActivate = false;
 
     _NextPoint = FVector();
     bool _IsFlee = false;
@@ -41,6 +49,9 @@ void UInputMenu::BeginPlay() {
                                    FName("SocketText"));
     _TextRender->SetText(FText::FromString(GetFName().ToString()));
     _TextRender->RegisterComponent();
+
+    _AudioComp->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+    _AudioComp->RegisterComponent();
 }
 
 void UInputMenu::Init(const FVector MenuPanelLocation) {
@@ -82,6 +93,7 @@ void UInputMenu::PressEvents() {
 void UInputMenu::ReleaseEvents() {
     if (!_IsLoading) {
         HoverInteraction();
+        _AudioComp->Play();
         _InputMenuReleasedEvent.Broadcast(this);
     }
 }

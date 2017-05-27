@@ -22,6 +22,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text Menu")
     FColor _HoverColor;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio Menu")
+    class UFMODAudioComponent* _AudioComp;
+
     FInputMenuEvent _InputMenuPressedEvent;
     FInputMenuEvent _InputMenuReleasedEvent;
 
