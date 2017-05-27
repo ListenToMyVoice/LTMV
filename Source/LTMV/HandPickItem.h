@@ -12,21 +12,6 @@ class LTMV_API UHandPickItem : public UActorComponent
 	GENERATED_BODY()
 
 public:
-
-    UPROPERTY(EditAnywhere)
-    FVector _locationAttach_L;
-    UPROPERTY(EditAnywhere)
-    FRotator _rotationAttach_L;
-    UPROPERTY(EditAnywhere)
-    FVector _locationAttach_R;
-    UPROPERTY(EditAnywhere)
-    FRotator _rotationAttach_R;
-	UPROPERTY(EditAnyWhere)
-	FVector _locationAttach_C;
-	UPROPERTY(EditAnywhere)
-	FRotator _rotationAttach_C;
-
-
 	UHandPickItem();
 
     virtual void BeginPlay() override;

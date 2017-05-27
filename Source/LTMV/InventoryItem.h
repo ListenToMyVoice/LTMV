@@ -22,16 +22,6 @@ public:
 
     UInventoryItem();
 
-    UPROPERTY(EditAnywhere)
-    FVector _locationAttachFromInventory_L;
-    UPROPERTY(EditAnywhere)
-    FRotator _rotationAttachFromInventory_L;
-
-    UPROPERTY(EditAnywhere)
-    FVector _locationAttachFromInventory_R;
-    UPROPERTY(EditAnywhere)
-    FRotator _rotationAttachFromInventory_R;
-
     virtual void BeginPlay() override;	
 
     void SetEquipped(bool equipped);

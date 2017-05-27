@@ -252,6 +252,17 @@ void AFPCharacter::TakeDropRight() {
                 /* Replace item */
                 SERVER_Drop(_ItemRight, 2);
                 SERVER_TakeRight(ActorFocused);
+				UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+					UStaticMeshComponent::StaticClass()));
+				const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_R"));
+				ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+					"GripPoint_R");
+				if (_GripSocket)
+				{
+					ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+					ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+				}
+				GrabbingRight = true;
             }
             else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
@@ -260,12 +271,24 @@ void AFPCharacter::TakeDropRight() {
             else if (!_ItemRight) {
                 /* Take item */
                 SERVER_TakeRight(ActorFocused);
+				UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+					UStaticMeshComponent::StaticClass()));
+				const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_R"));
+				ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+					"GripPoint_R");
+				if (_GripSocket)
+				{
+					ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+					ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+				}
+				GrabbingRight = true;
             }
         }
     }
     else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
         /* Drop item */
         SERVER_Drop(_ItemRight, 2);
+		GrabbingRight = false;
     }
     else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
         /* Save hand inventory item */
@@ -286,6 +309,17 @@ void AFPCharacter::TakeDropLeft() {
                 /* Replace item */
                 SERVER_Drop(_ItemLeft, 1);
                 SERVER_TakeLeft(ActorFocused);
+				UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+					UStaticMeshComponent::StaticClass()));
+				const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_L"));
+				ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+					"GripPoint_L");
+				if (_GripSocket)
+				{
+					ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+					ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+				}
+				GrabbingLeft = true;
             }
             else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
@@ -294,12 +328,24 @@ void AFPCharacter::TakeDropLeft() {
             else if (!_ItemLeft) {
                 /* Take item */
                 SERVER_TakeLeft(ActorFocused);
+				UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
+					UStaticMeshComponent::StaticClass()));
+				const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_L"));
+				ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+					"GripPoint_L");
+				if (_GripSocket)
+				{
+					ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+					ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+				}
+				GrabbingLeft = true;
             }
         }
     }
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
         /* Drop item */
         SERVER_Drop(_ItemLeft, 1);
+		GrabbingLeft = false;
     }
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
         /* Save hand inventory item */
@@ -346,12 +392,12 @@ void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor, int
     if (ItemActor) {
         UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
             UStaticMeshComponent::StaticClass()));
-        if (ItemMesh) {
-            ItemMesh->SetMobility(EComponentMobility::Movable);
-            _Inventory->AddItem(ItemActor);
+		if (ItemMesh) {
+			ItemMesh->SetMobility(EComponentMobility::Movable);
+			_Inventory->AddItem(ItemActor);
 
-            if (Hand == 1) _ItemLeft = nullptr;
-            else if (Hand == 2) _ItemRight = nullptr;
+			if (Hand == 1) { _ItemLeft = nullptr; GrabbingLeft = false; }
+			else if (Hand == 2) { _ItemRight = nullptr; GrabbingRight = false; }
         }
     }
 }
@@ -365,7 +411,7 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
             }
             else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Drop item */
-                SERVER_Drop(_ItemLeft, 1);
+				SERVER_Drop(_ItemLeft, 1);
             }
             SERVER_PickItemInventoryLeft(ItemActor);
         }
@@ -397,18 +443,33 @@ void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor)
     if (ItemMesh && InventoryItemComp) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->SetSimulatePhysics(false);
+		/*
         ItemMesh->AttachToComponent(GetMesh(),
                                     FAttachmentTransformRules::KeepRelativeTransform,
                                     TEXT("itemHand_l"));
 
         ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
         ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
+		*/
+		const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_L"));
+		ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+			"GripPoint_L");
+		if (_GripSocket)
+		{
+			ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+			ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+		}
+
         ItemMesh->GetOwner()->SetActorHiddenInGame(false);
 
         _ItemLeft = ItemActor;
+		GrabbingLeft = true;
 
         /*If the item is equipped in the other hand*/
-        if (_ItemRight && _ItemRight == ItemActor) _ItemRight = nullptr;
+		if (_ItemRight && _ItemRight == ItemActor) {
+			_ItemRight = nullptr;
+			GrabbingRight = false;
+		}
     }
 }
 
@@ -427,18 +488,33 @@ void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor
     if (ItemMesh && InventoryItemComp) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->SetSimulatePhysics(false);
+		/*
         ItemMesh->AttachToComponent(GetMesh(),
                                     FAttachmentTransformRules::KeepRelativeTransform,
                                     TEXT("itemHand_r"));
 
         ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_R;
         ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_R;
-        ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+		*/
+		const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_R"));
+		ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+			"GripPoint_R");
+		if (_GripSocket)
+		{
+			ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+			ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+		}
 
-        _ItemRight = ItemActor;
+		ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+
+        _ItemRight = ItemActor;		
+		GrabbingRight = true;
 
         /*If the item is equipped in the other hand*/
-        if (_ItemLeft && _ItemLeft == ItemActor) _ItemLeft = nullptr;
+		if (_ItemLeft && _ItemLeft == ItemActor) {
+			_ItemLeft = nullptr;
+			GrabbingLeft = false;
+		}
     }
 }
 
@@ -461,4 +537,12 @@ AActor* AFPCharacter::GetItemFocused() {
         return ActorFocused;
     }
     return nullptr;
+}
+
+bool AFPCharacter::GetGrabbingLeft() {
+	return GrabbingLeft;
+}
+
+bool AFPCharacter::GetGrabbingRight() {
+	return GrabbingRight;
 }
