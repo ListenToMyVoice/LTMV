@@ -29,8 +29,7 @@ AProjectile::AProjectile(){
 	ProjectileMovement->InitialSpeed = 10000.0;
 	ProjectileMovement->MaxSpeed = 10000.0;
 	ProjectileMovement->bRotationFollowsVelocity = true;
-	ProjectileMovement->bShouldBounce = true;
-	ProjectileMovement->Bounciness = 0.3f;
+	ProjectileMovement->bShouldBounce = false;
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;

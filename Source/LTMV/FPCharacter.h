@@ -50,6 +50,16 @@ public:
 
     void ToggleMenuInteraction(bool Activate) override;
 
+	/********** UPDATE ANIMATIONS ***********/
+	UPROPERTY(BlueprintReadOnly)
+	bool GrabbingLeft;
+	UPROPERTY(BlueprintReadOnly)
+	bool GrabbingRight;
+	UFUNCTION(BluePrintCallable)
+	bool GetGrabbingLeft();
+	UFUNCTION(BluePrintCallable)
+	bool GetGrabbingRight();
+
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UInventory* _Inventory;
