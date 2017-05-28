@@ -15,6 +15,7 @@ class LTMV_API ULightPressState : public UActorComponent, public IItfSwitcheable
 private:
 	ULightComponent* _lightComp;
 	bool _on;
+
 public:
 	// Sets default values for this component's properties
 	ULightPressState();
@@ -26,14 +27,10 @@ public:
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Light)
-		bool _current_state;
-	/* Interfaces */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
-		int SwitchState();
-	virtual int SwitchState_Implementation() override;
-
-	int SwitchState2();
-	virtual int SwitchState2_Implementation() override;
-		
+	bool _current_state;
 	
+    /* Interfaces */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
+	int SwitchState();
+	virtual int SwitchState_Implementation() override;
 };

@@ -39,26 +39,27 @@ class LTMV_API UDoorPressState : public UActorComponent, public IItfSwitcheable 
 	GENERATED_BODY()
 private:
 	float _start_displacement;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
-		TEnumAsByte<EDoorType2::Type> DoorType;
+	TEnumAsByte<EDoorType2::Type> DoorType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
-		TEnumAsByte<EOnAxis2::Type> ActOn;
+	TEnumAsByte<EOnAxis2::Type> ActOn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
-		TEnumAsByte<EStateDoor2::Type> StateDoor;
+	TEnumAsByte<EStateDoor2::Type> StateDoor;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
-		float _displacement;
+	float _displacement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
-		float _current_displacement;
+	float _current_displacement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		float _max_displacement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
-		bool _block;
+	bool _block;
 	// Sets default values for this component's properties
 	UDoorPressState();
 
@@ -68,13 +69,8 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
-
 	/* Interfaces */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
-		int SwitchState();
+    int SwitchState();
 	virtual int SwitchState_Implementation() override;
-
-	int SwitchState2();
-	virtual int SwitchState2_Implementation() override;
-	
 };

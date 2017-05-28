@@ -9,16 +9,11 @@ UTextureState::UTextureState() {
     PrimaryComponentTick.bCanEverTick = true;
 }
 
-
 // Called when the game starts
 void UTextureState::BeginPlay() {
     Super::BeginPlay();
 }
 
-
-int UTextureState::SwitchState2_Implementation() {
-	return 0;
-}
 int UTextureState::SwitchState_Implementation() {
     UTextRenderComponent* textureComp = Cast<UTextRenderComponent>(GetOwner()->GetComponentByClass(
         UTextRenderComponent::StaticClass()));
