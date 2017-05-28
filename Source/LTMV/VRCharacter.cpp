@@ -44,12 +44,22 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
 
+    _PouchLeft = CreateDefaultSubobject<USphereComponent>(TEXT("PouchLeft"));
+    _PouchLeft->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
+    _PouchLeft->SetSphereRadius(5.0f);
+    _PouchRight = CreateDefaultSubobject<USphereComponent>(TEXT("PouchRight"));
+    _PouchRight->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
+    _PouchRight->SetSphereRadius(5.0f);
+
     HMD = nullptr;
     this->BaseEyeHeight = 0.f;
     this->CrouchedEyeHeight = 0.f;
     _GripStateLeft = EGripEnum::Open;
     _GripStateRight = EGripEnum::Open;
     MaxHeadTurnValue = 80.f;
+
+    _ActorPouchLeft = nullptr;
+    _ActorPouchRight = nullptr;
 
     BuildLeft();
     BuildRight();
@@ -79,7 +89,7 @@ void AVRCharacter::BuildLeft() {
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
     _LeftSphere->SetRelativeLocation(FVector(20.f, 0.f, 0.f));
-    _LeftSphere->SetSphereRadius(15.f);
+    _LeftSphere->SetSphereRadius(12.f);
 }
 
 void AVRCharacter::BuildRight() {
@@ -100,7 +110,7 @@ void AVRCharacter::BuildRight() {
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
     _RightSphere->SetRelativeLocation(FVector(20.f, 0.f, 0.f));
-    _RightSphere->SetSphereRadius(15.f);
+    _RightSphere->SetSphereRadius(12.f);
 }
 
 void AVRCharacter::BeginPlay() {
@@ -322,6 +332,18 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                 SERVER_UpdateAnimation(EGripEnum::CanGrab, 2);
             }
         }
+        else if (OtherActor == this){
+            if (OverlappedComponent == _LeftSphere) {
+                _ActorFocusedLeft = OtherActor;
+                _ComponentFocusedLeft = OtherComp;
+                UE_LOG(LogTemp, Warning, TEXT("%s"), *_ComponentFocusedLeft->GetFName().ToString());
+            }
+            else if (OverlappedComponent == _RightSphere) {
+                _ActorFocusedRight = OtherActor;
+                _ComponentFocusedRight = OtherComp;
+                UE_LOG(LogTemp, Warning, TEXT("%s"), *_ComponentFocusedRight->GetFName().ToString());
+            }
+        }
     }
 }
 
@@ -329,10 +351,12 @@ void AVRCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
     if (OtherActor == _ActorFocusedLeft) {
         _ActorFocusedLeft = nullptr;
+        _ComponentFocusedLeft = nullptr;
         SERVER_UpdateAnimation(EGripEnum::Open, 1);
     }
     else if (OtherActor == _ActorFocusedRight) {
         _ActorFocusedRight = nullptr;
+        _ComponentFocusedRight = nullptr;
         SERVER_UpdateAnimation(EGripEnum::Open, 2);
     }
 
@@ -435,6 +459,7 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
 
 /*************** USE TRIGGER *************/
 void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand) {
+    UE_LOG(LogTemp, Warning, TEXT("Trigger actor: %s"), *ActorFocused->GetFName().ToString());
     if (ActorFocused) {
         /* CAN BE GRABBED */
         UGrabItem* GrabItemComp = Cast<UGrabItem>(ActorFocused->GetComponentByClass(
@@ -448,6 +473,29 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InPa
                 _StaticMesh->SetRenderCustomDepth(false);
             }
             SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
+        }
+        else if (ActorFocused == this) {
+            UE_LOG(LogTemp, Warning, TEXT("Yeaaaaaaaah"));
+            if (_ComponentFocusedLeft) {
+                if (_ComponentFocusedLeft->GetFName().ToString() == TEXT("PouchLeft") && _ActorPouchLeft) {
+                    SERVER_GrabPress(_ActorPouchLeft, InParent, FName("TakeSocket"), Hand);
+                    _ActorPouchLeft = nullptr;
+                }
+                else if (_ComponentFocusedLeft->GetFName().ToString() == TEXT("PouchRight") && _ActorPouchRight) {
+                    SERVER_GrabPress(_ActorPouchRight, InParent, FName("TakeSocket"), Hand);
+                    _ActorPouchRight = nullptr;
+                }
+            }
+            else if (_ComponentFocusedRight) {
+                if (_ComponentFocusedRight->GetFName().ToString() == TEXT("PouchLeft") && _ActorPouchLeft) {
+                    SERVER_GrabPress(_ActorPouchLeft, InParent, FName("TakeSocket"), Hand);
+                    _ActorPouchLeft = nullptr;
+                }
+                else if (_ComponentFocusedRight->GetFName().ToString() == TEXT("PouchRight") && _ActorPouchRight) {
+                    SERVER_GrabPress(_ActorPouchRight, InParent, FName("TakeSocket"), Hand);
+                    _ActorPouchRight = nullptr;
+                }
+            }
         }
         else {
             /* CAN BE USED */
@@ -582,6 +630,7 @@ void AVRCharacter::ItemGrabbedRight() {
     }
 }
 
+/********** DROP HAND ***********/
 void AVRCharacter::DropLeft() {
     if (_ItemLeft && _ItemLeft->GetComponentByClass(UGrabItem::StaticClass())) {
         CLIENT_ClearRadioDelegates(_ItemLeft);
@@ -595,6 +644,65 @@ void AVRCharacter::DropRight() {
         CLIENT_ClearRadioDelegates(_ItemLeft);
         /* Drop item */
         SERVER_Drop(_ItemRight, 2);
+    }
+}
+
+bool AVRCharacter::SERVER_Drop_Validate(AActor* ItemActor, int Hand) { return true; }
+void AVRCharacter::SERVER_Drop_Implementation(AActor* ItemActor, int Hand) {
+    MULTI_Drop(ItemActor, Hand);
+}
+void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
+    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
+        UStaticMeshComponent::StaticClass()));
+    if (ItemMesh && (_ComponentFocusedLeft || _ComponentFocusedRight)) {
+        if (_ComponentFocusedLeft) {
+            FString _CompName = _ComponentFocusedLeft->GetFName().ToString();
+
+            if (_CompName == TEXT("PouchLeft") && _ActorPouchLeft == nullptr) {
+                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+                ItemActor->SetActorEnableCollision(true);
+                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
+                _ActorPouchLeft = Cast<AActor>(ItemMesh);
+            }
+            else if (_CompName == TEXT("PouchRight") && _ActorPouchRight == nullptr) {
+                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+                ItemActor->SetActorEnableCollision(true);
+                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
+                _ActorPouchRight = Cast<AActor>(ItemMesh);
+            }
+
+            if (Hand == 1) _ItemLeft = nullptr;
+            else if (Hand == 2) _ItemRight = nullptr;
+        }
+        if (_ComponentFocusedRight) {
+            FString _CompName = _ComponentFocusedRight->GetFName().ToString();
+
+            if (_CompName == TEXT("PouchLeft") && _ActorPouchLeft == nullptr) {
+                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+                ItemActor->SetActorEnableCollision(true);
+                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
+                _ActorPouchLeft = Cast<AActor>(ItemMesh);
+            }
+            else if (_CompName == TEXT("PouchRight") && _ActorPouchRight == nullptr) {
+                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+                ItemActor->SetActorEnableCollision(true);
+                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
+                _ActorPouchRight = Cast<AActor>(ItemMesh);
+            }
+
+            if (Hand == 1) _ItemLeft = nullptr;
+            else if (Hand == 2) _ItemRight = nullptr;
+        }
+    }
+    else if (ItemMesh) {
+        ItemMesh->SetMobility(EComponentMobility::Movable);
+        ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+        ItemMesh->SetSimulatePhysics(true);
+
+        ItemActor->SetActorEnableCollision(true);
+
+        if (Hand == 1) _ItemLeft = nullptr;
+        else if (Hand == 2) _ItemRight = nullptr;
     }
 }
 
@@ -620,68 +728,6 @@ void AVRCharacter::CalculateMeshArmExtension() {
     else {
         UE_LOG(LogTemp, Warning, TEXT("Longitud de brazo no calculado. No existe malla de personaje."))
     }
-}
-
-/************ VR CHARACTER DEBUG FEATURES *************/
-
-void AVRCharacter::DebugSensors() {
-
-    FVector Origin;
-    FQuat Orientation;
-    float LeftFOV, RightFOV, TopFOV, BottomFOV, SensorDistance, NearPlane, FarPlane;
-
-    for (uint8 SensorIndex = 0; SensorIndex < HMD->GetNumOfTrackingSensors(); ++SensorIndex) {
-        bool isAvailable = HMD->GetTrackingSensorProperties(SensorIndex, Origin, Orientation,
-            LeftFOV, RightFOV, TopFOV, BottomFOV,
-            SensorDistance, NearPlane, FarPlane);
-        if (isAvailable) {
-            UE_LOG(LogTemp, Warning, TEXT("Sensor con indice %d en posicion: %s"), SensorIndex, *Origin.ToString());
-            Origin += this->GetActorLocation();
-            DrawDebugBox(GetWorld(), Origin, FVector(5.f, 5.f, 5.f), Orientation, FColor::Blue);
-        }
-        else {
-            UE_LOG(LogTemp, Warning, TEXT("Sensor con indice %d no disponible."), SensorIndex);
-        }
-    }
-}
-
-void AVRCharacter::DebugController(EControllerHand Hand) {
-
-    FVector Position;
-    FRotator Orientation;
-
-    TArray<IMotionController*> MotionControllers = IModularFeatures::Get().GetModularFeatureImplementations<IMotionController>(IMotionController::GetModularFeatureName());
-    ETrackingStatus DeviceTracked = MotionControllers[0]->GetControllerTrackingStatus(0, Hand);
-
-    switch (DeviceTracked) {
-    case(ETrackingStatus::NotTracked):
-        //UE_LOG(LogTemp, Warning, TEXT("El mando no realiza seguimiento."));
-        break;
-    case(ETrackingStatus::Tracked):
-    case(ETrackingStatus::InertialOnly):
-        bool bControllerValidAndTracked = MotionControllers[0]->GetControllerOrientationAndPosition(0, Hand, Orientation, Position);
-        if (bControllerValidAndTracked) {
-            DrawDebugBox(GetWorld(), Position, FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Blue);
-            DrawDebugBox(GetWorld(), GetControllerByHand(Hand)->GetComponentLocation(), FVector(5.f, 5.f, 5.f), FQuat(Orientation), FColor::Red);
-            break;
-        }
-        else {
-            //UE_LOG(LogTemp, Warning, TEXT("El mando no es valido o no realiza seguimiento."));
-            break;
-        }
-    }
-}
-
-UMotionControllerComponent* AVRCharacter::GetControllerByHand(EControllerHand Hand) {
-    switch (Hand) {
-    case EControllerHand::Left:
-        return _LeftHandComp;
-        break;
-    case EControllerHand::Right:
-        return _RightHandComp;
-        break;
-    }
-    return nullptr;
 }
 
 /********** UPDATE ANIMATIONS ***********/

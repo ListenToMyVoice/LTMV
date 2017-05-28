@@ -77,6 +77,12 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _RightSphere;
 
+    /*********************************** PSEUDOINVENTORY **************************************/
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    USphereComponent* _PouchLeft;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    USphereComponent* _PouchRight;
+
     /*************** USE TRIGGER *************/
     void UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand);
     void UseTriggerReleased(AActor* ActorFocused, USceneComponent* InParent, int Hand);
@@ -97,6 +103,10 @@ protected:
     void DropLeft();
     UFUNCTION()
     void DropRight();
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_Drop(AActor* ItemActor, int Hand) override;
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_Drop(AActor* ItemActor, int Hand) override;
 
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
@@ -122,8 +132,13 @@ protected:
 private:
     IHeadMountedDisplay* HMD;
 
+    AActor* _ActorPouchLeft;
+    AActor* _ActorPouchRight;
+
     AActor* _ActorFocusedLeft;
+    UActorComponent* _ComponentFocusedLeft;
     AActor* _ActorFocusedRight;
+    UActorComponent* _ComponentFocusedRight;
     AActor* _ActorGrabbing;
 
     UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
@@ -131,7 +146,7 @@ private:
 
     void BuildLeft();
     void BuildRight();
-
+    
     /*** OVERLAPPING ***/
     UFUNCTION()
     void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -187,9 +202,4 @@ protected:
     void CalculateMeshArmExtension();
     UPROPERTY(BlueprintReadOnly, Category = "VR Calibration")
     float MaxMeshArmExtension;
-
-public:
-    /* Debug Features */
-    void DebugSensors();
-    void DebugController(EControllerHand DeviceHand);
 };

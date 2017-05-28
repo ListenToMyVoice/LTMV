@@ -98,9 +98,9 @@ protected:
     
     /********** DROP ITEM ***********/
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_Drop(AActor* ItemActor, int Hand);
+    virtual void SERVER_Drop(AActor* ItemActor, int Hand);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_Drop(AActor* ItemActor, int Hand);
+    virtual void MULTI_Drop(AActor* ItemActor, int Hand);
     /*
     Hand = 0 => void
     Hand = 1 => _ItemLeft
