@@ -52,6 +52,8 @@ void UInputMenu::BeginPlay() {
 
     _AudioComp->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
     _AudioComp->RegisterComponent();
+
+    SetCollisionProfileName("IgnoreOnlyPawn");
 }
 
 void UInputMenu::Init(const FVector MenuPanelLocation) {
