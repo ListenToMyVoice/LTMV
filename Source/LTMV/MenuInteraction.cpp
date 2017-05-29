@@ -14,8 +14,9 @@ UMenuInteraction::UMenuInteraction() {
 
     _Light = CreateDefaultSubobject<USpotLightComponent>(TEXT("Light"));
     _Light->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-    _Light->SetOuterConeAngle(15);
+    _Light->SetOuterConeAngle(10);
     _Light->SetInnerConeAngle(5);
+    _Light->SetIntensity(100000);
 
     FLinearColor Color = FLinearColor();
     Color.R = 0.635;
@@ -43,7 +44,7 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
     FVector StartRaycast = GetComponentLocation();
     FVector EndRaycast = GetForwardVector() * _RayParameter + StartRaycast;
 
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycast, EndRaycast,
                                              ECollisionChannel::ECC_Visibility, CollisionInfo) &&

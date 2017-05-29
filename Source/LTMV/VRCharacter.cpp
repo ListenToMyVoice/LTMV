@@ -583,16 +583,12 @@ void AVRCharacter::ItemGrabbedRight() {
 
 void AVRCharacter::DropLeft() {
     if (_ItemLeft && _ItemLeft->GetComponentByClass(UGrabItem::StaticClass())) {
-        CLIENT_ClearRadioDelegates(_ItemLeft);
-        /* Drop item */
         SERVER_Drop(_ItemLeft, 1);
     }
 }
 
 void AVRCharacter::DropRight() {
     if (_ItemRight && _ItemRight->GetComponentByClass(UGrabItem::StaticClass())) {
-        CLIENT_ClearRadioDelegates(_ItemLeft);
-        /* Drop item */
         SERVER_Drop(_ItemRight, 2);
     }
 }
