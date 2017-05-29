@@ -41,7 +41,6 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
-    _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
 
     _PouchLeft = CreateDefaultSubobject<USphereComponent>(TEXT("PouchLeft"));
@@ -82,8 +81,8 @@ void AVRCharacter::BuildLeft() {
     _SM_LeftHand->SetWorldScale3D(FVector(1.0f, 1.0f, -1.0f));
     _SM_LeftHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_LeftHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
-    _SM_LeftHand->SetHiddenInGame(true);
-    _SM_LeftHand->SetVisibility(false);
+    //_SM_LeftHand->SetHiddenInGame(true) ;
+    //_SM_LeftHand->SetVisibility(false);
 
     /* ADDITIONAL */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
@@ -103,8 +102,8 @@ void AVRCharacter::BuildRight() {
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
     _SM_RightHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_RightHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
-    _SM_RightHand->SetHiddenInGame(true);
-    _SM_RightHand->SetVisibility(false);
+    //_SM_RightHand->SetHiddenInGame(true);
+    //_SM_RightHand->SetVisibility(false);
 
     /* ADDITIONAL */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
@@ -635,16 +634,12 @@ void AVRCharacter::ItemGrabbedRight() {
 /********** DROP HAND ***********/
 void AVRCharacter::DropLeft() {
     if (_ItemLeft && _ItemLeft->GetComponentByClass(UGrabItem::StaticClass())) {
-        CLIENT_ClearRadioDelegates(_ItemLeft);
-        /* Drop item */
         SERVER_Drop(_ItemLeft, 1);
     }
 }
 
 void AVRCharacter::DropRight() {
     if (_ItemRight && _ItemRight->GetComponentByClass(UGrabItem::StaticClass())) {
-        CLIENT_ClearRadioDelegates(_ItemLeft);
-        /* Drop item */
         SERVER_Drop(_ItemRight, 2);
     }
 }

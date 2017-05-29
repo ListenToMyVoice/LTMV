@@ -26,6 +26,8 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
     _PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
     _MenuInteractionComp = CreateDefaultSubobject<UMenuInteraction>(TEXT("Menu Interaction"));
     _MenuInteractionComp->_RayParameter = 100000;
+    _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 	_BreathAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio_Breathing"));
 	_PlayerCamera->PostProcessBlendWeight = 0;
@@ -87,7 +89,7 @@ void APlayerCharacter::CheckFloorMaterial() {
 /*********** MOVEMENT ***********/
 void APlayerCharacter::MoveForward(float Value) {
     if (Value != 0.0f) {
-        AddMovementInput(_PlayerCamera->GetForwardVector(), Value);
+        AddMovementInput(GetActorForwardVector(), Value);
 		CheckFloorMaterial();
     }
 }
@@ -192,6 +194,7 @@ void APlayerCharacter::MULTI_TakeLeft_Implementation(AActor* Actor) {
 /********** DROP HAND ***********/
 bool APlayerCharacter::SERVER_Drop_Validate(AActor* ItemActor, int Hand) { return true; }
 void APlayerCharacter::SERVER_Drop_Implementation(AActor* ItemActor, int Hand) {
+    CLIENT_ClearRadioDelegates(ItemActor);
     MULTI_Drop(ItemActor, Hand);
 }
 void APlayerCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
@@ -211,15 +214,10 @@ void APlayerCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 
 /****************************************** AUXILIAR FUNCTIONS * **********************************/
 void APlayerCharacter::ToggleMenuInteraction(bool Activate) {
-    UMenuInteraction* MenuInteraction;
-    TArray<UActorComponent*> Components = GetComponentsByClass(UMenuInteraction::StaticClass());
-    for (UActorComponent* Component : Components) {
-        MenuInteraction = Cast<UMenuInteraction>(Component);
-        MenuInteraction->SetActive(Activate);
-        MenuInteraction->SetHiddenInGame(!Activate, true);
-        MenuInteraction->SetComponentTickEnabled(Activate);
-        MenuInteraction->SetVisibility(Activate, true);
-    }
+    _MenuInteractionComp->SetActive(Activate);
+    _MenuInteractionComp->SetHiddenInGame(!Activate, true);
+    _MenuInteractionComp->SetComponentTickEnabled(Activate);
+    _MenuInteractionComp->SetVisibility(Activate, true);
 }
 
 AActor* APlayerCharacter::GetWalkieActor() { 

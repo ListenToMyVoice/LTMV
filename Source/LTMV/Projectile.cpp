@@ -48,6 +48,6 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 
 		const float DamageAmount = 0.0f;
 		OtherActor->TakeDamage(DamageAmount, DamageEvent, this->GetInstigatorController(), this);
-		Destroy();
+		Destroy(true);
 	}
 }
