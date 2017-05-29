@@ -87,13 +87,13 @@ protected:
 
     /********** TAKE ITEM ***********/
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeRight(AActor* Actor);
+    virtual void SERVER_TakeRight(AActor* Actor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeRight(AActor* Actor);
+    virtual void MULTI_TakeRight(AActor* Actor);
     UFUNCTION(Server, Reliable, WithValidation)
-    void SERVER_TakeLeft(AActor* Actor);
+    virtual void SERVER_TakeLeft(AActor* Actor);
     UFUNCTION(NetMulticast, Reliable)
-    void MULTI_TakeLeft(AActor* Actor);
+    virtual void MULTI_TakeLeft(AActor* Actor);
 
     
     /********** DROP ITEM ***********/
