@@ -317,6 +317,7 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                 }
             }
         }
+
         if (HitItem) {
             APlayerController* PlayerController = Cast<APlayerController>(GetController());
             if (OverlappedComponent == _LeftSphere) {
@@ -332,7 +333,8 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                 SERVER_UpdateAnimation(EGripEnum::CanGrab, 2);
             }
         }
-        else if (OtherActor == this){
+
+        if (OtherActor == this){
             if (OverlappedComponent == _LeftSphere) {
                 _ActorFocusedLeft = OtherActor;
                 _ComponentFocusedLeft = OtherComp;
