@@ -71,8 +71,8 @@ void AVRCharacter::BuildLeft() {
     _SM_LeftHand->SetWorldScale3D(FVector(1.0f, 1.0f, -1.0f));
     _SM_LeftHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_LeftHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
-    _SM_LeftHand->SetHiddenInGame(true);
-    _SM_LeftHand->SetVisibility(false);
+    //_SM_LeftHand->SetHiddenInGame(true) ;
+    //_SM_LeftHand->SetVisibility(false);
 
     /* ADDITIONAL */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
@@ -92,8 +92,8 @@ void AVRCharacter::BuildRight() {
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
     _SM_RightHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_RightHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
-    _SM_RightHand->SetHiddenInGame(true);
-    _SM_RightHand->SetVisibility(false);
+    //_SM_RightHand->SetHiddenInGame(true);
+    //_SM_RightHand->SetVisibility(false);
 
     /* ADDITIONAL */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
