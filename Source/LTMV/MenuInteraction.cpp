@@ -4,6 +4,7 @@
 #include "MenuInteraction.h"
 
 #include "InputMenu.h"
+#include "Menu3D.h"
 
 UMenuInteraction::UMenuInteraction() {
     PrimaryComponentTick.bCanEverTick = true;
@@ -50,6 +51,13 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
                                              ECollisionChannel::ECC_Visibility, CollisionInfo) &&
         HitResult.Actor.IsValid()) {
 
+        if (HitResult.Actor.Get()->IsA(AMenu3D::StaticClass())) {
+            _Light->SetIntensity(100000);
+        }
+        else {
+            _Light->SetIntensity(10);
+        }
+
         if (_TargetInputMenu && HitResult.GetComponent() != _TargetInputMenu) {
             _TargetInputMenu->EndhoverInteraction();
             _TargetLocked = false;
@@ -62,6 +70,7 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
         }
     }
     else {
+        _Light->SetIntensity(10);
         if (_TargetInputMenu) {
             _TargetInputMenu->EndhoverInteraction();
             _TargetInputMenu = nullptr;
