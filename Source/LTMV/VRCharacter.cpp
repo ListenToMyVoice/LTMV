@@ -31,12 +31,13 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     GetCharacterMovement()->MaxWalkSpeedCrouched = 120.0f;
     GetCharacterMovement()->MaxSwimSpeed = 120.0f;
     
+    GetCapsuleComponent()->SetCapsuleRadius(32.f);
+
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
     _VROriginComp->SetRelativeLocation(FVector(15.f, 0.f, 75.f));
     //_VROriginComp->RelativeLocation.Z -= 100;
     
-
     GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 
@@ -333,10 +334,26 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
             if (OverlappedComponent == _LeftSphere) {
                 _ActorFocusedLeft = OtherActor;
                 _ComponentFocusedLeft = OtherComp;
+                if(_ComponentFocusedLeft == _PouchLeft && _ActorPouchLeft != nullptr) {
+                    _ActorFocusedLeft = _ActorPouchLeft;
+                    _ComponentFocusedLeft = nullptr;
+                }
+                else if (_ComponentFocusedLeft == _PouchRight && _ActorPouchRight != nullptr) {
+                    _ActorFocusedLeft = _ActorPouchRight;
+                    _ComponentFocusedLeft = nullptr;
+                }
             }
             else if (OverlappedComponent == _RightSphere) {
                 _ActorFocusedRight = OtherActor;
                 _ComponentFocusedRight = OtherComp;
+                if (_ComponentFocusedRight == _PouchLeft && _ActorPouchLeft != nullptr) {
+                    _ActorFocusedRight = _ActorPouchLeft;
+                    _ComponentFocusedRight = nullptr;
+                }
+                else if (_ComponentFocusedRight == _PouchRight && _ActorPouchRight != nullptr) {
+                    _ActorFocusedRight = _ActorPouchRight;
+                    _ComponentFocusedRight = nullptr;
+                }
             }
         }
     }
@@ -454,6 +471,7 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
 
 /*************** USE TRIGGER *************/
 void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand) {
+    UE_LOG(LogTemp, Warning, TEXT("Actor Focused: %s"), *ActorFocused->GetFName().ToString());
     if (ActorFocused) {
         /* CAN BE GRABBED */
         UGrabItem* GrabItemComp = Cast<UGrabItem>(ActorFocused->GetComponentByClass(
@@ -468,13 +486,11 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InPa
             }
             if (_ActorPouchLeft != nullptr && ActorFocused == _ActorPouchLeft) {
                 _ActorPouchLeft->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-                _PouchLeft->SetHiddenInGame(false);
                 _ActorPouchLeft = nullptr;
                 SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
             }
             else if (_ActorPouchRight != nullptr && ActorFocused == _ActorPouchRight) {
                 _ActorPouchRight->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-                _PouchRight->SetHiddenInGame(false);
                 _ActorPouchRight = nullptr;
                 SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
             }
@@ -642,15 +658,13 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
                 ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
                 ItemActor->SetActorEnableCollision(true);
                 ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
-                _ActorPouchLeft = Cast<AActor>(ItemMesh);
-                _PouchLeft->SetHiddenInGame(true);
+                _ActorPouchLeft = ItemActor;
             }
             else if (_ComponentFocusedLeft == _PouchRight && _ActorPouchRight == nullptr) {
                 ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
                 ItemActor->SetActorEnableCollision(true);
                 ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
-                _ActorPouchRight = Cast<AActor>(ItemMesh);
-                _PouchRight->SetHiddenInGame(true);
+                _ActorPouchRight = ItemActor;
             }
         }
         if (_ComponentFocusedRight) {
@@ -659,15 +673,13 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
                 ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
                 ItemActor->SetActorEnableCollision(true);
                 ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
-                _ActorPouchLeft = Cast<AActor>(ItemMesh);
-                _PouchLeft->SetHiddenInGame(true);
+                _ActorPouchLeft = ItemActor;
             }
             else if (_ComponentFocusedRight == _PouchRight && _ActorPouchRight == nullptr) {
                 ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
                 ItemActor->SetActorEnableCollision(true);
                 ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
-                _ActorPouchRight = Cast<AActor>(ItemMesh);
-                _PouchRight->SetHiddenInGame(true);
+                _ActorPouchRight = ItemActor;
             }
         }
 
@@ -684,6 +696,9 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
         if (Hand == 1) _ItemLeft = nullptr;
         else if (Hand == 2) _ItemRight = nullptr;
     }
+
+    if (_ActorPouchLeft != nullptr) UE_LOG(LogTemp, Warning, TEXT("Bolso izquierdo: %s"), *_ActorPouchLeft->GetFName().ToString());
+    if (_ActorPouchRight != nullptr) UE_LOG(LogTemp, Warning, TEXT("Bolso derecho: %s"), *_ActorPouchRight->GetFName().ToString());
 }
 
 /************ VR CHARACTER IK FEATURES *************/
