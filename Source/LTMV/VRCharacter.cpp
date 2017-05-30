@@ -340,8 +340,8 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 
         if (OtherActor == this){
             if (OverlappedComponent == _LeftSphere) {
-                _ActorFocusedLeft = OtherActor;
                 _ComponentFocusedLeft = OtherComp;
+
                 if(_ComponentFocusedLeft == _PouchLeft && _ActorPouchLeft != nullptr) {
                     _ActorFocusedLeft = _ActorPouchLeft;
                 }
@@ -350,8 +350,8 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                 }
             }
             else if (OverlappedComponent == _RightSphere) {
-                _ActorFocusedRight = OtherActor;
                 _ComponentFocusedRight = OtherComp;
+
                 if (_ComponentFocusedRight == _PouchLeft && _ActorPouchLeft != nullptr) {
                     _ActorFocusedRight = _ActorPouchLeft;
                 }
