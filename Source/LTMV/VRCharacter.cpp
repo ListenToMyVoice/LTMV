@@ -336,11 +336,9 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                 _ComponentFocusedLeft = OtherComp;
                 if(_ComponentFocusedLeft == _PouchLeft && _ActorPouchLeft != nullptr) {
                     _ActorFocusedLeft = _ActorPouchLeft;
-                    _ComponentFocusedLeft = nullptr;
                 }
                 else if (_ComponentFocusedLeft == _PouchRight && _ActorPouchRight != nullptr) {
                     _ActorFocusedLeft = _ActorPouchRight;
-                    _ComponentFocusedLeft = nullptr;
                 }
             }
             else if (OverlappedComponent == _RightSphere) {
@@ -348,11 +346,9 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                 _ComponentFocusedRight = OtherComp;
                 if (_ComponentFocusedRight == _PouchLeft && _ActorPouchLeft != nullptr) {
                     _ActorFocusedRight = _ActorPouchLeft;
-                    _ComponentFocusedRight = nullptr;
                 }
                 else if (_ComponentFocusedRight == _PouchRight && _ActorPouchRight != nullptr) {
                     _ActorFocusedRight = _ActorPouchRight;
-                    _ComponentFocusedRight = nullptr;
                 }
             }
         }
@@ -471,7 +467,6 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
 
 /*************** USE TRIGGER *************/
 void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand) {
-    UE_LOG(LogTemp, Warning, TEXT("Actor Focused: %s"), *ActorFocused->GetFName().ToString());
     if (ActorFocused) {
         /* CAN BE GRABBED */
         UGrabItem* GrabItemComp = Cast<UGrabItem>(ActorFocused->GetComponentByClass(
@@ -485,14 +480,22 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InPa
                 _StaticMesh->SetRenderCustomDepth(false);
             }
             if (_ActorPouchLeft != nullptr && ActorFocused == _ActorPouchLeft) {
-                _ActorPouchLeft->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-                _ActorPouchLeft = nullptr;
+                _StaticMesh->SetMobility(EComponentMobility::Movable);
+                _StaticMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+                _StaticMesh->SetSimulatePhysics(true);
+                _ActorPouchLeft->SetActorEnableCollision(true);
+                
                 SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
+                _ActorPouchLeft = nullptr;
             }
             else if (_ActorPouchRight != nullptr && ActorFocused == _ActorPouchRight) {
-                _ActorPouchRight->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-                _ActorPouchRight = nullptr;
+                _StaticMesh->SetMobility(EComponentMobility::Movable);
+                _StaticMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+                _StaticMesh->SetSimulatePhysics(true);
+                _ActorPouchRight->SetActorEnableCollision(true);
+                
                 SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
+                _ActorPouchRight = nullptr;
             }
             else {
                 SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
@@ -651,54 +654,39 @@ void AVRCharacter::SERVER_Drop_Implementation(AActor* ItemActor, int Hand) {
 void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
     UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
         UStaticMeshComponent::StaticClass()));
-    if (ItemMesh && (_ComponentFocusedLeft || _ComponentFocusedRight)) {
-        if (_ComponentFocusedLeft) {
 
-            if (_ComponentFocusedLeft == _PouchLeft && _ActorPouchLeft == nullptr) {
-                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-                ItemActor->SetActorEnableCollision(true);
-                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
-                _ActorPouchLeft = ItemActor;
-            }
-            else if (_ComponentFocusedLeft == _PouchRight && _ActorPouchRight == nullptr) {
-                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-                ItemActor->SetActorEnableCollision(true);
-                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
-                _ActorPouchRight = ItemActor;
-            }
+    // DROP TO INVENTORY POUCH
+    if ((ItemMesh && _ComponentFocusedLeft && Hand == 1) || (ItemMesh && _ComponentFocusedRight && Hand == 2)) {
+
+        if ((_ComponentFocusedLeft == _PouchLeft || _ComponentFocusedRight == _PouchLeft) && _ActorPouchLeft == nullptr) {
+            ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+            ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
+
+            ItemActor->SetActorEnableCollision(true);
+            _ActorPouchLeft = ItemActor;
         }
-        if (_ComponentFocusedRight) {
+        
+        else if ((_ComponentFocusedLeft == _PouchRight || _ComponentFocusedRight == _PouchRight) && _ActorPouchRight == nullptr) {
+            ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+            ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
 
-            if (_ComponentFocusedRight == _PouchLeft && _ActorPouchLeft == nullptr) {
-                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-                ItemActor->SetActorEnableCollision(true);
-                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
-                _ActorPouchLeft = ItemActor;
-            }
-            else if (_ComponentFocusedRight == _PouchRight && _ActorPouchRight == nullptr) {
-                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-                ItemActor->SetActorEnableCollision(true);
-                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
-                _ActorPouchRight = ItemActor;
-            }
+            ItemActor->SetActorEnableCollision(true);
+            _ActorPouchRight = ItemActor;
         }
-
-        if (Hand == 1) _ItemLeft = nullptr;
-        else if (Hand == 2) _ItemRight = nullptr;
     }
+
+    // DROP TO FLOOR
     else if (ItemMesh) {
+
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         ItemMesh->SetSimulatePhysics(true);
 
         ItemActor->SetActorEnableCollision(true);
-
-        if (Hand == 1) _ItemLeft = nullptr;
-        else if (Hand == 2) _ItemRight = nullptr;
     }
 
-    if (_ActorPouchLeft != nullptr) UE_LOG(LogTemp, Warning, TEXT("Bolso izquierdo: %s"), *_ActorPouchLeft->GetFName().ToString());
-    if (_ActorPouchRight != nullptr) UE_LOG(LogTemp, Warning, TEXT("Bolso derecho: %s"), *_ActorPouchRight->GetFName().ToString());
+    if (Hand == 1) _ItemLeft = nullptr;
+    else if (Hand == 2) _ItemRight = nullptr;
 }
 
 /************ VR CHARACTER IK FEATURES *************/
