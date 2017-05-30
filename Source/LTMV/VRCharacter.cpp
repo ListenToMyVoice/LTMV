@@ -6,6 +6,7 @@
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
 #include "GrabItem.h"
+#include "NWGameInstance.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -42,6 +43,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
+    _PlayerCamera->PostProcessBlendWeight = 1;
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
 
     _PouchLeft = CreateDefaultSubobject<USphereComponent>(TEXT("PouchLeft"));
@@ -248,6 +250,12 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 }
 
 void AVRCharacter::MoveForward(float Value) {
+    _PlayerCamera->PostProcessSettings.bOverride_VignetteIntensity = true;
+
+    UNWGameInstance* GameInst = Cast<UNWGameInstance>(GetWorld()->GetGameInstance());
+    if (GameInst && GameInst->_MenuOptions.bComfortMode && Value != 0) 
+        _PlayerCamera->PostProcessSettings.VignetteIntensity = 2;
+    else _PlayerCamera->PostProcessSettings.VignetteIntensity = 0;
     AddMovementInput(GetMesh()->GetRightVector(), Value);
 }
 

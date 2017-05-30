@@ -305,7 +305,10 @@ AMenu3D* UNWGameInstance::CreateMenuMain() {
     MenuMain->AddMenuInput(Slot_Options);
     MenuMain->AddMenuInput(Slot_ExitGame);
 
-    /*** (1)NEW GAME MENU ***/
+    /*** (1)OPTIONS MENU ***/
+    CreateOptionsPanel();
+
+    /*** (2)NEW GAME MENU ***/
     UMenuPanel* MenuNewGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuNewGame"));
     UInputMenu* Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("HOST GAME"));
     Slot_HostGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonHostGame);
@@ -317,15 +320,6 @@ AMenu3D* UNWGameInstance::CreateMenuMain() {
     _MenuActor->AddSubmenu(MenuNewGame);
     MenuNewGame->AddMenuInput(Slot_HostGame);
     MenuNewGame->AddMenuInput(Slot_FindGame);
-
-    /*** (2)OPTIONS MENU ***/
-    UMenuPanel* MenuOptions = NewObject<UMenuPanel>(_MenuActor, FName("MenuOptions"));
-    UInputMenu* Slot_ComfortMode = NewObject<UInputMenu>(_MenuActor, FName("COMFORT OFF"));
-    Slot_ComfortMode->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonSwitchComfortMode);
-    Slot_ComfortMode->AddOnInputMenuDelegate();
-
-    _MenuActor->AddSubmenu(MenuOptions);
-    MenuOptions->AddMenuInput(Slot_ComfortMode);
 
     /*** (3)FIND GAME MENU ***/
     UMenuPanel* MenuFindGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuFindGame"));
@@ -353,24 +347,43 @@ AMenu3D* UNWGameInstance::CreateMenuPlay() {
     UInputMenu* Slot_BackToMenu = NewObject<UInputMenu>(_MenuActor, FName("BACK TO MENU"));
     Slot_BackToMenu->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonBackToMenu);
     Slot_BackToMenu->AddOnInputMenuDelegate();
+    UInputMenu* Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPTIONS"));
+    Slot_Options->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonOptions);
+    Slot_Options->AddOnInputMenuDelegate();
     UInputMenu* Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("EXIT GAME"));
     Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonExitGame);
     Slot_ExitGame->AddOnInputMenuDelegate();
 
     _MenuActor->AddSubmenu(MenuPlay);
     MenuPlay->AddMenuInput(Slot_BackToMenu);
+    MenuPlay->AddMenuInput(Slot_Options);
     MenuPlay->AddMenuInput(Slot_ExitGame);
+
+    /*** (1)OPTIONS MENU ***/
+    CreateOptionsPanel();
 
     return _MenuActor;
 }
 
+void UNWGameInstance::CreateOptionsPanel() {
+    /*** (2)OPTIONS MENU ***/
+    UMenuPanel* MenuOptions = NewObject<UMenuPanel>(_MenuActor, FName("MenuOptions"));
+    UInputMenu* Slot_ComfortMode = NewObject<UInputMenu>(_MenuActor, 
+                                        _MenuOptions.bComfortMode ? "COMFORT ON" : "COMFORT OFF");
+    Slot_ComfortMode->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonSwitchComfortMode);
+    Slot_ComfortMode->AddOnInputMenuDelegate();
+
+    _MenuActor->AddSubmenu(MenuOptions);
+    MenuOptions->AddMenuInput(Slot_ComfortMode);
+}
+
 /*********************************** BINDINGS ****************************************************/
 void UNWGameInstance::OnButtonNewGame(UInputMenu* InputMenu) {
-    _MenuActor->SetSubmenuByIndex(1);
+    _MenuActor->SetSubmenuByIndex(2);
 }
 
 void UNWGameInstance::OnButtonOptions(UInputMenu* InputMenu) {
-    _MenuActor->SetSubmenuByIndex(2);
+    _MenuActor->SetSubmenuByIndex(1);
 }
 
 void UNWGameInstance::OnButtonExitGame(UInputMenu* InputMenu) {

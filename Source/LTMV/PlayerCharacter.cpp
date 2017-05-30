@@ -3,6 +3,7 @@
 #include "LTMV.h"
 #include "PlayerCharacter.h"
 
+#include "TutorialWidgetComponent.h"
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
 #include "GrabItem.h"
@@ -23,6 +24,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
+
     _PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
     _MenuInteractionComp = CreateDefaultSubobject<UMenuInteraction>(TEXT("Menu Interaction"));
     _MenuInteractionComp->_RayParameter = 100000;
@@ -33,6 +35,8 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
 	_PlayerCamera->PostProcessBlendWeight = 0;
 	_DamageDisappearVelocity = 0.3;
 
+	
+	
 	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
     _Health = 3;
 	_Damaged = false;

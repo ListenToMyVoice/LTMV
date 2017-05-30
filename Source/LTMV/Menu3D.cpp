@@ -49,6 +49,15 @@ AMenu3D::AMenu3D(const class FObjectInitializer& OI) : Super(OI) {
     _BackMenuSize = 2 * BoxExtent.Z;
 }
 
+void AMenu3D::BeginPlay() {
+    Super::BeginPlay();
+
+    _TopDecorator->SetCollisionProfileName("IgnoreOnlyPawn");
+    _MiddleDecorator->SetCollisionProfileName("IgnoreOnlyPawn");
+    _BottomDecorator->SetCollisionProfileName("IgnoreOnlyPawn");
+    _BackSubmenu->SetCollisionProfileName("IgnoreOnlyPawn");
+}
+
 void AMenu3D::AddSubmenu(UMenuPanel* Submenu) {
     Submenu->RegisterComponent();
     Submenu->AttachToComponent(_TopDecorator, FAttachmentTransformRules::KeepRelativeTransform);
@@ -58,11 +67,16 @@ void AMenu3D::AddSubmenu(UMenuPanel* Submenu) {
 void AMenu3D::ToogleMenu(FVector Location, FRotator Rotation) {
     if (_IsMenuHidden) {
         SetSubmenuByIndex(0);
-        ULibraryUtils::SetActorEnable(this);
+        
+        SetActorHiddenInGame(false);
+        SetActorTickEnabled(true);
+
         SetActorLocationAndRotation(Location, Rotation, false, nullptr, ETeleportType::TeleportPhysics);
     }
     else {
-        ULibraryUtils::SetActorEnable(this, false);
+        SetActorHiddenInGame(true);
+        SetActorTickEnabled(false);
+        
         SetSubmenuByIndex(-1);
     }
     _IsMenuHidden = !_IsMenuHidden;

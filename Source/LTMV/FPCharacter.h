@@ -6,6 +6,22 @@
 #include "FPCharacter.generated.h"
 
 
+UENUM(BlueprintType)		//"BlueprintType" is essential to include
+enum class ETutorialLevelEnum : uint8
+{
+	TL_0_1 	UMETA(DisplayName = "0_1"),
+	TL_0 	UMETA(DisplayName = "0"),
+	TL_1 	UMETA(DisplayName = "1"),
+	TL_2	UMETA(DisplayName = "2"),
+	TL_3	UMETA(DisplayName = "3"),
+	TL_4	UMETA(DisplayName = "4"),
+	TL_5	UMETA(DisplayName = "5"),
+	TL_6	UMETA(DisplayName = "6"),
+	TL_7	UMETA(DisplayName = "7"),
+	TL_8	UMETA(DisplayName = "8"),
+	TL_Disabled		UMETA(DisplayName = "Disabled")
+};
+
 UCLASS()
 class LTMV_API AFPCharacter : public APlayerCharacter {
     GENERATED_BODY()
@@ -27,6 +43,29 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     UTexture2D* GetItemTextureAt(int itemIndex);
+
+	/************* TUTORIAL ************/
+	// The enum to control Tutorial Level
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Enum)
+		ETutorialLevelEnum _TutorialLevelEnum;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial0;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial1;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial2;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial3;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial4;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial5;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial6;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial7;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial8;
 
     /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -68,6 +107,10 @@ protected:
 
     class UInventoryWidget* _InventoryWidget;
     bool _IsInventoryHidden;
+
+	bool _IsTutorialRunning;
+	void ToggleTutorial();
+	float _TutorialTimer;
 
     void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
