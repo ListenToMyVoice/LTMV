@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#include"ItfUsable.h"
+
+#include"ItfSwitcheable.h"
 
 #include "Components/ActorComponent.h"
 #include "DoorState.generated.h"
@@ -34,11 +35,10 @@ namespace EStateDoor {
 }
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class LTMV_API UDoorState : public UActorComponent, public IItfUsable {
+class LTMV_API UDoorState : public UActorComponent, public IItfSwitcheable {
     GENERATED_BODY()
-private:
 
-	float _start_displacement;
+private:
 	UStaticMeshComponent* meshComp;
 	FRotator Rotation;
 	FVector Position;
@@ -53,7 +53,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
 		TEnumAsByte<EStateDoor::Type> StateDoor;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
-        float _displacement;
+        float _velocity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		float _current_displacement;
@@ -73,9 +73,6 @@ public:
 
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
-    void UsePressed();
-    virtual void UsePressed_Implementation() override;
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
-    void UseReleased();
-    virtual void UseReleased_Implementation() override;
+    int SwitchState();
+    virtual int SwitchState_Implementation() override;
 };
