@@ -25,14 +25,14 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_BreathAudioComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("spine_03"));
 	_FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ThirdPersonMesh"));
 	_FirstPersonMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+
+	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
 }
 
 void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
     Super::SetupPlayerInputComponent(PlayerInput);
 
     /* MOVEMENT */
-    PlayerInput->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-    PlayerInput->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
     PlayerInput->BindAxis("Turn", this, &APawn::AddControllerYawInput);
     PlayerInput->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
     PlayerInput->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);

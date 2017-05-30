@@ -20,6 +20,8 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& OI) : Super(OI) {
     _VisionAngleDegrees = 90.0f;
 	_HearingRange = 1500.0f;
     _Damage = 1;
+
+	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
 }
 
 void AEnemyCharacter::BeginPlay() {
