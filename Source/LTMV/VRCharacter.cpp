@@ -340,6 +340,7 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 
         if (OtherActor == this){
             if (OverlappedComponent == _LeftSphere) {
+                _ActorFocusedLeft = OtherActor;
                 _ComponentFocusedLeft = OtherComp;
 
                 if(_ComponentFocusedLeft == _PouchLeft && _ActorPouchLeft != nullptr) {
@@ -350,6 +351,7 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                 }
             }
             else if (OverlappedComponent == _RightSphere) {
+                _ActorFocusedRight = OtherActor;
                 _ComponentFocusedRight = OtherComp;
 
                 if (_ComponentFocusedRight == _PouchLeft && _ActorPouchLeft != nullptr) {
@@ -373,6 +375,7 @@ void AVRCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
     else if (OtherActor == _ActorFocusedRight) {
         _ActorFocusedRight = nullptr;
         _ComponentFocusedRight = nullptr;
+
         SERVER_UpdateAnimation(EGripEnum::Open, 2);
     }
 
@@ -487,6 +490,12 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InPa
                 _StaticMesh->SetCustomDepthStencilValue(0);
                 _StaticMesh->SetRenderCustomDepth(false);
             }
+
+            // TODO: BUG AL COGER DOS OBJETOS A LA VEZ. Si descomentamos la linea a continuacion
+            // y comentamos los 3 if/elseif/else siguientes, compilamos, iniciamos e intentamos agarrar dos objetos a la vez
+            // uno con cada mano, hay un bug en el que uno de los objetos se queda a mitad del trayecto.
+            //SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
+
             if (_ActorPouchLeft != nullptr && ActorFocused == _ActorPouchLeft) {
                 _StaticMesh->SetMobility(EComponentMobility::Movable);
                 _StaticMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
@@ -508,6 +517,7 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InPa
             else {
                 SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
             }
+
         }
         else {
             /* CAN BE USED */
@@ -666,20 +676,47 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
     // DROP TO INVENTORY POUCH
     if ((ItemMesh && _ComponentFocusedLeft && Hand == 1) || (ItemMesh && _ComponentFocusedRight && Hand == 2)) {
 
-        if ((_ComponentFocusedLeft == _PouchLeft || _ComponentFocusedRight == _PouchLeft) && _ActorPouchLeft == nullptr) {
-            ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-            ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
+        switch (Hand) {
+        case 1:
+            if (_ComponentFocusedLeft == _PouchLeft && _ActorPouchLeft == nullptr) {
 
-            ItemActor->SetActorEnableCollision(true);
-            _ActorPouchLeft = ItemActor;
-        }
-        
-        else if ((_ComponentFocusedLeft == _PouchRight || _ComponentFocusedRight == _PouchRight) && _ActorPouchRight == nullptr) {
-            ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-            ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
+                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
 
-            ItemActor->SetActorEnableCollision(true);
-            _ActorPouchRight = ItemActor;
+                ItemActor->SetActorEnableCollision(true);
+                _ActorPouchLeft = ItemActor;
+            }
+
+            else if (_ComponentFocusedLeft == _PouchRight && _ActorPouchRight == nullptr) {
+
+                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
+
+                ItemActor->SetActorEnableCollision(true);
+                _ActorPouchRight = ItemActor;
+            }
+            break;
+        case 2:
+            if (_ComponentFocusedRight == _PouchLeft && _ActorPouchLeft == nullptr) {
+
+                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
+
+                ItemActor->SetActorEnableCollision(true);
+                _ActorPouchLeft = ItemActor;
+            }
+
+            else if (_ComponentFocusedRight == _PouchRight && _ActorPouchRight == nullptr) {
+
+                ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
+
+                ItemActor->SetActorEnableCollision(true);
+                _ActorPouchRight = ItemActor;
+            }
+            break;
+        default:
+            break;
         }
     }
 
