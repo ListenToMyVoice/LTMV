@@ -23,6 +23,25 @@ public:
 
 	void Tick(float DeltaSeconds) override;
 
+	/************* TUTORIAL ************/
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial0;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial1;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial2;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial3;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial4;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial5;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial6;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial7;
+	UPROPERTY(Category = "Tutorial", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UTutorialWidgetComponent* _Tutorial8;
     /* Radio Delegate */
     FRadioDelegate _OnRadioPressedDelegate;
     FRadioDelegate _OnRadioReleasedDelegate;
