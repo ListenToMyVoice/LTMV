@@ -6,6 +6,7 @@
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
 #include "GrabItem.h"
+#include "NWGameInstance.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -241,6 +242,12 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 }
 
 void AVRCharacter::MoveForward(float Value) {
+    _PlayerCamera->PostProcessSettings.bOverride_VignetteIntensity = true;
+
+    UNWGameInstance* GameInst = Cast<UNWGameInstance>(GetWorld()->GetGameInstance());
+    if (GameInst && GameInst->_MenuOptions.bComfortMode && Value > 0) 
+        _PlayerCamera->PostProcessSettings.VignetteIntensity = 0.4;
+    else _PlayerCamera->PostProcessSettings.VignetteIntensity = 0;
     AddMovementInput(GetMesh()->GetRightVector(), Value);
 }
 

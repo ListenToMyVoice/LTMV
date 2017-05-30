@@ -161,4 +161,6 @@ protected:
 private:
     /* MENU INTERFACE */
     AMenu3D* _MenuActor;
+
+    void CreateOptionsPanel();
 };
