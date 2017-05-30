@@ -307,7 +307,10 @@ void APlayerControllerPlay::CLIENT_Dead_Implementation() {
         UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerSpectator->
                                                               FindComponentByClass<UCameraComponent>());
         if (CameraComp) {
-            _MenuActor->ToogleMenu(CameraComp->GetComponentLocation(),
+            FVector Location = CameraComp->GetComponentLocation() +
+                (CameraComp->GetForwardVector().GetSafeNormal() * 200);
+
+            _MenuActor->ToogleMenu(Location,
                                    CameraComp->GetComponentRotation());
             PlayerSpectator->ToggleMenuInteraction(true);
         }
