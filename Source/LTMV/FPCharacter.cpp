@@ -26,7 +26,7 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ThirdPersonMesh"));
 	_FirstPersonMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 
-	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 }
 
 void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
