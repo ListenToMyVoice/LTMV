@@ -7,6 +7,7 @@
 #include "PlayerCharacter.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "GameStatePlay.h"
 
@@ -69,6 +70,10 @@ void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
         else i++;
     }
 
+	/*Find enemy character*/
+	AEnemyCharacter* EnemyCharacter = Cast<AEnemyCharacter>(GetPawn());
+	bool damaged = EnemyCharacter->damaged;
+
     if (found) {
         _TargetPawn = _TargetPawn ? nullptr : Cast<APlayerCharacter>(Actors[i]);
         if (Blackboard) {
@@ -81,6 +86,18 @@ void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
             }
         }
     }
+
+	if (damaged) {
+		if (Blackboard) {
+			const UBlackboardData* BBAsset = Blackboard->GetBlackboardAsset();
+			if (BBAsset) {
+				const FBlackboard::FKey TargetKey = BBAsset->GetKeyID(FName("Damaged?"));
+				if (TargetKey != FBlackboard::InvalidKey) {
+					Blackboard->SetValueAsBool(TEXT("Damaged?"), EnemyCharacter->damaged);
+				}
+			}
+		}
+	}
 }
 
 //void AEnemyController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) {
