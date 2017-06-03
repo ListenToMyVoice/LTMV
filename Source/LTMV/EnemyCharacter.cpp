@@ -21,7 +21,7 @@ AEnemyCharacter::AEnemyCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_HearingRange = 1500.0f;
     _Damage = 1;
 
-	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 170.0f;
 }
 
 void AEnemyCharacter::BeginPlay() {

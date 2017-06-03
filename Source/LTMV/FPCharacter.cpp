@@ -28,7 +28,7 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ThirdPersonMesh"));
 	_FirstPersonMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 
-    GetCharacterMovement()->MaxWalkSpeed = 150.0f;
+    GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 
     //TUTORIAL
     _Tutorial0 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget0"));
@@ -51,7 +51,6 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_Tutorial6->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget6"));
 	_Tutorial7->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget7"));
 	_Tutorial8->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget8"));
-
 }
 
 void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
