@@ -109,7 +109,6 @@ protected:
 
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_CharacterDead();
-
     UFUNCTION(Client, Reliable)
     void CLIENT_AddRadioDelegates(AActor* Actor);
     UFUNCTION(Client, Reliable)

@@ -19,16 +19,6 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
     _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
     /*RAYCAST PARAMETERS*/
     _RayParameter = 250.0f;
-	//TUTORIAL
-	_Tutorial0 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget0"));
-	_Tutorial1 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget1"));
-	_Tutorial2 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget2"));
-	_Tutorial3 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget3"));
-	_Tutorial4 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget4"));
-	_Tutorial5 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget5"));
-	_Tutorial6 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget6"));
-	_Tutorial7 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget7"));
-	_Tutorial8 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget8"));
 
     _PlayerCamera->bUsePawnControlRotation = true;
     _PlayerCamera->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("FPVCamera"));
@@ -37,6 +27,19 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_BreathAudioComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("spine_03"));
 	_FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ThirdPersonMesh"));
 	_FirstPersonMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+
+    GetCharacterMovement()->MaxWalkSpeed = 150.0f;
+
+    //TUTORIAL
+    _Tutorial0 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget0"));
+    _Tutorial1 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget1"));
+    _Tutorial2 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget2"));
+    _Tutorial3 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget3"));
+    _Tutorial4 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget4"));
+    _Tutorial5 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget5"));
+    _Tutorial6 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget6"));
+    _Tutorial7 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget7"));
+    _Tutorial8 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget8"));
 
 	//Tutorial attachments
 	_Tutorial0->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget0"));
@@ -49,15 +52,12 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_Tutorial7->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget7"));
 	_Tutorial8->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget8"));
 
-
 }
 
 void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
     Super::SetupPlayerInputComponent(PlayerInput);
 
     /* MOVEMENT */
-    PlayerInput->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-    PlayerInput->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
     PlayerInput->BindAxis("Turn", this, &APawn::AddControllerYawInput);
     PlayerInput->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
     PlayerInput->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);

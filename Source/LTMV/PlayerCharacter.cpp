@@ -38,7 +38,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
 	
 	
 	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
-    _Health = 3;
+    _Health = 1;
 	_Damaged = false;
 }
 
@@ -298,7 +298,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 	if (_Health <= 0) {
 		AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
         if (GameMode) {
-            GameMode->SERVER_PlayerDead(GetController());
+			GameMode->SERVER_PlayerDead(GetController());
             MULTI_CharacterDead();
         }
     }
@@ -306,9 +306,8 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 }
 
 void APlayerCharacter::MULTI_CharacterDead_Implementation() {
-    Cast<UPrimitiveComponent>(GetRootComponent())->SetCollisionProfileName(FName("Ragdoll"));
-    SetActorEnableCollision(true);
-    GetMesh()->SetSimulatePhysics(true);
+	Cast<UPrimitiveComponent>(GetRootComponent())->SetCollisionProfileName(FName("Ragdoll"));
+	SetActorEnableCollision(true);
+	GetMesh()->SetSimulatePhysics(true);
 }
-
 
