@@ -29,6 +29,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
     int _Damage;
 
+	bool damaged;
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 		class AController* EventInstigator, class AActor* DamageCauser) override;
 
