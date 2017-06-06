@@ -180,7 +180,7 @@ FHitResult AFPCharacter::Raycasting() {
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(_HitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 
-    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (bHitRayCastFlag && _HitResult.Actor.IsValid()) {
         //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *_HitResult.Actor->GetName()));
