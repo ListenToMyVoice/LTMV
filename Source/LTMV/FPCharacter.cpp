@@ -7,6 +7,7 @@
 #include "InventoryItem.h"
 
 #include "Tutorial.h"
+#include "TutorialVR.h"
 
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
@@ -20,6 +21,8 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 
     _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 	_Tutorial = CreateDefaultSubobject<UTutorial>(TEXT("Tutorial"));
+	_TutorialVR = CreateDefaultSubobject<UTutorialVR>(TEXT("TutorialVR"));
+
     /*RAYCAST PARAMETERS*/
     _RayParameter = 250.0f;
 
@@ -30,9 +33,9 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_BreathAudioComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("spine_03"));
 	_FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ThirdPersonMesh"));
 	_FirstPersonMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+	//_TutorialVR->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 
-    GetCharacterMovement()->MaxWalkSpeed = 200.0f;
-
+	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 }
 
 void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -84,10 +87,24 @@ void AFPCharacter::AfterPossessed(bool SetInventory) {
 				_InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
 				_IsInventoryHidden = true;
 			}
+
+
+			//TUTORIAL VR
+
+			/*
+			APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+			UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerCharacter->
+				FindComponentByClass<UCameraComponent>());
+				*/
+
 		}
 	}
-	if (!SetInventory && _isTutorialEnabled) {
-		_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
+	if (!SetInventory) {
+		if (_isTutorialEnabled) {
+			_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
+		}
+
+		_TutorialVR->StartTutorial(_PlayerCamera);//Start tutorial at lobby
 
 	}
 }
@@ -141,6 +158,7 @@ FHitResult AFPCharacter::Raycasting() {
 					APlayerController* PlayerController = Cast<APlayerController>(GetController());
 					_Tutorial->Next(PlayerController, 1, false, false);//NExt widget of tutorial
 				}
+				_TutorialVR->Next(_PlayerCamera);//Tutorial at bunker/lab
 				
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {

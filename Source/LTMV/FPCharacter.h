@@ -76,6 +76,7 @@ protected:
     bool _IsInventoryHidden;
 
 	class UTutorial* _Tutorial;
+	class UTutorialVR* _TutorialVR;
 
 
     void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -111,6 +112,7 @@ protected:
 private:
     float _RayParameter;
     FHitResult _HitResult;
+
     
     UStaticMeshComponent* _LastMeshFocused = nullptr;
     bool bInventoryItemHit = false;
