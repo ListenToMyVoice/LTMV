@@ -75,8 +75,9 @@ void AFPCharacter::AfterPossessed(bool SetInventory) {
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController->IsLocalPlayerController()) {
 		if (SetInventory) {
-			_Tutorial->Next(PlayerController, 0, false, false);//Updating to next tutorial widget
-
+			if (_isTutorialEnabled) {
+				_Tutorial->Next(PlayerController, 0, false, false);//Updating to next tutorial widget
+			}
 			_InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
 			if (_InventoryWidget) {
 				_InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
@@ -85,7 +86,7 @@ void AFPCharacter::AfterPossessed(bool SetInventory) {
 			}
 		}
 	}
-	if (!SetInventory) {
+	if (!SetInventory && _isTutorialEnabled) {
 		_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
 
 	}
@@ -136,8 +137,10 @@ FHitResult AFPCharacter::Raycasting() {
                 _LastMeshFocused->SetCustomDepthStencilValue(253);
                 bInventoryItemHit = true;
 
-				APlayerController* PlayerController = Cast<APlayerController>(GetController());
-				_Tutorial->Next(PlayerController, 1, false, false);//NExt widget of tutorial
+				if (_isTutorialEnabled) {
+					APlayerController* PlayerController = Cast<APlayerController>(GetController());
+					_Tutorial->Next(PlayerController, 1, false, false);//NExt widget of tutorial
+				}
 				
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {
@@ -201,8 +204,10 @@ void AFPCharacter::UseLeftPressed(bool IsMenuHidden) {
     if (IsMenuHidden) {
         if (_ItemLeft && _IsInventoryHidden) {
 
-			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 6, false, false);//Next widget of tutorial
+			if (_isTutorialEnabled) {
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				_Tutorial->Next(PlayerController, 6, false, false);//Next widget of tutorial
+			}
 
             TArray<UActorComponent*> Components;
             _ItemLeft->GetComponents(Components);
@@ -240,8 +245,10 @@ void AFPCharacter::UseLeftReleased(bool IsMenuHidden) {
 void AFPCharacter::UseRightPressed(bool IsMenuHidden) {
     if (_ItemRight && _IsInventoryHidden) {
 
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		_Tutorial->Next(PlayerController, 6, false, false);//Next widget of tutorial
+		if (_isTutorialEnabled) {
+			APlayerController* PlayerController = Cast<APlayerController>(GetController());
+			_Tutorial->Next(PlayerController, 6, false, false);//Next widget of tutorial
+		}
 
         TArray<UActorComponent*> Components;
         _ItemRight->GetComponents(Components);
@@ -276,11 +283,13 @@ void AFPCharacter::TakeDropRight() {
     if (ActorFocused) {
         if (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass())) {
 
-			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
-			
-			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
-			
+			if (_isTutorialEnabled) {
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+
+				_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+			}
+
             /* Save scenary inventory item */
             SERVER_SaveItemInventory(ActorFocused, 0);
         }
@@ -329,11 +338,12 @@ void AFPCharacter::TakeDropRight() {
     }
     else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
 
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+		if (_isTutorialEnabled) {
+			APlayerController* PlayerController = Cast<APlayerController>(GetController());
+			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
 
-		_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
-		
+			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+		}
 
         /* Save hand inventory item */
         SERVER_SaveItemInventory(_ItemRight, 2);
@@ -346,11 +356,13 @@ void AFPCharacter::TakeDropLeft() {
     if (ActorFocused) {
         if (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass())) {
 
-			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
-			
-			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
-			
+			if (_isTutorialEnabled) {
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+
+				_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+			}
+
             /* Save scenary inventory item */
             SERVER_SaveItemInventory(ActorFocused, 0);
         }
@@ -399,11 +411,13 @@ void AFPCharacter::TakeDropLeft() {
     }
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
 
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+		if (_isTutorialEnabled) {
+			APlayerController* PlayerController = Cast<APlayerController>(GetController());
+			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
 
-		_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
-		
+			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+		}
+
         /* Save hand inventory item */
         SERVER_SaveItemInventory(_ItemLeft, 1);
     }
@@ -426,8 +440,9 @@ void AFPCharacter::ToggleInventory() {
                 Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
                 PlayerController->SetInputMode(Mode);
 
-				_Tutorial->Next(PlayerController, 3, false, false);//Next widget of tutorial
-				
+				if (_isTutorialEnabled) {
+					_Tutorial->Next(PlayerController, 3, false, false);//Next widget of tutorial
+				}
             }
             else {
                 _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -436,8 +451,9 @@ void AFPCharacter::ToggleInventory() {
                 PlayerController->bEnableMouseOverEvents = false;
                 PlayerController->SetInputMode(FInputModeGameOnly());
 
-				_Tutorial->Next(PlayerController, 5, false, false);//Next widget of tutorial
-				
+				if (_isTutorialEnabled) {
+					_Tutorial->Next(PlayerController, 5, false, false);//Next widget of tutorial
+				}
             }
             _IsInventoryHidden = !_IsInventoryHidden;
         }
@@ -469,8 +485,10 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
         if (KeyStruct == EKeys::LeftMouseButton) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
 
-				APlayerController* PlayerController = Cast<APlayerController>(GetController());
-				_Tutorial->Next(PlayerController, 4, false, false);//Next widget of tutorial
+				if (_isTutorialEnabled) {
+					APlayerController* PlayerController = Cast<APlayerController>(GetController());
+					_Tutorial->Next(PlayerController, 4, false, false);//Next widget of tutorial
+				}
 
                 /* Save hand inventory item */
                 SERVER_SaveItemInventory(_ItemLeft, 1);
@@ -484,9 +502,10 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
         else if (KeyStruct == EKeys::RightMouseButton) {
             if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
 
-				APlayerController* PlayerController = Cast<APlayerController>(GetController());
-				_Tutorial->Next(PlayerController, 4, false, false);//Next widget of tutorial
-				
+				if (_isTutorialEnabled) {
+					APlayerController* PlayerController = Cast<APlayerController>(GetController());
+					_Tutorial->Next(PlayerController, 4, false, false);//Next widget of tutorial
+				}
                 /* Save hand inventory item */
                 SERVER_SaveItemInventory(_ItemRight, 2);
             }

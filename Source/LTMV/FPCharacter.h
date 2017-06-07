@@ -30,7 +30,7 @@ public:
 
 	/************* TUTORIAL ************/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
-		bool _isTutorialEnabled;
+	bool _isTutorialEnabled;
 
 
     /************** PICK ITEM *************/
