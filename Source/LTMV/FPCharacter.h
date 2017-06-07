@@ -45,6 +45,15 @@ public:
     UTexture2D* GetItemTextureAt(int itemIndex);
 
 	/************* TUTORIAL ************/
+	// The class that will be used for the players Inventory UI
+	/*
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
+		TSubclassOf<class UUserWidget> _TutorialWidget0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
+		TSubclassOf<class UUserWidget> _TutorialWidget1;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
+		TSubclassOf<class UUserWidget> _TutorialWidget2;
+		*/
 	// The enum to control Tutorial Level
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Enum)
 		ETutorialLevelEnum _TutorialLevelEnum;
@@ -100,6 +109,7 @@ public:
 	bool GetGrabbingRight();
 
 protected:
+
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UInventory* _Inventory;
 	UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -107,6 +117,8 @@ protected:
 
     class UInventoryWidget* _InventoryWidget;
     bool _IsInventoryHidden;
+
+	class UTutorial* _Tutorial;
 
 	bool _IsTutorialRunning;
 	void ToggleTutorial();
