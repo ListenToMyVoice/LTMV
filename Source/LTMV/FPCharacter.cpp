@@ -6,8 +6,6 @@
 #include "Inventory.h"
 #include "InventoryItem.h"
 
-#include "TutorialWidgetComponent.h"
-#include "Blueprint/UserWidget.h"
 #include "Tutorial.h"
 
 #include "ItfUsable.h"
@@ -34,30 +32,6 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_FirstPersonMesh->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 
     GetCharacterMovement()->MaxWalkSpeed = 200.0f;
-
-	/*
-    //TUTORIAL
-    _Tutorial0 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget0"));
-    _Tutorial1 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget1"));
-    _Tutorial2 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget2"));
-    _Tutorial3 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget3"));
-    _Tutorial4 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget4"));
-    _Tutorial5 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget5"));
-    _Tutorial6 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget6"));
-    _Tutorial7 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget7"));
-    _Tutorial8 = OI.CreateDefaultSubobject<UTutorialWidgetComponent>(this, TEXT("TutorialWidget8"));
-
-	//Tutorial attachments
-	_Tutorial0->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget0"));
-	_Tutorial1->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget1"));
-	_Tutorial2->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget2"));
-	_Tutorial3->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget3"));
-	_Tutorial4->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget4"));
-	_Tutorial5->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget5"));
-	_Tutorial6->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget6"));
-	_Tutorial7->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget7"));
-	_Tutorial8->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform, FName("tutorialwidget8"));
-	*/
 
 }
 
@@ -92,98 +66,37 @@ void AFPCharacter::BeginPlay() {
         if (HUD) HUD->AddToViewport();
 		
     }
-	/*
-	//TUTORIAL starters
-	_Tutorial0->SetVisibility(false);
-	_Tutorial1->SetVisibility(false);
-	_Tutorial2->SetVisibility(false);
-	_Tutorial3->SetVisibility(false);
-	_Tutorial4->SetVisibility(false);
-	_Tutorial5->SetVisibility(false);
-	_Tutorial6->SetVisibility(false);
-	_Tutorial7->SetVisibility(false);
-	_Tutorial8->SetVisibility(false);
-	//_TutorialLevelEnum = ETutorialLevelEnum::TL_Disabled;
-	_IsTutorialRunning = false;
-	*/
 
 }
 
 void AFPCharacter::AfterPossessed(bool SetInventory) {
-    Super::AfterPossessed(SetInventory);
-
+	Super::AfterPossessed(SetInventory);
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-    if (PlayerController->IsLocalPlayerController()) {
-        if (SetInventory) {
-			_Tutorial->StartTutorial(PlayerController);
-            _InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
-            if (_InventoryWidget) {
-                _InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
-                _InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
-                _IsInventoryHidden = true;
-            }
-			/*
-			/*
-			if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-				//Tutorial at bunker
-				_Tutorial0->SetVisibility(true);
-				_TutorialLevelEnum = ETutorialLevelEnum::TL_0;
-				_IsTutorialRunning = true;
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("EN EL BUNKER: ENUM A TL_0")));
-			}
-			*/
-		}
-		else {
-			/*
-			if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-				//Tutorial at cave
-				_Tutorial7->SetVisibility(true);
-				_TutorialLevelEnum = ETutorialLevelEnum::TL_0_1;
-				_IsTutorialRunning = true;
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Empieza EL TUTORIAL: ENUM A TL_0_1")));
-			}
-			*/
-		}
-    }
-}
-template<typename TEnum>
-static FORCEINLINE FString GetEnumValueToString(const FString& Name, TEnum Value){
-	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, *Name, true);
-	if (!enumPtr){
-		return FString("Invalid");
-	}
-	return enumPtr->GetNameByValue((int64)Value).ToString();
-}
-void AFPCharacter::Tick(float DeltaSeconds) {
+	if (PlayerController->IsLocalPlayerController()) {
+		if (SetInventory) {
+			_Tutorial->Next(PlayerController, 0, false, false);//Updating to next tutorial widget
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("valor del enum: %d y del tutorial %s"), _IsTutorialRunning, *GetEnumValueToString<ETutorialLevelEnum>("ETutorialLevelEnum", _TutorialLevelEnum)));
-    Super::Tick(DeltaSeconds);
+			_InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
+			if (_InventoryWidget) {
+				_InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
+				_InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+				_IsInventoryHidden = true;
+			}
+		}
+	}
+	if (!SetInventory) {
+		_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
+
+	}
+}
+
+void AFPCharacter::Tick(float DeltaSeconds) {
+	
+	Super::Tick(DeltaSeconds);
     //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
     Raycasting();
 
-	/*
-	if (_TutorialLevelEnum == ETutorialLevelEnum::TL_0_1) {
-		if (_TutorialTimer <= 320.0f) {
-			_TutorialTimer += 1.0f;
-		}
-		else {
-			_Tutorial7->SetVisibility(false);
-			_IsTutorialRunning = false;
-			_TutorialTimer = 0.0f;
-		}
-	}
-	if (_TutorialLevelEnum == ETutorialLevelEnum::TL_8) {
-		if (_TutorialTimer <= 320.0f) {
-			_TutorialTimer += 1.0f;
-		}
-		else {
-			_Tutorial8->SetVisibility(false);
-			_IsTutorialRunning = false;
-			_TutorialLevelEnum = ETutorialLevelEnum::TL_Disabled;
-		}
-	}
-	*/
 }
 
 FHitResult AFPCharacter::Raycasting() {
@@ -224,16 +137,7 @@ FHitResult AFPCharacter::Raycasting() {
                 bInventoryItemHit = true;
 
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
-				_Tutorial->Next(PlayerController, 1);
-				/*
-				//Pasa a Tutorial TL_01 
-				if (_TutorialLevelEnum == ETutorialLevelEnum::TL_0 && _TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-					_Tutorial0->SetVisibility(false);
-					_Tutorial1->SetVisibility(true);
-					_IsTutorialRunning = true;
-					_TutorialLevelEnum = ETutorialLevelEnum::TL_1;
-				}
-				*/
+				_Tutorial->Next(PlayerController, 1, false, false);//NExt widget of tutorial
 				
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {
@@ -297,15 +201,9 @@ void AFPCharacter::UseLeftPressed(bool IsMenuHidden) {
     if (IsMenuHidden) {
         if (_ItemLeft && _IsInventoryHidden) {
 
-			/*
-			//Tutorial pasa a TL_06
-			if (_TutorialLevelEnum == ETutorialLevelEnum::TL_5 && _TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-				_Tutorial5->SetVisibility(false);
-				_Tutorial6->SetVisibility(true);
-				_IsTutorialRunning = true;
-				_TutorialLevelEnum = ETutorialLevelEnum::TL_6;
-			}
-			*/
+			APlayerController* PlayerController = Cast<APlayerController>(GetController());
+			_Tutorial->Next(PlayerController, 6, false, false);//Next widget of tutorial
+
             TArray<UActorComponent*> Components;
             _ItemLeft->GetComponents(Components);
 
@@ -342,15 +240,9 @@ void AFPCharacter::UseLeftReleased(bool IsMenuHidden) {
 void AFPCharacter::UseRightPressed(bool IsMenuHidden) {
     if (_ItemRight && _IsInventoryHidden) {
 
-		/*
-		//Tutorial pasa a TL_06
-		if (_TutorialLevelEnum == ETutorialLevelEnum::TL_5 && _TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-			_Tutorial5->SetVisibility(false);
-			_Tutorial6->SetVisibility(true);
-			_IsTutorialRunning = true;
-			_TutorialLevelEnum = ETutorialLevelEnum::TL_6;
-		}
-		*/
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		_Tutorial->Next(PlayerController, 6, false, false);//Next widget of tutorial
+
         TArray<UActorComponent*> Components;
         _ItemRight->GetComponents(Components);
 
@@ -385,24 +277,9 @@ void AFPCharacter::TakeDropRight() {
         if (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass())) {
 
 			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 2);
-			/*
-			//Tutorial pasar a TL_02
-			if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled && _TutorialLevelEnum == ETutorialLevelEnum::TL_1) {
-				_Tutorial1->SetVisibility(false);
-				_Tutorial2->SetVisibility(true);
-				_IsTutorialRunning = true;
-				_TutorialLevelEnum = ETutorialLevelEnum::TL_2;
-			}
-			//Tutorial pasar a TL_08
-			if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled && _TutorialLevelEnum == ETutorialLevelEnum::TL_6) {
-				_Tutorial6->SetVisibility(false);
-				_Tutorial8->SetVisibility(true);
-				_IsTutorialRunning = true;
-				_TutorialLevelEnum = ETutorialLevelEnum::TL_8;
-				_TutorialTimer = 0.0f;
-			}
-			*/
+			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+			
+			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
 			
             /* Save scenary inventory item */
             SERVER_SaveItemInventory(ActorFocused, 0);
@@ -453,25 +330,11 @@ void AFPCharacter::TakeDropRight() {
     else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
 
 		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		_Tutorial->Next(PlayerController, 2);
-		/*
-		//Tutorial pasar a TL_02
-		if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled && _TutorialLevelEnum == ETutorialLevelEnum::TL_1) {
-			_Tutorial1->SetVisibility(false);
-			_Tutorial2->SetVisibility(true);
-			_IsTutorialRunning = true;
-			_TutorialLevelEnum = ETutorialLevelEnum::TL_2;
-		}
+		_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+
+		_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
 		
-		//Tutorial pasar a TL_08
-		if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled && _TutorialLevelEnum == ETutorialLevelEnum::TL_6) {
-			_Tutorial6->SetVisibility(false);
-			_Tutorial8->SetVisibility(true);
-			_IsTutorialRunning = true;
-			_TutorialLevelEnum = ETutorialLevelEnum::TL_8;
-			_TutorialTimer = 0.0f;
-		}
-		*/
+
         /* Save hand inventory item */
         SERVER_SaveItemInventory(_ItemRight, 2);
     }
@@ -484,24 +347,10 @@ void AFPCharacter::TakeDropLeft() {
         if (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass())) {
 
 			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 2);
-			/*
-			//Tutorial pasar a TL_02
-			if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled && _TutorialLevelEnum == ETutorialLevelEnum::TL_1) {
-				_Tutorial1->SetVisibility(false);
-				_Tutorial2->SetVisibility(true);
-				_IsTutorialRunning = true;
-				_TutorialLevelEnum = ETutorialLevelEnum::TL_2;
-			}
-			//Tutorial pasar a TL_08
-			if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled && _TutorialLevelEnum == ETutorialLevelEnum::TL_6) {
-				_Tutorial6->SetVisibility(false);
-				_Tutorial8->SetVisibility(true);
-				_IsTutorialRunning = true;
-				_TutorialLevelEnum = ETutorialLevelEnum::TL_8;
-				_TutorialTimer = 0.0f;
-			}
-			*/
+			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+			
+			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+			
             /* Save scenary inventory item */
             SERVER_SaveItemInventory(ActorFocused, 0);
         }
@@ -551,24 +400,10 @@ void AFPCharacter::TakeDropLeft() {
     else if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
 
 		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		_Tutorial->Next(PlayerController, 2);
-		/*
-		//Tutorial pasar a TL_02
-		if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled && _TutorialLevelEnum == ETutorialLevelEnum::TL_1) {
-			_Tutorial1->SetVisibility(false);
-			_Tutorial2->SetVisibility(true);
-			_IsTutorialRunning = true;
-			_TutorialLevelEnum = ETutorialLevelEnum::TL_2;
-		}
-		//Tutorial pasar a TL_08
-		if (_TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled && _TutorialLevelEnum == ETutorialLevelEnum::TL_6) {
-			_Tutorial6->SetVisibility(false);
-			_Tutorial8->SetVisibility(true);
-			_IsTutorialRunning = true;
-			_TutorialLevelEnum = ETutorialLevelEnum::TL_8;
-			_TutorialTimer = 0.0f;
-		}
-		*/
+		_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+
+		_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+		
         /* Save hand inventory item */
         SERVER_SaveItemInventory(_ItemLeft, 1);
     }
@@ -591,15 +426,7 @@ void AFPCharacter::ToggleInventory() {
                 Mode.SetWidgetToFocus(_InventoryWidget->TakeWidget());
                 PlayerController->SetInputMode(Mode);
 
-				/*
-				//Tutorial pasa a TL_03
-				if (_TutorialLevelEnum == ETutorialLevelEnum::TL_2 && _TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-					_Tutorial2->SetVisibility(false);
-					_Tutorial3->SetVisibility(true);
-					_IsTutorialRunning = true;
-					_TutorialLevelEnum = ETutorialLevelEnum::TL_3;
-				}
-				*/
+				_Tutorial->Next(PlayerController, 3, false, false);//Next widget of tutorial
 				
             }
             else {
@@ -609,15 +436,7 @@ void AFPCharacter::ToggleInventory() {
                 PlayerController->bEnableMouseOverEvents = false;
                 PlayerController->SetInputMode(FInputModeGameOnly());
 
-				/*
-				//Tutorial pasa a TL_05
-				if (_TutorialLevelEnum == ETutorialLevelEnum::TL_4 && _TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-					_Tutorial4->SetVisibility(false);
-					_Tutorial5->SetVisibility(true);
-					_IsTutorialRunning = true;
-					_TutorialLevelEnum = ETutorialLevelEnum::TL_5;
-				}
-				*/
+				_Tutorial->Next(PlayerController, 5, false, false);//Next widget of tutorial
 				
             }
             _IsInventoryHidden = !_IsInventoryHidden;
@@ -650,15 +469,8 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
         if (KeyStruct == EKeys::LeftMouseButton) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
 
-				/*
-				//Tutorial pasa a TL_04
-				if (_TutorialLevelEnum == ETutorialLevelEnum::TL_3 && _TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-					_Tutorial3->SetVisibility(false);
-					_Tutorial4->SetVisibility(true);
-					_IsTutorialRunning = true;
-					_TutorialLevelEnum = ETutorialLevelEnum::TL_4;
-				}
-				/*
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				_Tutorial->Next(PlayerController, 4, false, false);//Next widget of tutorial
 
                 /* Save hand inventory item */
                 SERVER_SaveItemInventory(_ItemLeft, 1);
@@ -672,15 +484,8 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
         else if (KeyStruct == EKeys::RightMouseButton) {
             if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
 
-				/*
-				//Tutorial pasa a TL_04
-				if (_TutorialLevelEnum == ETutorialLevelEnum::TL_3 && _TutorialLevelEnum != ETutorialLevelEnum::TL_Disabled) {
-					_Tutorial3->SetVisibility(false);
-					_Tutorial4->SetVisibility(true);
-					_IsTutorialRunning = true;
-					_TutorialLevelEnum = ETutorialLevelEnum::TL_4;
-				}
-				*/
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				_Tutorial->Next(PlayerController, 4, false, false);//Next widget of tutorial
 				
                 /* Save hand inventory item */
                 SERVER_SaveItemInventory(_ItemRight, 2);
@@ -784,21 +589,8 @@ void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/
-void AFPCharacter::ToggleTutorial() {
-	_Tutorial0->SetVisibility(false);
-	_Tutorial1->SetVisibility(false);
-	_Tutorial2->SetVisibility(false);
-	_Tutorial3->SetVisibility(false);
-	_Tutorial4->SetVisibility(false);
-	_Tutorial5->SetVisibility(false);
-	_Tutorial6->SetVisibility(false);
-	_Tutorial7->SetVisibility(false);
-	_Tutorial8->SetVisibility(false);
-	_IsTutorialRunning = false;
-}
 void AFPCharacter::ToggleMenuInteraction(bool Activate) {
     if (!_IsInventoryHidden) ToggleInventory();
-	//if (_IsTutorialRunning) ToggleTutorial();
 
     Super::ToggleMenuInteraction(Activate);
 }
