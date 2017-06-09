@@ -158,7 +158,7 @@ FHitResult AFPCharacter::Raycasting() {
 					APlayerController* PlayerController = Cast<APlayerController>(GetController());
 					_Tutorial->Next(PlayerController, 1, false, false);//NExt widget of tutorial
 				}
-				_TutorialVR->Next(_PlayerCamera);//Tutorial at bunker/lab
+				//_TutorialVR->Next(_PlayerCamera);//Tutorial at bunker/lab
 				
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {

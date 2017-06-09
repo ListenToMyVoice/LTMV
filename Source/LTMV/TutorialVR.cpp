@@ -7,13 +7,7 @@
 // Sets default values for this component's properties
 UTutorialVR::UTutorialVR()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-	/*
-	*/
 }
 
 
@@ -21,29 +15,26 @@ UTutorialVR::UTutorialVR()
 void UTutorialVR::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
 void UTutorialVR::StartTutorial(UCameraComponent* PlayerCamera) {
+
+	//Create actor if it wasnt created before
 	if (!_TutActor) {
 		UWorld* World = GetWorld();
-		_TutActor = World->SpawnActor<ATutorial3D>();//Spawn actor in world if it wasnt spawned yet
-		//_TutActor->HideTutorial();//hide the actor
-
+		_TutActor = World->SpawnActor<ATutorial3D>();
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial 3d actor spawned!!!")));
 	}
 
-	//Showtutorial
+	//Showtutorial first one depending on PlayerCamera
 	FVector Location = PlayerCamera->GetComponentLocation() +
 		(PlayerCamera->GetForwardVector().GetSafeNormal() * 200);
-
 	_TutActor->ShowTutorial(Location,
-		PlayerCamera->GetComponentRotation());
+		PlayerCamera->GetComponentRotation(),2);
 }
 
-void UTutorialVR::Next(UCameraComponent* PlayerCamera) {
+
+void UTutorialVR::Next(FVector location, FRotator rotation, int index) {
 
 	if (!_TutActor) {
 		UWorld* World = GetWorld();
@@ -52,12 +43,9 @@ void UTutorialVR::Next(UCameraComponent* PlayerCamera) {
 
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial 3d actor spawned!!!")));
 	}
-	//Showtutorial
-	FVector Location = PlayerCamera->GetComponentLocation() +
-		(PlayerCamera->GetForwardVector().GetSafeNormal() * 200);
 
-	_TutActor->ShowTutorial(Location,
-		PlayerCamera->GetComponentRotation());
+	//Calling to Showtutorial
+	_TutActor->ShowTutorial(location, rotation, index);
 
 }
 // Called every frame
