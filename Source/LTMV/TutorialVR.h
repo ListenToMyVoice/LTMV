@@ -18,7 +18,7 @@ public:
 	class ATutorial3D* _TutActor;
 	void StartTutorial(UCameraComponent* PlayerCamera);
 
-	void Next(UCameraComponent* PlayerCamera);
+	void Next(FVector location, FRotator rotation, int index);
 
 protected:
 	// Called when the game starts

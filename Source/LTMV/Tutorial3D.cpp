@@ -10,6 +10,9 @@
 ATutorial3D::ATutorial3D()
 {
 	_tutWidgets = {};
+	_tutExpected = {};
+	_isTutorialShown = false;
+
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -51,35 +54,56 @@ ATutorial3D::ATutorial3D()
 	_Rotation.Pitch = 0.0f;
 	_Rotation.Roll = 0.0f;
 	_TutComp->AddWorldRotation(_Rotation);
-	/*
-	FVector2D _Position= FVector2D(1000.0f, 600.0f);
-	_TutComp->SetDrawSize(_Position);
-	*/
 
-	//Find UuserWidget blueprint
+	//Find UuserWidget blueprints
+	static ConstructorHelpers::FClassFinder<UUserWidget> UserInterfaceWidgetClassStart0(TEXT("/Game/BluePrints/Tutorial/Tutorial0"));//WidgetBlueprint'/Game/BluePrints/Tutorial/VR/Tutorial0_1.Tutorial0_1'
+	if (UserInterfaceWidgetClassStart0.Succeeded()) { _TutorialWidget0 = UserInterfaceWidgetClassStart0.Class; }
+	_tutWidgets.Add(_TutorialWidget0);
+	_tutExpected.Add(false);
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> UserInterfaceWidgetClassStart1(TEXT("/Game/BluePrints/Tutorial/Tutorial1"));//WidgetBlueprint'/Game/BluePrints/Tutorial/VR/Tutorial0_1.Tutorial0_1'
+	if (UserInterfaceWidgetClassStart1.Succeeded()) { _TutorialWidget1 = UserInterfaceWidgetClassStart1.Class; }
+	_tutWidgets.Add(_TutorialWidget1);
+	_tutExpected.Add(false);
+
 	static ConstructorHelpers::FClassFinder<UUserWidget> UserInterfaceWidgetClassStart(TEXT("/Game/BluePrints/Tutorial/Tutorial0_1"));//WidgetBlueprint'/Game/BluePrints/Tutorial/VR/Tutorial0_1.Tutorial0_1'
 	if (UserInterfaceWidgetClassStart.Succeeded()) { _TutorialWidgetStart = UserInterfaceWidgetClassStart.Class; }
 	_tutWidgets.Add(_TutorialWidgetStart);
+	_tutExpected.Add(false);
 
-	//_TutorialWidget = CreateWidget<UUserWidget>(PlayerController, _TutorialWidgetStart);
 
-	_TutComp->SetWidgetClass(_TutorialWidgetStart);
 }
-void ATutorial3D::ShowTutorial(FVector Location, FRotator Rotation) {
-	//Widget to show
 
+
+void ATutorial3D::ShowTutorial(FVector Location, FRotator Rotation, int index) {
+	_isTutorialShown = true;//Tutorial actor showing
+
+	//Widget to show
+	_TutComp->SetWidgetClass(_tutWidgets[index]);
+
+	//Enable visibility of actor
 	SetActorHiddenInGame(false);
 	SetActorTickEnabled(true);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Changed location+rotation of tut actor %s"), *Location.ToString()));
 
+	//Change Rotation and Location of actor
 	SetActorLocationAndRotation(Location, Rotation, false, nullptr, ETeleportType::TeleportPhysics);
 		
 }
-void ATutorial3D::HideTutorial() {
-	SetActorHiddenInGame(true);
-	SetActorTickEnabled(false);
 
+void ATutorial3D::ToggleTutorial() {
+	if (_isTutorialShown) {
+		SetActorHiddenInGame(false);
+		SetActorTickEnabled(true);
+	}
+	else {
+		SetActorHiddenInGame(true);
+		SetActorTickEnabled(false);
+	}
+	_isTutorialShown = !_isTutorialShown;
 }
+
+
 
 // Called when the game starts or when spawned
 void ATutorial3D::BeginPlay()
