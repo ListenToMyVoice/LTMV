@@ -137,6 +137,15 @@ void AVRCharacter::BeginPlay() {
     CalculateMeshArmExtension();
 }
 
+void AVRCharacter::AfterPossessed(bool SetInventory) {
+	if (SetInventory) {
+		// Poner el tutorial del bunker
+	}
+	else {
+		// tutorial de la cueva
+	}
+}
+
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
@@ -314,6 +323,8 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                 _StaticMesh = Cast<UStaticMeshComponent>(OtherActor->GetComponentByClass(
                     UStaticMeshComponent::StaticClass()));
 
+				// tutorial como coger objetos con el Trigger!!!
+
                 if (_StaticMesh) {
                     _StaticMesh->SetRenderCustomDepth(true);
                     _StaticMesh->SetCustomDepthStencilValue(255);
@@ -484,6 +495,9 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InPa
             UGrabItem::StaticClass()));
         if (GrabItemComp) {
             /* FOCUS */
+
+			// tutorial de como utilizar el objeto.
+
             UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(ActorFocused->GetComponentByClass(
                 UStaticMeshComponent::StaticClass()));
             if (_StaticMesh) {
@@ -528,6 +542,9 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InPa
                     SERVER_UsePressed(Component);
                 }
             }
+
+			// tutorial de como dropear a inventario o a mundo.
+
         }
     }
 }
