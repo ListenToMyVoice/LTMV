@@ -32,6 +32,7 @@ public:
 
     AVRCharacter(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
+	virtual void AfterPossessed(bool SetInventory) override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
     virtual void Tick(float deltaTime) override;
 
