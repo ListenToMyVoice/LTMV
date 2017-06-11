@@ -49,8 +49,6 @@ public:
     void UseRightPressed(bool IsMenuHidden) override;
     void UseRightReleased(bool IsMenuHidden) override;
 
-    UMotionControllerComponent* GetControllerByHand(EControllerHand Hand);
-
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
     bool bPositionalHeadTracking;
@@ -111,10 +109,10 @@ protected:
 
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
+	void TurnAtRate(float Rate) override;
     void TurnVRCharacter();
 
     /************* IK **************/
-    FVector HeadCameraOffset;
     UFUNCTION()
     void UpdateIK();
 
@@ -131,6 +129,8 @@ protected:
     void MULTI_UpdateComponentPosition(USceneComponent* Component, FVector Location, FRotator Rotation);
 
 private:
+	UNWGameInstance* GI;
+
     IHeadMountedDisplay* HMD;
 
     AActor* _ActorPouchLeft;
@@ -169,15 +169,13 @@ public:
     float MaxHeadTurnValue;
 
 private:
-    FVector BodyCameraOffset;
-
     bool bHeadTurn;
     bool bHeadTurning;
 
     UFUNCTION()
-    void UpdateMeshPostitionWithCamera();
+    void UpdateCharacterPostitionWithCamera();
     UFUNCTION()
-    void UpdateMeshRotationWithCamera();
+    void UpdateCharacterRotationWithCamera();
 
     void CheckHeadTurn();
     void TurnBody();
@@ -185,8 +183,6 @@ private:
 
 protected:
     /*** IK PROPERTIES ***/
-    UPROPERTY(BlueprintReadOnly, Category = "IK")
-    FVector _HMDWorldPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _HMDWorldOrientation;
     UPROPERTY(BlueprintReadOnly, Category = "IK")

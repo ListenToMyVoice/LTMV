@@ -36,21 +36,20 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
 
     _VROriginComp = CreateDefaultSubobject<USceneComponent>(TEXT("_VROriginComp"));
     _VROriginComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-    _VROriginComp->SetRelativeLocation(FVector(15.f, 0.f, 75.f));
-    //_VROriginComp->RelativeLocation.Z -= 100;
+    _VROriginComp->SetRelativeLocation(FVector(0.f, 0.f, -100.f));
     
     GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	GetMesh()->SetOwnerNoSee(true);
+	GetMesh()->SetOnlyOwnerSee(false);
 
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _PlayerCamera->PostProcessBlendWeight = 1;
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
 
     _PouchLeft = CreateDefaultSubobject<USphereComponent>(TEXT("PouchLeft"));
-    _PouchLeft->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
     _PouchLeft->SetSphereRadius(5.0f);
     _PouchRight = CreateDefaultSubobject<USphereComponent>(TEXT("PouchRight"));
-    _PouchRight->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
     _PouchRight->SetSphereRadius(5.0f);
 
     HMD = nullptr;
@@ -77,6 +76,8 @@ void AVRCharacter::BuildLeft() {
     _LeftHandComp->Hand = EControllerHand::Left;
     _LeftHandComp->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _LeftHandComp->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+	_LeftHandComp->SetOnlyOwnerSee(true);
+	_LeftHandComp->SetOwnerNoSee(false);
 
     /* MESH */
     _SM_LeftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_LeftHand"));
@@ -84,12 +85,17 @@ void AVRCharacter::BuildLeft() {
     _SM_LeftHand->SetWorldScale3D(FVector(1.0f, 1.0f, -1.0f));
     _SM_LeftHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_LeftHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
+	_SM_LeftHand->SetOnlyOwnerSee(true);
+	_SM_LeftHand->SetOwnerNoSee(false);
 
     /* ADDITIONAL */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
-    _LeftSphere->SetRelativeLocation(FVector(20.f, 0.f, 0.f));
-    _LeftSphere->SetSphereRadius(12.f);
+    _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+    _LeftSphere->SetSphereRadius(14.f);
+	_LeftSphere->SetOnlyOwnerSee(true);
+	_LeftSphere->SetOwnerNoSee(false);
+	_LeftSphere->SetHiddenInGame(true);
 }
 
 void AVRCharacter::BuildRight() {
@@ -97,18 +103,25 @@ void AVRCharacter::BuildRight() {
     _RightHandComp->Hand = EControllerHand::Right;
     _RightHandComp->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _RightHandComp->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+	_RightHandComp->SetOnlyOwnerSee(true);
+	_RightHandComp->SetOwnerNoSee(false);
 
     /* MESH */
     _SM_RightHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_RightHand"));
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
     _SM_RightHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_RightHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
+	_SM_RightHand->SetOnlyOwnerSee(true);
+	_SM_RightHand->SetOwnerNoSee(false);
 
     /* ADDITIONAL */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
-    _RightSphere->SetRelativeLocation(FVector(20.f, 0.f, 0.f));
-    _RightSphere->SetSphereRadius(12.f);
+    _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+    _RightSphere->SetSphereRadius(14.f);
+	_RightSphere->SetOnlyOwnerSee(true);
+	_RightSphere->SetOwnerNoSee(false);
+	_RightSphere->SetHiddenInGame(true);
 }
 
 void AVRCharacter::BeginPlay() {
@@ -122,19 +135,17 @@ void AVRCharacter::BeginPlay() {
         PC->InputYawScale = 1.0f;
     }
 
-    if (GetMesh() != nullptr) {
-        HeadCameraOffset = GetMesh()->GetBoneLocation(TEXT("head")) - _PlayerCamera->GetComponentLocation();
-        BodyCameraOffset = GetMesh()->GetComponentLocation() - _PlayerCamera->GetComponentLocation();
-        BodyCameraOffset.Z = GetMesh()->GetComponentLocation().Z;
-    }
-
     bHeadTurn = false;
     bHeadTurning = false;
 
     _GrabDelegateLeft.BindUObject(this, &AVRCharacter::ItemGrabbedLeft);
     _GrabDelegateRight.BindUObject(this, &AVRCharacter::ItemGrabbedRight);
 
-    CalculateMeshArmExtension();
+	if (!GI) {
+		GI = Cast<UNWGameInstance>(GetGameInstance());
+	}
+
+    //CalculateMeshArmExtension();
 }
 
 void AVRCharacter::AfterPossessed(bool SetInventory) {
@@ -149,10 +160,8 @@ void AVRCharacter::AfterPossessed(bool SetInventory) {
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
-    UpdateMeshPostitionWithCamera();
-
-    // TODO: ARREGLAR LA ROTATION SOBRE SI MISMO CUANDO SE USA EL GIRO CON MODO COMFORT
-    //UpdateMeshRotationWithCamera();
+	UpdateCharacterPostitionWithCamera();
+	UpdateCharacterRotationWithCamera();
 
     UpdateIK();
     
@@ -164,12 +173,12 @@ void AVRCharacter::Tick(float deltaTime) {
 
 }
 
-void AVRCharacter::UpdateMeshPostitionWithCamera() {
-    GetMesh()->SetWorldLocation(_PlayerCamera->GetComponentLocation() + BodyCameraOffset -
-        FVector(0.f, 0.f, _PlayerCamera->GetComponentLocation().Z));
+void AVRCharacter::UpdateCharacterPostitionWithCamera() {
+	this->SetActorLocation(_PlayerCamera->GetComponentLocation() -
+		FVector(0.f, 0.f, _PlayerCamera->GetComponentLocation().Z));
 }
 
-void AVRCharacter::UpdateMeshRotationWithCamera() {
+void AVRCharacter::UpdateCharacterRotationWithCamera() {
     if (!bHeadTurn && !bHeadTurning) {
         CheckHeadTurn();
         bHeadTurn = false;
@@ -181,11 +190,11 @@ void AVRCharacter::UpdateMeshRotationWithCamera() {
 }
 
 void AVRCharacter::CheckHeadTurn() {
-    float MeshYaw = GetMesh()->GetComponentRotation().Yaw + 90.f;
-    float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
-    float RelativeYaw = CameraYaw - MeshYaw;
+	float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
+    float CharacterYaw = this->GetActorRotation().Yaw;
+    float RelativeYaw = CameraYaw - CharacterYaw;
 
-    if (RelativeYaw >= MaxHeadTurnValue || RelativeYaw <= - MaxHeadTurnValue) {
+    if (RelativeYaw >= MaxHeadTurnValue || RelativeYaw <= -MaxHeadTurnValue) {
         bHeadTurn = true;
         bHeadTurning = true;
     }
@@ -193,38 +202,20 @@ void AVRCharacter::CheckHeadTurn() {
 
 void AVRCharacter::TurnBody() {
     float InterpSpeed = 2.f / GetWorld()->DeltaTimeSeconds;
-    FRotator CurrentRotation = GetMesh()->GetComponentRotation();
+	FRotator CurrentRotation = this->GetActorRotation();
 
-    FRotator TargetRotation = FRotator(GetMesh()->GetComponentRotation().Pitch,
-                                       _PlayerCamera->GetComponentRotation().Yaw - 90.f,
-                                       GetMesh()->GetComponentRotation().Roll);
+    FRotator TargetRotation = FRotator(this->GetActorRotation().Pitch,
+                                       _PlayerCamera->GetComponentRotation().Yaw,
+									   this->GetActorRotation().Roll);
     
     FRotator NextRotation = FMath::RInterpConstantTo(CurrentRotation,
                                                      TargetRotation,
                                                      GetWorld()->DeltaTimeSeconds,
                                                      InterpSpeed);
 
-    float RotationAngle = (NextRotation - CurrentRotation).Yaw;
-    BodyCameraOffset = BodyCameraOffset.RotateAngleAxis(RotationAngle, _VROriginComp->GetUpVector());
-
-    GetMesh()->SetWorldRotation(NextRotation);
+    this->SetActorRotation(NextRotation);
 
     if ((NextRotation - TargetRotation).IsNearlyZero()) { bHeadTurning = false; }
-}
-
-/********** UPDATE LOCATIONS ***********/
-bool AVRCharacter::SERVER_UpdateComponentPosition_Validate(USceneComponent* Component,
-                                                           FVector Location,
-                                                           FRotator Rotation) { return true; }
-void AVRCharacter::SERVER_UpdateComponentPosition_Implementation(USceneComponent* Component,
-                                                                 FVector Location,
-                                                                 FRotator Rotation) {
-    MULTI_UpdateComponentPosition(Component, Location, Rotation);
-}
-void AVRCharacter::MULTI_UpdateComponentPosition_Implementation(USceneComponent* Component,
-                                                                FVector Location,
-                                                                FRotator Rotation) {
-    Component->SetRelativeLocationAndRotation(Location, Rotation);
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -261,11 +252,23 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 void AVRCharacter::MoveForward(float Value) {
     _PlayerCamera->PostProcessSettings.bOverride_VignetteIntensity = true;
 
-    UNWGameInstance* GameInst = Cast<UNWGameInstance>(GetWorld()->GetGameInstance());
-    if (GameInst && GameInst->_MenuOptions.bComfortMode && Value != 0) 
-        _PlayerCamera->PostProcessSettings.VignetteIntensity = 2;
-    else _PlayerCamera->PostProcessSettings.VignetteIntensity = 0;
-    AddMovementInput(GetMesh()->GetRightVector(), Value);
+	// Esto es modo comfort? No hace nada.
+	if (GI && GI->_MenuOptions.bComfortMode && Value != 0) {
+		_PlayerCamera->PostProcessSettings.VignetteIntensity = 2;
+		AddMovementInput(GetActorForwardVector(), Value);
+	}
+	else {
+		_PlayerCamera->PostProcessSettings.VignetteIntensity = 0;
+		AddMovementInput(FVector(_PlayerCamera->GetForwardVector().X, _PlayerCamera->GetForwardVector().Y, 0), Value);
+	}
+}
+
+void AVRCharacter::TurnAtRate(float Rate) {
+	if (GI && GI->_MenuOptions.bComfortMode) {
+		AddControllerYawInput(Rate * 15.f);
+		SetActorRotation(FRotator(GetActorRotation().Pitch, Rate * 15.f, GetActorRotation().Roll));
+		HMD->ResetOrientation();
+	}
 }
 
 void AVRCharacter::TurnVRCharacter() {
@@ -280,19 +283,6 @@ void AVRCharacter::TurnVRCharacter() {
     SetActorRotation(FRotator(GetActorRotation().Pitch, _YawRelativeValue, GetActorRotation().Roll));
 
     HMD->ResetOrientation();
-
-    BodyCameraOffset = BodyCameraOffset.RotateAngleAxis(_MeshYawRelativeValue, _VROriginComp->GetUpVector());
-
-    // TODO: ARREGLAR QUE EL PERSONAJE PUEDA ROTAR SOBRE SI MISMO CUANDO SUPERA UN ANGULO
-    //
-    // GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
-    //                                      _PlayerCamera->GetComponentRotation().Yaw - 90.f,
-    //                                      GetMesh()->GetComponentRotation().Roll));
-    // 
-    // if (bHeadTurn || bHeadTurn) {
-    //     bHeadTurn = false;
-    //     bHeadTurning = false;
-    // }
 }
 
 /************** OVERLAPPING *************/
@@ -698,7 +688,7 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
             if (_ComponentFocusedLeft == _PouchLeft && _ActorPouchLeft == nullptr) {
 
                 ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
+                ItemMesh->AttachToComponent(_PouchLeft, FAttachmentTransformRules::KeepRelativeTransform);
 
                 ItemActor->SetActorEnableCollision(true);
                 _ActorPouchLeft = ItemActor;
@@ -707,7 +697,7 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
             else if (_ComponentFocusedLeft == _PouchRight && _ActorPouchRight == nullptr) {
 
                 ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
+                ItemMesh->AttachToComponent(_PouchRight, FAttachmentTransformRules::KeepRelativeTransform);
 
                 ItemActor->SetActorEnableCollision(true);
                 _ActorPouchRight = ItemActor;
@@ -717,7 +707,7 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
             if (_ComponentFocusedRight == _PouchLeft && _ActorPouchLeft == nullptr) {
 
                 ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch1"));
+				ItemMesh->AttachToComponent(_PouchLeft, FAttachmentTransformRules::KeepRelativeTransform);
 
                 ItemActor->SetActorEnableCollision(true);
                 _ActorPouchLeft = ItemActor;
@@ -726,7 +716,7 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
             else if (_ComponentFocusedRight == _PouchRight && _ActorPouchRight == nullptr) {
 
                 ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-                ItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Pouch2"));
+				ItemMesh->AttachToComponent(_PouchRight, FAttachmentTransformRules::KeepRelativeTransform);
 
                 ItemActor->SetActorEnableCollision(true);
                 _ActorPouchRight = ItemActor;
@@ -753,7 +743,6 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 
 /************ VR CHARACTER IK FEATURES *************/
 void AVRCharacter::UpdateIK() {
-    _HMDWorldPosition = _PlayerCamera->GetComponentLocation() + HeadCameraOffset;
     _HMDWorldOrientation = _PlayerCamera->GetComponentRotation();
     _LeftControllerPosition = _LeftHandComp->GetComponentLocation();
     _LeftControllerOrientation = _SM_LeftHand->GetComponentRotation();
@@ -775,7 +764,22 @@ void AVRCharacter::CalculateMeshArmExtension() {
     }
 }
 
-/********** UPDATE ANIMATIONS ***********/
+/* OTHER SERVER FUNCTIONS */
+/********** UPDATE SERVER CONTROLLER LOCATIONS ***********/
+bool AVRCharacter::SERVER_UpdateComponentPosition_Validate(USceneComponent* Component,
+	FVector Location, FRotator Rotation) {
+	return true;
+}
+void AVRCharacter::SERVER_UpdateComponentPosition_Implementation(USceneComponent* Component,
+	FVector Location, FRotator Rotation) {
+	MULTI_UpdateComponentPosition(Component, Location, Rotation);
+}
+void AVRCharacter::MULTI_UpdateComponentPosition_Implementation(USceneComponent* Component,
+	FVector Location, FRotator Rotation) {
+	Component->SetRelativeLocationAndRotation(Location, Rotation);
+}
+
+/********** UPDATE SERVER ANIMATIONS ***********/
 bool AVRCharacter::SERVER_UpdateAnimation_Validate(EGripEnum NewAnim, int Hand) {
     return true;
 }
