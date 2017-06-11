@@ -63,13 +63,11 @@ void ULantern::UseItemPressed_Implementation() {
 		_isLanternOn = true;
 		PowerOn();
 		SetComponentTickEnabled(true);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern On...")));
 	}
 	else if (_isLanternOn) {
 		_isLanternOn = false;
 		PowerOff();
 		SetComponentTickEnabled(false);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern Off...")));
 	}
 	_LanternClickAudio->Play();
 }
