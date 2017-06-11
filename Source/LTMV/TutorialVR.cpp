@@ -29,6 +29,7 @@ void UTutorialVR::StartTutorial(UCameraComponent* PlayerCamera) {
 	//Showtutorial first one depending on PlayerCamera
 	FVector Location = PlayerCamera->GetComponentLocation() +
 		(PlayerCamera->GetForwardVector().GetSafeNormal() * 200);
+
 	_TutActor->ShowTutorial(Location,
 		PlayerCamera->GetComponentRotation(),2);
 }
@@ -47,7 +48,14 @@ void UTutorialVR::Next(FVector location, FRotator rotation, int index) {
 	//Calling to Showtutorial
 	_TutActor->ShowTutorial(location, rotation, index);
 
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial VR pasa a %d"), index));
+
 }
+
+void UTutorialVR::SetLanguage(FString Language) {
+	_TutActor->SetLanguage(Language);
+}
+
 // Called every frame
 void UTutorialVR::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {

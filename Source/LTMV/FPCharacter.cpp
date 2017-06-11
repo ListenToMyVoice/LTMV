@@ -15,6 +15,7 @@
 #include "MenuInteraction.h"
 #include "InventoryWidget.h"
 #include "FMODAudioComponent.h"
+#include "NWGameInstance.h"
 
 AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 
@@ -75,12 +76,21 @@ void AFPCharacter::BeginPlay() {
 void AFPCharacter::AfterPossessed(bool SetInventory) {
 	Super::AfterPossessed(SetInventory);
 
+	UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
+
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController->IsLocalPlayerController()) {
 		if (SetInventory) {
 			if (_isTutorialEnabled) {
+				_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);//Set language
 				_Tutorial->Next(PlayerController, 0, false, false);//Updating to next tutorial widget
 			}
+
+			_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
+			FVector Location = _PlayerCamera->GetComponentLocation() +
+				(_PlayerCamera->GetForwardVector().GetSafeNormal() * 200);
+			_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 0);//Tutorial at bunker/lab
+
 			_InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
 			if (_InventoryWidget) {
 				_InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
@@ -88,22 +98,14 @@ void AFPCharacter::AfterPossessed(bool SetInventory) {
 				_IsInventoryHidden = true;
 			}
 
-
-			//TUTORIAL VR
-
-			/*
-			APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-			UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerCharacter->
-				FindComponentByClass<UCameraComponent>());
-				*/
-
 		}
 	}
-	if (!SetInventory) {
+	if (!SetInventory) {//TUtorial at Lobby
 		if (_isTutorialEnabled) {
+			_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
 			_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
 		}
-
+		_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
 		_TutorialVR->StartTutorial(_PlayerCamera);//Start tutorial at lobby
 
 	}
@@ -158,7 +160,13 @@ FHitResult AFPCharacter::Raycasting() {
 					APlayerController* PlayerController = Cast<APlayerController>(GetController());
 					_Tutorial->Next(PlayerController, 1, false, false);//NExt widget of tutorial
 				}
-				//_TutorialVR->Next(_PlayerCamera);//Tutorial at bunker/lab
+
+				FVector Location;
+				Location = _HitResult.Actor->GetActorLocation() 
+					+(_HitResult.Actor->GetActorForwardVector().GetSafeNormal() * 90)
+				+(_HitResult.Actor->GetActorUpVector().GetSafeNormal() * -30);
+				//+(_HitResult.Actor->GetActorUpVector().GetSafeNormal() * 20);
+				_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(),1);//Tutorial at bunker/lab
 				
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {

@@ -8,6 +8,7 @@
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
 #include "PlayerSpectator.h"
+#include "Walkie.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -106,6 +107,7 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                     _WalkieNoiseAudioComp->bOverrideAttenuation = true;
                     ULibraryUtils::Log("Setup Voice");
 
+
                     //_TestAudioComp->AttachToComponent(MeshComponent,
                     //                                  FAttachmentTransformRules::KeepRelativeTransform);
                     //_TestAudioComp->bOverrideAttenuation = true;
@@ -141,13 +143,29 @@ void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
 
 void APlayerControllerPlay::TickWalkie() {
     if (_VoiceAudioComp && _WalkieNoiseAudioComp) {
+
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+		AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
+
         if (_VoiceAudioComp->IsPlaying() && !_WalkieNoiseAudioComp->IsPlaying()) {
             _WalkieNoiseAudioComp->Play();
             _IsListen = true;
+
+			UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+			if (WalkieComp) {
+				WalkieComp->ToggleOtherLight(true);
+				WalkieComp->SetMute(true);
+			}
         }
         else if (!_VoiceAudioComp->IsPlaying() && _WalkieNoiseAudioComp->IsPlaying()) {
             _WalkieNoiseAudioComp->Stop();
             _IsListen = false;
+
+			UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+			if (WalkieComp) {
+				WalkieComp->ToggleOtherLight(false);
+				WalkieComp->SetMute(false);
+			}
         }
     }
 }
@@ -272,6 +290,14 @@ void APlayerControllerPlay::CLIENT_HideMenu_Implementation() {
 void APlayerControllerPlay::OnRadioPressed() {
     StartTalking();
 
+
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+	AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
+	UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+	if (WalkieComp) {
+		WalkieComp->ToggleLight(true);
+	}
+
     ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s"),
                                        *PlayerState->UniqueId.ToDebugString()), 3, 60);
 
@@ -287,6 +313,12 @@ void APlayerControllerPlay::OnRadioPressed() {
 void APlayerControllerPlay::OnRadioReleased() {
     StopTalking();
 
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+	AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
+	UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+	if (WalkieComp) {
+		WalkieComp->ToggleLight(false);
+	}
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
             ClientUnmutePlayer(OtherPlayerState->UniqueId);

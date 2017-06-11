@@ -19,6 +19,7 @@ public:
 	void StartTutorial(UCameraComponent* PlayerCamera);
 
 	void Next(FVector location, FRotator rotation, int index);
+	void UTutorialVR::SetLanguage(FString Language);
 
 protected:
 	// Called when the game starts

@@ -20,6 +20,9 @@ public:
     TSubclassOf<ACharacter> CharacterClass;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     bool IsHost;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
+	FString Language;
+
 };
 
 USTRUCT(BlueprintType, Category = "Menu Options")
@@ -134,6 +137,7 @@ public:
     /* BINDINGS */
     void OnButtonNewGame(UInputMenu* InputMenu);
     void OnButtonOptions(UInputMenu* InputMenu);
+	void OnButtonLanguage(UInputMenu* InputMenu);
     void OnButtonExitGame(UInputMenu* InputMenu);
 
     void OnButtonHostGame(UInputMenu* InputMenu);
@@ -143,6 +147,10 @@ public:
     void OnButtonSwitchComfortMode(UInputMenu* InputMenu);
 
     void OnButtonBackToMenu(UInputMenu* InputMenu);
+
+	void OnButtonSelectES(UInputMenu* InputMenu);
+	void OnButtonSelectEN(UInputMenu* InputMenu);
+	void OnButtonSelectFR(UInputMenu* InputMenu);
     
 protected:
     TSubclassOf<ACharacter> _BoyClass;
@@ -163,4 +171,5 @@ private:
     AMenu3D* _MenuActor;
 
     void CreateOptionsPanel();
+	void CreateLanguagePanel();
 };

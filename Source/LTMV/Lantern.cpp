@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LTMV.h"
+#include "SoundState.h"
 #include "Lantern.h"
 
 
@@ -72,6 +73,12 @@ void ULantern::PowerOff() {
     Cast<USpotLightComponent>(SpotLightArray[0])->SetIntensity(0);
     Cast<USpotLightComponent>(SpotLightArray[1])->SetIntensity(0);
     Cast<USpotLightComponent>(SpotLightArray[2])->SetIntensity(0);
+
+
+	TArray<UActorComponent*> SoundStateArray;
+	SoundStateArray = GetOwner()->GetComponentsByClass(USoundState::StaticClass());
+
+	Cast<USoundState>(SoundStateArray[0])->SwitchState_Implementation();
 }
 
 void ULantern::PowerOn() {
@@ -81,4 +88,9 @@ void ULantern::PowerOn() {
     Cast<USpotLightComponent>(SpotLightArray[0])->SetIntensity(2333.0);
     Cast<USpotLightComponent>(SpotLightArray[1])->SetIntensity(8318.0);
     Cast<USpotLightComponent>(SpotLightArray[2])->SetIntensity(4527.0);
+
+	TArray<UActorComponent*> SoundStateArray;
+	SoundStateArray = GetOwner()->GetComponentsByClass(USoundState::StaticClass());
+
+	Cast<USoundState>(SoundStateArray[0])->SwitchState_Implementation();
 }
