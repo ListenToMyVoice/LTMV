@@ -6,14 +6,25 @@
 
 ULantern::ULantern(){
     _batteryLife = 100.0;
-    _isLanternOn = false;
+    _isLanternOn = true;
+
+	this->bVisible = true;
+	this->bHiddenInGame = true;
 
     PrimaryComponentTick.bCanEverTick = true;
+
+	_LanternClickAudio = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("LanternClickAudio"));
+	static ConstructorHelpers::FObjectFinder<UObject> Finder(TEXT("/Game/FMOD/Events/Personaje/Linterna"));
+	_LanternClickAudio->SetEvent((UFMODEvent*)(Finder.Object));
+	_LanternClickAudio->bAutoActivate = false;
+
+	_LanternClickAudio->AttachToComponent(GetAttachmentRoot(), FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 
 void ULantern::BeginPlay(){
 	Super::BeginPlay();
+
     SetComponentTickEnabled(false);
 }
 
@@ -47,23 +58,23 @@ float ULantern::GetBatteryLife() {
 
 /******************Interfaces*****************/
 
-void ULantern::UseItemPressed_Implementation() {}
-
-void ULantern::UseItemReleased_Implementation() {
-    if (!_isLanternOn && _batteryLife > 0) {
-        _isLanternOn = true;
-        PowerOn();
-        SetComponentTickEnabled(true);
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern On...")));
-    }
-    else if(_isLanternOn) {
-        _isLanternOn = false;
-        PowerOff();
-        SetComponentTickEnabled(false);
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern Off...")));  
-    }
-
+void ULantern::UseItemPressed_Implementation() {
+	if (!_isLanternOn && _batteryLife > 0) {
+		_isLanternOn = true;
+		PowerOn();
+		SetComponentTickEnabled(true);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern On...")));
+	}
+	else if (_isLanternOn) {
+		_isLanternOn = false;
+		PowerOff();
+		SetComponentTickEnabled(false);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern Off...")));
+	}
+	_LanternClickAudio->Play();
 }
+
+void ULantern::UseItemReleased_Implementation() {}
 
 void ULantern::PowerOff() {
     TArray<UActorComponent*> SpotLightArray;

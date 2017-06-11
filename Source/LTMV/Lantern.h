@@ -2,13 +2,14 @@
 
 #pragma once
 #include "ItfUsableItem.h"
+#include "FMODAudioComponent.h"
 
-#include "Components/ActorComponent.h"
+#include "Components/SceneComponent.h"
 #include "Lantern.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class LTMV_API ULantern : public UActorComponent, public IItfUsableItem {
+class LTMV_API ULantern : public USceneComponent, public IItfUsableItem {
 	GENERATED_BODY()
 
 public:	
@@ -18,18 +19,15 @@ public:
     // Called every frame
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
     UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Lantern Component")
     float _batteryLife;
 
+	UFMODAudioComponent* _LanternClickAudio;
+
     float GetBatteryLife();
-    
     void AddBatteryLife(float BatteryAmount);
-
     void UsingBattery();
-
     void PowerOff();
-
     void PowerOn();
 
     /*Inerfaces*/
