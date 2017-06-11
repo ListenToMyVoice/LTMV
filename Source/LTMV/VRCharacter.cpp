@@ -160,8 +160,8 @@ void AVRCharacter::AfterPossessed(bool SetInventory) {
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
-	UpdateCharacterPostitionWithCamera();
-	UpdateCharacterRotationWithCamera();
+	UpdateMeshPostitionWithCamera();
+	UpdateMeshRotationWithCamera();
 
     UpdateIK();
     
@@ -173,12 +173,12 @@ void AVRCharacter::Tick(float deltaTime) {
 
 }
 
-void AVRCharacter::UpdateCharacterPostitionWithCamera() {
-	this->SetActorLocation(_PlayerCamera->GetComponentLocation() -
+void AVRCharacter::UpdateMeshPostitionWithCamera() {
+	GetMesh()->SetWorldLocation(_PlayerCamera->GetComponentLocation() -
 		FVector(0.f, 0.f, _PlayerCamera->GetComponentLocation().Z));
 }
 
-void AVRCharacter::UpdateCharacterRotationWithCamera() {
+void AVRCharacter::UpdateMeshRotationWithCamera() {
     if (!bHeadTurn && !bHeadTurning) {
         CheckHeadTurn();
         bHeadTurn = false;
@@ -202,18 +202,18 @@ void AVRCharacter::CheckHeadTurn() {
 
 void AVRCharacter::TurnBody() {
     float InterpSpeed = 2.f / GetWorld()->DeltaTimeSeconds;
-	FRotator CurrentRotation = this->GetActorRotation();
+	FRotator CurrentRotation = GetMesh()->GetComponentRotation();
 
-    FRotator TargetRotation = FRotator(this->GetActorRotation().Pitch,
-                                       _PlayerCamera->GetComponentRotation().Yaw,
-									   this->GetActorRotation().Roll);
+    FRotator TargetRotation = FRotator(GetMesh()->GetComponentRotation().Pitch,
+                                       _PlayerCamera->GetComponentRotation().Yaw - 90.f,
+									   GetMesh()->GetComponentRotation().Roll);
     
     FRotator NextRotation = FMath::RInterpConstantTo(CurrentRotation,
                                                      TargetRotation,
                                                      GetWorld()->DeltaTimeSeconds,
                                                      InterpSpeed);
 
-    this->SetActorRotation(NextRotation);
+    GetMesh()->SetWorldRotation(NextRotation);
 
     if ((NextRotation - TargetRotation).IsNearlyZero()) { bHeadTurning = false; }
 }
@@ -230,7 +230,7 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 
     /* MOVEMENT */
-    PlayerInput->BindAction("TurnVRCharacter", IE_Pressed, this, &AVRCharacter::TurnVRCharacter);
+    PlayerInput->BindAxis("TurnAtRate", this, &AVRCharacter::TurnAtRate);
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
@@ -252,13 +252,26 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 void AVRCharacter::MoveForward(float Value) {
     _PlayerCamera->PostProcessSettings.bOverride_VignetteIntensity = true;
 
-	// Esto es modo comfort? No hace nada.
 	if (GI && GI->_MenuOptions.bComfortMode && Value != 0) {
 		_PlayerCamera->PostProcessSettings.VignetteIntensity = 2;
+		float ActorYaw = GetActorRotation().Yaw;
+		float MeshYaw = GetMesh()->GetComponentRotation().Yaw + 90.f;
+
+		GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
+											 ActorYaw - MeshYaw,
+											 GetMesh()->GetComponentRotation().Roll));
+
 		AddMovementInput(GetActorForwardVector(), Value);
 	}
 	else {
 		_PlayerCamera->PostProcessSettings.VignetteIntensity = 0;
+		float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
+		float MeshYaw = GetMesh()->GetComponentRotation().Yaw + 90.f;
+
+		GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
+									CameraYaw - MeshYaw,
+									GetMesh()->GetComponentRotation().Roll));
+
 		AddMovementInput(FVector(_PlayerCamera->GetForwardVector().X, _PlayerCamera->GetForwardVector().Y, 0), Value);
 	}
 }
@@ -271,19 +284,19 @@ void AVRCharacter::TurnAtRate(float Rate) {
 	}
 }
 
-void AVRCharacter::TurnVRCharacter() {
-    float _CameraYawValue = _PlayerCamera->GetComponentRotation().Yaw;
-    float _PlayerYawValue = GetActorRotation().Yaw;
-    float _MeshYawValue = GetMesh()->GetComponentRotation().Yaw + 90.f;
-
-    float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
-    float _MeshYawRelativeValue = _CameraYawValue - _MeshYawValue;
-
-    AddControllerYawInput(_YawRelativeValue);
-    SetActorRotation(FRotator(GetActorRotation().Pitch, _YawRelativeValue, GetActorRotation().Roll));
-
-    HMD->ResetOrientation();
-}
+//void AVRCharacter::TurnVRCharacter() {
+//    float _CameraYawValue = _PlayerCamera->GetComponentRotation().Yaw;
+//    float _PlayerYawValue = GetActorRotation().Yaw;
+//    float _MeshYawValue = GetMesh()->GetComponentRotation().Yaw + 90.f;
+//
+//    float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
+//    float _MeshYawRelativeValue = _CameraYawValue - _MeshYawValue;
+//
+//    AddControllerYawInput(_YawRelativeValue);
+//    SetActorRotation(FRotator(GetActorRotation().Pitch, _YawRelativeValue, GetActorRotation().Roll));
+//
+//    HMD->ResetOrientation();
+//}
 
 /************** OVERLAPPING *************/
 void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

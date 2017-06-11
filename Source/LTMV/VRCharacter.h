@@ -110,7 +110,6 @@ protected:
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
 	void TurnAtRate(float Rate) override;
-    void TurnVRCharacter();
 
     /************* IK **************/
     UFUNCTION()
@@ -173,9 +172,9 @@ private:
     bool bHeadTurning;
 
     UFUNCTION()
-    void UpdateCharacterPostitionWithCamera();
+    void UpdateMeshPostitionWithCamera();
     UFUNCTION()
-    void UpdateCharacterRotationWithCamera();
+    void UpdateMeshRotationWithCamera();
 
     void CheckHeadTurn();
     void TurnBody();
