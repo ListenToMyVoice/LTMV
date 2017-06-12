@@ -27,14 +27,16 @@ ATutorial3D::ATutorial3D()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder(
 		TEXT("StaticMesh'/Game/Art/Common/Tutorial/fondo.fondo'"));//StaticMesh'/Game/Art/Common/Tutorial/fondo.fondo'
 	_Decorator->SetStaticMesh(Finder.Object);
-	FVector _Scale = FVector(1.0f, 1.0f, 4.5f);
+	FVector _Scale = FVector(1.0f, 1.0f, -7.0f);
 	_Decorator->SetWorldScale3D(_Scale);
+	_Scale = FVector(.0f, .0f, 100.0f);
+	_Decorator->SetRelativeLocation(_Scale);
 	_Decorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	/*** light ***/
 	_Light = CreateDefaultSubobject<USpotLightComponent>(TEXT("spotlight"));
 	_Light->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	_Scale = FVector(-168.0f, 0.0f, 56.0f);
+	_Scale = FVector(-168.0f, 0.0f, 36.0f);
 	_Light->SetRelativeLocation(_Scale);
 	FRotator _Rotation = FRotator(0.f, 0.f, 0.f);
 	_Light->SetRelativeRotation(_Rotation);
@@ -132,7 +134,7 @@ ATutorial3D::ATutorial3D()
 }
 
 UWidgetComponent* ATutorial3D::InitWidgetComp(UWidgetComponent* TutComp) {
-	FVector _Scale = FVector(-8.f, 3.f, 29.f);
+	FVector _Scale = FVector(-8.f, 0.f, 29.f);
 	TutComp->SetRelativeLocation(_Scale);
 	_Scale = FVector(0.2f, 0.2f, 0.2f);
 	TutComp->SetRelativeScale3D(_Scale);

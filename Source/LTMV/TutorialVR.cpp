@@ -19,12 +19,7 @@ void UTutorialVR::BeginPlay()
 
 void UTutorialVR::StartTutorial(UCameraComponent* PlayerCamera) {
 
-	//Create actor if it wasnt created before
-	if (!_TutActor) {
-		UWorld* World = GetWorld();
-		_TutActor = World->SpawnActor<ATutorial3D>();
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial 3d actor spawned!!!")));
-	}
+	SpawnTutorial();
 
 	//Showtutorial first one depending on PlayerCamera
 	FVector Location = PlayerCamera->GetComponentLocation() +
@@ -34,16 +29,19 @@ void UTutorialVR::StartTutorial(UCameraComponent* PlayerCamera) {
 		PlayerCamera->GetComponentRotation(),2);
 }
 
+void UTutorialVR::SpawnTutorial() {
 
-void UTutorialVR::Next(FVector location, FRotator rotation, int index) {
-
+	//Create actor if it wasnt created before
 	if (!_TutActor) {
 		UWorld* World = GetWorld();
-		_TutActor = World->SpawnActor<ATutorial3D>();//Spawn actor in world if it wasnt spawned yet
-		//_TutActor->HideTutorial();//hide the actor
-
+		_TutActor = World->SpawnActor<ATutorial3D>();
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial 3d actor spawned!!!")));
 	}
+
+}
+void UTutorialVR::Next(FVector location, FRotator rotation, int index) {
+
+	SpawnTutorial();
 
 	//Calling to Showtutorial
 	_TutActor->ShowTutorial(location, rotation, index);
@@ -53,6 +51,8 @@ void UTutorialVR::Next(FVector location, FRotator rotation, int index) {
 }
 
 void UTutorialVR::SetLanguage(FString Language) {
+
+	SpawnTutorial();
 	_TutActor->SetLanguage(Language);
 }
 
