@@ -95,7 +95,7 @@ ATutorial3D::ATutorial3D()
 	_TutCompStart_EN = CreateDefaultSubobject<UWidgetComponent>(TEXT("_TutCompStart_EN"));
 	_TutCompStart_EN->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	_TutCompStart_EN = InitWidgetComp(_TutCompStart_EN);
-	static ConstructorHelpers::FClassFinder<UUserWidget> UserInterfaceWidgetClassStartEN(TEXT("/Game/BluePrints/Tutorial/VR/Tutorial0_1"));//WidgetBlueprint'/Game/BluePrints/Tutorial/VR/Tutorial0_1.Tutorial0_1'
+	static ConstructorHelpers::FClassFinder<UUserWidget> UserInterfaceWidgetClassStartEN(TEXT("/Game/BluePrints/Tutorial/VR/English/Tutorial0_1_en"));//WidgetBlueprint'/Game/BluePrints/Tutorial/VR/Tutorial0_1.Tutorial0_1'
 	if (UserInterfaceWidgetClassStartEN.Succeeded()) { _TutorialWidget = UserInterfaceWidgetClassStartEN.Class; }
 	_TutCompStart_EN->SetWidgetClass(_TutorialWidget);
 	_tutWidComps_EN.Add(_TutCompStart_EN);
@@ -120,7 +120,7 @@ ATutorial3D::ATutorial3D()
 	_TutCompStart_FR = CreateDefaultSubobject<UWidgetComponent>(TEXT("_TutCompStart_FR"));
 	_TutCompStart_FR->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	_TutCompStart_FR = InitWidgetComp(_TutCompStart_FR);
-	static ConstructorHelpers::FClassFinder<UUserWidget> UserInterfaceWidgetClassStartFR(TEXT("/Game/BluePrints/Tutorial/VR/Tutorial0_1"));//WidgetBlueprint'/Game/BluePrints/Tutorial/VR/Tutorial0_1.Tutorial0_1'
+	static ConstructorHelpers::FClassFinder<UUserWidget> UserInterfaceWidgetClassStartFR(TEXT("/Game/BluePrints/Tutorial/VR/French/Tutorial0_1_fr"));//WidgetBlueprint'/Game/BluePrints/Tutorial/VR/Tutorial0_1.Tutorial0_1'
 	if (UserInterfaceWidgetClassStartFR.Succeeded()) { _TutorialWidget = UserInterfaceWidgetClassStartFR.Class; }
 	_TutCompStart_FR->SetWidgetClass(_TutorialWidget);
 	_tutWidComps_FR.Add(_TutCompStart_FR);
