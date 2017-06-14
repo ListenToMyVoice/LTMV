@@ -18,6 +18,8 @@ void ULightPressState::BeginPlay() {
     //Iniciar la luz en apagado
     _lightComp = Cast<ULightComponent>(GetOwner()->GetComponentByClass(ULightComponent::StaticClass()));
     ULibraryUtils::TestNull(_lightComp);
+	_on = false;
+	_current_state = _on;
 
 }
 
@@ -34,7 +36,7 @@ void ULightPressState::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 int ULightPressState::SwitchState_Implementation() {
     //luz apagada en el release
-    _on = false;
-    _current_state = _on;
+	_on = !_on;
+	_current_state = _on;
     return 0;
 }
