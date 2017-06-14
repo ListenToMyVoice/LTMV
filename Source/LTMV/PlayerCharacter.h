@@ -52,6 +52,11 @@ public:
 
     virtual void ToggleMenuInteraction(bool Activate);
 
+	UFUNCTION(BlueprintCallable, Category = "Hands")
+	FORCEINLINE AActor* GetItemLeft() { return _ItemLeft; }
+	UFUNCTION(BlueprintCallable, Category = "Hands")
+	FORCEINLINE AActor* GetItemRight() { return _ItemRight; }
+
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;

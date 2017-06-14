@@ -86,7 +86,7 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	
 	else if (StateDoor == EStateDoor::CLOSING) {
 
-		if (FMath::Abs(_current_displacement) >0) {
+		if (FMath::Abs(_current_displacement - _max_displacement) < FMath::Abs(_max_displacement)) {
 
 			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
