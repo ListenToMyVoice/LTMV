@@ -14,7 +14,7 @@ public:
     UPROPERTY(EditAnywhere)
     int _weight;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     bool _equipped;
 
     UPROPERTY(EditAnywhere)
