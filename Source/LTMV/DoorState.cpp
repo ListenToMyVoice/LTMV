@@ -20,6 +20,7 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
 		UStaticMeshComponent::StaticClass()));
 	meshComp->SetMobility(EComponentMobility::Movable);
+
 	//If opening
     float displacement = _velocity * DeltaTime;
 	if (StateDoor == EStateDoor::OPENING) {
@@ -86,7 +87,8 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	
 	else if (StateDoor == EStateDoor::CLOSING) {
 
-		if (FMath::Abs(_current_displacement) >0) {
+		if (_current_displacement >=0) {
+		//if (FMath::Abs(_current_displacement) >= 0) {
 
 			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
@@ -153,12 +155,14 @@ int UDoorState::SwitchState_Implementation() {
 	if (!_block) {
 		//Si la puerta está cerrada, abrirla
 		if (StateDoor == EStateDoor::CLOSE) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ABRIR LA PUIERTA ")));
 			StateDoor = EStateDoor::OPENING;
             _current_displacement = 0;
 		}
 
 		//Si la puerta está abierta, cerrarla
 		else if (StateDoor == EStateDoor::OPEN) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("CERRAR LA PUIERTA ")));
 			StateDoor = EStateDoor::CLOSING;
             _current_displacement = _max_displacement;
 		}
