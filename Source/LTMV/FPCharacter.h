@@ -65,6 +65,9 @@ public:
 	UFUNCTION(BluePrintCallable)
 	bool GetGrabbingRight();
 
+	UFUNCTION(BluePrintCallable)
+	AActor* GetItemFocused();
+
 protected:
 
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -86,9 +89,17 @@ protected:
     void UsePressed();
     void UseReleased();
 
+public:
     /********** TAKE ITEM ***********/
     void TakeDropRight();
     void TakeDropLeft();
+
+protected:
+	/********* DROP ITEM REIMPLEMENTATION ************/
+	UFUNCTION(Server, Reliable, WithValidation)
+	virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
 
     /********** INVENTORY ***********/
     void ToggleInventory();
@@ -102,8 +113,6 @@ protected:
     Hand = 1 => _ItemLeft
     Hand = 2 => _ItemRight
     */
-
-    AActor* GetItemFocused();
 
     /* RAYCASTING  */
     UFUNCTION(BlueprintCallable, Category = "Raycasting")

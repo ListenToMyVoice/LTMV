@@ -6,6 +6,8 @@
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
 #include "GrabItem.h"
+#include "Token.h"
+#include "TokenHolder.h"
 #include "NWGameInstance.h"
 
 /* VR Includes */
@@ -334,18 +336,32 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
                     HitItem = true;
                 }
             }
+			else if (Component->GetClass() == UTokenHolder::StaticClass()) {
+				_StaticMesh = Cast<UStaticMeshComponent>(OtherActor->GetComponentByClass(
+					UStaticMeshComponent::StaticClass()));
+
+				// tutorial como coger objetos con el Trigger!!!
+
+				if (_StaticMesh) {
+					_StaticMesh->SetRenderCustomDepth(true);
+					_StaticMesh->SetCustomDepthStencilValue(254);
+					HitItem = true;
+				}
+			}
         }
 
         if (HitItem) {
             APlayerController* PlayerController = Cast<APlayerController>(GetController());
             if (OverlappedComponent == _LeftSphere) {
                 _ActorFocusedLeft = OtherActor;
+				_ComponentFocusedLeft = OtherComp;
                 if (PlayerController)
                     PlayerController->ClientPlayForceFeedback(_RumbleOverLapLeft, false, "rumble");
                 SERVER_UpdateAnimation(EGripEnum::CanGrab, 1);
             }
             else if (OverlappedComponent == _RightSphere) {
                 _ActorFocusedRight = OtherActor;
+				_ComponentFocusedRight = OtherComp;
                 if (PlayerController)
                     PlayerController->ClientPlayForceFeedback(_RumbleOverLapRight, false, "rumble");
                 SERVER_UpdateAnimation(EGripEnum::CanGrab, 2);
@@ -693,8 +709,37 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
     UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
         UStaticMeshComponent::StaticClass()));
 
+	if (ItemMesh && _ActorFocusedLeft && _ComponentFocusedLeft &&
+		_ActorFocusedLeft->GetComponentByClass(UTokenHolder::StaticClass()) &&
+		ItemActor->GetComponentByClass(UToken::StaticClass())) {
+
+		UTokenHolder* Holder = Cast<UTokenHolder>(_ActorFocusedLeft->GetComponentByClass(UTokenHolder::StaticClass()));
+
+		ItemMesh->SetMobility(EComponentMobility::Movable);
+		ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+		
+		ItemMesh->AttachToComponent(Cast<USceneComponent>(_ActorFocusedLeft),
+									FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("TablillaSocket"));
+
+		Holder->_Tablilla = ItemActor;
+	}
+
+	else if (ItemMesh && _ActorFocusedRight && _ComponentFocusedRight &&
+		_ActorFocusedRight->GetComponentByClass(UTokenHolder::StaticClass())) {
+	
+		UTokenHolder* Holder = Cast<UTokenHolder>(_ActorFocusedRight->GetComponentByClass(UTokenHolder::StaticClass()));
+
+		ItemMesh->SetMobility(EComponentMobility::Movable);
+		ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+
+		ItemMesh->AttachToComponent(Cast<USceneComponent>(_ActorFocusedRight),
+									FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("TablillaSocket"));
+
+		Holder->_Tablilla = ItemActor;		
+	}
+
     // DROP TO INVENTORY POUCH
-    if ((ItemMesh && _ComponentFocusedLeft && Hand == 1) || (ItemMesh && _ComponentFocusedRight && Hand == 2)) {
+    else if ((ItemMesh && _ComponentFocusedLeft && Hand == 1) || (ItemMesh && _ComponentFocusedRight && Hand == 2)) {
 
         switch (Hand) {
         case 1:
@@ -807,3 +852,8 @@ void AVRCharacter::MULTI_UpdateAnimation_Implementation(EGripEnum NewAnim, int H
         _GripStateRight = NewAnim;
     }
 }
+
+/******** AUXILIARY FUNCTIONS ********/
+
+AActor* AVRCharacter::GetActorFocusedLeft() { return _ActorFocusedLeft; }
+AActor* AVRCharacter::GetActorFocusedRight() { return _ActorFocusedRight; }

@@ -49,6 +49,11 @@ public:
     void UseRightPressed(bool IsMenuHidden) override;
     void UseRightReleased(bool IsMenuHidden) override;
 
+	UFUNCTION(BlueprintCallable)
+	AActor* GetActorFocusedLeft();
+	UFUNCTION(BlueprintCallable)
+	AActor* GetActorFocusedRight();
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
     bool bPositionalHeadTracking;
@@ -98,10 +103,12 @@ protected:
     void MULTI_GrabRelease(int Hand);
 
     /********** DROP ITEM ***********/
+public:
     UFUNCTION()
     void DropLeft();
     UFUNCTION()
     void DropRight();
+protected:
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_Drop(AActor* ItemActor, int Hand) override;
     UFUNCTION(NetMulticast, Reliable)
