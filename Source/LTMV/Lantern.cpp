@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LTMV.h"
+
+#include "FMODAudioComponent.h"
 #include "Lantern.h"
 
 
@@ -8,17 +10,7 @@ ULantern::ULantern(){
     _batteryLife = 100.0;
     _isLanternOn = true;
 
-	this->bVisible = true;
-	this->bHiddenInGame = true;
-
     PrimaryComponentTick.bCanEverTick = true;
-
-	_LanternClickAudio = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("LanternClickAudio"));
-	static ConstructorHelpers::FObjectFinder<UObject> Finder(TEXT("/Game/FMOD/Events/Personaje/Linterna"));
-	_LanternClickAudio->SetEvent((UFMODEvent*)(Finder.Object));
-	_LanternClickAudio->bAutoActivate = false;
-
-	_LanternClickAudio->AttachToComponent(GetAttachmentRoot(), FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 
@@ -59,6 +51,12 @@ float ULantern::GetBatteryLife() {
 /******************Interfaces*****************/
 
 void ULantern::UseItemPressed_Implementation() {
+	
+	UFMODAudioComponent* _LanternClickAudio = Cast<UFMODAudioComponent>(GetOwner()->GetComponentByClass(UFMODAudioComponent::StaticClass()));
+	if (_LanternClickAudio) {
+		_LanternClickAudio->Play();
+	}
+
 	if (!_isLanternOn && _batteryLife > 0) {
 		_isLanternOn = true;
 		PowerOn();
@@ -69,7 +67,6 @@ void ULantern::UseItemPressed_Implementation() {
 		PowerOff();
 		SetComponentTickEnabled(false);
 	}
-	_LanternClickAudio->Play();
 }
 
 void ULantern::UseItemReleased_Implementation() {}

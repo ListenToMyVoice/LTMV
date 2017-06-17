@@ -2,14 +2,13 @@
 
 #pragma once
 #include "ItfUsableItem.h"
-#include "FMODAudioComponent.h"
 
-#include "Components/SceneComponent.h"
+#include "Components/ActorComponent.h"
 #include "Lantern.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class LTMV_API ULantern : public USceneComponent, public IItfUsableItem {
+class LTMV_API ULantern : public UActorComponent, public IItfUsableItem {
 	GENERATED_BODY()
 
 public:	
@@ -21,8 +20,6 @@ public:
 
     UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Lantern Component")
     float _batteryLife;
-
-	UFMODAudioComponent* _LanternClickAudio;
 
     float GetBatteryLife();
     void AddBatteryLife(float BatteryAmount);
