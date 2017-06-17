@@ -56,7 +56,7 @@ void UToken::UseItemPressed_Implementation() {
 		}
 	}
 
-	_TokenPlacement->Play();
+	if (_TokenPlacement) _TokenPlacement->Play();
 }
 
 void UToken::UseItemReleased_Implementation() {}

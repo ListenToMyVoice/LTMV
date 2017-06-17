@@ -3,6 +3,7 @@
 #include "LTMV.h"
 #include "InputMenu.h"
 
+#include "FMODStudioModule.h"
 #include "FMODAudioComponent.h"
 
 
@@ -22,6 +23,7 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
     _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
 
+	IFMODStudioModule::Get();
     _AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("_AudioComp"));
     static ConstructorHelpers::FObjectFinder<UObject> Finder2(
         TEXT("/Game/FMOD/Events/UI/Tic.Tic"));
