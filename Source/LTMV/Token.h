@@ -2,6 +2,7 @@
 
 #pragma once
 #include "ItfUsableItem.h"
+#include "FMODAudioComponent.h"
 
 #include "Components/SceneComponent.h"
 #include "Token.generated.h"
@@ -14,6 +15,9 @@ class LTMV_API UToken : public USceneComponent, public IItfUsableItem {
 public:	
 	// Sets default values for this component's properties
 	UToken();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FMOD Audio")
+	UFMODAudioComponent* _TokenPlacement;
 
 	/*Inerfaces*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Use Item")

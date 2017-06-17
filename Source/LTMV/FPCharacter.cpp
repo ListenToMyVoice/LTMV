@@ -325,6 +325,7 @@ void AFPCharacter::TakeDropRight() {
 		else if (ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()) &&
 			_ItemRight->GetComponentByClass(UToken::StaticClass())) {
 			SERVER_Drop(_ItemRight, 2);
+			GrabbingRight = false;
 		}
         else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
             if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
@@ -402,6 +403,7 @@ void AFPCharacter::TakeDropLeft() {
 		else if (ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()) &&
 			_ItemLeft->GetComponentByClass(UToken::StaticClass())) {
 			SERVER_Drop(_ItemLeft, 1);
+			GrabbingLeft = false;
 		}
         else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
@@ -476,11 +478,10 @@ void AFPCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 			UTokenHolder* Holder = Cast<UTokenHolder>(ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()));
 
 			ItemMesh->SetMobility(EComponentMobility::Movable);
-			ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+			ItemActor->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+			ItemActor->AttachToActor(ActorFocused, FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocket"));
 
-			ItemMesh->AttachToComponent(Cast<USceneComponent>(ActorFocused),
-				FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("TablillaSocket"));
-
+			_Inventory->RemoveItem(ItemActor);
 			Holder->_Tablilla = ItemActor;
 		}
 	}
@@ -492,9 +493,10 @@ void AFPCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 
 		ItemActor->SetActorEnableCollision(true);
 
-		if (Hand == 1) _ItemLeft = nullptr;
-		else if (Hand == 2) _ItemRight = nullptr;
 	}
+
+	if (Hand == 1) _ItemLeft = nullptr;
+	else if (Hand == 2) _ItemRight = nullptr;
 }
 
 /**************** TRIGGER INVENTORY *************/

@@ -718,7 +718,7 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 		ItemMesh->SetMobility(EComponentMobility::Movable);
 		ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 		
-		ItemMesh->AttachToComponent(Cast<USceneComponent>(_ActorFocusedLeft),
+		ItemMesh->AttachToComponent(Cast<UStaticMeshComponent>(_ActorFocusedLeft),
 									FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("TablillaSocket"));
 
 		Holder->_Tablilla = ItemActor;
@@ -732,8 +732,8 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 		ItemMesh->SetMobility(EComponentMobility::Movable);
 		ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 
-		ItemMesh->AttachToComponent(Cast<USceneComponent>(_ActorFocusedRight),
-									FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("TablillaSocket"));
+		ItemMesh->AttachToComponent(Cast<UStaticMeshComponent>(_ActorFocusedRight),
+									FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocket"));
 
 		Holder->_Tablilla = ItemActor;		
 	}

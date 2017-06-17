@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LTMV.h"
+#include "LibraryUtils.h"
 
 #include "NWGameInstance.h"
 #include "VRCharacter.h"
@@ -21,7 +22,7 @@ void UToken::UseItemPressed_Implementation() {
 
 	// Setting character and ActorFocused
 	if (GI && GI->_IsVRMode) {
-		AVRCharacter* _Player = Cast<AVRCharacter>(GetOwner());
+		AVRCharacter* _Player = Cast<AVRCharacter>(GetOwner()->GetAttachParentActor());
 
 		if (_Player && _Player->GetActorFocusedLeft() &&
 			_Player->GetActorFocusedLeft()->GetComponentByClass(UTokenHolder::StaticClass()) &&
@@ -38,7 +39,8 @@ void UToken::UseItemPressed_Implementation() {
 		}
 	}
 	else {
-		AFPCharacter* _Player = Cast<AFPCharacter>(GetOwner());
+		AFPCharacter* _Player = Cast<AFPCharacter>(GetOwner()->GetAttachParentActor());
+
 		if (_Player && _Player->GetItemFocused() && 
 			_Player->GetItemFocused()->GetComponentByClass(UTokenHolder::StaticClass())) {
 			
@@ -46,13 +48,15 @@ void UToken::UseItemPressed_Implementation() {
 				
 				_Player->TakeDropLeft();
 			}
-
+		
 			else if (_Player->GetItemRight()->GetComponentByClass(UToken::StaticClass())) {
-
+		
 				_Player->TakeDropRight();
 			}
 		}
 	}
+
+	_TokenPlacement->Play();
 }
 
 void UToken::UseItemReleased_Implementation() {}
