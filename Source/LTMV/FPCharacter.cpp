@@ -203,6 +203,7 @@ FHitResult AFPCharacter::Raycasting() {
 void AFPCharacter::UsePressed() {
     /* RAYCASTING DETECTION */
     if (_HitResult.GetActor()) {
+		_LastPressed = _HitResult;
         TArray<UActorComponent*> Components;
         _HitResult.GetActor()->GetComponents(Components);
 
@@ -216,7 +217,7 @@ void AFPCharacter::UsePressed() {
 
 void AFPCharacter::UseReleased() {
     /* RAYCASTING DETECTION */
-    if (_HitResult.GetActor()) {
+    if (_HitResult.GetActor() && _HitResult.GetActor() == _LastPressed.GetActor()) {
         TArray<UActorComponent*> Components;
         _HitResult.GetActor()->GetComponents(Components);
 
@@ -226,6 +227,18 @@ void AFPCharacter::UseReleased() {
             }
         }
     }
+	// Si dejas de mirar al actor que usa UseSwitcher sin soltar el boton de Use,
+	// en el momento de soltarlo automaticamente se libera para el anterior actor.
+	else if (_LastPressed.GetActor()) {
+		TArray<UActorComponent*> Components;
+		_LastPressed.GetActor()->GetComponents(Components);
+
+		for (UActorComponent* Component : Components) {
+			if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+				SERVER_UseReleased(Component);
+			}
+		}
+	}
 }
 
 /******** USE ITEM LEFT *********/

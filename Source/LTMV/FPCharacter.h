@@ -121,6 +121,7 @@ protected:
 private:
     float _RayParameter;
     FHitResult _HitResult;
+	FHitResult _LastPressed;
 
     
     UStaticMeshComponent* _LastMeshFocused = nullptr;

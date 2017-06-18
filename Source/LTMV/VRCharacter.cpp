@@ -509,6 +509,7 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
 /*************** USE TRIGGER *************/
 void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand) {
     if (ActorFocused) {
+		_LastActorFocused = ActorFocused;
         /* CAN BE GRABBED */
         UGrabItem* GrabItemComp = Cast<UGrabItem>(ActorFocused->GetComponentByClass(
             UGrabItem::StaticClass()));
@@ -585,7 +586,7 @@ void AVRCharacter::UseTriggerReleased(AActor* ActorFocused, USceneComponent* InP
             SERVER_GrabRelease(Hand);
         }
     }
-    else if (ActorFocused) {
+    else if (ActorFocused && ActorFocused == _LastActorFocused) {
         /* CAN BE USED */
         TArray<UActorComponent*> Components;
         ActorFocused->GetComponents(Components);
@@ -595,6 +596,15 @@ void AVRCharacter::UseTriggerReleased(AActor* ActorFocused, USceneComponent* InP
             }
         }
     }
+	else if (_LastActorFocused) {
+		TArray<UActorComponent*> Components;
+		_LastActorFocused->GetComponents(Components);
+		for (UActorComponent* Component : Components) {
+			if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+				SERVER_UseReleased(Component);
+			}
+		}
+	}
 }
 
 /********** TAKE ITEM ***********/

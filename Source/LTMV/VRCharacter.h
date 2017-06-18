@@ -148,6 +148,8 @@ private:
     UActorComponent* _ComponentFocusedRight;
     AActor* _ActorGrabbing;
 
+	AActor* _LastActorFocused = nulltpr;
+
     UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
     UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
 
