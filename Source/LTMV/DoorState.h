@@ -61,7 +61,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		float _max_displacement;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
 		bool _block;
 
 

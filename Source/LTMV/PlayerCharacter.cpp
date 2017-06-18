@@ -9,6 +9,8 @@
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
 #include "Walkie.h"
+#include "Token.h"
+#include "TokenHolder.h"
 #include "MenuInteraction.h"
 
 
@@ -203,7 +205,8 @@ void APlayerCharacter::SERVER_Drop_Implementation(AActor* ItemActor, int Hand) {
 void APlayerCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
     UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
                                                             UStaticMeshComponent::StaticClass()));
-    if (ItemMesh) {
+
+	if (ItemMesh) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         ItemMesh->SetSimulatePhysics(true);

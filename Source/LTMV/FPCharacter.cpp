@@ -12,6 +12,8 @@
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
 #include "HandPickItem.h"
+#include "TokenHolder.h"
+#include "Token.h"
 #include "MenuInteraction.h"
 #include "InventoryWidget.h"
 #include "FMODAudioComponent.h"
@@ -170,6 +172,15 @@ FHitResult AFPCharacter::Raycasting() {
                 bInventoryItemHit = true;
             }
 
+			else if (component->GetClass() == UTokenHolder::StaticClass()) {
+				_LastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
+					UStaticMeshComponent::StaticClass()));
+
+				_LastMeshFocused->SetRenderCustomDepth(true);
+				_LastMeshFocused->SetCustomDepthStencilValue(254);
+				bInventoryItemHit = true;
+			}
+
             //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *_HitResult.Actor->GetName()));
         }
     }
@@ -192,6 +203,7 @@ FHitResult AFPCharacter::Raycasting() {
 void AFPCharacter::UsePressed() {
     /* RAYCASTING DETECTION */
     if (_HitResult.GetActor()) {
+		_LastPressed = _HitResult;
         TArray<UActorComponent*> Components;
         _HitResult.GetActor()->GetComponents(Components);
 
@@ -205,7 +217,7 @@ void AFPCharacter::UsePressed() {
 
 void AFPCharacter::UseReleased() {
     /* RAYCASTING DETECTION */
-    if (_HitResult.GetActor()) {
+    if (_HitResult.GetActor() && _HitResult.GetActor() == _LastPressed.GetActor()) {
         TArray<UActorComponent*> Components;
         _HitResult.GetActor()->GetComponents(Components);
 
@@ -215,6 +227,18 @@ void AFPCharacter::UseReleased() {
             }
         }
     }
+	// Si dejas de mirar al actor que usa UseSwitcher sin soltar el boton de Use,
+	// en el momento de soltarlo automaticamente se libera para el anterior actor.
+	else if (_LastPressed.GetActor()) {
+		TArray<UActorComponent*> Components;
+		_LastPressed.GetActor()->GetComponents(Components);
+
+		for (UActorComponent* Component : Components) {
+			if (Component->GetClass()->ImplementsInterface(UItfUsable::StaticClass())) {
+				SERVER_UseReleased(Component);
+			}
+		}
+	}
 }
 
 /******** USE ITEM LEFT *********/
@@ -311,6 +335,11 @@ void AFPCharacter::TakeDropRight() {
             /* Save scenary inventory item */
             SERVER_SaveItemInventory(ActorFocused, 0);
         }
+		else if (ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()) &&
+			_ItemRight->GetComponentByClass(UToken::StaticClass())) {
+			SERVER_Drop(_ItemRight, 2);
+			GrabbingRight = false;
+		}
         else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
             if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Replace item */
@@ -384,6 +413,11 @@ void AFPCharacter::TakeDropLeft() {
             /* Save scenary inventory item */
             SERVER_SaveItemInventory(ActorFocused, 0);
         }
+		else if (ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()) &&
+			_ItemLeft->GetComponentByClass(UToken::StaticClass())) {
+			SERVER_Drop(_ItemLeft, 1);
+			GrabbingLeft = false;
+		}
         else if (ActorFocused->GetComponentByClass(UHandPickItem::StaticClass())) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
                 /* Replace item */
@@ -439,6 +473,43 @@ void AFPCharacter::TakeDropLeft() {
         /* Save hand inventory item */
         SERVER_SaveItemInventory(_ItemLeft, 1);
     }
+}
+
+/********** DROP HAND ***********/
+bool AFPCharacter::SERVER_Drop_Validate(AActor* ItemActor, int Hand) { return true; }
+void AFPCharacter::SERVER_Drop_Implementation(AActor* ItemActor, int Hand) {
+	CLIENT_ClearRadioDelegates(ItemActor);
+	MULTI_Drop(ItemActor, Hand);
+}
+void AFPCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
+	UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
+		UStaticMeshComponent::StaticClass()));
+
+	if (ItemMesh && ItemActor->GetComponentByClass(UToken::StaticClass())) {
+		AActor* ActorFocused = GetItemFocused();
+		if (ActorFocused) {
+			UTokenHolder* Holder = Cast<UTokenHolder>(ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()));
+
+			ItemMesh->SetMobility(EComponentMobility::Movable);
+			ItemActor->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+			ItemActor->AttachToActor(ActorFocused, FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocket"));
+
+			_Inventory->RemoveItem(ItemActor);
+			Holder->_Tablilla = ItemActor;
+		}
+	}
+
+	else if (ItemMesh) {
+		ItemMesh->SetMobility(EComponentMobility::Movable);
+		ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+		ItemMesh->SetSimulatePhysics(true);
+
+		ItemActor->SetActorEnableCollision(true);
+
+	}
+
+	if (Hand == 1) _ItemLeft = nullptr;
+	else if (Hand == 2) _ItemRight = nullptr;
 }
 
 /**************** TRIGGER INVENTORY *************/
@@ -640,7 +711,8 @@ AActor* AFPCharacter::GetItemFocused() {
     AActor* ActorFocused = _HitResult.GetActor();
     if (ActorFocused && ActorFocused->GetComponentByClass(UStaticMeshComponent::StaticClass()) &&
         (ActorFocused->GetComponentByClass(UInventoryItem::StaticClass()) ||
-         ActorFocused->GetComponentByClass(UHandPickItem::StaticClass()))) {
+         ActorFocused->GetComponentByClass(UHandPickItem::StaticClass()) ||
+	     ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()))) {
         return ActorFocused;
     }
     return nullptr;

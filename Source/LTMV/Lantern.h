@@ -18,18 +18,13 @@ public:
     // Called every frame
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
     UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Lantern Component")
     float _batteryLife;
 
     float GetBatteryLife();
-    
     void AddBatteryLife(float BatteryAmount);
-
     void UsingBattery();
-
     void PowerOff();
-
     void PowerOn();
 
     /*Inerfaces*/

@@ -49,7 +49,10 @@ public:
     void UseRightPressed(bool IsMenuHidden) override;
     void UseRightReleased(bool IsMenuHidden) override;
 
-    UMotionControllerComponent* GetControllerByHand(EControllerHand Hand);
+	UFUNCTION(BlueprintCallable)
+	AActor* GetActorFocusedLeft();
+	UFUNCTION(BlueprintCallable)
+	AActor* GetActorFocusedRight();
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
@@ -100,10 +103,12 @@ protected:
     void MULTI_GrabRelease(int Hand);
 
     /********** DROP ITEM ***********/
+public:
     UFUNCTION()
     void DropLeft();
     UFUNCTION()
     void DropRight();
+protected:
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_Drop(AActor* ItemActor, int Hand) override;
     UFUNCTION(NetMulticast, Reliable)
@@ -111,10 +116,9 @@ protected:
 
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
-    void TurnVRCharacter();
+	void TurnAtRate(float Rate) override;
 
     /************* IK **************/
-    FVector HeadCameraOffset;
     UFUNCTION()
     void UpdateIK();
 
@@ -131,6 +135,8 @@ protected:
     void MULTI_UpdateComponentPosition(USceneComponent* Component, FVector Location, FRotator Rotation);
 
 private:
+	UNWGameInstance* GI;
+
     IHeadMountedDisplay* HMD;
 
     AActor* _ActorPouchLeft;
@@ -141,6 +147,8 @@ private:
     AActor* _ActorFocusedRight;
     UActorComponent* _ComponentFocusedRight;
     AActor* _ActorGrabbing;
+
+	AActor* _LastActorFocused = nulltpr;
 
     UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
     UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
@@ -169,8 +177,6 @@ public:
     float MaxHeadTurnValue;
 
 private:
-    FVector BodyCameraOffset;
-
     bool bHeadTurn;
     bool bHeadTurning;
 
@@ -185,8 +191,6 @@ private:
 
 protected:
     /*** IK PROPERTIES ***/
-    UPROPERTY(BlueprintReadOnly, Category = "IK")
-    FVector _HMDWorldPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _HMDWorldOrientation;
     UPROPERTY(BlueprintReadOnly, Category = "IK")

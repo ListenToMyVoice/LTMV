@@ -1,12 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LTMV.h"
+
+#include "FMODAudioComponent.h"
 #include "Lantern.h"
 
 
 ULantern::ULantern(){
     _batteryLife = 100.0;
-    _isLanternOn = false;
+    _isLanternOn = true;
 
     PrimaryComponentTick.bCanEverTick = true;
 }
@@ -14,6 +16,7 @@ ULantern::ULantern(){
 
 void ULantern::BeginPlay(){
 	Super::BeginPlay();
+
     SetComponentTickEnabled(false);
 }
 
@@ -47,23 +50,26 @@ float ULantern::GetBatteryLife() {
 
 /******************Interfaces*****************/
 
-void ULantern::UseItemPressed_Implementation() {}
+void ULantern::UseItemPressed_Implementation() {
+	
+	UFMODAudioComponent* _LanternClickAudio = Cast<UFMODAudioComponent>(GetOwner()->GetComponentByClass(UFMODAudioComponent::StaticClass()));
+	if (_LanternClickAudio) {
+		_LanternClickAudio->Play();
+	}
 
-void ULantern::UseItemReleased_Implementation() {
-    if (!_isLanternOn && _batteryLife > 0) {
-        _isLanternOn = true;
-        PowerOn();
-        SetComponentTickEnabled(true);
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern On...")));
-    }
-    else if(_isLanternOn) {
-        _isLanternOn = false;
-        PowerOff();
-        SetComponentTickEnabled(false);
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Lantern Off...")));  
-    }
-
+	if (!_isLanternOn && _batteryLife > 0) {
+		_isLanternOn = true;
+		PowerOn();
+		SetComponentTickEnabled(true);
+	}
+	else if (_isLanternOn) {
+		_isLanternOn = false;
+		PowerOff();
+		SetComponentTickEnabled(false);
+	}
 }
+
+void ULantern::UseItemReleased_Implementation() {}
 
 void ULantern::PowerOff() {
     TArray<UActorComponent*> SpotLightArray;

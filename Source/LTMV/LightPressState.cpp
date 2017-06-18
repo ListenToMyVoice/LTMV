@@ -7,7 +7,7 @@
 // Sets default values for this component's properties
 ULightPressState::ULightPressState() {
     PrimaryComponentTick.bCanEverTick = true;
-    _on = false;//La luz inicia como apagada
+    _on = false; //La luz inicia como apagada
 }
 
 
@@ -19,12 +19,13 @@ void ULightPressState::BeginPlay() {
     _lightComp = Cast<ULightComponent>(GetOwner()->GetComponentByClass(ULightComponent::StaticClass()));
     ULibraryUtils::TestNull(_lightComp);
 
+	_current_state = _on;
 }
 
 
 // Called every frame
 void ULightPressState::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
-    if (_on) {
+    if (_current_state) {
         _lightComp->SetIntensity(500.0f);
     }
     else {
@@ -34,7 +35,11 @@ void ULightPressState::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 int ULightPressState::SwitchState_Implementation() {
     //luz apagada en el release
-    _on = false;
-    _current_state = _on;
+	if (!_current_state) {
+		_current_state = true;
+	}
+	else {
+		_current_state = false;
+	}
     return 0;
 }

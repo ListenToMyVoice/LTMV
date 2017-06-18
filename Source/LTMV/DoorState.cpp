@@ -23,7 +23,7 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	//If opening
     float displacement = _velocity * DeltaTime;
 	if (StateDoor == EStateDoor::OPENING) {
-		if (_current_displacement < _max_displacement) {
+		if (FMath::Abs(_current_displacement) < FMath::Abs(_max_displacement)) {
 			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
 				if (ActOn == EOnAxis::X_AXIS) {
@@ -86,7 +86,7 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	
 	else if (StateDoor == EStateDoor::CLOSING) {
 
-		if (_current_displacement >0) {
+		if (FMath::Abs(_current_displacement - _max_displacement) < FMath::Abs(_max_displacement)) {
 
 			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
