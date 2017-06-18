@@ -335,7 +335,7 @@ void AFPCharacter::TakeDropRight() {
             /* Save scenary inventory item */
             SERVER_SaveItemInventory(ActorFocused, 0);
         }
-		else if (ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()) &&
+		else if (ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()) && _ItemRight &&
 			_ItemRight->GetComponentByClass(UToken::StaticClass())) {
 			SERVER_Drop(_ItemRight, 2);
 			GrabbingRight = false;
@@ -413,7 +413,7 @@ void AFPCharacter::TakeDropLeft() {
             /* Save scenary inventory item */
             SERVER_SaveItemInventory(ActorFocused, 0);
         }
-		else if (ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()) &&
+		else if (ActorFocused->GetComponentByClass(UTokenHolder::StaticClass()) && _ItemLeft &&
 			_ItemLeft->GetComponentByClass(UToken::StaticClass())) {
 			SERVER_Drop(_ItemLeft, 1);
 			GrabbingLeft = false;
@@ -561,6 +561,7 @@ void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor, int
             UStaticMeshComponent::StaticClass()));
 		if (ItemMesh) {
 			ItemMesh->SetMobility(EComponentMobility::Movable);
+			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			_Inventory->AddItem(ItemActor);
 
 			if (Hand == 1) { _ItemLeft = nullptr; GrabbingLeft = false; }
@@ -620,6 +621,7 @@ void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor)
 
     if (ItemMesh && InventoryItemComp) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         ItemMesh->SetSimulatePhysics(false);
 		/*
         ItemMesh->AttachToComponent(GetMesh(),
@@ -629,17 +631,19 @@ void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor)
         ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
         ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
 		*/
+
 		const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_L"));
 		ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
-			"GripPoint_L");
+			TEXT("GripPoint_L"));
+		
 		if (_GripSocket)
 		{
 			ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
 			ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
 		}
-
+		
         ItemMesh->GetOwner()->SetActorHiddenInGame(false);
-
+		
         _ItemLeft = ItemActor;
 		GrabbingLeft = true;
 
@@ -665,6 +669,7 @@ void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor
 
     if (ItemMesh && InventoryItemComp) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         ItemMesh->SetSimulatePhysics(false);
 		/*
         ItemMesh->AttachToComponent(GetMesh(),
@@ -676,7 +681,7 @@ void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor
 		*/
 		const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_R"));
 		ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
-			"GripPoint_R");
+			TEXT("GripPoint_R"));
 		if (_GripSocket)
 		{
 			ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
