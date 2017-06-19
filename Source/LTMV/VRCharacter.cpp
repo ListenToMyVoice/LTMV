@@ -46,6 +46,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
 	GetMesh()->SetOnlyOwnerSee(false);
 
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
+	_PlayerCamera->bLockToHmd = true;
     _PlayerCamera->PostProcessBlendWeight = 1;
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
 
@@ -143,11 +144,9 @@ void AVRCharacter::BeginPlay() {
     _GrabDelegateLeft.BindUObject(this, &AVRCharacter::ItemGrabbedLeft);
     _GrabDelegateRight.BindUObject(this, &AVRCharacter::ItemGrabbedRight);
 
-	if (!GI) {
-		GI = Cast<UNWGameInstance>(GetGameInstance());
+	if (!GInstance) {
+		GInstance = Cast<UNWGameInstance>(GetGameInstance());
 	}
-
-    //CalculateMeshArmExtension();
 }
 
 void AVRCharacter::AfterPossessed(bool SetInventory) {
@@ -232,7 +231,8 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 
     /* MOVEMENT */
-    PlayerInput->BindAxis("TurnAtRate", this, &AVRCharacter::TurnAtRate);
+	PlayerInput->BindAction("TurnLeftComfort", IE_Pressed, this, &AVRCharacter::TurnLeftComfort);
+	PlayerInput->BindAction("TurnRightComfort", IE_Pressed, this, &AVRCharacter::TurnRightComfort);
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
@@ -252,53 +252,41 @@ void AVRCharacter::ToggleTrackingSpace() {// T
 }
 
 void AVRCharacter::MoveForward(float Value) {
-    _PlayerCamera->PostProcessSettings.bOverride_VignetteIntensity = true;
+	float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw - 90.f;
 
-	if (GI && GI->_MenuOptions.bComfortMode && Value != 0) {
-		_PlayerCamera->PostProcessSettings.VignetteIntensity = 2;
-		float ActorYaw = GetActorRotation().Yaw;
-		float MeshYaw = GetMesh()->GetComponentRotation().Yaw + 90.f;
-
+	if (Value > 0) {
 		GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
-											 ActorYaw - MeshYaw,
+											 CameraYaw,
 											 GetMesh()->GetComponentRotation().Roll));
-
-		AddMovementInput(GetActorForwardVector(), Value);
 	}
-	else {
-		_PlayerCamera->PostProcessSettings.VignetteIntensity = 0;
-		float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
-		float MeshYaw = GetMesh()->GetComponentRotation().Yaw + 90.f;
-
+	else if (Value < 0) {
 		GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
-									CameraYaw - MeshYaw,
-									GetMesh()->GetComponentRotation().Roll));
-
-		AddMovementInput(FVector(_PlayerCamera->GetForwardVector().X, _PlayerCamera->GetForwardVector().Y, 0), Value);
+											 CameraYaw,
+											 GetMesh()->GetComponentRotation().Roll));
 	}
+
+	AddMovementInput(FVector(_PlayerCamera->GetForwardVector().X, _PlayerCamera->GetForwardVector().Y, 0.f), Value);
+	CheckFloorMaterial();
 }
 
-void AVRCharacter::TurnAtRate(float Rate) {
-	if (GI && GI->_MenuOptions.bComfortMode) {
-		AddControllerYawInput(Rate * 15.f);
-		SetActorRotation(FRotator(GetActorRotation().Pitch, Rate * 15.f, GetActorRotation().Roll));
-		HMD->ResetOrientation();
+void AVRCharacter::TurnLeftComfort() {
+	if (GInstance && GInstance->_MenuOptions.bComfortMode) {
+		SetActorRotation(FRotator(GetActorRotation().Pitch,
+								  GetActorRotation().Yaw - 15.f,
+								  GetActorRotation().Roll));
+
+		AddControllerYawInput(-15.f);
 	}
 }
+void AVRCharacter::TurnRightComfort() {
+	if (GInstance && GInstance->_MenuOptions.bComfortMode) {
+		SetActorRotation(FRotator(GetActorRotation().Pitch,
+								  GetActorRotation().Yaw + 15.f,
+								  GetActorRotation().Roll));
 
-//void AVRCharacter::TurnVRCharacter() {
-//    float _CameraYawValue = _PlayerCamera->GetComponentRotation().Yaw;
-//    float _PlayerYawValue = GetActorRotation().Yaw;
-//    float _MeshYawValue = GetMesh()->GetComponentRotation().Yaw + 90.f;
-//
-//    float _YawRelativeValue = _CameraYawValue - _PlayerYawValue;
-//    float _MeshYawRelativeValue = _CameraYawValue - _MeshYawValue;
-//
-//    AddControllerYawInput(_YawRelativeValue);
-//    SetActorRotation(FRotator(GetActorRotation().Pitch, _YawRelativeValue, GetActorRotation().Roll));
-//
-//    HMD->ResetOrientation();
-//}
+		AddControllerYawInput(+15.f);
+	}
+}
 
 /************** OVERLAPPING *************/
 void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -816,20 +804,6 @@ void AVRCharacter::UpdateIK() {
     _LeftControllerOrientation = _SM_LeftHand->GetComponentRotation();
     _RightControllerPosition = _RightHandComp->GetComponentLocation();
     _RightControllerOrientation = _SM_RightHand->GetComponentRotation();
-}
-
-/************ VR CHARACTER CALIBRATION FEATURES *************/
-
-void AVRCharacter::CalculateMeshArmExtension() {
-    if (GetMesh() != nullptr) {
-        FVector Hand = GetMesh()->GetBoneLocation(TEXT("hand_l"));
-        FVector Arm = GetMesh()->GetBoneLocation(TEXT("lowerarm_l"));
-        FVector Shoulder = GetMesh()->GetBoneLocation(TEXT("upperarm_l"));
-        MaxMeshArmExtension = (Arm - Hand).Size() + (Shoulder - Arm).Size();
-    }
-    else {
-        UE_LOG(LogTemp, Warning, TEXT("Longitud de brazo no calculado. No existe malla de personaje."))
-    }
 }
 
 /* OTHER SERVER FUNCTIONS */
