@@ -116,7 +116,8 @@ protected:
 
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
-	void TurnAtRate(float Rate) override;
+	virtual void TurnLeftComfort();
+	virtual void TurnRightComfort();
 
     /************* IK **************/
     UFUNCTION()
@@ -135,7 +136,7 @@ protected:
     void MULTI_UpdateComponentPosition(USceneComponent* Component, FVector Location, FRotator Rotation);
 
 private:
-	UNWGameInstance* GI;
+	UNWGameInstance* GInstance;
 
     IHeadMountedDisplay* HMD;
 
@@ -148,7 +149,7 @@ private:
     UActorComponent* _ComponentFocusedRight;
     AActor* _ActorGrabbing;
 
-	AActor* _LastActorFocused = nulltpr;
+	AActor* _LastActorFocused = nullptr;
 
     UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
     UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
@@ -201,10 +202,4 @@ protected:
     FVector _RightControllerPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _RightControllerOrientation;
-
-    /*** CALIBRATION PROPERTIES ***/
-    UFUNCTION()
-    void CalculateMeshArmExtension();
-    UPROPERTY(BlueprintReadOnly, Category = "VR Calibration")
-    float MaxMeshArmExtension;
 };

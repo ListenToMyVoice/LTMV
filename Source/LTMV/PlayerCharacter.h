@@ -134,10 +134,10 @@ private:
 
 	/*Physic Materials*/
 	const USkeletalMeshSocket* _FootSocket;
-	void CheckFloorMaterial();
 	FHitResult _FootHitResult;
-
 public:
+	void CheckFloorMaterial();
+	
     FORCEINLINE UCameraComponent* APlayerCharacter::GetPlayerCamera() const { return _PlayerCamera; }
     FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }
 	FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetBreathAudioComp() const { return _BreathAudioComp; }
