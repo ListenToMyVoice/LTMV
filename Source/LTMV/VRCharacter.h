@@ -185,6 +185,10 @@ private:
     void UpdateMeshPostitionWithCamera();
     UFUNCTION()
     void UpdateMeshRotationWithCamera();
+	FVector _LastMeshPosition;
+public: 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float _MeshSpeed;
 
     void CheckHeadTurn();
     void TurnBody();

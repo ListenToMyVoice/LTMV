@@ -147,6 +147,8 @@ void AVRCharacter::BeginPlay() {
 	if (!GInstance) {
 		GInstance = Cast<UNWGameInstance>(GetGameInstance());
 	}
+
+	_LastMeshPosition = GetMesh()->GetComponentLocation();
 }
 
 void AVRCharacter::AfterPossessed(bool SetInventory) {
@@ -161,6 +163,7 @@ void AVRCharacter::AfterPossessed(bool SetInventory) {
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
+	// Necesario replicar estas funciones, asi como las variables de IK.
 	UpdateMeshPostitionWithCamera();
 	UpdateMeshRotationWithCamera();
 
@@ -175,8 +178,18 @@ void AVRCharacter::Tick(float deltaTime) {
 }
 
 void AVRCharacter::UpdateMeshPostitionWithCamera() {
-	GetMesh()->SetWorldLocation(_PlayerCamera->GetComponentLocation() -
-		FVector(0.f, 0.f, _PlayerCamera->GetComponentLocation().Z));
+
+	GetMesh()->SetWorldLocation(FVector(_PlayerCamera->GetComponentLocation().X,
+										_PlayerCamera->GetComponentLocation().Y,
+										GetMesh()->GetComponentLocation().Z));
+
+	_MeshSpeed = (GetMesh()->GetComponentLocation() - _LastMeshPosition).Size() / GetWorld()->GetDeltaSeconds();
+
+	if (_MeshSpeed > GetCharacterMovement()->GetMaxSpeed()) {
+		_MeshSpeed = GetCharacterMovement()->GetMaxSpeed();
+	}
+
+	_LastMeshPosition = GetMesh()->GetComponentLocation();
 }
 
 void AVRCharacter::UpdateMeshRotationWithCamera() {
@@ -269,6 +282,7 @@ void AVRCharacter::MoveForward(float Value) {
 	CheckFloorMaterial();
 }
 
+// Funciones input que probablemente haya que replicar también.
 void AVRCharacter::TurnLeftComfort() {
 	if (GInstance && GInstance->_MenuOptions.bComfortMode) {
 		SetActorRotation(FRotator(GetActorRotation().Pitch,
