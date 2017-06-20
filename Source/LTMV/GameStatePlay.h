@@ -33,4 +33,8 @@ public:
 
 private:
 	void updateDoor(TActorIterator<AStaticMeshActor> _door, int value);
+	TArray<bool> FindPath();
+
+	ATargetPoint *_patrolPoint1;
+	ATargetPoint *_patrolPoint2;
 };

@@ -22,6 +22,7 @@ void AGameModePlay::InitGame(const FString & MapName, const FString & Options,
     Super::InitGame(MapName, Options, ErrorMessage);
 
     if (GameSession) GameSession->bRequiresPushToTalk = true;
+
 }
 
 bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerControllerPlay* PlayerController,

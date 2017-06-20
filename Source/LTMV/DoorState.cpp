@@ -169,14 +169,14 @@ int UDoorState::SwitchState_Implementation() {
 	if (!_block) {
 		//Si la puerta está cerrada, abrirla
 		if (StateDoor == EStateDoor::CLOSE) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ABRIR LA PUIERTA ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ABRIR LA PUIERTA ")));
 			StateDoor = EStateDoor::OPENING;
             _current_displacement = 0;
 		}
 
 		//Si la puerta está abierta, cerrarla
 		else if (StateDoor == EStateDoor::OPEN) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("CERRAR LA PUIERTA ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("CERRAR LA PUIERTA ")));
 			StateDoor = EStateDoor::CLOSING;
             _current_displacement = _max_displacement;
 		}
