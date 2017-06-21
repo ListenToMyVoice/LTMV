@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "LTMV.h"
+#include "GameStatePlay.h"
 #include "DoorState.h"
 
 
@@ -12,6 +13,11 @@ void UDoorState::BeginPlay() {
 
 }
 
+int UDoorState::GetState() {
+	if (StateDoor == EStateDoor::CLOSE) { return 0; }
+	else if(StateDoor == EStateDoor::OPEN) { return 1; }
+	else { return 2; }
+}
 void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) {
 
@@ -20,10 +26,11 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	meshComp = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(
 		UStaticMeshComponent::StaticClass()));
 	meshComp->SetMobility(EComponentMobility::Movable);
+
 	//If opening
     float displacement = _velocity * DeltaTime;
 	if (StateDoor == EStateDoor::OPENING) {
-		if (_current_displacement < _max_displacement) {
+		if (FMath::Abs(_current_displacement) < FMath::Abs(_max_displacement)) {
 			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
 				if (ActOn == EOnAxis::X_AXIS) {
@@ -80,13 +87,17 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else {
 			StateDoor = EStateDoor::OPEN;
+
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			if (GameState) GameState->updateDoors();
 		}
 
 	}
 	
 	else if (StateDoor == EStateDoor::CLOSING) {
 
-		if (_current_displacement >0) {
+		if (_current_displacement >=0) {
+		//if (FMath::Abs(_current_displacement) >= 0) {
 
 			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
@@ -143,22 +154,29 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else {
 			StateDoor = EStateDoor::CLOSE;
+
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			if (GameState) GameState->updateDoors();
 		}
 	}
 
 }
 
 int UDoorState::SwitchState_Implementation() {
+
+
 	//Solo interactuar si la puerta no está bloqueada
 	if (!_block) {
 		//Si la puerta está cerrada, abrirla
 		if (StateDoor == EStateDoor::CLOSE) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ABRIR LA PUIERTA ")));
 			StateDoor = EStateDoor::OPENING;
             _current_displacement = 0;
 		}
 
 		//Si la puerta está abierta, cerrarla
 		else if (StateDoor == EStateDoor::OPEN) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("CERRAR LA PUIERTA ")));
 			StateDoor = EStateDoor::CLOSING;
             _current_displacement = _max_displacement;
 		}

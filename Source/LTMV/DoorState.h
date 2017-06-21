@@ -71,6 +71,8 @@ public:
     UDoorState();
     virtual void BeginPlay() override;
 
+	int GetState();
+
     /* Interfaces */
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
     int SwitchState();
