@@ -6,6 +6,7 @@
 #include "PlayerControllerLobby.h"
 #include "Menu3D.h"
 #include "InputMenu.h"
+#include "MoviePlayer.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -94,6 +95,8 @@ void UNWGameInstance::InitGame() {
     }
     ULibraryUtils::Log(FString::Printf(TEXT("_IsVRMode: %s"), _IsVRMode ? TEXT("true") : TEXT("false")));
 
+	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UNWGameInstance::BeginLoadingScreen);
+	FCoreUObjectDelegates::PostLoadMap.AddUObject(this, &UNWGameInstance::EndLoadingScreen);
 
     APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
                                                                 GetFirstLocalPlayerController());
@@ -110,6 +113,20 @@ void UNWGameInstance::InitGame() {
 
         PlayerControllerLobby->CLIENT_CreateMenu();
     }
+}
+
+void UNWGameInstance::BeginLoadingScreen(const FString& MapName) {
+	if (!IsRunningDedicatedServer()) {
+		FLoadingScreenAttributes LoadingScreen;
+		LoadingScreen.bAutoCompleteWhenLoadingCompletes = false;
+		LoadingScreen.WidgetLoadingScreen = FLoadingScreenAttributes::NewTestLoadingScreenWidget();
+
+		GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);
+	}
+}
+
+void UNWGameInstance::EndLoadingScreen() {
+
 }
 
 /**************************************** BLUEPRINTS *********************************************/

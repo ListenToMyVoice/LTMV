@@ -35,7 +35,6 @@ UCLASS()
 class LTMV_API UNWGameInstance : public UGameInstance {
     GENERATED_BODY()
 
-/**************************************** SESSION ************************************************/
 public:
     bool _IsVRMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
@@ -57,6 +56,13 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Start")
     void InitGame();
+
+	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
+	virtual void BeginLoadingScreen(const FString& MapName);
+	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
+	virtual void EndLoadingScreen();
+
+	/**************************************** SESSIONS ************************************************/
 
     /*** BLUEPRINTS ***/
     UFUNCTION(BlueprintCallable, Category = "Session")

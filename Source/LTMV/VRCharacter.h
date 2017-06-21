@@ -180,21 +180,23 @@ public:
 private:
     bool bHeadTurn;
     bool bHeadTurning;
-
-    UFUNCTION()
-    void UpdateMeshPostitionWithCamera();
-    UFUNCTION()
-    void UpdateMeshRotationWithCamera();
 	FVector _LastMeshPosition;
-public: 
+
+protected:
+    void UpdateMeshPostitionWithCamera();
+    void UpdateMeshRotationWithCamera();
+	void CheckHeadTurn();
+	void TurnBody();
+
+	/* SERVER UPDATE MESH POSITION AND ROTATION */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SERVER_UpdateMeshWithCamera();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULTI_UpdateMeshWithCamera();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float _MeshSpeed;
 
-    void CheckHeadTurn();
-    void TurnBody();
-    /**/
-
-protected:
     /*** IK PROPERTIES ***/
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _HMDWorldOrientation;
