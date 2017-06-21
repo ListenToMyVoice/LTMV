@@ -10,7 +10,7 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     PrimaryComponentTick.bCanEverTick = true;
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder(
-        TEXT("StaticMesh'/Game/Art/Common/Menu/Meshes/menu2_cajaprueba.menu2_cajaprueba'"));
+        TEXT("StaticMesh'/Game/Art/Andrea/Common/Menu/Meshes/menu2_cajaprueba.menu2_cajaprueba'"));
     SetStaticMesh(Finder.Object);
 
     _Color = FColor::FromHex("293E3DFF"); 
