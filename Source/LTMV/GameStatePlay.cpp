@@ -54,31 +54,8 @@ AGameStatePlay::AGameStatePlay(const class FObjectInitializer& OI) : Super(OI){
 
 void AGameStatePlay::updateDoors() {
 	//first time here
-	if (!_patrolPoint1 && !_patrolPoint2) {
-		//Coger los PatrolPoint del mapa
-		for (TActorIterator<ATargetPoint> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-			if (ActorItr->GetName() == "PatrolPoint1") {
-				_patrolPoint1 = *ActorItr;
-			}
-			else if (ActorItr->GetName() == "PatrolPoint2") {
-				_patrolPoint2 = *ActorItr;
-			}
-			else if (ActorItr->GetName() == "PatrolPoint3") {
-				_patrolPoint3= *ActorItr;
-			}
-		}
-		//inicio de los travel point
-		/*
-		_patrolPoint1->SetActorLocation(_puerta1_0);
-		_patrolPoint2->SetActorLocation(_puerta2_0);
-		*/
-
-		//Coger al enemigo
-		for (TActorIterator<ACharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-			if (ActorItr->GetName() == "EnemyCharacterAnd") {
-				_enemy = *ActorItr;
-			}
-		}
+	if (!_patrolPoint1) {
+		getPointsAndEnemy();
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: UpdateDoors! ")));
@@ -115,6 +92,33 @@ void AGameStatePlay::updateDoors() {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("GameState: MODO LINEAL ")));
 	}
 	_actualPath = FindPath();
+}
+
+void AGameStatePlay::getPointsAndEnemy() {
+	//Coger los PatrolPoint del mapa
+	for (TActorIterator<ATargetPoint> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "PatrolPoint1") {
+			_patrolPoint1 = *ActorItr;
+		}
+		else if (ActorItr->GetName() == "PatrolPoint2") {
+			_patrolPoint2 = *ActorItr;
+		}
+		else if (ActorItr->GetName() == "PatrolPoint3") {
+			_patrolPoint3 = *ActorItr;
+		}
+	}
+	//inicio de los travel point
+	/*
+	_patrolPoint1->SetActorLocation(_puerta1_0);
+	_patrolPoint2->SetActorLocation(_puerta2_0);
+	*/
+
+	//Coger al enemigo
+	for (TActorIterator<ACharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "EnemyCharacterAnd") {
+			_enemy = *ActorItr;
+		}
+	}
 }
 
 void AGameStatePlay::updateDoor(TActorIterator<AStaticMeshActor> _door, int value) {

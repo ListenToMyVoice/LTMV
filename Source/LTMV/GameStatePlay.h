@@ -48,6 +48,7 @@ public:
 private:
 	void updateDoor(TActorIterator<AStaticMeshActor> _door, int value);
 	void UpdatePatrolPoints(FVector pp1,FVector pp2, FVector pp3);
+	void AGameStatePlay::getPointsAndEnemy();
 	TArray<bool> FindPath();
 
 	ATargetPoint *_patrolPoint1;
