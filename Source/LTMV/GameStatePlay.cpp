@@ -24,7 +24,7 @@ AGameStatePlay::AGameStatePlay(const class FObjectInitializer& OI) : Super(OI){
 	_puerta3_0 = FVector(6270.0f, 850.0f, 0.0f);
 	_puerta3_1 = FVector(6020.0f, 850.0f, 0.0f);
 	_puerta4_0 = FVector(5910.0f, 490.0f, 0.0f);
-	_puerta4_1 = FVector(5650.0f, 490.0f, 0.0f);
+	_puerta4_1 = FVector(5620.0f, 490.0f, 0.0f);
 	// Posiciones de los travel point intermedios cuando son en medio de zonas
 	_point1_2 = FVector(5660.0f, 1430.0f, 0.0f);
 	_point2_3 = FVector(6290.0f, 1130.0f, 0.0f);
@@ -104,7 +104,21 @@ void AGameStatePlay::updateDoors() {
 		}
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Door states: %d,%d,%d,%d"),_doorStates[0], _doorStates[1], _doorStates[2], _doorStates[3]));
-
+	//counting open doors to set mode
+	int _openDoors = 0;
+	for (int num = 0;num < 4;num++) {
+		if (_doorStates[num]) {
+			_openDoors++;
+		}
+	}
+	if (_openDoors == 4) {
+		_mode = 1;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("GameState: MODO CIRCULAR ")));
+	}
+	else {
+		_mode = 0;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("GameState: MODO LINEAL ")));
+	}
 	_actualPath = FindPath();
 }
 
@@ -120,8 +134,7 @@ void AGameStatePlay::updateDoor(TActorIterator<AStaticMeshActor> _door, int valu
 
 
 TArray<bool> AGameStatePlay::FindPath() {
-	//Calcular caminos dependiendo de la posición de las puertas
-	//Contar puertas abiertas
+	//Calcular caminos dependiendo de la posición de las puertas //Contar puertas abiertas
 	int _openDoors = 0;
 	for (int num = 0;num < 4;num++) {
 		if (_doorStates[num]) {
@@ -131,8 +144,7 @@ TArray<bool> AGameStatePlay::FindPath() {
 
 	switch (_openDoors) {
 		case 0: {
-			//4 Posible paths
-			//Calcular en qué zona está la IA
+			//4 Posible paths //Calcular en qué zona está la IA
 			//Zona 0 -> PatrolPoint1=Puerta1_0; Patrolpoint2=Puerta2_0; Patrolpoint3=Point1-2
 			if (_actualZone==0){
 				UpdatePatrolPoints(_puerta1_0, _puerta2_0, _point1_2);
@@ -218,7 +230,7 @@ TArray<bool> AGameStatePlay::FindPath() {
 			/*	Si Puerta1 y Puerta3 abiertas ->*/
 			if (_doorStates[0] && _doorStates[2]) {
 				if (_actualZone == 0 || _actualZone == 3) {
-					UpdatePatrolPoints(_puerta4_1, _puerta2_0, _point3_4) ;//_puerta1_1
+					UpdatePatrolPoints(_puerta2_0, _puerta4_1, _puerta1_1) ;//_puerta1_1
 				}
 				else if (_actualZone == 1 || _actualZone == 2) {
 					UpdatePatrolPoints(_puerta2_1, _puerta4_0, _puerta3_0);
@@ -275,13 +287,13 @@ TArray<bool> AGameStatePlay::FindPath() {
 				UpdatePatrolPoints(_puerta3_0, _puerta3_1, _puerta1_1);
 			}
 			else if (!_doorStates[3]) {
-				UpdatePatrolPoints(_puerta4_0, _puerta4_1, _puerta1_1);
+				UpdatePatrolPoints(_puerta4_1, _puerta4_0, _puerta1_0);
 			}
 			break;
 		}
 		case 4: {
 			//No hay caminos
-			// Dar vueltas!!!!!
+			UpdatePatrolPoints(_puerta4_1, _puerta2_1, _puerta1_1);
 			break;
 		}
 	}

@@ -39,9 +39,8 @@ public:
 
 	void updateDoors();
 
-	/** Default crouched eye height */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-		AActor* ActualZone;
+		int _mode;
 
 	UFUNCTION(BlueprintCallable, Category = "EnemyCharacter", meta = (DisplayName = "Update AI zone"))
 		void UpdateActualZone(AActor* zone);
