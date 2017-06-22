@@ -19,6 +19,8 @@ public:
 	void StartTutorial(UCameraComponent* PlayerCamera);
 
 	void Next(FVector location, FRotator rotation, int index);
+	void SetLanguage(FString Language);
+	void SpawnTutorial();
 
 protected:
 	// Called when the game starts

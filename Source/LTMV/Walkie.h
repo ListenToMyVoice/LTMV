@@ -32,6 +32,13 @@ public:
     void UseItemReleased();
     virtual void UseItemReleased_Implementation() override;
 
+	void ToggleOtherLight(bool on);
+	void ToggleLight(bool on);
+	bool _isMuted;
+
+	bool IsMuted();
+	void SetMute(bool mute);
+
 protected:
     virtual void BeginPlay() override;
 
