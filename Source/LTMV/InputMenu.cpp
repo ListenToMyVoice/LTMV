@@ -18,7 +18,8 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _HoverColor = FColor::FromHex("ECCF00FF");
 
     _TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_TextRender"));
-    _TextRender->SetWorldSize(12);
+
+    _TextRender->SetWorldSize(10);
     _TextRender->SetTextRenderColor(_Color);
     _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
     _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);

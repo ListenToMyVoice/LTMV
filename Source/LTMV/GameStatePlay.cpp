@@ -12,19 +12,19 @@ AGameStatePlay::AGameStatePlay(const class FObjectInitializer& OI) : Super(OI){
 	//level
 
 	//Posiciones de los travel point en las puertas
-	_puerta1_0 = FVector(5340.0f, 1370.0f, 0.0f);
-	_puerta1_1 = FVector(5340.0f, 1150.0f, 0.0f);
-	_puerta2_0 = FVector(6000.0f, 1440.0f, 0.0f);
-	_puerta2_1 = FVector(6270.0f, 1440.0f, 0.0f);
-	_puerta3_0 = FVector(6270.0f, 850.0f, 0.0f);
-	_puerta3_1 = FVector(6020.0f, 850.0f, 0.0f);
-	_puerta4_0 = FVector(5910.0f, 490.0f, 0.0f);
-	_puerta4_1 = FVector(5620.0f, 490.0f, 0.0f);
+	_puerta1_0 = FVector(4325.0f, 415.0f, 0.0f);
+	_puerta1_1 = FVector(4570.0f, 415.0f, 0.0f);
+	_puerta2_0 = FVector(4235.0f, 1070.0f, 0.0f);
+	_puerta2_1 = FVector(4235.0f, 1305.0f, 0.0f);
+	_puerta3_0 = FVector(4840.0f, 1345.0f, 0.0f);
+	_puerta3_1 = FVector(4840.0f, 1070.0f, 0.0f);
+	_puerta4_0 = FVector(5220.0f, 920.0f, 0.0f);
+	_puerta4_1 = FVector(5225.0f, 665.0f, 0.0f);
 	// Posiciones de los travel point intermedios cuando son en medio de zonas
-	_point1_2 = FVector(5660.0f, 1430.0f, 0.0f);
-	_point2_3 = FVector(6290.0f, 1130.0f, 0.0f);
-	_point3_4 = FVector(5970.0f, 630.0f, 0.0f);
-	_point4_1 = FVector(5220.0f, 240.0f, 0.0f);
+	_point1_2 = FVector(4235.0f, 720.0f, 0.0f);
+	_point2_3 = FVector(4550.0f, 1345.0f, 0.0f);
+	_point3_4 = FVector(5090.0f, 1010.0f, 0.0f);
+	_point4_1 = FVector(5450.0f, 75.0f, 0.0f);
 
 	//Todas las puertas comienzan cerradas
 	_doorStates = {};

@@ -25,7 +25,7 @@ ATutorial3D::ATutorial3D()
 	/*** STATIC MESH ***/
 	_Decorator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Decorator"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder(
-		TEXT("StaticMesh'/Game/Art/Andrea/Common/Tutorial/fondo.fondo'"));//StaticMesh'/Game/Art/Common/Tutorial/fondo.fondo'
+		TEXT("StaticMesh'/Game/Art/Common/Tutorial/fondo.fondo'"));//StaticMesh'/Game/Art/Common/Tutorial/fondo.fondo'
 	_Decorator->SetStaticMesh(Finder.Object);
 	FVector _Scale = FVector(1.0f, 1.0f, -7.0f);
 	_Decorator->SetWorldScale3D(_Scale);

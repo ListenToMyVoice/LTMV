@@ -1,5 +1,7 @@
+
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "LTMV.h"
+#include "GameStatePlay.h"
 #include "DoorState.h"
 
 
@@ -10,6 +12,12 @@ UDoorState::UDoorState() {
 void UDoorState::BeginPlay() {
     Super::BeginPlay();
 
+}
+
+int UDoorState::GetState() {
+	if (StateDoor == EStateDoor::CLOSE) { return 0; }
+	else if (StateDoor == EStateDoor::OPEN) { return 1; }
+	else { return 2; }
 }
 
 void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -80,6 +88,9 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else {
 			StateDoor = EStateDoor::OPEN;
+
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			if (GameState) GameState->updateDoors();
 		}
 
 	}
@@ -143,6 +154,9 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else {
 			StateDoor = EStateDoor::CLOSE;
+
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			if (GameState) GameState->updateDoors();
 		}
 	}
 

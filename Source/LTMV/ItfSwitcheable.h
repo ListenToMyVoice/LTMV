@@ -65,7 +65,7 @@ public:
     }
 
     void ActivateSwitcher() {
-        for (UActorComponent* component : SwitcheableComps) {
+		for (UActorComponent* component : SwitcheableComps) {
             if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
                 IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
                 if (itfObject) itfObject->Execute_SwitchState(component);
