@@ -17,7 +17,17 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _HoverColor = FColor::FromHex("ECCF00FF");
 
     _TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_TextRender"));
-    _TextRender->SetWorldSize(12);
+	/*
+	UFont* _font = nullptr;
+	static ConstructorHelpers::FObjectFinder<UFont> FontObject(
+		TEXT("Font'/Game/Collections/Fuente/unrealt_Font.unrealt_Font'"));
+	if (FontObject.Object)
+	{
+		_font = FontObject.Object;
+		_TextRender->SetFont(_font);
+	}
+	*/
+    _TextRender->SetWorldSize(10);
     _TextRender->SetTextRenderColor(_Color);
     _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
     _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);

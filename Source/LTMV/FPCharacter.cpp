@@ -105,8 +105,10 @@ void AFPCharacter::AfterPossessed(bool SetInventory) {
 			_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
 			_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
 		}
-		_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
-		_TutorialVR->StartTutorial(_PlayerCamera);//Start tutorial at lobby
+		if (PlayerController->IsLocalPlayerController()) {
+			_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
+			_TutorialVR->StartTutorial(_PlayerCamera);//Start tutorial at lobby
+		}
 
 	}
 }

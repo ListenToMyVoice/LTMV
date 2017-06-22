@@ -23,7 +23,8 @@ void UTutorialVR::StartTutorial(UCameraComponent* PlayerCamera) {
 
 	//Showtutorial first one depending on PlayerCamera
 	FVector Location = PlayerCamera->GetComponentLocation() +
-		(PlayerCamera->GetForwardVector().GetSafeNormal() * 200);
+		(PlayerCamera->GetForwardVector().GetSafeNormal() * 200) +
+		(PlayerCamera->GetRightVector().GetSafeNormal()*-100);
 
 	_TutActor->ShowTutorial(Location,
 		PlayerCamera->GetComponentRotation(),2);
