@@ -122,6 +122,11 @@ void AFPCharacter::Tick(float DeltaSeconds) {
     //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
     Raycasting();
 
+	FVector StartRaycast = _FirstPersonMesh->GetSocketByName("GripPoint_L")->GetSocketLocation(_FirstPersonMesh);
+	FVector EndRaycast = _PlayerCamera->GetForwardVector() * 200.f + StartRaycast;
+
+	DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.f, (uint8)'\000', 0.8f);
+
 }
 
 FHitResult AFPCharacter::Raycasting() {
