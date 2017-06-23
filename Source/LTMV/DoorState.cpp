@@ -2,6 +2,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "LTMV.h"
 #include "GameStatePlay.h"
+#include "FMODAudioComponent.h"
 #include "DoorState.h"
 
 
@@ -15,8 +16,8 @@ void UDoorState::BeginPlay() {
 }
 
 int UDoorState::GetState() {
-	if (StateDoor == EStateDoor::CLOSE) { return 0; }
-	else if (StateDoor == EStateDoor::OPEN) { return 1; }
+	if (StateDoor == EStateDoor::CLOSE || StateDoor == EStateDoor::CLOSING) { return 0; }
+	else if (StateDoor == EStateDoor::OPEN || StateDoor == EStateDoor::OPENING) { return 1; }
 	else { return 2; }
 }
 
@@ -176,6 +177,19 @@ int UDoorState::SwitchState_Implementation() {
 			StateDoor = EStateDoor::CLOSING;
             _current_displacement = _max_displacement;
 		}
+		if (DoorType == EDoorType::SLIDABLE_DOOR) {
+			UFMODAudioComponent* _DoorAudio = Cast<UFMODAudioComponent>(GetOwner()->GetComponentByClass(UFMODAudioComponent::StaticClass()));
+			if (_DoorAudio) {
+				_DoorAudio->Play();
+			}
+		}
+	}
+	else {
+		UFMODAudioComponent* _DoorAudio = Cast<UFMODAudioComponent>(GetOwner()->GetComponentByClass(UFMODAudioComponent::StaticClass()));
+		if (_DoorAudio) {
+			_DoorAudio->Play();
+		}
+
 	}
     return 0;
 }

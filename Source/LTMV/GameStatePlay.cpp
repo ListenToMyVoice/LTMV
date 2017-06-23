@@ -62,16 +62,16 @@ void AGameStatePlay::updateDoors() {
 	//pick values from doors in the world
 	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
-		if (ActorItr->GetName() == "Puerta1_Blueprint") {
+		if (ActorItr->GetName() == "puerta1") {
 			updateDoor(ActorItr, 0);
 		}
-		else if (ActorItr->GetName() == "Puerta2_Blueprint") {
+		else if (ActorItr->GetName() == "puerta22") {
 			updateDoor(ActorItr, 1);
 		}
-		else if (ActorItr->GetName() == "Puerta3_Blueprint") {
+		else if (ActorItr->GetName() == "puerta3") {
 			updateDoor(ActorItr, 2);
 		}
-		else if (ActorItr->GetName() == "Puerta4_Blueprint") {
+		else if (ActorItr->GetName() == "puerta4") {
 			updateDoor(ActorItr, 3);
 		}
 	}
@@ -107,11 +107,6 @@ void AGameStatePlay::getPointsAndEnemy() {
 			_patrolPoint3 = *ActorItr;
 		}
 	}
-	//inicio de los travel point
-	/*
-	_patrolPoint1->SetActorLocation(_puerta1_0);
-	_patrolPoint2->SetActorLocation(_puerta2_0);
-	*/
 
 	//Coger al enemigo
 	for (TActorIterator<ACharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
@@ -122,12 +117,15 @@ void AGameStatePlay::getPointsAndEnemy() {
 }
 
 void AGameStatePlay::updateDoor(TActorIterator<AStaticMeshActor> _door, int value) {
+
 	UDoorState* Door = Cast<UDoorState>(_door->GetComponentByClass(UDoorState::StaticClass()));
-	if (Door->GetState() == 1) {
-		_doorStates[value] = true;
-	}
-	else if (Door->GetState() == 0) {
-		_doorStates[value] = false;
+	if (Door) {
+		if (Door->GetState() == 1) {
+			_doorStates[value] = true;
+		}
+		else if (Door->GetState() == 0) {
+			_doorStates[value] = false;
+		}
 	}
 }
 

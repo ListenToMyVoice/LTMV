@@ -75,14 +75,16 @@ void AFPCharacter::BeginPlay() {
 
 }
 
-void AFPCharacter::AfterPossessed(bool SetInventory) {
-	Super::AfterPossessed(SetInventory);
+void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
+	Super::AfterPossessed(SetInventory,respawning);
 
 	UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController->IsLocalPlayerController()) {
 		if (SetInventory) {
+
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
 			if (_isTutorialEnabled) {
 				_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);//Set language
 				_Tutorial->Next(PlayerController, 0, false, false);//Updating to next tutorial widget

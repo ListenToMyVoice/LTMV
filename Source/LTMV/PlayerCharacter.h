@@ -29,7 +29,7 @@ public:
 
 
     APlayerCharacter(const FObjectInitializer& OI);
-    virtual void AfterPossessed(bool SetInventory);
+    virtual void AfterPossessed(bool SetInventory , bool respawning);
 
     /******** USE ITEM LEFT *********/
     virtual void UseLeftPressed(bool IsMenuHidden);

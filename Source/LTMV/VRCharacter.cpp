@@ -151,7 +151,7 @@ void AVRCharacter::BeginPlay() {
 	_LastMeshPosition = GetMesh()->GetComponentLocation();
 }
 
-void AVRCharacter::AfterPossessed(bool SetInventory) {
+void AVRCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 	if (SetInventory) {
 		// Poner el tutorial del bunker
 	}

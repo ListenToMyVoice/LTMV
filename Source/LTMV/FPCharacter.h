@@ -17,7 +17,7 @@ public:
 
     AFPCharacter(const FObjectInitializer& OI);
     void BeginPlay() override;
-    void AfterPossessed(bool SetInventory) override;
+    void AfterPossessed(bool SetInventory, bool respawning) override;
     void Tick(float DeltaSeconds) override;
 
     /************* INVENTORY ************/

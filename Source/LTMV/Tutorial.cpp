@@ -10,6 +10,8 @@
 // Sets default values for this component's properties
 UTutorial::UTutorial()
 {
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("creando el tutorial......")));
 	_tutWidgets = {};
 	_tutWidgets_EN = {};
 	_tutWidgets_FR = {};

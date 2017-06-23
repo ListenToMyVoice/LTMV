@@ -19,8 +19,11 @@ public:
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_PlayerDead(AController* PlayerController);
 
+	FString _MapNameGM;
+
     virtual void InitGame(const FString & MapName, const FString & Options,
                           FString & ErrorMessage) override;
+	void PlayAgain();
 
 protected:
     class APlayerControllerPlay* _HostController;

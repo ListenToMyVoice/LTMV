@@ -39,7 +39,7 @@ void UWalkie::ToggleLight(bool on) {
 			for (UActorComponent* PointLight : PointLightArray) {
 				_name = Cast<UPointLightComponent>(PointLight)->GetReadableName();
 				if (_name.Contains("White")) {
-					Cast<UPointLightComponent>(PointLight)->SetIntensity(40);//POner la luz blanca encendida
+					Cast<UPointLightComponent>(PointLight)->SetIntensity(200);//POner la luz blanca encendida
 				}
 			}
 
@@ -65,7 +65,7 @@ void UWalkie::ToggleOtherLight(bool on) {
 		for (UActorComponent* PointLight : PointLightArray) {
 			_name2 = Cast<UPointLightComponent>(PointLight)->GetReadableName();
 			if (_name2.Contains("Red")) {
-				Cast<UPointLightComponent>(PointLight)->SetIntensity(40);//POner la luz roja encendida
+				Cast<UPointLightComponent>(PointLight)->SetIntensity(200);//POner la luz roja encendida
 			}
 		}
 

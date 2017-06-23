@@ -53,7 +53,7 @@ void APlayerCharacter::Tick(float DeltaSeconds) {
 	}
 }
 
-void APlayerCharacter::AfterPossessed(bool SetInventory) {
+void APlayerCharacter::AfterPossessed(bool SetInventory, bool respawning) {
     ToggleMenuInteraction(false);
 }
 
