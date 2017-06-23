@@ -20,12 +20,12 @@ public:
 	void StartTutorial(APlayerController* PlayerController);
 	void Next(APlayerController* PlayerController, int index, bool timer, bool last);
 	void SetLanguage(FString language);
+	void Hide();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void Hide();
 
 	TArray<TSubclassOf<class UUserWidget>> _actualWidgets;
 	TArray<TSubclassOf<class UUserWidget>> _tutWidgets;

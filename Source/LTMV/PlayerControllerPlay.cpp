@@ -58,7 +58,7 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
     if (gameMode) gameMode->SERVER_RespawnPlayer(this, info);
 }
 
-void APlayerControllerPlay::AfterPossessed() {
+void APlayerControllerPlay::AfterPossessed(bool _afterdeath) {
     /* CLIENT-SERVER EXCEPTION */
     if (!_ClientPossesed) {
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
@@ -71,12 +71,24 @@ void APlayerControllerPlay::AfterPossessed() {
             _ClientPossesed = true;
         }
     }
+	if (_afterdeath) {
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+		if (!_GameInstance || !PlayerCharacter) return;
+
+		if (PlayerCharacter->IsA(_GameInstance->_PlayerInfoSaved.CharacterClass)) {
+			PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
+			PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
+			PlayerCharacter->AfterPossessed(true, true);
+			_ClientPossesed = true;
+		}
+
+	}
 }
 
 void APlayerControllerPlay::OnRep_Pawn() {
     Super::OnRep_Pawn();
     /* CLIENT-SERVER EXCEPTION  */
-    AfterPossessed();
+    AfterPossessed(false);
 }
 
 /*********************************************** VOICE *******************************************/
@@ -153,6 +165,7 @@ void APlayerControllerPlay::TickWalkie() {
 
 			UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
 			if (WalkieComp) {
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("WALKIE: TOGGLE OTHER LIGHT ")));
 				WalkieComp->ToggleOtherLight(true);
 				WalkieComp->SetMute(true);
 			}

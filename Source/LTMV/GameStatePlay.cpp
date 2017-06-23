@@ -50,6 +50,10 @@ AGameStatePlay::AGameStatePlay(const class FObjectInitializer& OI) : Super(OI){
 	_PatrolPoints.Add(false);
 
 
+	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/BluePrints/Assets/tablilla_laberinto_Blueprint.tablilla_laberinto_Blueprint'"));
+	if (ItemBlueprint.Object) {
+		TablillaBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
+	}
 }
 
 void AGameStatePlay::updateDoors() {
@@ -128,7 +132,6 @@ void AGameStatePlay::updateDoor(TActorIterator<AStaticMeshActor> _door, int valu
 		}
 	}
 }
-
 
 TArray<bool> AGameStatePlay::FindPath() {
 	//Calcular caminos dependiendo de la posición de las puertas //Contar puertas abiertas
@@ -326,4 +329,72 @@ void AGameStatePlay::UpdatePatrolPoints(FVector pp1,FVector pp2, FVector pp3) {
 	_patrolPoint1->SetActorLocation(pp1);
 	_patrolPoint2->SetActorLocation(pp2);
 	_patrolPoint3->SetActorLocation(pp3);
+}
+
+void AGameStatePlay::ResetLevel() {
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("LEVEL RESET")));
+
+	//Reseting 4 doors
+	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		if (ActorItr->GetName() == "puerta1") { ResetDoor(ActorItr); }
+		else if (ActorItr->GetName() == "puerta22") { ResetDoor(ActorItr); }
+		else if (ActorItr->GetName() == "puerta3") { ResetDoor(ActorItr); }
+		else if (ActorItr->GetName() == "puerta4") { ResetDoor(ActorItr); }
+	}
+
+	//Positioning the enemy in the first zone
+	for (TActorIterator<ACharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "EnemyCharacterAnd") {
+			_enemy = *ActorItr;
+			_enemy->SetActorLocation(_point1_2);
+		}
+	}
+
+	//Reconstruir la tablilla
+	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "tablilla_laberinto_Blueprint") {
+			ActorItr->Destroy();
+		}
+	}
+	//Eliminamos assets antiguos
+	/*
+	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "walkie_laberinto") {
+			ActorItr->Destroy();
+		}
+	}
+	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "Linterna_laberinto") {
+			ActorItr->Destroy();
+		}
+	}
+	*/
+	FActorSpawnParameters SpawnParams;
+	FVector location = FVector(5095.0f, 105.0f, 175.0f);
+	FRotator rotation = FRotator(90.0f, 0.0f, 0.0f);
+	AActor* Tablilla = GetWorld()->SpawnActor<AActor>(TablillaBlueprint, location, rotation, SpawnParams);
+
+	//Permitir abrir la reja
+	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "reja_puerta_Blueprint") {
+			UDoorState* Door = nullptr;
+			Door = Cast<UDoorState>(ActorItr->GetComponentByClass(UDoorState::StaticClass()));
+			if (Door) {
+				Door->_block = false;
+			}
+		}
+	}
+}
+
+void AGameStatePlay::ResetDoor(TActorIterator<AStaticMeshActor> actor){
+	UDoorState* Door = nullptr;
+	Door = Cast<UDoorState>(actor->GetComponentByClass(UDoorState::StaticClass()));
+	if (Door) {
+		if (Door->GetState() == 1) {
+			Door->SwitchState();
+		}
+	}
+
 }

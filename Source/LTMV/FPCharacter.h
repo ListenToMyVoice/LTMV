@@ -94,12 +94,14 @@ public:
     void TakeDropRight();
     void TakeDropLeft();
 
-protected:
+	virtual void TakeDropRight_Respawn(AActor* actor) override;
+
 	/********* DROP ITEM REIMPLEMENTATION ************/
 	UFUNCTION(Server, Reliable, WithValidation)
-	virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
+		virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
+		virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
+protected:
 
     /********** INVENTORY ***********/
     void ToggleInventory();

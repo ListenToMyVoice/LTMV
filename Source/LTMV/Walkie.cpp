@@ -37,9 +37,11 @@ void UWalkie::ToggleLight(bool on) {
 		if (on) {
 			FString _name;
 			for (UActorComponent* PointLight : PointLightArray) {
+				PointLight->GetName();
 				_name = Cast<UPointLightComponent>(PointLight)->GetReadableName();
 				if (_name.Contains("White")) {
-					Cast<UPointLightComponent>(PointLight)->SetIntensity(200);//POner la luz blanca encendida
+					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("HABLANDO POR EL WALKIEE3")));
+					Cast<UPointLightComponent>(PointLight)->SetIntensity(50000);//POner la luz blanca encendida
 				}
 			}
 
@@ -49,6 +51,7 @@ void UWalkie::ToggleLight(bool on) {
 			for (UActorComponent* PointLight : PointLightArray) {
 				_name = Cast<UPointLightComponent>(PointLight)->GetReadableName();
 				if (_name.Contains("White")) {
+					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("no POR EL WALKIEE3")));
 					Cast<UPointLightComponent>(PointLight)->SetIntensity(0);//POner la luz blanca apagada
 				}
 			}
@@ -65,7 +68,7 @@ void UWalkie::ToggleOtherLight(bool on) {
 		for (UActorComponent* PointLight : PointLightArray) {
 			_name2 = Cast<UPointLightComponent>(PointLight)->GetReadableName();
 			if (_name2.Contains("Red")) {
-				Cast<UPointLightComponent>(PointLight)->SetIntensity(200);//POner la luz roja encendida
+				Cast<UPointLightComponent>(PointLight)->SetIntensity(5000);//POner la luz roja encendida
 			}
 		}
 
@@ -85,6 +88,8 @@ bool UWalkie::IsMuted() {
 	return _isMuted;
 }
 void UWalkie::SetMute(bool mute) {
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Player mute %d"),mute));
 	_isMuted = mute;
 }
 /*********************************************** DELEGATES ***************************************/

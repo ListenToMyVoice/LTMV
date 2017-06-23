@@ -16,6 +16,9 @@ public:
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_RespawnPlayer(class APlayerControllerPlay* PlayerController, FPlayerInfo info);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void SERVER_RespawnPlayerAfterDeath(class APlayerControllerPlay* PlayerController, FPlayerInfo info);
+
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_PlayerDead(AController* PlayerController);
 
@@ -28,4 +31,7 @@ public:
 protected:
     class APlayerControllerPlay* _HostController;
     class APlayerControllerPlay* _GuestController;
+
+	TSubclassOf<class AActor> WalkieBlueprint;
+	TSubclassOf<class AActor> LinternaBlueprint;
 };

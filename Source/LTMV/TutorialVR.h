@@ -21,6 +21,7 @@ public:
 	void Next(FVector location, FRotator rotation, int index);
 	void SetLanguage(FString Language);
 	void SpawnTutorial();
+	void ToggleTutorial();
 
 protected:
 	// Called when the game starts
