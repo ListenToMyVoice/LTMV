@@ -39,7 +39,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
 	
 	
 	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
-    _Health = 1;
+    _Health = 200;
 	_Damaged = false;
 }
 
@@ -144,6 +144,10 @@ void APlayerCharacter::UseRightPressed(bool IsMenuHidden) {}
 
 void APlayerCharacter::UseRightReleased(bool IsMenuHidden) {}
 
+/********** TAKE ITEM ***********/
+void APlayerCharacter::TakeDropRight_Respawn(AActor* actor) {
+
+}
 /********** TAKE RIGHT HAND ***********/
 bool APlayerCharacter::SERVER_TakeRight_Validate(AActor* Actor) { return true; }
 void APlayerCharacter::SERVER_TakeRight_Implementation(AActor* Actor) {
@@ -301,7 +305,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 		AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
         if (GameMode) {
 			GameMode->SERVER_PlayerDead(GetController());
-            MULTI_CharacterDead();
+            //MULTI_CharacterDead();
         }
     }
     return _Health;	

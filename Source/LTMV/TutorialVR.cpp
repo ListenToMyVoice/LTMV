@@ -29,7 +29,9 @@ void UTutorialVR::StartTutorial(UCameraComponent* PlayerCamera) {
 	_TutActor->ShowTutorial(Location,
 		PlayerCamera->GetComponentRotation(),2);
 }
-
+void UTutorialVR::ToggleTutorial() {
+	if (_TutActor) _TutActor->ToggleTutorial();
+}
 void UTutorialVR::SpawnTutorial() {
 
 	//Create actor if it wasnt created before

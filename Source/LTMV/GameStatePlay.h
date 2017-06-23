@@ -45,10 +45,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "EnemyCharacter", meta = (DisplayName = "Update AI zone"))
 		void UpdateActualZone(AActor* zone);
 
+	void ResetLevel();
+
 private:
 	void updateDoor(TActorIterator<AStaticMeshActor> _door, int value);
 	void UpdatePatrolPoints(FVector pp1,FVector pp2, FVector pp3);
-	void AGameStatePlay::getPointsAndEnemy();
+	void getPointsAndEnemy();
+	void ResetDoor(TActorIterator<AStaticMeshActor> actor);
 	TArray<bool> FindPath();
 
 	ATargetPoint *_patrolPoint1;
@@ -56,4 +59,6 @@ private:
 	ATargetPoint *_patrolPoint3;
 	ACharacter *_enemy;
 	int _actualZone;
+
+	TSubclassOf<class AActor> TablillaBlueprint;
 };

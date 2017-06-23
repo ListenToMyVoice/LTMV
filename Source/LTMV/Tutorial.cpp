@@ -11,7 +11,6 @@
 UTutorial::UTutorial()
 {
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("creando el tutorial......")));
 	_tutWidgets = {};
 	_tutWidgets_EN = {};
 	_tutWidgets_FR = {};
@@ -126,9 +125,11 @@ UTutorial::UTutorial()
 void UTutorial::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 
 void UTutorial::StartTutorial(APlayerController* PlayerController) {
+
 	//Show first tutorial level
 	//only if it's first time running tutorial
 	int _last = _tutExpected.Num()-1;
@@ -136,7 +137,6 @@ void UTutorial::StartTutorial(APlayerController* PlayerController) {
 
 		_TutorialWidget = CreateWidget<UUserWidget>(PlayerController, _actualWidgets[_last]);
 		if (_TutorialWidget) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Empiueza el tutorial ")));
 			_TutorialWidget->AddToViewport(9999); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
 			_ActualWidget = _TutorialWidget;//Update actual widget
 			_tutExpected[_last] = true;//update this widget as shown
