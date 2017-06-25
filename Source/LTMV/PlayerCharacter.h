@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-
 UCLASS()
 class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
@@ -65,6 +64,8 @@ public:
 		virtual void SERVER_Drop(AActor* ItemActor, int Hand);
 	UFUNCTION(NetMulticast, Reliable)
 		virtual void MULTI_Drop(AActor* ItemActor, int Hand);
+
+
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* _PlayerCamera;

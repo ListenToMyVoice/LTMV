@@ -6,7 +6,8 @@
 #include "PlayerControllerLobby.h"
 #include "Menu3D.h"
 #include "InputMenu.h"
-#include "MoviePlayer.h"
+#include "VRCharacter.h"
+#include "FPCharacter.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -98,9 +99,6 @@ void UNWGameInstance::InitGame() {
     }
     ULibraryUtils::Log(FString::Printf(TEXT("_IsVRMode: %s"), _IsVRMode ? TEXT("true") : TEXT("false")));
 
-	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UNWGameInstance::BeginLoadingScreen);
-	FCoreUObjectDelegates::PostLoadMap.AddUObject(this, &UNWGameInstance::EndLoadingScreen);
-
     APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
                                                                 GetFirstLocalPlayerController());
     AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
@@ -116,27 +114,40 @@ void UNWGameInstance::InitGame() {
 
         PlayerControllerLobby->CLIENT_CreateMenu();
     }
-}
 
-void UNWGameInstance::BeginLoadingScreen(const FString& MapName) {
-	if (!IsRunningDedicatedServer()) {
-		FLoadingScreenAttributes LoadingScreen;
-		LoadingScreen.bAutoCompleteWhenLoadingCompletes = false;
-		LoadingScreen.WidgetLoadingScreen = FLoadingScreenAttributes::NewTestLoadingScreenWidget();
-
-		GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);
-	}
-}
-
-void UNWGameInstance::EndLoadingScreen() {
 
 }
 
 /**************************************** BLUEPRINTS *********************************************/
+void UNWGameInstance::LaunchLoadingScreen() {
+	if (!_IsVRMode) {
+		// UGameplayStatics::OpenLevel(GetWorld(), TEXT("TravelMap"));
+
+		ULocalPlayer* const Player = GetFirstGamePlayer();
+		APlayerController* PC = Cast<APlayerController>(Player->GetPlayerController(GetWorld()));
+		APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+
+		if (_CameraManager) {
+			AFPCharacter* FPPlayer = Cast<AFPCharacter>(Player);
+			FPPlayer->LaunchWithFade();
+		}
+	}
+	else {
+		ULocalPlayer* const Player = GetFirstGamePlayer();
+		APlayerController* PC = Cast<APlayerController>(Player->GetPlayerController(GetWorld()));
+		APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+
+		if (_CameraManager) {
+			AVRCharacter* VRPlayer = Cast<AVRCharacter>(Player);
+			VRPlayer->FadeDisplay();
+		}
+	}
+}
+
 void UNWGameInstance::LaunchLobby() {
-    _PlayerInfoSaved.Name = "host";
-    _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
-    _PlayerInfoSaved.IsHost = true;
+    //_PlayerInfoSaved.Name = "host";
+    //_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
+    //_PlayerInfoSaved.IsHost = true;
 
     DestroySession();
 
@@ -151,9 +162,9 @@ void UNWGameInstance::FindOnlineGames() {
 }
 
 void UNWGameInstance::JoinOnlineGame() {
-    _PlayerInfoSaved.Name = "guest";
-    _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
-    _PlayerInfoSaved.IsHost = false;
+    //_PlayerInfoSaved.Name = "guest";
+    //_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
+    //_PlayerInfoSaved.IsHost = false;
 
     ULocalPlayer* const Player = GetFirstGamePlayer();
     FOnlineSessionSearchResult SearchResult;
@@ -528,7 +539,12 @@ void UNWGameInstance::OnButtonExitGame(UInputMenu* InputMenu) {
 }
 
 void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
-    LaunchLobby();
+	_PlayerInfoSaved.Name = "host";
+	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
+	_PlayerInfoSaved.IsHost = true;
+
+	LaunchLoadingScreen();
+    //LaunchLobby();
 }
 
 void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
@@ -547,7 +563,12 @@ void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
 }
 
 void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {
-    JoinOnlineGame();
+	_PlayerInfoSaved.Name = "guest";
+	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
+	_PlayerInfoSaved.IsHost = false;
+
+	LaunchLoadingScreen();
+    //JoinOnlineGame();
 }
 
 void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {

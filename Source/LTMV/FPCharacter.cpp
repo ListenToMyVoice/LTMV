@@ -20,8 +20,7 @@
 #include "NWGameInstance.h"
 
 AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
-
-
+	
     _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 	_Tutorial = CreateDefaultSubobject<UTutorial>(TEXT("Tutorial"));
 	_TutorialVR = CreateDefaultSubobject<UTutorialVR>(TEXT("TutorialVR"));
@@ -58,12 +57,43 @@ void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("Use", IE_Released, this, &AFPCharacter::UseReleased);
 
     PlayerInput->BindAction("ToggleInventory", IE_Pressed, this, &AFPCharacter::ToggleInventory);
+	//PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AFPCharacter::FadeDisplay);
+}
 
+void AFPCharacter::LaunchWithFade() {
+	bToBlack = false;
+	CountDown = 5.f;
+	GetWorldTimerManager().SetTimer(CountToLaunchGameVR, this, &AFPCharacter::TimedFade, CountDown, true);
+	FadeDisplay();
+}
+
+void AFPCharacter::FadeDisplay() {// T
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC) {
+		APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+		if (_CameraManager && !bToBlack) {
+			_CameraManager->StartCameraFade(0.f, 1.f, 5.f, FColor::Black, false, true);
+			bToBlack = true;
+		}
+
+		else if (_CameraManager && bToBlack) {
+			_CameraManager->StartCameraFade(1.f, 0.f, 10.f, FColor::Black, false, true);
+			bToBlack = false;
+		}
+	}
+}
+
+// Solo se inicia cuando dispara Host Game en el MapMenu.
+void AFPCharacter::TimedFade() {
+	if (CountDown == 0.f) {
+		if (GetWorld()->GetCurrentLevel()->GetFName() == TEXT("MapMenu")) {
+			Cast<UNWGameInstance>(GetGameInstance())->LaunchLobby();
+		}
+	}
 }
 
 void AFPCharacter::BeginPlay() {
     Super::BeginPlay();
-
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
     if (PlayerController && PlayerController->IsLocalPlayerController()) {
@@ -72,7 +102,6 @@ void AFPCharacter::BeginPlay() {
         if (HUD) HUD->AddToViewport();
 		
     }
-
 }
 
 void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
@@ -109,7 +138,6 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 					_IsInventoryHidden = true;
 				}
 			}
-
 		}
 	}
 	if (!SetInventory) {

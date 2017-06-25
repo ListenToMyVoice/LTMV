@@ -20,6 +20,9 @@ class LTMV_API AVRCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+	UPROPERTY()
+	bool bToBlack = false;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rumble")
     UForceFeedbackEffect * _RumbleOverLapLeft;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rumble")
@@ -37,9 +40,7 @@ public:
     virtual void Tick(float deltaTime) override;
 
     void ResetHMDOrigin();
-
-    /* Toggle between Seated and Standing VR Tracking */
-    void ToggleTrackingSpace();
+	void FadeDisplay();
 
     /******** USE ITEM LEFT *********/
     void UseLeftPressed(bool IsMenuHidden) override;
@@ -53,6 +54,11 @@ public:
 	AActor* GetActorFocusedLeft();
 	UFUNCTION(BlueprintCallable)
 	AActor* GetActorFocusedRight();
+
+	float CountDown;
+	FTimerHandle CountToLaunchGameVR;
+
+	void TimedFade();
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")

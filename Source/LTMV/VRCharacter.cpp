@@ -149,6 +149,21 @@ void AVRCharacter::BeginPlay() {
 	}
 
 	_LastMeshPosition = GetMesh()->GetComponentLocation();
+
+	// El character empieza con la pantalla en negro salvo en el menú principal.
+	if (GetWorld()->GetCurrentLevel()->GetFName() != TEXT("MapMenu")) {
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC) {
+			APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+			if (_CameraManager) {
+				_CameraManager->bEnableFading = true;
+				_CameraManager->FadeColor = FColor::Black;
+				_CameraManager->FadeAmount = 1.f;
+				bToBlack = true;
+				FadeDisplay();
+			}
+		}
+	}
 }
 
 void AVRCharacter::AfterPossessed(bool SetInventory, bool respawning) {
@@ -157,6 +172,21 @@ void AVRCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 	}
 	else {
 		// tutorial de la cueva
+	}
+
+	// El character empieza con la pantalla en negro salvo en el menú principal.
+	if (GetWorld()->GetCurrentLevel()->GetFName() != TEXT("MapMenu")) {
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC) {
+			APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+			if (_CameraManager) {
+				_CameraManager->bEnableFading = true;
+				_CameraManager->FadeColor = FColor::Black;
+				_CameraManager->FadeAmount = 1.f;
+				bToBlack = true;
+				FadeDisplay();
+			}
+		}
 	}
 }
 
@@ -183,28 +213,46 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("DropRight", IE_Pressed, this, &AVRCharacter::DropRight);
 
     /* VR SPECIFIC */
-    PlayerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
     PlayerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 
     /* MOVEMENT */
 	PlayerInput->BindAction("TurnLeftComfort", IE_Pressed, this, &AVRCharacter::TurnLeftComfort);
 	PlayerInput->BindAction("TurnRightComfort", IE_Pressed, this, &AVRCharacter::TurnRightComfort);
+
+	/* FADE CAMERA */
+	PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AVRCharacter::FadeDisplay);
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
     if (HMD) HMD->ResetOrientationAndPosition();
 }
 
-void AVRCharacter::ToggleTrackingSpace() {// T
-    // TODO: Fix module includes for SteamVR
+void AVRCharacter::FadeDisplay() {// T
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC) {
+		APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+		if (_CameraManager && !bToBlack) {
+			_CameraManager->StartCameraFade(0.f, 1.f, 5.f, FColor::Black, false, true);
+			bToBlack = true;
+			CountDown = 5.f;
 
-    //@todo Make this safe once we can add something to the DeviceType enum.  For now, make the terrible assumption this is a SteamVR device.
-    //FSteamVRHMD* SteamVRHMD = (FSteamVRHMD*)(GEngine->HMDDevice.Get());
-    //if (SteamVRHMD && SteamVRHMD->IsStereoEnabled())
-    //{
-    // 	ESteamVRTrackingSpace TrackingSpace = SteamVRHMD->GetTrackingSpace();
-    // 	SteamVRHMD->SetTrackingSpace(TrackingSpace == ESteamVRTrackingSpace::Seated ? ESteamVRTrackingSpace::Standing : ESteamVRTrackingSpace::Seated);
-    //}
+			GetWorldTimerManager().SetTimer(CountToLaunchGameVR, this, &AVRCharacter::TimedFade, CountDown, true);
+		}
+
+		else if (_CameraManager && bToBlack) {
+			_CameraManager->StartCameraFade(1.f, 0.f, 10.f, FColor::Black, false, true);
+			bToBlack = false;
+		}
+	}
+}
+
+// Solo se inicia cuando dispara Host Game en el MapMenu.
+void AVRCharacter::TimedFade() {
+	if (CountDown == 0.f) {
+		if (GetWorld()->GetCurrentLevel()->GetFName() == TEXT("MapMenu")) {
+			GInstance->LaunchLobby();
+		}
+	}
 }
 
 void AVRCharacter::MoveForward(float Value) {

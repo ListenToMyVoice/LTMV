@@ -5,12 +5,14 @@
 #include "PlayerCharacter.h"
 #include "FPCharacter.generated.h"
 
-
 UCLASS()
 class LTMV_API AFPCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+	UPROPERTY()
+	bool bToBlack = false;
+
     /* HUD */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HUD")
     TSubclassOf<class UUserWidget> _HUDClass;
@@ -32,6 +34,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
 	bool _isTutorialEnabled;
 
+	void FadeDisplay();
+
+	float CountDown;
+	FTimerHandle CountToLaunchGameVR;
+	void LaunchWithFade();
+	void TimedFade();
 
     /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
