@@ -68,8 +68,5 @@ void AGameModeLobby::SERVER_SwapCharacter_Implementation(APlayerControllerLobby*
 }
 
 void AGameModeLobby::LaunchGame() {
-    bool traveling = GetWorld()->ServerTravel(_MapNameGM, true);
-	if (traveling) {
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Travelling"));
-	}
+    GetWorld()->ServerTravel(_MapNameGM, true);
 }

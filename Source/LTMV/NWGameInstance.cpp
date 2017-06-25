@@ -85,6 +85,8 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
 
 void UNWGameInstance::InitGame() {
 
+	_IsVRMode = true;
+
 	_PlayerInfoSaved.Language = "EN";//LANGUAGE TO START
 
     /* SWITCH PLAYER MODE */
