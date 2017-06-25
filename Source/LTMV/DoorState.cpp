@@ -13,6 +13,11 @@ UDoorState::UDoorState() {
 void UDoorState::BeginPlay() {
     Super::BeginPlay();
 
+
+	//Get sounds
+	_FMODComponents = GetOwner()->GetComponentsByClass(UFMODAudioComponent::StaticClass());
+
+
 }
 
 int UDoorState::GetState() {
@@ -177,17 +182,19 @@ int UDoorState::SwitchState_Implementation() {
 			StateDoor = EStateDoor::CLOSING;
             _current_displacement = _max_displacement;
 		}
-		if (DoorType == EDoorType::SLIDABLE_DOOR) {
-			UFMODAudioComponent* _DoorAudio = Cast<UFMODAudioComponent>(GetOwner()->GetComponentByClass(UFMODAudioComponent::StaticClass()));
-			if (_DoorAudio) {
-				_DoorAudio->Play();
-			}
+		if (Cast<UFMODAudioComponent>(_FMODComponents[0])->GetName() == "open_close") {
+			Cast<UFMODAudioComponent>(_FMODComponents[0])->Play();
+		}
+		else {
+			Cast<UFMODAudioComponent>(_FMODComponents[1])->Play();
 		}
 	}
 	else {
-		UFMODAudioComponent* _DoorAudio = Cast<UFMODAudioComponent>(GetOwner()->GetComponentByClass(UFMODAudioComponent::StaticClass()));
-		if (_DoorAudio) {
-			_DoorAudio->Play();
+		if (Cast<UFMODAudioComponent>(_FMODComponents[0])->GetName() == "block") {
+			Cast<UFMODAudioComponent>(_FMODComponents[0])->Play();
+		}
+		else {
+			Cast<UFMODAudioComponent>(_FMODComponents[1])->Play();
 		}
 
 	}

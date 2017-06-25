@@ -67,7 +67,8 @@ void APlayerControllerPlay::AfterPossessed(bool _afterdeath) {
         if (PlayerCharacter->IsA(_GameInstance->_PlayerInfoSaved.CharacterClass)) {
             PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
             PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
-            PlayerCharacter->AfterPossessed(true,false);
+            if (_afterdeath)	PlayerCharacter->AfterPossessed(true,true);
+			else				PlayerCharacter->AfterPossessed(true, false);
             _ClientPossesed = true;
         }
     }

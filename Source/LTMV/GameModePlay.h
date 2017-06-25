@@ -31,7 +31,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Maps")
 	void EndGame();
 
-	void PlayAgain();
 
 protected:
     class APlayerControllerPlay* _HostController;
