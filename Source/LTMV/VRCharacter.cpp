@@ -61,6 +61,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _GripStateLeft = EGripEnum::Open;
     _GripStateRight = EGripEnum::Open;
     MaxHeadTurnValue = 80.f;
+	bInventoryActive = false;
 
     _ActorPouchLeft = nullptr;
     _ActorPouchRight = nullptr;
@@ -148,6 +149,8 @@ void AVRCharacter::BeginPlay() {
 		GInstance = Cast<UNWGameInstance>(GetGameInstance());
 	}
 
+	//ToggleInventoryVR();
+
 	_LastMeshPosition = GetMesh()->GetComponentLocation();
 
 	// El character empieza con la pantalla en negro salvo en el menú principal.
@@ -221,6 +224,9 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 
 	/* FADE CAMERA */
 	PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AVRCharacter::FadeDisplay);
+
+	/* INVENTORY */
+	PlayerInput->BindAction("ToggleInventoryVR", IE_Pressed, this, &AVRCharacter::ToggleInventoryVR);
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
@@ -240,6 +246,61 @@ void AVRCharacter::FadeDisplay() {// T
 			_CameraManager->StartCameraFade(1.f, 0.f, 10.f, FColor::Black, false, true);
 			bToBlack = false;
 		}
+	}
+}
+
+void AVRCharacter::ToggleInventoryVR() {
+	SERVER_ToggleInventoryVR();
+}
+
+bool AVRCharacter::SERVER_ToggleInventoryVR_Validate() { return true; }
+void AVRCharacter::SERVER_ToggleInventoryVR_Implementation() { MULTI_ToggleInventoryVR(); }
+void AVRCharacter::MULTI_ToggleInventoryVR_Implementation() {
+	if (!bInventoryActive) {
+		_PouchLeft->SetVisibility(true);
+		_PouchLeft->bGenerateOverlapEvents = true;
+		_PouchRight->SetVisibility(true);
+		_PouchRight->bGenerateOverlapEvents = true;
+
+		if (_ActorPouchLeft != nullptr) { 
+			_ActorPouchLeft->SetActorEnableCollision(true);
+			UStaticMeshComponent* MeshLeft =
+				Cast<UStaticMeshComponent>(_ActorPouchLeft->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+			MeshLeft->SetVisibility(true);
+		}
+
+		if (_ActorPouchRight != nullptr) {
+			_ActorPouchRight->SetActorEnableCollision(true);
+			UStaticMeshComponent* MeshRight =
+				Cast<UStaticMeshComponent>(_ActorPouchRight->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+			MeshRight->SetVisibility(true);
+		}
+
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, TEXT("Activo el Inventario."));
+		bInventoryActive = true;
+	}
+	else {
+		_PouchLeft->SetVisibility(false);
+		_PouchLeft->bGenerateOverlapEvents = false;
+		_PouchRight->SetVisibility(false);
+		_PouchRight->bGenerateOverlapEvents = false;
+
+		if (_ActorPouchLeft != nullptr) {
+			_ActorPouchLeft->SetActorEnableCollision(false);
+			UStaticMeshComponent* MeshLeft =
+				Cast<UStaticMeshComponent>(_ActorPouchLeft->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+			MeshLeft->SetVisibility(false);
+		}
+
+		if (_ActorPouchRight != nullptr) {
+			_ActorPouchRight->SetActorEnableCollision(false);
+			UStaticMeshComponent* MeshRight =
+				Cast<UStaticMeshComponent>(_ActorPouchRight->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+			MeshRight->SetVisibility(false);
+		}
+
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, TEXT("Desactivo el Inventario."));
+		bInventoryActive = false;
 	}
 }
 
@@ -280,6 +341,8 @@ void AVRCharacter::TurnRightComfort() {
 		AddControllerYawInput(+15.f);
 	}
 }
+
+
 
 /************** OVERLAPPING *************/
 void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -338,14 +401,14 @@ void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 				_ComponentFocusedLeft = OtherComp;
                 if (PlayerController)
                     PlayerController->ClientPlayForceFeedback(_RumbleOverLapLeft, false, "rumble");
-                SERVER_UpdateAnimation(EGripEnum::CanGrab, 1);
+                if (!_ItemLeft) SERVER_UpdateAnimation(EGripEnum::CanGrab, 1);
             }
             else if (OverlappedComponent == _RightSphere) {
                 _ActorFocusedRight = OtherActor;
 				_ComponentFocusedRight = OtherComp;
                 if (PlayerController)
                     PlayerController->ClientPlayForceFeedback(_RumbleOverLapRight, false, "rumble");
-                SERVER_UpdateAnimation(EGripEnum::CanGrab, 2);
+				if (!_ItemRight) SERVER_UpdateAnimation(EGripEnum::CanGrab, 2);
             }
         }
 
@@ -381,13 +444,13 @@ void AVRCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
     if (OtherActor == _ActorFocusedLeft) {
         _ActorFocusedLeft = nullptr;
         _ComponentFocusedLeft = nullptr;
-        SERVER_UpdateAnimation(EGripEnum::Open, 1);
+        if (!_ItemLeft) SERVER_UpdateAnimation(EGripEnum::Open, 1);
     }
     else if (OtherActor == _ActorFocusedRight) {
         _ActorFocusedRight = nullptr;
         _ComponentFocusedRight = nullptr;
 
-        SERVER_UpdateAnimation(EGripEnum::Open, 2);
+		if (!_ItemRight) SERVER_UpdateAnimation(EGripEnum::Open, 2);
     }
 
     UStaticMeshComponent* _StaticMesh = Cast<UStaticMeshComponent>(OtherActor->GetComponentByClass(
@@ -713,8 +776,12 @@ void AVRCharacter::ItemGrabbedLeft() {
                                         FAttachmentTransformRules::KeepRelativeTransform,
                                         TEXT("TakeSocket"));
 
-            ItemMesh->RelativeLocation = GrabItemComp->_locationAttach_L;
-            ItemMesh->RelativeRotation = GrabItemComp->_rotationAttach_L;
+			const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_VR_L"));
+
+			if (_GripSocket) {
+				ItemMesh->RelativeLocation = _GripSocket->RelativeLocation; 
+				ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+			}
 
             _ActorGrabbing->SetActorEnableCollision(false);
             _ItemLeft = _ActorGrabbing;
@@ -738,8 +805,12 @@ void AVRCharacter::ItemGrabbedRight() {
                                         FAttachmentTransformRules::KeepRelativeTransform,
                                         TEXT("TakeSocket"));
 
-            ItemMesh->RelativeLocation = GrabItemComp->_locationAttach_R;
-            ItemMesh->RelativeRotation = GrabItemComp->_rotationAttach_R;
+			const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_VR_R"));
+
+			if (_GripSocket) {
+				ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+				ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+			}
 
             _ActorGrabbing->SetActorEnableCollision(false);
             _ItemRight = _ActorGrabbing;

@@ -57,6 +57,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AActor* GetActorFocusedRight();
 
+	UFUNCTION(BlueprintCallable, Category = "VR Inventory")
+	void ToggleInventoryVR();
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SERVER_ToggleInventoryVR();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULTI_ToggleInventoryVR();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Inventory")
+	bool bInventoryActive;
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
     bool bPositionalHeadTracking;

@@ -157,8 +157,5 @@ void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
 }
 
 void AGameModePlay::EndGame() {
-	bool traveling = GetWorld()->ServerTravel(_MapEndGameGM, true);
-	if (traveling) {
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("TravellingToEndMap"));
-	}
+	GetWorld()->ServerTravel(_MapEndGameGM, true);
 }
