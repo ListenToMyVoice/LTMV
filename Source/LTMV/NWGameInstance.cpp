@@ -85,7 +85,7 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
 
 void UNWGameInstance::InitGame() {
 
-	_PlayerInfoSaved.Language = "EN";//lANGUAGE TO START
+	_PlayerInfoSaved.Language = "EN";//LANGUAGE TO START
 
     /* SWITCH PLAYER MODE */
     if (FParse::Param(FCommandLine::Get(), TEXT("vr"))) _IsVRMode = true;
@@ -120,28 +120,7 @@ void UNWGameInstance::InitGame() {
 
 /**************************************** BLUEPRINTS *********************************************/
 void UNWGameInstance::LaunchLoadingScreen() {
-	if (!_IsVRMode) {
-		// UGameplayStatics::OpenLevel(GetWorld(), TEXT("TravelMap"));
-
-		ULocalPlayer* const Player = GetFirstGamePlayer();
-		APlayerController* PC = Cast<APlayerController>(Player->GetPlayerController(GetWorld()));
-		APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
-
-		if (_CameraManager) {
-			AFPCharacter* FPPlayer = Cast<AFPCharacter>(Player);
-			FPPlayer->LaunchWithFade();
-		}
-	}
-	else {
-		ULocalPlayer* const Player = GetFirstGamePlayer();
-		APlayerController* PC = Cast<APlayerController>(Player->GetPlayerController(GetWorld()));
-		APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
-
-		if (_CameraManager) {
-			AVRCharacter* VRPlayer = Cast<AVRCharacter>(Player);
-			VRPlayer->FadeDisplay();
-		}
-	}
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("TravelMap"));
 }
 
 void UNWGameInstance::LaunchLobby() {

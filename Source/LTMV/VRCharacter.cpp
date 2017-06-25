@@ -234,23 +234,11 @@ void AVRCharacter::FadeDisplay() {// T
 		if (_CameraManager && !bToBlack) {
 			_CameraManager->StartCameraFade(0.f, 1.f, 5.f, FColor::Black, false, true);
 			bToBlack = true;
-			CountDown = 5.f;
-
-			GetWorldTimerManager().SetTimer(CountToLaunchGameVR, this, &AVRCharacter::TimedFade, CountDown, true);
 		}
 
 		else if (_CameraManager && bToBlack) {
 			_CameraManager->StartCameraFade(1.f, 0.f, 10.f, FColor::Black, false, true);
 			bToBlack = false;
-		}
-	}
-}
-
-// Solo se inicia cuando dispara Host Game en el MapMenu.
-void AVRCharacter::TimedFade() {
-	if (CountDown == 0.f) {
-		if (GetWorld()->GetCurrentLevel()->GetFName() == TEXT("MapMenu")) {
-			GInstance->LaunchLobby();
 		}
 	}
 }

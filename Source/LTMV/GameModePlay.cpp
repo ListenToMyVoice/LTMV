@@ -18,15 +18,16 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
 
     bUseSeamlessTravel = true;
 	_MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
+	_MapEndGameGM = USettings::Get()->EndLevel.GetLongPackageName();
 
-	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/BluePrints/Assets/walkie.walkie'"));
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint(TEXT("Class'/Game/BluePrints/Assets/walkie.walkie_C'"));
 	if (ItemBlueprint.Object) {
-		WalkieBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
+		WalkieBlueprint = (UClass*)ItemBlueprint.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint2(TEXT("Blueprint'/Game/BluePrints/Assets/LinternaFINAL.LinternaFINAL'"));
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint2(TEXT("Class'/Game/BluePrints/Assets/LinternaFINAL.LinternaFINAL_C'"));
 	if (ItemBlueprint2.Object) {
-		LinternaBlueprint = (UClass*)ItemBlueprint2.Object->GeneratedClass;
+		LinternaBlueprint = (UClass*)ItemBlueprint2.Object;
 	}
 }
 
@@ -129,6 +130,12 @@ void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
     }
 }
 
+void AGameModePlay::EndGame() {
+	bool traveling = GetWorld()->ServerTravel(_MapEndGameGM, true);
+	if (traveling) {
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("TravellingToEndMap"));
+	}
+}
 
 void AGameModePlay::PlayAgain() {
 	RestartGame();

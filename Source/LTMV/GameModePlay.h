@@ -23,9 +23,14 @@ public:
     void SERVER_PlayerDead(AController* PlayerController);
 
 	FString _MapNameGM;
+	FString _MapEndGameGM;
 
     virtual void InitGame(const FString & MapName, const FString & Options,
                           FString & ErrorMessage) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Maps")
+	void EndGame();
+
 	void PlayAgain();
 
 protected:

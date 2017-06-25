@@ -11,6 +11,7 @@ void AGameModeLobby::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 
     DOREPLIFETIME(AGameModeLobby, _ServerName);
     DOREPLIFETIME(AGameModeLobby, _MapNameGM);
+	DOREPLIFETIME(AGameModeLobby, _MapEndGameGM);
     DOREPLIFETIME(AGameModeLobby, _MaxPlayers);
 }
 
@@ -23,6 +24,7 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     _MaxPlayers = 2;
     _ServerName = "";
     _MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
+	_MapEndGameGM = USettings::Get()->EndLevel.GetLongPackageName();
 }
 
 void AGameModeLobby::InitGame(const FString & MapName, const FString & Options,
@@ -66,5 +68,8 @@ void AGameModeLobby::SERVER_SwapCharacter_Implementation(APlayerControllerLobby*
 }
 
 void AGameModeLobby::LaunchGame() {
-    GetWorld()->ServerTravel(_MapNameGM, true);
+    bool traveling = GetWorld()->ServerTravel(_MapNameGM, true);
+	if (traveling) {
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Travelling"));
+	}
 }

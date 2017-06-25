@@ -34,12 +34,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
 	bool _isTutorialEnabled;
 
+	UFUNCTION(BlueprintCallable, Category = "FadeScreen")
 	void FadeDisplay();
-
-	float CountDown;
-	FTimerHandle CountToLaunchGameVR;
-	void LaunchWithFade();
-	void TimedFade();
 
     /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -88,7 +84,6 @@ protected:
 
 	class UTutorial* _Tutorial;
 	class UTutorialVR* _TutorialVR;
-
 
     void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

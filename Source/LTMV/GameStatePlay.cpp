@@ -50,9 +50,9 @@ AGameStatePlay::AGameStatePlay(const class FObjectInitializer& OI) : Super(OI){
 	_PatrolPoints.Add(false);
 
 
-	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/BluePrints/Assets/tablilla_laberinto_Blueprint.tablilla_laberinto_Blueprint'"));
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint(TEXT("Class'/Game/BluePrints/Assets/tablilla_laberinto_Blueprint.tablilla_laberinto_Blueprint_C'"));
 	if (ItemBlueprint.Object) {
-		TablillaBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
+		TablillaBlueprint = (UClass*)ItemBlueprint.Object;
 	}
 }
 

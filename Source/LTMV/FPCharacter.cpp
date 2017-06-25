@@ -57,14 +57,7 @@ void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("Use", IE_Released, this, &AFPCharacter::UseReleased);
 
     PlayerInput->BindAction("ToggleInventory", IE_Pressed, this, &AFPCharacter::ToggleInventory);
-	//PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AFPCharacter::FadeDisplay);
-}
-
-void AFPCharacter::LaunchWithFade() {
-	bToBlack = false;
-	CountDown = 5.f;
-	GetWorldTimerManager().SetTimer(CountToLaunchGameVR, this, &AFPCharacter::TimedFade, CountDown, true);
-	FadeDisplay();
+	PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AFPCharacter::FadeDisplay);
 }
 
 void AFPCharacter::FadeDisplay() {// T
@@ -79,15 +72,6 @@ void AFPCharacter::FadeDisplay() {// T
 		else if (_CameraManager && bToBlack) {
 			_CameraManager->StartCameraFade(1.f, 0.f, 10.f, FColor::Black, false, true);
 			bToBlack = false;
-		}
-	}
-}
-
-// Solo se inicia cuando dispara Host Game en el MapMenu.
-void AFPCharacter::TimedFade() {
-	if (CountDown == 0.f) {
-		if (GetWorld()->GetCurrentLevel()->GetFName() == TEXT("MapMenu")) {
-			Cast<UNWGameInstance>(GetGameInstance())->LaunchLobby();
 		}
 	}
 }

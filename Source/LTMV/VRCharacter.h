@@ -40,6 +40,8 @@ public:
     virtual void Tick(float deltaTime) override;
 
     void ResetHMDOrigin();
+
+	UFUNCTION(BlueprintCallable, Category = "FadeScreen")
 	void FadeDisplay();
 
     /******** USE ITEM LEFT *********/
@@ -54,11 +56,6 @@ public:
 	AActor* GetActorFocusedLeft();
 	UFUNCTION(BlueprintCallable)
 	AActor* GetActorFocusedRight();
-
-	float CountDown;
-	FTimerHandle CountToLaunchGameVR;
-
-	void TimedFade();
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
