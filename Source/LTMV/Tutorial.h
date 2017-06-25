@@ -18,9 +18,10 @@ public:
 	class UUserWidget* _ActualWidget;
 
 	void StartTutorial(APlayerController* PlayerController);
-	void Next(APlayerController* PlayerController, int index, bool timer, bool last);
+	void Next(APlayerController* PlayerController, int index, bool timer);
 	void SetLanguage(FString language);
 	void Hide();
+	void Last(APlayerController* PlayerController, int index, bool timer, AFPCharacter* _player);
 
 protected:
 	// Called when the game starts

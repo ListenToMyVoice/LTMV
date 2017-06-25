@@ -23,7 +23,7 @@ AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
 	
     _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 	_Tutorial = CreateDefaultSubobject<UTutorial>(TEXT("Tutorial"));
-	_TutorialVR = CreateDefaultSubobject<UTutorialVR>(TEXT("TutorialVR"));
+	//_TutorialVR = CreateDefaultSubobject<UTutorialVR>(TEXT("TutorialVR"));
 
     /*RAYCAST PARAMETERS*/
     _RayParameter = 250.0f;
@@ -86,19 +86,21 @@ void AFPCharacter::BeginPlay() {
         if (HUD) HUD->AddToViewport();
 		
     }
+
 }
 
 void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 
+	UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
+	_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);//Set language
+	//_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
 	if (respawning) {
 		_isTutorialEnabled = false;
 		_Tutorial->Hide();
-
 	}
 
 	Super::AfterPossessed(SetInventory,respawning);
 
-	UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController->IsLocalPlayerController()) {
@@ -106,13 +108,11 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
 			if (_isTutorialEnabled) {
-				_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);//Set language
-				_Tutorial->Next(PlayerController, 0, false, false);//Updating to next tutorial widget
+				_Tutorial->Next(PlayerController, 0, false);//Updating to next tutorial widget
 
-				_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
 				FVector Location = _PlayerCamera->GetComponentLocation() +
 					(_PlayerCamera->GetForwardVector().GetSafeNormal() * 200);
-				_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 0);//Tutorial at bunker/lab
+				//_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 0);//Tutorial at bunker/lab
 			}
 			if (!_InventoryWidget) {
 				_InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
@@ -127,12 +127,11 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 	if (!SetInventory) {
 		if (_isTutorialEnabled) {
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("TUTORIAL EN LA CUEVA: ")));
-			_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
 			_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
-		}
-		if (PlayerController->IsLocalPlayerController()) {
-			_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
-			_TutorialVR->StartTutorial(_PlayerCamera);//Start tutorial at lobby
+
+			if (PlayerController->IsLocalPlayerController()) {
+				//_TutorialVR->StartTutorial(_PlayerCamera);//Start tutorial at lobby
+			}
 		}
 	}
 }
@@ -142,11 +141,12 @@ void AFPCharacter::Tick(float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
     //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
     Raycasting();
-
+	/*
 	FVector StartRaycast = _FirstPersonMesh->GetSocketByName("GripPoint_L")->GetSocketLocation(_FirstPersonMesh);
 	FVector EndRaycast = _PlayerCamera->GetForwardVector() * 200.f + StartRaycast;
 
 	DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.f, (uint8)'\000', 0.8f);
+	*/
 
 }
 
@@ -188,14 +188,13 @@ FHitResult AFPCharacter::Raycasting() {
 
 				if (_isTutorialEnabled) {
 					APlayerController* PlayerController = Cast<APlayerController>(GetController());
-					_Tutorial->Next(PlayerController, 1, false, false);//NExt widget of tutorial
+					_Tutorial->Next(PlayerController, 1, false);//NExt widget of tutorial
 
 					FVector Location;
 					Location = _HitResult.Actor->GetActorLocation()
 						+ (_HitResult.Actor->GetActorForwardVector().GetSafeNormal() * 90)
 						+ (_HitResult.Actor->GetActorUpVector().GetSafeNormal() * -30);
-					//+(_HitResult.Actor->GetActorUpVector().GetSafeNormal() * 20);
-					_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 1);//Tutorial at bunker/lab
+					//_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 1);//Tutorial at bunker/lab
 				}
 				
             }
@@ -283,7 +282,7 @@ void AFPCharacter::UseLeftPressed(bool IsMenuHidden) {
 
 			if (_isTutorialEnabled) {
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
-				_Tutorial->Next(PlayerController, 6, false, false);//Next widget of tutorial
+				_Tutorial->Next(PlayerController, 6, false);//Next widget of tutorial
 			}
 
             TArray<UActorComponent*> Components;
@@ -324,7 +323,7 @@ void AFPCharacter::UseRightPressed(bool IsMenuHidden) {
 
 		if (_isTutorialEnabled) {
 			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 6, false, false);//Next widget of tutorial
+			_Tutorial->Next(PlayerController, 6, false);//Next widget of tutorial
 		}
 
         TArray<UActorComponent*> Components;
@@ -363,9 +362,9 @@ void AFPCharacter::TakeDropRight_Respawn(AActor* actor) {
 
 		if (_isTutorialEnabled) {
 			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+			_Tutorial->Next(PlayerController, 2, false);//Next widget of tutorial
 
-			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+			_Tutorial->Last(PlayerController, 7, true, this);//Last widget of tutorial
 		}
 
 		/* Save scenary inventory item */
@@ -422,9 +421,9 @@ void AFPCharacter::TakeDropRight() {
 
 			if (_isTutorialEnabled) {
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
-				_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+				_Tutorial->Next(PlayerController, 2, false);//Next widget of tutorial
 
-				_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+				_Tutorial->Last(PlayerController, 7, true, this);//Last widget of tutorial
 			}
 
             /* Save scenary inventory item */
@@ -482,9 +481,9 @@ void AFPCharacter::TakeDropRight() {
 
 		if (_isTutorialEnabled) {
 			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+			_Tutorial->Next(PlayerController, 2, false);//Next widget of tutorial
 
-			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+			_Tutorial->Last(PlayerController, 7, true, this);//Last widget of tutorial
 		}
 
         /* Save hand inventory item */
@@ -500,9 +499,9 @@ void AFPCharacter::TakeDropLeft() {
 
 			if (_isTutorialEnabled) {
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
-				_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+				_Tutorial->Next(PlayerController, 2, false);//Next widget of tutorial
 
-				_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+				_Tutorial->Last(PlayerController, 7, true, this);//Last widget of tutorial
 			}
 
             /* Save scenary inventory item */
@@ -560,9 +559,9 @@ void AFPCharacter::TakeDropLeft() {
 
 		if (_isTutorialEnabled) {
 			APlayerController* PlayerController = Cast<APlayerController>(GetController());
-			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+			_Tutorial->Next(PlayerController, 2, false);//Next widget of tutorial
 
-			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+			_Tutorial->Last(PlayerController, 7, true, this);//Last widget of tutorial
 		}
 
         /* Save hand inventory item */
@@ -602,14 +601,33 @@ void AFPCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 		ItemActor->SetActorEnableCollision(true);
 
 	}
-	if (Hand == 4) {
-		_Inventory->RemoveItem(ItemActor);
-	}
 	if (Hand == 1) _ItemLeft = nullptr;
 	else if (Hand == 2) _ItemRight = nullptr;
+
+
+	//Soltar objetos tras respawn de muerte
+	if (Hand == 4) {
+		_Inventory->RemoveItem(ItemActor);
+		_ItemLeft = nullptr;
+		_ItemRight = nullptr;
+	}
 }
 
 /**************** TRIGGER INVENTORY *************/
+/******CLOSE INVENTORY*****/
+void AFPCharacter::HideInventory() {
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController && _InventoryWidget) {
+		if (!_IsInventoryHidden) {
+			_InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+			PlayerController->bShowMouseCursor = false;
+			PlayerController->bEnableClickEvents = false;
+			PlayerController->bEnableMouseOverEvents = false;
+			PlayerController->SetInputMode(FInputModeGameOnly());
+			_IsInventoryHidden = !_IsInventoryHidden;
+		}
+	}
+}
 /*** SHOW INVENTORY ***/
 void AFPCharacter::ToggleInventory() {
     if (!_MenuInteractionComp->IsActive()) {
@@ -627,7 +645,7 @@ void AFPCharacter::ToggleInventory() {
                 PlayerController->SetInputMode(Mode);
 
 				if (_isTutorialEnabled) {
-					_Tutorial->Next(PlayerController, 3, false, false);//Next widget of tutorial
+					_Tutorial->Next(PlayerController, 3, false);//Next widget of tutorial
 				}
             }
             else {
@@ -638,7 +656,7 @@ void AFPCharacter::ToggleInventory() {
                 PlayerController->SetInputMode(FInputModeGameOnly());
 
 				if (_isTutorialEnabled) {
-					_Tutorial->Next(PlayerController, 5, false, false);//Next widget of tutorial
+					_Tutorial->Next(PlayerController, 5, false);//Next widget of tutorial
 				}
             }
             _IsInventoryHidden = !_IsInventoryHidden;
@@ -674,7 +692,7 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
 
 				if (_isTutorialEnabled) {
 					APlayerController* PlayerController = Cast<APlayerController>(GetController());
-					_Tutorial->Next(PlayerController, 4, false, false);//Next widget of tutorial
+					_Tutorial->Next(PlayerController, 4, false);//Next widget of tutorial
 				}
 
                 /* Save hand inventory item */
@@ -691,7 +709,7 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
 
 				if (_isTutorialEnabled) {
 					APlayerController* PlayerController = Cast<APlayerController>(GetController());
-					_Tutorial->Next(PlayerController, 4, false, false);//Next widget of tutorial
+					_Tutorial->Next(PlayerController, 4, false);//Next widget of tutorial
 				}
                 /* Save hand inventory item */
                 SERVER_SaveItemInventory(_ItemRight, 2);

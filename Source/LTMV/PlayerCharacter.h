@@ -26,6 +26,9 @@ public:
     FRadioDelegate _OnRadioPressedDelegate;
     FRadioDelegate _OnRadioReleasedDelegate;
 
+	/************* TUTORIAL ************/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
+		bool _isTutorialEnabled;
 
     APlayerCharacter(const FObjectInitializer& OI);
     virtual void AfterPossessed(bool SetInventory , bool respawning);

@@ -30,9 +30,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     UTexture2D* GetItemTextureAt(int itemIndex);
 
-	/************* TUTORIAL ************/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
-	bool _isTutorialEnabled;
 
 	UFUNCTION(BlueprintCallable, Category = "FadeScreen")
 	void FadeDisplay();
@@ -104,10 +101,14 @@ public:
 		virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
 	UFUNCTION(NetMulticast, Reliable)
 		virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
+
+	void HideInventory();
+
 protected:
 
     /********** INVENTORY ***********/
     void ToggleInventory();
+
 
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_SaveItemInventory(AActor* ItemActor, int Hand);
