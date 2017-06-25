@@ -20,6 +20,8 @@ public:
     TSubclassOf<ACharacter> CharacterClass;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     bool IsHost;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
+		FString Language;
 };
 
 USTRUCT(BlueprintType, Category = "Menu Options")
@@ -35,8 +37,8 @@ UCLASS()
 class LTMV_API UNWGameInstance : public UGameInstance {
     GENERATED_BODY()
 
-/**************************************** SESSION ************************************************/
 public:
+	UPROPERTY(BlueprintReadOnly, Category = "Player Info")
     bool _IsVRMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FMenuOptions _MenuOptions;
@@ -57,6 +59,11 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Start")
     void InitGame();
+
+	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
+	void LaunchLoadingScreen();
+
+	/**************************************** SESSIONS ************************************************/
 
     /*** BLUEPRINTS ***/
     UFUNCTION(BlueprintCallable, Category = "Session")
@@ -134,6 +141,7 @@ public:
     /* BINDINGS */
     void OnButtonNewGame(UInputMenu* InputMenu);
     void OnButtonOptions(UInputMenu* InputMenu);
+	void OnButtonLanguage(UInputMenu* InputMenu);
     void OnButtonExitGame(UInputMenu* InputMenu);
 
     void OnButtonHostGame(UInputMenu* InputMenu);
@@ -143,6 +151,10 @@ public:
     void OnButtonSwitchComfortMode(UInputMenu* InputMenu);
 
     void OnButtonBackToMenu(UInputMenu* InputMenu);
+
+	void OnButtonSelectES(UInputMenu* InputMenu);
+	void OnButtonSelectEN(UInputMenu* InputMenu);
+	void OnButtonSelectFR(UInputMenu* InputMenu);
     
 protected:
     TSubclassOf<ACharacter> _BoyClass;
@@ -163,4 +175,5 @@ private:
     AMenu3D* _MenuActor;
 
     void CreateOptionsPanel();
+	void CreateLanguagePanel();
 };

@@ -18,7 +18,7 @@ public:
 
     virtual void BeginPlay() override;
 
-    void AfterPossessed();
+    void AfterPossessed(bool _afterdeath);
     //This override is because CLIENT_AfterPossessed does not work in host (Client-server)
     UFUNCTION()
     void OnRep_Pawn() override;

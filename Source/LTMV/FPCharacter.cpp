@@ -17,10 +17,10 @@
 #include "MenuInteraction.h"
 #include "InventoryWidget.h"
 #include "FMODAudioComponent.h"
+#include "NWGameInstance.h"
 
 AFPCharacter::AFPCharacter(const FObjectInitializer& OI) : Super(OI) {
-
-
+	
     _Inventory = CreateDefaultSubobject<UInventory>(TEXT("Inventory"));
 	_Tutorial = CreateDefaultSubobject<UTutorial>(TEXT("Tutorial"));
 	_TutorialVR = CreateDefaultSubobject<UTutorialVR>(TEXT("TutorialVR"));
@@ -57,12 +57,27 @@ void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("Use", IE_Released, this, &AFPCharacter::UseReleased);
 
     PlayerInput->BindAction("ToggleInventory", IE_Pressed, this, &AFPCharacter::ToggleInventory);
+	PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AFPCharacter::FadeDisplay);
+}
 
+void AFPCharacter::FadeDisplay() {// T
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC) {
+		APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+		if (_CameraManager && !bToBlack) {
+			_CameraManager->StartCameraFade(0.f, 1.f, 5.f, FColor::Black, false, true);
+			bToBlack = true;
+		}
+
+		else if (_CameraManager && bToBlack) {
+			_CameraManager->StartCameraFade(1.f, 0.f, 10.f, FColor::Black, false, true);
+			bToBlack = false;
+		}
+	}
 }
 
 void AFPCharacter::BeginPlay() {
     Super::BeginPlay();
-
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
     if (PlayerController && PlayerController->IsLocalPlayerController()) {
@@ -71,43 +86,54 @@ void AFPCharacter::BeginPlay() {
         if (HUD) HUD->AddToViewport();
 		
     }
-
 }
 
-void AFPCharacter::AfterPossessed(bool SetInventory) {
-	Super::AfterPossessed(SetInventory);
+void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
+
+	if (respawning) {
+		_isTutorialEnabled = false;
+		_Tutorial->Hide();
+
+	}
+
+	Super::AfterPossessed(SetInventory,respawning);
+
+	UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController->IsLocalPlayerController()) {
 		if (SetInventory) {
+
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
 			if (_isTutorialEnabled) {
+				_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);//Set language
 				_Tutorial->Next(PlayerController, 0, false, false);//Updating to next tutorial widget
+
+				_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
+				FVector Location = _PlayerCamera->GetComponentLocation() +
+					(_PlayerCamera->GetForwardVector().GetSafeNormal() * 200);
+				_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 0);//Tutorial at bunker/lab
 			}
-			_InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
-			if (_InventoryWidget) {
-				_InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
-				_InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
-				_IsInventoryHidden = true;
+			if (!_InventoryWidget) {
+				_InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
+				if (_InventoryWidget) {
+					_InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
+					_InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+					_IsInventoryHidden = true;
+				}
 			}
-
-
-			//TUTORIAL VR
-
-			/*
-			APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
-			UCameraComponent* CameraComp = Cast<UCameraComponent>(PlayerCharacter->
-				FindComponentByClass<UCameraComponent>());
-				*/
-
 		}
 	}
 	if (!SetInventory) {
 		if (_isTutorialEnabled) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("TUTORIAL EN LA CUEVA: ")));
+			_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
 			_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
 		}
-
-		_TutorialVR->StartTutorial(_PlayerCamera);//Start tutorial at lobby
-
+		if (PlayerController->IsLocalPlayerController()) {
+			_TutorialVR->SetLanguage(gameInstance->_PlayerInfoSaved.Language);
+			_TutorialVR->StartTutorial(_PlayerCamera);//Start tutorial at lobby
+		}
 	}
 }
 
@@ -116,6 +142,11 @@ void AFPCharacter::Tick(float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
     //_StepsAudioComp->SetParameter(FName("humedad"), 0.9);
     Raycasting();
+
+	FVector StartRaycast = _FirstPersonMesh->GetSocketByName("GripPoint_L")->GetSocketLocation(_FirstPersonMesh);
+	FVector EndRaycast = _PlayerCamera->GetForwardVector() * 200.f + StartRaycast;
+
+	DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.f, (uint8)'\000', 0.8f);
 
 }
 
@@ -131,7 +162,6 @@ FHitResult AFPCharacter::Raycasting() {
     DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (bHitRayCastFlag && _HitResult.Actor.IsValid()) {
-        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *_HitResult.Actor->GetName()));
         UActorComponent* actorComponent = _HitResult.GetComponent();
 
         TArray<UActorComponent*> components = actorComponent->GetOwner()->GetComponentsByClass(UActorComponent::StaticClass());
@@ -159,8 +189,14 @@ FHitResult AFPCharacter::Raycasting() {
 				if (_isTutorialEnabled) {
 					APlayerController* PlayerController = Cast<APlayerController>(GetController());
 					_Tutorial->Next(PlayerController, 1, false, false);//NExt widget of tutorial
+
+					FVector Location;
+					Location = _HitResult.Actor->GetActorLocation()
+						+ (_HitResult.Actor->GetActorForwardVector().GetSafeNormal() * 90)
+						+ (_HitResult.Actor->GetActorUpVector().GetSafeNormal() * -30);
+					//+(_HitResult.Actor->GetActorUpVector().GetSafeNormal() * 20);
+					_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 1);//Tutorial at bunker/lab
 				}
-				//_TutorialVR->Next(_PlayerCamera);//Tutorial at bunker/lab
 				
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {
@@ -180,8 +216,6 @@ FHitResult AFPCharacter::Raycasting() {
 				_LastMeshFocused->SetCustomDepthStencilValue(254);
 				bInventoryItemHit = true;
 			}
-
-            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *_HitResult.Actor->GetName()));
         }
     }
 
@@ -201,6 +235,7 @@ FHitResult AFPCharacter::Raycasting() {
 /****************************************** ACTION MAPPINGS **************************************/
 /************** USE *************/
 void AFPCharacter::UsePressed() {
+
     /* RAYCASTING DETECTION */
     if (_HitResult.GetActor()) {
 		_LastPressed = _HitResult;
@@ -320,6 +355,66 @@ void AFPCharacter::UseRightReleased(bool IsMenuHidden) {
 }
 
 /********** TAKE & DROP RIGHT HAND ***********/
+void AFPCharacter::TakeDropRight_Respawn(AActor* actor) {
+
+	Super::TakeDropRight_Respawn(actor);
+
+	if (actor->GetComponentByClass(UInventoryItem::StaticClass())) {
+
+		if (_isTutorialEnabled) {
+			APlayerController* PlayerController = Cast<APlayerController>(GetController());
+			_Tutorial->Next(PlayerController, 2, false, false);//Next widget of tutorial
+
+			_Tutorial->Next(PlayerController, 7, true, true);//Next widget of tutorial
+		}
+
+		/* Save scenary inventory item */
+		SERVER_SaveItemInventory(actor, 0);
+	}
+	else if (actor->GetComponentByClass(UTokenHolder::StaticClass()) && _ItemRight &&
+		_ItemRight->GetComponentByClass(UToken::StaticClass())) {
+		SERVER_Drop(_ItemRight, 2);
+		GrabbingRight = false;
+	}
+	else if (actor->GetComponentByClass(UHandPickItem::StaticClass())) {
+		if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+			/* Replace item */
+			SERVER_Drop(_ItemRight, 2);
+			SERVER_TakeRight(actor);
+			UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(actor->GetComponentByClass(
+				UStaticMeshComponent::StaticClass()));
+			const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_R"));
+			ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+				"GripPoint_R");
+			if (_GripSocket)
+			{
+				ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+				ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+			}
+			GrabbingRight = true;
+		}
+		else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
+			/* Save hand inventory item */
+			SERVER_SaveItemInventory(_ItemRight, 2);
+		}
+		else if (!_ItemRight) {
+			/* Take item */
+			SERVER_TakeRight(actor);
+			UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(actor->GetComponentByClass(
+				UStaticMeshComponent::StaticClass()));
+			const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_R"));
+			ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+				"GripPoint_R");
+			if (_GripSocket)
+			{
+				ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+				ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+			}
+			GrabbingRight = true;
+		}
+	}
+
+}
 void AFPCharacter::TakeDropRight() {
     AActor* ActorFocused = GetItemFocused();
     if (ActorFocused) {
@@ -498,7 +593,7 @@ void AFPCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 			Holder->_Tablilla = ItemActor;
 		}
 	}
-
+	
 	else if (ItemMesh) {
 		ItemMesh->SetMobility(EComponentMobility::Movable);
 		ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
@@ -507,7 +602,9 @@ void AFPCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 		ItemActor->SetActorEnableCollision(true);
 
 	}
-
+	if (Hand == 4) {
+		_Inventory->RemoveItem(ItemActor);
+	}
 	if (Hand == 1) _ItemLeft = nullptr;
 	else if (Hand == 2) _ItemRight = nullptr;
 }
@@ -614,45 +711,47 @@ void AFPCharacter::SERVER_PickItemInventoryLeft_Implementation(AActor* ItemActor
     MULTI_PickItemInventoryLeft(ItemActor);
 }
 void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor) {
-    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
-        UStaticMeshComponent::StaticClass()));
-    UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
-        UInventoryItem::StaticClass()));
+	if (ItemActor) {
+		UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
+			UStaticMeshComponent::StaticClass()));
+		UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
+			UInventoryItem::StaticClass()));
 
-    if (ItemMesh && InventoryItemComp) {
-        ItemMesh->SetMobility(EComponentMobility::Movable);
-		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        ItemMesh->SetSimulatePhysics(false);
-		/*
-        ItemMesh->AttachToComponent(GetMesh(),
-                                    FAttachmentTransformRules::KeepRelativeTransform,
-                                    TEXT("itemHand_l"));
+		if (ItemMesh && InventoryItemComp) {
+			ItemMesh->SetMobility(EComponentMobility::Movable);
+			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			ItemMesh->SetSimulatePhysics(false);
+			/*
+			ItemMesh->AttachToComponent(GetMesh(),
+										FAttachmentTransformRules::KeepRelativeTransform,
+										TEXT("itemHand_l"));
 
-        ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
-        ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
-		*/
+			ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_L;
+			ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_L;
+			*/
 
-		const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_L"));
-		ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
-			TEXT("GripPoint_L"));
-		
-		if (_GripSocket)
-		{
-			ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
-			ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+			const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_L"));
+			ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+				TEXT("GripPoint_L"));
+
+			if (_GripSocket)
+			{
+				ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+				ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+			}
+
+			ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+
+			_ItemLeft = ItemActor;
+			GrabbingLeft = true;
+
+			/*If the item is equipped in the other hand*/
+			if (_ItemRight && _ItemRight == ItemActor) {
+				_ItemRight = nullptr;
+				GrabbingRight = false;
+			}
 		}
-		
-        ItemMesh->GetOwner()->SetActorHiddenInGame(false);
-		
-        _ItemLeft = ItemActor;
-		GrabbingLeft = true;
-
-        /*If the item is equipped in the other hand*/
-		if (_ItemRight && _ItemRight == ItemActor) {
-			_ItemRight = nullptr;
-			GrabbingRight = false;
-		}
-    }
+	}
 }
 
 bool AFPCharacter::SERVER_PickItemInventoryRight_Validate(AActor* ItemActor) { return true; }
@@ -662,43 +761,51 @@ void AFPCharacter::SERVER_PickItemInventoryRight_Implementation(AActor* ItemActo
 }
 
 void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor) {
-    UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
-        UStaticMeshComponent::StaticClass()));
-    UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
-        UInventoryItem::StaticClass()));
 
-    if (ItemMesh && InventoryItemComp) {
-        ItemMesh->SetMobility(EComponentMobility::Movable);
-		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        ItemMesh->SetSimulatePhysics(false);
+	if (ItemActor) {
 		/*
-        ItemMesh->AttachToComponent(GetMesh(),
-                                    FAttachmentTransformRules::KeepRelativeTransform,
-                                    TEXT("itemHand_r"));
-
-        ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_R;
-        ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_R;
+		UStaticMeshComponent* ItemMesh = nullptr;
+		UInventoryItem* InventoryItemComp = nullptr
+		if (ItemActor) {
 		*/
-		const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_R"));
-		ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
-			TEXT("GripPoint_R"));
-		if (_GripSocket)
-		{
-			ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
-			ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+		UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
+			UStaticMeshComponent::StaticClass()));
+		UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
+			UInventoryItem::StaticClass()));
+		//}
+		if (ItemMesh && InventoryItemComp) {
+			ItemMesh->SetMobility(EComponentMobility::Movable);
+			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			ItemMesh->SetSimulatePhysics(false);
+			/*
+			ItemMesh->AttachToComponent(GetMesh(),
+										FAttachmentTransformRules::KeepRelativeTransform,
+										TEXT("itemHand_r"));
+
+			ItemMesh->RelativeLocation = InventoryItemComp->_locationAttachFromInventory_R;
+			ItemMesh->RelativeRotation = InventoryItemComp->_rotationAttachFromInventory_R;
+			*/
+			const UStaticMeshSocket* _GripSocket = ItemMesh->GetSocketByName(TEXT("Grip_R"));
+			ItemMesh->AttachToComponent(_FirstPersonMesh, FAttachmentTransformRules::KeepRelativeTransform,
+				TEXT("GripPoint_R"));
+			if (_GripSocket)
+			{
+				ItemMesh->RelativeLocation = _GripSocket->RelativeLocation;
+				ItemMesh->RelativeRotation = _GripSocket->RelativeRotation;
+			}
+
+			ItemMesh->GetOwner()->SetActorHiddenInGame(false);
+
+			_ItemRight = ItemActor;
+			GrabbingRight = true;
+
+			/*If the item is equipped in the other hand*/
+			if (_ItemLeft && _ItemLeft == ItemActor) {
+				_ItemLeft = nullptr;
+				GrabbingLeft = false;
+			}
 		}
-
-		ItemMesh->GetOwner()->SetActorHiddenInGame(false);
-
-        _ItemRight = ItemActor;		
-		GrabbingRight = true;
-
-        /*If the item is equipped in the other hand*/
-		if (_ItemLeft && _ItemLeft == ItemActor) {
-			_ItemLeft = nullptr;
-			GrabbingLeft = false;
-		}
-    }
+	}
 }
 
 /****************************************** AUXILIAR FUNCTIONS ***********************************/

@@ -149,87 +149,60 @@ void AVRCharacter::BeginPlay() {
 	}
 
 	_LastMeshPosition = GetMesh()->GetComponentLocation();
+
+	// El character empieza con la pantalla en negro salvo en el menú principal.
+	if (GetWorld()->GetCurrentLevel()->GetFName() != TEXT("MapMenu")) {
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC) {
+			APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+			if (_CameraManager) {
+				_CameraManager->bEnableFading = true;
+				_CameraManager->FadeColor = FColor::Black;
+				_CameraManager->FadeAmount = 1.f;
+				bToBlack = true;
+				FadeDisplay();
+			}
+		}
+	}
 }
 
-void AVRCharacter::AfterPossessed(bool SetInventory) {
+void AVRCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 	if (SetInventory) {
 		// Poner el tutorial del bunker
 	}
 	else {
 		// tutorial de la cueva
 	}
+
+	// El character empieza con la pantalla en negro salvo en el menú principal.
+	if (GetWorld()->GetCurrentLevel()->GetFName() != TEXT("MapMenu")) {
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC) {
+			APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+			if (_CameraManager) {
+				_CameraManager->bEnableFading = true;
+				_CameraManager->FadeColor = FColor::Black;
+				_CameraManager->FadeAmount = 1.f;
+				bToBlack = true;
+				FadeDisplay();
+			}
+		}
+	}
 }
 
 void AVRCharacter::Tick(float deltaTime) {
     Super::Tick(deltaTime);
 
-	// Necesario replicar estas funciones, asi como las variables de IK.
-	UpdateMeshPostitionWithCamera();
-	UpdateMeshRotationWithCamera();
+	UpdateIK();
 
-    UpdateIK();
-    
+	SERVER_UpdateMeshWithCamera();
+   
     SERVER_UpdateComponentPosition(_LeftHandComp, _LeftHandComp->RelativeLocation,
                                                   _LeftHandComp->RelativeRotation);
 
     SERVER_UpdateComponentPosition(_RightHandComp, _RightHandComp->RelativeLocation,
                                                    _RightHandComp->RelativeRotation);
 
-}
-
-void AVRCharacter::UpdateMeshPostitionWithCamera() {
-
-	GetMesh()->SetWorldLocation(FVector(_PlayerCamera->GetComponentLocation().X,
-										_PlayerCamera->GetComponentLocation().Y,
-										GetMesh()->GetComponentLocation().Z));
-
-	_MeshSpeed = (GetMesh()->GetComponentLocation() - _LastMeshPosition).Size() / GetWorld()->GetDeltaSeconds();
-
-	if (_MeshSpeed > GetCharacterMovement()->GetMaxSpeed()) {
-		_MeshSpeed = GetCharacterMovement()->GetMaxSpeed();
-	}
-
-	_LastMeshPosition = GetMesh()->GetComponentLocation();
-}
-
-void AVRCharacter::UpdateMeshRotationWithCamera() {
-    if (!bHeadTurn && !bHeadTurning) {
-        CheckHeadTurn();
-        bHeadTurn = false;
-    }
-
-    if (bHeadTurning) {
-        TurnBody();
-    }
-}
-
-void AVRCharacter::CheckHeadTurn() {
-	float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
-    float CharacterYaw = this->GetActorRotation().Yaw;
-    float RelativeYaw = CameraYaw - CharacterYaw;
-
-    if (RelativeYaw >= MaxHeadTurnValue || RelativeYaw <= -MaxHeadTurnValue) {
-        bHeadTurn = true;
-        bHeadTurning = true;
-    }
-}
-
-void AVRCharacter::TurnBody() {
-    float InterpSpeed = 2.f / GetWorld()->DeltaTimeSeconds;
-	FRotator CurrentRotation = GetMesh()->GetComponentRotation();
-
-    FRotator TargetRotation = FRotator(GetMesh()->GetComponentRotation().Pitch,
-                                       _PlayerCamera->GetComponentRotation().Yaw - 90.f,
-									   GetMesh()->GetComponentRotation().Roll);
-    
-    FRotator NextRotation = FMath::RInterpConstantTo(CurrentRotation,
-                                                     TargetRotation,
-                                                     GetWorld()->DeltaTimeSeconds,
-                                                     InterpSpeed);
-
-    GetMesh()->SetWorldRotation(NextRotation);
-
-    if ((NextRotation - TargetRotation).IsNearlyZero()) { bHeadTurning = false; }
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -240,28 +213,34 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     PlayerInput->BindAction("DropRight", IE_Pressed, this, &AVRCharacter::DropRight);
 
     /* VR SPECIFIC */
-    PlayerInput->BindAction("ToggleTrackingSpace", IE_Pressed, this, &AVRCharacter::ToggleTrackingSpace);
     PlayerInput->BindAction("ResetHMDOrigin", IE_Pressed, this, &AVRCharacter::ResetHMDOrigin);
 
     /* MOVEMENT */
 	PlayerInput->BindAction("TurnLeftComfort", IE_Pressed, this, &AVRCharacter::TurnLeftComfort);
 	PlayerInput->BindAction("TurnRightComfort", IE_Pressed, this, &AVRCharacter::TurnRightComfort);
+
+	/* FADE CAMERA */
+	PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AVRCharacter::FadeDisplay);
 }
 
 void AVRCharacter::ResetHMDOrigin() {// R
     if (HMD) HMD->ResetOrientationAndPosition();
 }
 
-void AVRCharacter::ToggleTrackingSpace() {// T
-    // TODO: Fix module includes for SteamVR
+void AVRCharacter::FadeDisplay() {// T
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC) {
+		APlayerCameraManager* _CameraManager = PC->PlayerCameraManager;
+		if (_CameraManager && !bToBlack) {
+			_CameraManager->StartCameraFade(0.f, 1.f, 5.f, FColor::Black, false, true);
+			bToBlack = true;
+		}
 
-    //@todo Make this safe once we can add something to the DeviceType enum.  For now, make the terrible assumption this is a SteamVR device.
-    //FSteamVRHMD* SteamVRHMD = (FSteamVRHMD*)(GEngine->HMDDevice.Get());
-    //if (SteamVRHMD && SteamVRHMD->IsStereoEnabled())
-    //{
-    // 	ESteamVRTrackingSpace TrackingSpace = SteamVRHMD->GetTrackingSpace();
-    // 	SteamVRHMD->SetTrackingSpace(TrackingSpace == ESteamVRTrackingSpace::Seated ? ESteamVRTrackingSpace::Standing : ESteamVRTrackingSpace::Seated);
-    //}
+		else if (_CameraManager && bToBlack) {
+			_CameraManager->StartCameraFade(1.f, 0.f, 10.f, FColor::Black, false, true);
+			bToBlack = false;
+		}
+	}
 }
 
 void AVRCharacter::MoveForward(float Value) {
@@ -419,6 +398,71 @@ void AVRCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
     }
 }
 
+/************************** UPDATE MESH POSITION AND ROTATIONS WITH HMD **************************/
+
+void AVRCharacter::UpdateMeshPostitionWithCamera() {
+
+	GetMesh()->SetWorldLocation(FVector(_PlayerCamera->GetComponentLocation().X,
+		_PlayerCamera->GetComponentLocation().Y,
+		GetMesh()->GetComponentLocation().Z));
+
+	_MeshSpeed = (GetMesh()->GetComponentLocation() - _LastMeshPosition).Size() / GetWorld()->GetDeltaSeconds();
+
+	if (_MeshSpeed > GetCharacterMovement()->GetMaxSpeed()) {
+		_MeshSpeed = GetCharacterMovement()->GetMaxSpeed();
+	}
+
+	_LastMeshPosition = GetMesh()->GetComponentLocation();
+}
+
+void AVRCharacter::UpdateMeshRotationWithCamera() {
+	if (!bHeadTurn && !bHeadTurning) {
+		CheckHeadTurn();
+		bHeadTurn = false;
+	}
+
+	if (bHeadTurning) {
+		TurnBody();
+	}
+}
+
+// Support functions CheckHeadTurn and TurnBody.
+void AVRCharacter::CheckHeadTurn() {
+	float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw;
+	float CharacterYaw = this->GetActorRotation().Yaw;
+	float RelativeYaw = CameraYaw - CharacterYaw;
+
+	if (RelativeYaw >= MaxHeadTurnValue || RelativeYaw <= -MaxHeadTurnValue) {
+		bHeadTurn = true;
+		bHeadTurning = true;
+	}
+}
+
+void AVRCharacter::TurnBody() {
+	float InterpSpeed = 2.f / GetWorld()->DeltaTimeSeconds;
+	FRotator CurrentRotation = GetMesh()->GetComponentRotation();
+
+	FRotator TargetRotation = FRotator(GetMesh()->GetComponentRotation().Pitch,
+		_PlayerCamera->GetComponentRotation().Yaw - 90.f,
+		GetMesh()->GetComponentRotation().Roll);
+
+	FRotator NextRotation = FMath::RInterpConstantTo(CurrentRotation,
+		TargetRotation,
+		GetWorld()->DeltaTimeSeconds,
+		InterpSpeed);
+
+	GetMesh()->SetWorldRotation(NextRotation);
+
+	if ((NextRotation - TargetRotation).IsNearlyZero()) { bHeadTurning = false; }
+}
+
+bool AVRCharacter::SERVER_UpdateMeshWithCamera_Validate() { return true; }
+void AVRCharacter::SERVER_UpdateMeshWithCamera_Implementation() { MULTI_UpdateMeshWithCamera(); }
+void AVRCharacter::MULTI_UpdateMeshWithCamera_Implementation() { 
+	UpdateMeshPostitionWithCamera(); 
+	UpdateMeshRotationWithCamera();
+}
+
 /****************************************** ACTION MAPPINGS **************************************/
 /******** USE ITEM LEFT *********/
 void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
@@ -439,7 +483,7 @@ void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
     else _MenuInteractionComp->PressPointer();
 
     /* ANIMATION */
-    SERVER_UpdateAnimation(EGripEnum::Grab, 1);
+    if (!_ItemLeft && !_ActorGrabbing) SERVER_UpdateAnimation(EGripEnum::Grab, 1);
 }
 
 void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
@@ -461,7 +505,7 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
     else _MenuInteractionComp->ReleasePointer();
 
     /* ANIMATION */
-    SERVER_UpdateAnimation(EGripEnum::Open, 1);
+    if (!_ItemLeft && !_ActorGrabbing) SERVER_UpdateAnimation(EGripEnum::Open, 1);
 }
 
 /******* USE ITEM RIGHT *** ******/
@@ -483,7 +527,7 @@ void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
     else _MenuInteractionComp->PressPointer();
 
     /* ANIMATION */
-    SERVER_UpdateAnimation(EGripEnum::Grab, 2);
+    if (!_ItemRight && !_ActorGrabbing) SERVER_UpdateAnimation(EGripEnum::Grab, 2);
 }
 
 void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
@@ -505,7 +549,7 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
     else _MenuInteractionComp->ReleasePointer();
 
     /* ANIMATION */
-    SERVER_UpdateAnimation(EGripEnum::Open, 2);
+    if (!_ItemRight && !_ActorGrabbing) SERVER_UpdateAnimation(EGripEnum::Open, 2);
 }
 
 /*************** USE TRIGGER *************/
@@ -554,6 +598,8 @@ void AVRCharacter::UseTriggerPressed(AActor* ActorFocused, USceneComponent* InPa
                 SERVER_GrabPress(ActorFocused, InParent, FName("TakeSocket"), Hand);
             }
 
+			/* ANIMATION WHILE GRABBING */
+			SERVER_UpdateAnimation(EGripEnum::CanGrab, Hand);
         }
         else {
             /* CAN BE USED */
@@ -586,6 +632,7 @@ void AVRCharacter::UseTriggerReleased(AActor* ActorFocused, USceneComponent* InP
             }
             /* Drop item */
             SERVER_GrabRelease(Hand);
+			SERVER_UpdateAnimation(EGripEnum::Open, Hand);
         }
     }
     else if (ActorFocused && ActorFocused == _LastActorFocused) {
@@ -672,6 +719,7 @@ void AVRCharacter::ItemGrabbedLeft() {
             _ActorGrabbing->SetActorEnableCollision(false);
             _ItemLeft = _ActorGrabbing;
             _ActorGrabbing = nullptr;
+			SERVER_UpdateAnimation(EGripEnum::Grab, 1);
         }
     }
 }
@@ -696,6 +744,7 @@ void AVRCharacter::ItemGrabbedRight() {
             _ActorGrabbing->SetActorEnableCollision(false);
             _ItemRight = _ActorGrabbing;
             _ActorGrabbing = nullptr;
+			SERVER_UpdateAnimation(EGripEnum::Grab, 2);
         }
     }
 }
@@ -704,12 +753,14 @@ void AVRCharacter::ItemGrabbedRight() {
 void AVRCharacter::DropLeft() {
     if (_ItemLeft && _ItemLeft->GetComponentByClass(UGrabItem::StaticClass())) {
         SERVER_Drop(_ItemLeft, 1);
+		SERVER_UpdateAnimation(EGripEnum::Open, 1);
     }
 }
 
 void AVRCharacter::DropRight() {
     if (_ItemRight && _ItemRight->GetComponentByClass(UGrabItem::StaticClass())) {
         SERVER_Drop(_ItemRight, 2);
+		SERVER_UpdateAnimation(EGripEnum::Open, 2);
     }
 }
 

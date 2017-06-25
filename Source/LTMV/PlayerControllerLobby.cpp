@@ -73,7 +73,7 @@ void APlayerControllerLobby::AfterPossessed() {
     if (!_ClientPossesed) {
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
         if (PlayerCharacter) {
-            PlayerCharacter->AfterPossessed(false);
+            PlayerCharacter->AfterPossessed(false,false);
             _ClientPossesed = true;
         }
     }

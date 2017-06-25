@@ -1,5 +1,8 @@
+
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "LTMV.h"
+#include "GameStatePlay.h"
+#include "FMODAudioComponent.h"
 #include "DoorState.h"
 
 
@@ -10,6 +13,12 @@ UDoorState::UDoorState() {
 void UDoorState::BeginPlay() {
     Super::BeginPlay();
 
+}
+
+int UDoorState::GetState() {
+	if (StateDoor == EStateDoor::CLOSE || StateDoor == EStateDoor::CLOSING) { return 0; }
+	else if (StateDoor == EStateDoor::OPEN || StateDoor == EStateDoor::OPENING) { return 1; }
+	else { return 2; }
 }
 
 void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -80,6 +89,9 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else {
 			StateDoor = EStateDoor::OPEN;
+
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			if (GameState) GameState->updateDoors();
 		}
 
 	}
@@ -143,6 +155,9 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else {
 			StateDoor = EStateDoor::CLOSE;
+
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			if (GameState) GameState->updateDoors();
 		}
 	}
 
@@ -162,6 +177,19 @@ int UDoorState::SwitchState_Implementation() {
 			StateDoor = EStateDoor::CLOSING;
             _current_displacement = _max_displacement;
 		}
+		if (DoorType == EDoorType::SLIDABLE_DOOR) {
+			UFMODAudioComponent* _DoorAudio = Cast<UFMODAudioComponent>(GetOwner()->GetComponentByClass(UFMODAudioComponent::StaticClass()));
+			if (_DoorAudio) {
+				_DoorAudio->Play();
+			}
+		}
+	}
+	else {
+		UFMODAudioComponent* _DoorAudio = Cast<UFMODAudioComponent>(GetOwner()->GetComponentByClass(UFMODAudioComponent::StaticClass()));
+		if (_DoorAudio) {
+			_DoorAudio->Play();
+		}
+
 	}
     return 0;
 }

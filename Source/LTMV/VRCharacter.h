@@ -20,6 +20,9 @@ class LTMV_API AVRCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+	UPROPERTY()
+	bool bToBlack = false;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rumble")
     UForceFeedbackEffect * _RumbleOverLapLeft;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rumble")
@@ -32,14 +35,14 @@ public:
 
     AVRCharacter(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
-	virtual void AfterPossessed(bool SetInventory) override;
+	virtual void AfterPossessed(bool SetInventory, bool respawning) override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
     virtual void Tick(float deltaTime) override;
 
     void ResetHMDOrigin();
 
-    /* Toggle between Seated and Standing VR Tracking */
-    void ToggleTrackingSpace();
+	UFUNCTION(BlueprintCallable, Category = "FadeScreen")
+	void FadeDisplay();
 
     /******** USE ITEM LEFT *********/
     void UseLeftPressed(bool IsMenuHidden) override;
@@ -180,21 +183,23 @@ public:
 private:
     bool bHeadTurn;
     bool bHeadTurning;
-
-    UFUNCTION()
-    void UpdateMeshPostitionWithCamera();
-    UFUNCTION()
-    void UpdateMeshRotationWithCamera();
 	FVector _LastMeshPosition;
-public: 
+
+protected:
+    void UpdateMeshPostitionWithCamera();
+    void UpdateMeshRotationWithCamera();
+	void CheckHeadTurn();
+	void TurnBody();
+
+	/* SERVER UPDATE MESH POSITION AND ROTATION */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SERVER_UpdateMeshWithCamera();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULTI_UpdateMeshWithCamera();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float _MeshSpeed;
 
-    void CheckHeadTurn();
-    void TurnBody();
-    /**/
-
-protected:
     /*** IK PROPERTIES ***/
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _HMDWorldOrientation;

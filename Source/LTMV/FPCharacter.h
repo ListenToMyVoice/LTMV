@@ -5,19 +5,21 @@
 #include "PlayerCharacter.h"
 #include "FPCharacter.generated.h"
 
-
 UCLASS()
 class LTMV_API AFPCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+	UPROPERTY()
+	bool bToBlack = false;
+
     /* HUD */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HUD")
     TSubclassOf<class UUserWidget> _HUDClass;
 
     AFPCharacter(const FObjectInitializer& OI);
     void BeginPlay() override;
-    void AfterPossessed(bool SetInventory) override;
+    void AfterPossessed(bool SetInventory, bool respawning) override;
     void Tick(float DeltaSeconds) override;
 
     /************* INVENTORY ************/
@@ -32,6 +34,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
 	bool _isTutorialEnabled;
 
+	UFUNCTION(BlueprintCallable, Category = "FadeScreen")
+	void FadeDisplay();
 
     /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -81,7 +85,6 @@ protected:
 	class UTutorial* _Tutorial;
 	class UTutorialVR* _TutorialVR;
 
-
     void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
     /*************************************** ACTION MAPPINGS *************************************/
@@ -94,12 +97,14 @@ public:
     void TakeDropRight();
     void TakeDropLeft();
 
-protected:
+	virtual void TakeDropRight_Respawn(AActor* actor) override;
+
 	/********* DROP ITEM REIMPLEMENTATION ************/
 	UFUNCTION(Server, Reliable, WithValidation)
-	virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
+		virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
+		virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
+protected:
 
     /********** INVENTORY ***********/
     void ToggleInventory();

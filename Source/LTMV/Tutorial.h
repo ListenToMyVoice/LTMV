@@ -15,6 +15,29 @@ public:
 	// Sets default values for this component's properties
 	UTutorial();
 
+	class UUserWidget* _ActualWidget;
+
+	void StartTutorial(APlayerController* PlayerController);
+	void Next(APlayerController* PlayerController, int index, bool timer, bool last);
+	void SetLanguage(FString language);
+	void Hide();
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+
+	TArray<TSubclassOf<class UUserWidget>> _actualWidgets;
+	TArray<TSubclassOf<class UUserWidget>> _tutWidgets;
+	TArray<TSubclassOf<class UUserWidget>> _tutWidgets_EN;
+	TArray<TSubclassOf<class UUserWidget>> _tutWidgets_FR;
+	TArray<bool> _tutExpected;
+
+	float _timer;
+	bool _isWidgetTimed;
+
+	class UUserWidget* _TutorialWidget;
+
 	TSubclassOf<class UUserWidget> _TutorialWidgetStart;
 	TSubclassOf<class UUserWidget> _TutorialWidget0;
 	TSubclassOf<class UUserWidget> _TutorialWidget1;
@@ -24,25 +47,6 @@ public:
 	TSubclassOf<class UUserWidget> _TutorialWidget5;
 	TSubclassOf<class UUserWidget> _TutorialWidget6;
 	TSubclassOf<class UUserWidget> _TutorialWidget7;
-
-	class UUserWidget* _TutorialWidget;
-	class UUserWidget* _ActualWidget;
-
-	void StartTutorial(APlayerController* PlayerController);
-	void Next(APlayerController* PlayerController, int index, bool timer, bool last);
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-	void Hide();
-
-	TArray<TSubclassOf<class UUserWidget>> _tutWidgets;
-	TArray<bool> _tutExpected;
-
-	float _timer;
-	bool _isWidgetTimed;
-
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

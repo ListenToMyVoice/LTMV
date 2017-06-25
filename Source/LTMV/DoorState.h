@@ -1,5 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include"ItfSwitcheable.h"
@@ -71,7 +70,9 @@ public:
     UDoorState();
     virtual void BeginPlay() override;
 
-    /* Interfaces */
+	int GetState();
+
+    // Interfaces 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
     int SwitchState();
     virtual int SwitchState_Implementation() override;

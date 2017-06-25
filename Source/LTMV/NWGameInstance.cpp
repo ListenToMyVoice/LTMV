@@ -6,6 +6,8 @@
 #include "PlayerControllerLobby.h"
 #include "Menu3D.h"
 #include "InputMenu.h"
+#include "VRCharacter.h"
+#include "FPCharacter.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -82,6 +84,9 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
 }
 
 void UNWGameInstance::InitGame() {
+
+	_PlayerInfoSaved.Language = "EN";//LANGUAGE TO START
+
     /* SWITCH PLAYER MODE */
     if (FParse::Param(FCommandLine::Get(), TEXT("vr"))) _IsVRMode = true;
 
@@ -93,7 +98,6 @@ void UNWGameInstance::InitGame() {
         }
     }
     ULibraryUtils::Log(FString::Printf(TEXT("_IsVRMode: %s"), _IsVRMode ? TEXT("true") : TEXT("false")));
-
 
     APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
                                                                 GetFirstLocalPlayerController());
@@ -110,13 +114,19 @@ void UNWGameInstance::InitGame() {
 
         PlayerControllerLobby->CLIENT_CreateMenu();
     }
+
+
 }
 
 /**************************************** BLUEPRINTS *********************************************/
+void UNWGameInstance::LaunchLoadingScreen() {
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("TravelMap"));
+}
+
 void UNWGameInstance::LaunchLobby() {
-    _PlayerInfoSaved.Name = "host";
-    _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
-    _PlayerInfoSaved.IsHost = true;
+    //_PlayerInfoSaved.Name = "host";
+    //_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
+    //_PlayerInfoSaved.IsHost = true;
 
     DestroySession();
 
@@ -131,9 +141,9 @@ void UNWGameInstance::FindOnlineGames() {
 }
 
 void UNWGameInstance::JoinOnlineGame() {
-    _PlayerInfoSaved.Name = "guest";
-    _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
-    _PlayerInfoSaved.IsHost = false;
+    //_PlayerInfoSaved.Name = "guest";
+    //_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
+    //_PlayerInfoSaved.IsHost = false;
 
     ULocalPlayer* const Player = GetFirstGamePlayer();
     FOnlineSessionSearchResult SearchResult;
@@ -284,51 +294,119 @@ void UNWGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
 
 /*********************************** MENU INTERFACE **********************************************/
 AMenu3D* UNWGameInstance::CreateMenuMain() {
-    if (ULibraryUtils::IsValid(_MenuActor)) _MenuActor->Destroy();
+	if (ULibraryUtils::IsValid(_MenuActor)) {
+		_MenuActor->Destroy();
+	}
+	_MenuActor = GetWorld()->SpawnActor<AMenu3D>();
 
-    _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
-
-    /*** (0)MAIN MENU ***/
-    UMenuPanel* MenuMain = NewObject<UMenuPanel>(_MenuActor, FName("MenuMain"));
-    UInputMenu* Slot_NewGame = NewObject<UInputMenu>(_MenuActor, FName("NEW GAME"));
-    Slot_NewGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonNewGame);
-    Slot_NewGame->AddOnInputMenuDelegate();
-    UInputMenu* Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPTIONS"));
-    Slot_Options->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonOptions);
-    Slot_Options->AddOnInputMenuDelegate();
-    UInputMenu* Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("EXIT GAME"));
-    Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonExitGame);
-    Slot_ExitGame->AddOnInputMenuDelegate();
+	/*** (0)MAIN MENU ***/
+	UMenuPanel* MenuMain = NewObject<UMenuPanel>(_MenuActor, FName("MenuMain"));
+	UInputMenu* Slot_NewGame = NewObject<UInputMenu>(_MenuActor, FName("temp"));
+	if (_PlayerInfoSaved.Language == "EN") {
+		Slot_NewGame = NewObject<UInputMenu>(_MenuActor, FName("NEW GAME"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_NewGame = NewObject<UInputMenu>(_MenuActor, FName("NUEVA PARTIDA"));
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		Slot_NewGame = NewObject<UInputMenu>(_MenuActor, FName("NOUVEAU JEU"));
+	}
+	Slot_NewGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonNewGame);
+	Slot_NewGame->AddOnInputMenuDelegate();
+	UInputMenu* Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("temp"));
+	if (_PlayerInfoSaved.Language == "EN" || _PlayerInfoSaved.Language == "FR") {
+		Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPTIONS"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPCIONES"));
+	}
+	Slot_Options->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonOptions);
+	Slot_Options->AddOnInputMenuDelegate();
+	UInputMenu* Slot_Language = NewObject<UInputMenu>(_MenuActor, FName("temp"));
+	if (_PlayerInfoSaved.Language == "EN") {
+		Slot_Language = NewObject<UInputMenu>(_MenuActor, FName("LANGUAGE"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_Language = NewObject<UInputMenu>(_MenuActor, FName("IDIOMA"));
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		Slot_Language = NewObject<UInputMenu>(_MenuActor, FName("LANGAGE"));
+	}
+	Slot_Language->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonLanguage);
+	Slot_Language->AddOnInputMenuDelegate();
+	UInputMenu* Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("TEMP"));
+	if (_PlayerInfoSaved.Language == "EN") {
+		Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("EXIT GAME"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("SALIR DEL JUEGO"));
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("QUITTER LE JEU"));
+	}
+	Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonExitGame);
+	Slot_ExitGame->AddOnInputMenuDelegate();
 
     _MenuActor->AddSubmenu(MenuMain);
     MenuMain->AddMenuInput(Slot_NewGame);
     MenuMain->AddMenuInput(Slot_Options);
+	MenuMain->AddMenuInput(Slot_Language);
     MenuMain->AddMenuInput(Slot_ExitGame);
 
     /*** (1)OPTIONS MENU ***/
     CreateOptionsPanel();
 
     /*** (2)NEW GAME MENU ***/
-    UMenuPanel* MenuNewGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuNewGame"));
-    UInputMenu* Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("HOST GAME"));
-    Slot_HostGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonHostGame);
-    Slot_HostGame->AddOnInputMenuDelegate();
-    UInputMenu* Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("FIND GAME"));
-    Slot_FindGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonFindGame);
-    Slot_FindGame->AddOnInputMenuDelegate();
+	UMenuPanel* MenuNewGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuNewGame"));
+	UInputMenu* Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("TEMP"));
+	if (_PlayerInfoSaved.Language == "EN") {
+		Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("HOST GAME"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("HOSTEAR PARTIDA"));
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		Slot_HostGame = NewObject<UInputMenu>(_MenuActor, FName("HÉBERGER JEU"));
+	}
+	Slot_HostGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonHostGame);
+	Slot_HostGame->AddOnInputMenuDelegate();
+	UInputMenu* Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("TEMP"));
+	if (_PlayerInfoSaved.Language == "EN") {
+		Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("FIND GAME"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("ENCONTRAR PARTIDA"));
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("TROUVER JEU"));
+	}
+	Slot_FindGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonFindGame);
+	Slot_FindGame->AddOnInputMenuDelegate();
 
     _MenuActor->AddSubmenu(MenuNewGame);
     MenuNewGame->AddMenuInput(Slot_HostGame);
     MenuNewGame->AddMenuInput(Slot_FindGame);
 
     /*** (3)FIND GAME MENU ***/
-    UMenuPanel* MenuFindGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuFindGame"));
-    UInputMenu* Slot_JoinGame = NewObject<UInputMenu>(_MenuActor, FName("JOIN GAME"));
-    Slot_JoinGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonJoinGame);
-    Slot_JoinGame->AddOnInputMenuDelegate();
+	UMenuPanel* MenuFindGame = NewObject<UMenuPanel>(_MenuActor, FName("MenuFindGame"));
+	UInputMenu* Slot_JoinGame = NewObject<UInputMenu>(_MenuActor, FName("JOIN GAME"));
+	if (_PlayerInfoSaved.Language == "EN") {
+		Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("JOIN GAME"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("UNIRSE A LA PARTIDA"));
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		Slot_FindGame = NewObject<UInputMenu>(_MenuActor, FName("REJOINDRE JEU"));
+	}
+	Slot_JoinGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonJoinGame);
+	Slot_JoinGame->AddOnInputMenuDelegate();
 
     _MenuActor->AddSubmenu(MenuFindGame);
     MenuFindGame->AddMenuInput(Slot_JoinGame);
+
+	/*** (4)LANGUAGE MENU ***/
+	CreateLanguagePanel();
 
     return _MenuActor;
 }
@@ -342,17 +420,41 @@ AMenu3D* UNWGameInstance::CreateMenuPlay() {
 
     _MenuActor = GetWorld()->SpawnActor<AMenu3D>();
 
-    /*** (0)PLAY MENU ***/
-    UMenuPanel* MenuPlay = NewObject<UMenuPanel>(_MenuActor, FName("MenuPlay"));
-    UInputMenu* Slot_BackToMenu = NewObject<UInputMenu>(_MenuActor, FName("BACK TO MENU"));
-    Slot_BackToMenu->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonBackToMenu);
-    Slot_BackToMenu->AddOnInputMenuDelegate();
-    UInputMenu* Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPTIONS"));
-    Slot_Options->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonOptions);
-    Slot_Options->AddOnInputMenuDelegate();
-    UInputMenu* Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("EXIT GAME"));
-    Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonExitGame);
-    Slot_ExitGame->AddOnInputMenuDelegate();
+	/*** (0)PLAY MENU ***/
+	UMenuPanel* MenuPlay = NewObject<UMenuPanel>(_MenuActor, FName("MenuPlay"));
+	UInputMenu* Slot_BackToMenu = NewObject<UInputMenu>(_MenuActor, FName("BACK TO MENU"));
+	if (_PlayerInfoSaved.Language == "EN") {
+		Slot_BackToMenu = NewObject<UInputMenu>(_MenuActor, FName("BACK TO MENU"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_BackToMenu = NewObject<UInputMenu>(_MenuActor, FName("VOLVER AL MENÚ"));
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		Slot_BackToMenu = NewObject<UInputMenu>(_MenuActor, FName("RETOUR AU MENU"));
+	}
+	Slot_BackToMenu->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonBackToMenu);
+	Slot_BackToMenu->AddOnInputMenuDelegate();
+	UInputMenu* Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("temp"));
+	if (_PlayerInfoSaved.Language == "EN" || _PlayerInfoSaved.Language == "FR") {
+		Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPTIONS"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_Options = NewObject<UInputMenu>(_MenuActor, FName("OPCIONES"));
+	}
+	Slot_Options->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonOptions);
+	Slot_Options->AddOnInputMenuDelegate();
+	UInputMenu* Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("TEMP"));
+	if (_PlayerInfoSaved.Language == "EN") {
+		Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("EXIT GAME"));
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("SALIR DEL JUEGO"));
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		Slot_ExitGame = NewObject<UInputMenu>(_MenuActor, FName("QUITTER LE JEU"));
+	}
+	Slot_ExitGame->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonExitGame);
+	Slot_ExitGame->AddOnInputMenuDelegate();
 
     _MenuActor->AddSubmenu(MenuPlay);
     MenuPlay->AddMenuInput(Slot_BackToMenu);
@@ -377,6 +479,27 @@ void UNWGameInstance::CreateOptionsPanel() {
     MenuOptions->AddMenuInput(Slot_ComfortMode);
 }
 
+void UNWGameInstance::CreateLanguagePanel() {
+
+	/*** (3)OPTIONS MENU ***/
+	UMenuPanel* MenuLanguages = NewObject<UMenuPanel>(_MenuActor, FName("MenuLanguages"));
+
+	UInputMenu* Slot_ES = NewObject<UInputMenu>(_MenuActor, FName("ESPAÑOL"));
+	Slot_ES->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonSelectES);
+	Slot_ES->AddOnInputMenuDelegate();
+	UInputMenu* Slot_EN = NewObject<UInputMenu>(_MenuActor, FName("ENGLISH"));
+	Slot_EN->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonSelectEN);
+	Slot_EN->AddOnInputMenuDelegate();
+	UInputMenu* Slot_FR = NewObject<UInputMenu>(_MenuActor, FName("FRANÇAIS"));
+	Slot_FR->_InputMenuReleasedDelegate.BindUObject(this, &UNWGameInstance::OnButtonSelectFR);
+	Slot_FR->AddOnInputMenuDelegate();
+
+
+	_MenuActor->AddSubmenu(MenuLanguages);
+	MenuLanguages->AddMenuInput(Slot_ES);
+	MenuLanguages->AddMenuInput(Slot_EN);
+	MenuLanguages->AddMenuInput(Slot_FR);
+}
 /*********************************** BINDINGS ****************************************************/
 void UNWGameInstance::OnButtonNewGame(UInputMenu* InputMenu) {
     _MenuActor->SetSubmenuByIndex(2);
@@ -386,22 +509,45 @@ void UNWGameInstance::OnButtonOptions(UInputMenu* InputMenu) {
     _MenuActor->SetSubmenuByIndex(1);
 }
 
+void UNWGameInstance::OnButtonLanguage(UInputMenu* InputMenu) {
+	_MenuActor->SetSubmenuByIndex(4);
+}
+
 void UNWGameInstance::OnButtonExitGame(UInputMenu* InputMenu) {
     FGenericPlatformMisc::RequestExit(false);
 }
 
 void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
-    LaunchLobby();
+	_PlayerInfoSaved.Name = "host";
+	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
+	_PlayerInfoSaved.IsHost = true;
+
+	LaunchLoadingScreen();
+    //LaunchLobby();
 }
 
 void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
     FindOnlineGames();
     _MenuActor->SetSubmenuByIndex(3);
-    _MenuActor->SetInputMenuLoading(3, 0, true, "SEARCHING...");
+
+	if (_PlayerInfoSaved.Language == "EN") {
+		_MenuActor->SetInputMenuLoading(3, 0, true, "SEARCHING...");
+	}
+	else if (_PlayerInfoSaved.Language == "ES") {
+		_MenuActor->SetInputMenuLoading(3, 0, true, "BUSCANDO...");
+	}
+	else if (_PlayerInfoSaved.Language == "FR") {
+		_MenuActor->SetInputMenuLoading(3, 0, true, "EN CHERCHANT...");
+	}
 }
 
 void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {
-    JoinOnlineGame();
+	_PlayerInfoSaved.Name = "guest";
+	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
+	_PlayerInfoSaved.IsHost = false;
+
+	LaunchLoadingScreen();
+    //JoinOnlineGame();
 }
 
 void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
@@ -409,7 +555,31 @@ void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
     FString NewText = _MenuOptions.bComfortMode ? "COMFORT ON" : "COMFORT OFF";
     InputMenu->_TextRender->SetText(FText::FromString(NewText));
 }
+void UNWGameInstance::OnButtonSelectES(UInputMenu* InputMenu) {
+	_PlayerInfoSaved.Language = "ES";
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language ES"));
 
+	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
+		GetFirstLocalPlayerController());
+	PlayerControllerLobby->CLIENT_CreateMenu();
+}
+void UNWGameInstance::OnButtonSelectEN(UInputMenu* InputMenu) {
+	_PlayerInfoSaved.Language = "EN";
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language EN"));
+
+	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
+		GetFirstLocalPlayerController());
+	PlayerControllerLobby->CLIENT_CreateMenu();
+}
+void UNWGameInstance::OnButtonSelectFR(UInputMenu* InputMenu) {
+	_PlayerInfoSaved.Language = "FR";
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language FR"));
+
+	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
+		GetFirstLocalPlayerController());
+	PlayerControllerLobby->CLIENT_CreateMenu();
+
+}
 void UNWGameInstance::OnButtonBackToMenu(UInputMenu* InputMenu) {
     DestroySession();
 }

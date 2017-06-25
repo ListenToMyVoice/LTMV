@@ -4,7 +4,9 @@
 #include "GameModePlay.h"
 
 #include "PlayerControllerPlay.h"
+#include "PlayerCharacter.h"
 #include "GameStatePlay.h"
+#include "NWGameInstance.h"
 #include "PlayerSpectator.h"
 
 
@@ -15,6 +17,18 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
     GameStateClass = AGameStatePlay::StaticClass();
 
     bUseSeamlessTravel = true;
+	_MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
+	_MapEndGameGM = USettings::Get()->EndLevel.GetLongPackageName();
+
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint(TEXT("Class'/Game/BluePrints/Assets/walkie.walkie_C'"));
+	if (ItemBlueprint.Object) {
+		WalkieBlueprint = (UClass*)ItemBlueprint.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint2(TEXT("Class'/Game/BluePrints/Assets/LinternaFINAL.LinternaFINAL_C'"));
+	if (ItemBlueprint2.Object) {
+		LinternaBlueprint = (UClass*)ItemBlueprint2.Object;
+	}
 }
 
 void AGameModePlay::InitGame(const FString & MapName, const FString & Options,
@@ -31,35 +45,101 @@ bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerControllerPlay* PlayerC
 
 void AGameModePlay::SERVER_RespawnPlayer_Implementation(APlayerControllerPlay* PlayerController,
                                                         FPlayerInfo info) {
-    if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
+	if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
 
-    FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
-    APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
-    if (actor) {
-        PlayerController->Possess(actor);
-        PlayerController->AfterPossessed();
+	FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
+	APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
+	if (actor) {
+		PlayerController->Possess(actor);
+		PlayerController->AfterPossessed(false);
 
-        if (!_HostController) _HostController = PlayerController;
-        else _GuestController = PlayerController;
-    }
+		if (!_HostController) _HostController = PlayerController;
+		else _GuestController = PlayerController;
+	}
 }
 
+
+/* ****** RESPAWN AFTER DEATH ********/
+bool AGameModePlay::SERVER_RespawnPlayerAfterDeath_Validate(APlayerControllerPlay* PlayerController,
+	FPlayerInfo info) {
+	return true;
+}
+
+void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControllerPlay* PlayerController,
+	FPlayerInfo info) {
+	if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
+
+	FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
+	APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
+	if (actor) {
+		PlayerController->Possess(actor);
+
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(actor);
+		PlayerController->AfterPossessed(true);
+
+		
+		//Eliminamos la información en los player de los objetos del jugador muerto del inventario
+		for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+			if (ActorItr->GetName() == "walkie_laberinto") {
+				PlayerCharacter->SERVER_Drop(*ActorItr, 4);
+			}
+		}
+		for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+			if (ActorItr->GetName() == "Linterna_laberinto") {
+				PlayerCharacter->SERVER_Drop(*ActorItr, 4);
+			}
+		}
+		// WALKIE
+		FActorSpawnParameters SpawnParams;
+		FVector location= FVector(0.0f, 0.0f, 0.0f);
+		FRotator rotation = FRotator(0.0f, 0.0f, 0.0f);
+		AActor* Walkie = GetWorld()->SpawnActor<AActor>(WalkieBlueprint, location, rotation, SpawnParams);
+		if (Walkie) {
+			PlayerCharacter->TakeDropRight_Respawn(Walkie);
+		}
+
+		// LINTERNA
+		AActor* Linterna = GetWorld()->SpawnActor<AActor>(LinternaBlueprint, location, rotation, SpawnParams);
+		if (Walkie) {
+			PlayerCharacter->TakeDropRight_Respawn(Linterna);
+		}
+
+		if (!_HostController) _HostController = PlayerController;
+		else _GuestController = PlayerController;
+	}
+}
+
+
+
+/*********death**************/
 bool AGameModePlay::SERVER_PlayerDead_Validate(AController* PlayerController) {
-    return true;
+	return true;
 }
-
 void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
+
+	UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
     APlayerControllerPlay* PlayerController = Cast<APlayerControllerPlay>(Controller);
     if (PlayerController) {
-        PlayerController->ChangeState(NAME_Spectating);
-
         if (_HostController == PlayerController) {
-            _HostController->CLIENT_Dead();
-            if(_GuestController) _GuestController->CLIENT_ShowMenu();
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			GameState->ResetLevel();
+			SERVER_RespawnPlayerAfterDeath(PlayerController,GameInstance->_PlayerInfoSaved);
         }
         if (_GuestController == PlayerController) {
-            _GuestController->CLIENT_GotoState(NAME_Spectating);
-            _HostController->CLIENT_ShowMenu();
         }
     }
+}
+
+void AGameModePlay::EndGame() {
+	bool traveling = GetWorld()->ServerTravel(_MapEndGameGM, true);
+	if (traveling) {
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("TravellingToEndMap"));
+	}
+}
+
+void AGameModePlay::PlayAgain() {
+	RestartGame();
+	//GetWorld()->ServerTravel(_MapNameGM, true);
+	//GetWorld()->ServerTravel(_MapNameGM, true);
+	//UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }

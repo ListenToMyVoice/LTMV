@@ -11,6 +11,7 @@ public class LTMV : ModuleRules {
                                                             "OnlineSubsystem",
                                                             "OnlineSubsystemUtils",
                                                             "AIModule",
+                                                            "MoviePlayer",
 															"GameplayTasks",
                                                             "UMG"});
 

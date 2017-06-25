@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-
 UCLASS()
 class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
@@ -29,7 +28,7 @@ public:
 
 
     APlayerCharacter(const FObjectInitializer& OI);
-    virtual void AfterPossessed(bool SetInventory);
+    virtual void AfterPossessed(bool SetInventory , bool respawning);
 
     /******** USE ITEM LEFT *********/
     virtual void UseLeftPressed(bool IsMenuHidden);
@@ -41,7 +40,10 @@ public:
 
     virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                              class AController* EventInstigator, class AActor* DamageCauser) override;
-    
+
+	/********** TAKE ITEM ***********/
+	virtual void TakeDropRight_Respawn(AActor* actor);
+
     /*********** MOVEMENT ***********/
     virtual void TurnAtRate(float Rate);
     virtual void LookUpAtRate(float Rate);
@@ -56,6 +58,13 @@ public:
 	FORCEINLINE AActor* GetItemLeft() { return _ItemLeft; }
 	UFUNCTION(BlueprintCallable, Category = "Hands")
 	FORCEINLINE AActor* GetItemRight() { return _ItemRight; }
+
+	/********** DROP ITEM ***********/
+	UFUNCTION(Server, Reliable, WithValidation)
+		virtual void SERVER_Drop(AActor* ItemActor, int Hand);
+	UFUNCTION(NetMulticast, Reliable)
+		virtual void MULTI_Drop(AActor* ItemActor, int Hand);
+
 
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -101,11 +110,6 @@ protected:
     virtual void MULTI_TakeLeft(AActor* Actor);
 
     
-    /********** DROP ITEM ***********/
-    UFUNCTION(Server, Reliable, WithValidation)
-    virtual void SERVER_Drop(AActor* ItemActor, int Hand);
-    UFUNCTION(NetMulticast, Reliable)
-    virtual void MULTI_Drop(AActor* ItemActor, int Hand);
     /*
     Hand = 0 => void
     Hand = 1 => _ItemLeft
