@@ -91,7 +91,7 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 		TArray<AActor*> _items = _inventory->GetItemsArray();
 
 		for (AActor* item : _items) {
-			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("-- DROP DE ITEM: %s"), *item->GetName()));
+			//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("-- DROP DE ITEM: %s"), *item->GetName()));
 			PlayerCharacter->SERVER_Drop(item, 4);
 			GameState->DeleteAsset(item);
 		}
@@ -125,13 +125,13 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 			AActor* Walkie = GetWorld()->SpawnActor<AActor>(WalkieBlueprint, location, rotation, SpawnParams);
 			if (Walkie) {
 				PlayerCharacter->TakeDropRight_Respawn(Walkie);
-				GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVO WALKIE")));
+				//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVO WALKIE")));
 			}
 			// LINTERNA
 			AActor* Linterna = GetWorld()->SpawnActor<AActor>(LinternaBlueprint, location, rotation, SpawnParams);
 			if (Linterna) {
 				PlayerCharacter->TakeDropRight_Respawn(Linterna);
-				GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVA LINTERNA")));
+				//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVA LINTERNA")));
 			}
 		}
 	}

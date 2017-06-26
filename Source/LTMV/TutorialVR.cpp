@@ -38,7 +38,7 @@ void UTutorialVR::SpawnTutorial() {
 	if (!_TutActor) {
 		UWorld* World = GetWorld();
 		_TutActor = World->SpawnActor<ATutorial3D>();
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial 3d actor spawned!!!")));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial 3d actor spawned!!!")));
 	}
 
 }
@@ -49,7 +49,7 @@ void UTutorialVR::Next(FVector location, FRotator rotation, int index) {
 	//Calling to Showtutorial
 	_TutActor->ShowTutorial(location, rotation, index);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial VR pasa a %d"), index));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tutorial VR pasa a %d"), index));
 
 }
 

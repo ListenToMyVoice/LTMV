@@ -64,7 +64,7 @@ void AGameStatePlay::updateDoors() {
 		getPointsAndEnemy();
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: UpdateDoors! ")));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: UpdateDoors! ")));
 	//pick values from doors in the world
 	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
@@ -81,7 +81,7 @@ void AGameStatePlay::updateDoors() {
 			updateDoor(ActorItr, 3);
 		}
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Door states: %d,%d,%d,%d"),_doorStates[0], _doorStates[1], _doorStates[2], _doorStates[3]));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Door states: %d,%d,%d,%d"),_doorStates[0], _doorStates[1], _doorStates[2], _doorStates[3]));
 	//counting open doors to set mode
 	int _openDoors = 0;
 	for (int num = 0;num < 4;num++) {
@@ -91,11 +91,11 @@ void AGameStatePlay::updateDoors() {
 	}
 	if (_openDoors == 4) {
 		_mode = 1;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("GameState: MODO CIRCULAR ")));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("GameState: MODO CIRCULAR ")));
 	}
 	else {
 		_mode = 0;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("GameState: MODO LINEAL ")));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("GameState: MODO LINEAL ")));
 	}
 	_actualPath = FindPath();
 }
@@ -311,25 +311,25 @@ TArray<bool> AGameStatePlay::FindPath() {
 }
 
 void AGameStatePlay::UpdateActualZone(AActor* zone) {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: UpdateActualZone! ")));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: UpdateActualZone! ")));
 	TArray<FName> _tags = zone->Tags;
 
 	for (int ind = 0; ind < _tags.Num(); ++ind) {
 		if (_tags[ind].ToString() == "zone0") {
 			_actualZone = 0;
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: zone 0! ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: zone 0! ")));
 		}
 		else if (_tags[ind].ToString() == "zone1") {
 			_actualZone = 1;
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: zone 1! ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: zone 1! ")));
 		}
 		else if (_tags[ind].ToString() == "zone2") {
 			_actualZone = 2;
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: zone 2! ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: zone 2! ")));
 		}
 		else if (_tags[ind].ToString() == "zone3") {
 			_actualZone = 3;
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: zone 3! ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: zone 3! ")));
 		}
 	}
 }
@@ -344,7 +344,7 @@ void AGameStatePlay::UpdatePatrolPoints(FVector pp1,FVector pp2, FVector pp3) {
 /*************************************** LEVEL RESETING *******************************************/
 void AGameStatePlay::DeleteAsset(AActor* item) {
 	item->Destroy();
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDO ITEM")));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDO ITEM")));
 }
 void AGameStatePlay::ResetLevel() {
 
@@ -363,7 +363,7 @@ void AGameStatePlay::ResetLevel() {
 		if (ActorItr->GetFName() == "EnemyCharacterAnd") {
 			_enemy = *ActorItr;
 			_enemy->SetActorLocation(_point1_2);
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT("->->-> MOVIDO EL ENEMIGO")));
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT("->->-> MOVIDO EL ENEMIGO")));
 		}
 	}
 
@@ -376,7 +376,7 @@ void AGameStatePlay::ResetLevel() {
 		}
 	}
 	if (_tablillaLaberintoActual) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDA TABLILLA")));
+		//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDA TABLILLA")));
 		_tablillaLaberintoActual->Destroy();
 	}
 	FActorSpawnParameters SpawnParams;
@@ -384,7 +384,7 @@ void AGameStatePlay::ResetLevel() {
 	FRotator rotation = FRotator(90.0f, 0.0f, 0.0f);
 	AActor* Tablilla = GetWorld()->SpawnActor<AActor>(TablillaBlueprint, location, rotation, SpawnParams);
 	if (Tablilla) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("++++ SPAWN TABLILLA")));
+		//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("++++ SPAWN TABLILLA")));
 		_tablillaLaberintoActual = Tablilla;
 	}
 
@@ -403,7 +403,7 @@ void AGameStatePlay::ResetLevel() {
 			Door = Cast<UDoorState>(ActorItr->GetComponentByClass(UDoorState::StaticClass()));
 			if (Door) {
 				Door->_block = false;
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT(".... REJA PUERTA DESBLOQUEADA para volver a entrar")));
+				//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT(".... REJA PUERTA DESBLOQUEADA para volver a entrar")));
 			}
 		}
 	}
