@@ -16,6 +16,8 @@ public:
     /* HUD */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HUD")
     TSubclassOf<class UUserWidget> _HUDClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HUD")
+	TSubclassOf<class UUserWidget> _HUDClass2;
 
     AFPCharacter(const FObjectInitializer& OI);
     void BeginPlay() override;
@@ -69,6 +71,9 @@ public:
 	UFUNCTION(BluePrintCallable)
 	AActor* GetItemFocused();
 
+	/*******HUD ************/
+	UUserWidget* HUD;
+	UUserWidget* HUD2;
 protected:
 
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

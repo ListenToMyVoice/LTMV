@@ -15,10 +15,10 @@ void UWalkie::BeginPlay() {
 	//lights hidden
 	TArray<UActorComponent*> PointLightArray;
 	PointLightArray = GetOwner()->GetComponentsByClass(UPointLightComponent::StaticClass());
-	
+	/*
 	Cast<UPointLightComponent>(PointLightArray[0])->SetIntensity(0);//POner la luz apagada
 	Cast<UPointLightComponent>(PointLightArray[1])->SetIntensity(0);//POner la luz apagada
-
+	*/
 }
 
 void UWalkie::UseItemPressed_Implementation() {

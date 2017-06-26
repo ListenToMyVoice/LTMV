@@ -82,8 +82,12 @@ void AFPCharacter::BeginPlay() {
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
     if (PlayerController && PlayerController->IsLocalPlayerController()) {
         /* HUD */
-        UUserWidget* HUD = CreateWidget<UUserWidget>(PlayerController, _HUDClass);
+        HUD = CreateWidget<UUserWidget>(PlayerController, _HUDClass);
         if (HUD) HUD->AddToViewport();
+
+		HUD2 = CreateWidget<UUserWidget>(PlayerController, _HUDClass2);
+		if (HUD2) HUD2->AddToViewport();
+		HUD2->SetVisibility(ESlateVisibility::Hidden);
 		
     }
 
@@ -149,7 +153,7 @@ void AFPCharacter::Tick(float DeltaSeconds) {
 	*/
 
 }
-
+	
 FHitResult AFPCharacter::Raycasting() {
     bool bHitRayCastFlag = false;
     FCollisionQueryParams CollisionInfo;
@@ -159,7 +163,7 @@ FHitResult AFPCharacter::Raycasting() {
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(_HitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (bHitRayCastFlag && _HitResult.Actor.IsValid()) {
         UActorComponent* actorComponent = _HitResult.GetComponent();
@@ -177,6 +181,11 @@ FHitResult AFPCharacter::Raycasting() {
                 _LastMeshFocused->SetRenderCustomDepth(true);
                 _LastMeshFocused->SetCustomDepthStencilValue(252);
                 bInventoryItemHit = true;
+
+				if (HUD && HUD2) {
+					HUD->SetVisibility(ESlateVisibility::Hidden);
+					HUD2->SetVisibility(ESlateVisibility::Visible);
+				}
             }
             else if (component->GetClass() == UInventoryItem::StaticClass()) {
                 _LastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
@@ -196,6 +205,10 @@ FHitResult AFPCharacter::Raycasting() {
 						+ (_HitResult.Actor->GetActorUpVector().GetSafeNormal() * -30);
 					//_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 1);//Tutorial at bunker/lab
 				}
+				if (HUD && HUD2) {
+					HUD->SetVisibility(ESlateVisibility::Hidden);
+					HUD2->SetVisibility(ESlateVisibility::Visible);
+				}
 				
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {
@@ -205,6 +218,11 @@ FHitResult AFPCharacter::Raycasting() {
                 _LastMeshFocused->SetRenderCustomDepth(true);
                 _LastMeshFocused->SetCustomDepthStencilValue(255);
                 bInventoryItemHit = true;
+
+				if (HUD && HUD2) {
+					HUD->SetVisibility(ESlateVisibility::Hidden);
+					HUD2->SetVisibility(ESlateVisibility::Visible);
+				}
             }
 
 			else if (component->GetClass() == UTokenHolder::StaticClass()) {
@@ -214,9 +232,23 @@ FHitResult AFPCharacter::Raycasting() {
 				_LastMeshFocused->SetRenderCustomDepth(true);
 				_LastMeshFocused->SetCustomDepthStencilValue(254);
 				bInventoryItemHit = true;
+				if (HUD && HUD2) {
+					HUD->SetVisibility(ESlateVisibility::Hidden);
+					HUD2->SetVisibility(ESlateVisibility::Visible);
+				}
+			}else{
+				if (HUD && HUD2) {
+					HUD2->SetVisibility(ESlateVisibility::Hidden);
+					HUD->SetVisibility(ESlateVisibility::Visible);
+				}
 			}
         }
-    }
+    }else{
+		if (HUD && HUD2) {
+			HUD2->SetVisibility(ESlateVisibility::Hidden);
+			HUD->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 
     //If Raycast is not hitting any actor, disable the outline
     if (bInventoryItemHit && _HitResult.Actor != _LastMeshFocused->GetOwner()) {

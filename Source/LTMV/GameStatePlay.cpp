@@ -68,16 +68,16 @@ void AGameStatePlay::updateDoors() {
 	//pick values from doors in the world
 	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
-		if (ActorItr->GetName() == "puerta1") {
+		if (ActorItr->GetName() == "puerta11") {
 			updateDoor(ActorItr, 0);
 		}
-		else if (ActorItr->GetName() == "puerta22") {
+		else if (ActorItr->GetName() == "puerta222") {
 			updateDoor(ActorItr, 1);
 		}
-		else if (ActorItr->GetName() == "puerta3") {
+		else if (ActorItr->GetName() == "puerta33") {
 			updateDoor(ActorItr, 2);
 		}
-		else if (ActorItr->GetName() == "puerta4") {
+		else if (ActorItr->GetName() == "puerta44") {
 			updateDoor(ActorItr, 3);
 		}
 	}
@@ -360,7 +360,7 @@ void AGameStatePlay::ResetLevel() {
 
 	//Positioning the enemy in the first zone
 	for (TActorIterator<ACharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-		if (ActorItr->GetName() == "EnemyCharacterAnd") {
+		if (ActorItr->GetFName() == "EnemyCharacterAnd") {
 			_enemy = *ActorItr;
 			_enemy->SetActorLocation(_point1_2);
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT("->->-> MOVIDO EL ENEMIGO")));
@@ -380,7 +380,7 @@ void AGameStatePlay::ResetLevel() {
 		_tablillaLaberintoActual->Destroy();
 	}
 	FActorSpawnParameters SpawnParams;
-	FVector location = FVector(5095.0f, 105.0f, 175.0f);
+	FVector location = FVector(5804.0f, 614.0f, 166.0f);
 	FRotator rotation = FRotator(90.0f, 0.0f, 0.0f);
 	AActor* Tablilla = GetWorld()->SpawnActor<AActor>(TablillaBlueprint, location, rotation, SpawnParams);
 	if (Tablilla) {
