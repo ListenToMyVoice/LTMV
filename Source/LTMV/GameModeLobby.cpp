@@ -23,6 +23,7 @@ AGameModeLobby::AGameModeLobby(const class FObjectInitializer& OI) : Super(OI) {
     _MaxPlayers = 2;
     _ServerName = "";
     _MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
+	_MapEndGameGM = USettings::Get()->EndLevel.GetLongPackageName();
 }
 
 void AGameModeLobby::InitGame(const FString & MapName, const FString & Options,

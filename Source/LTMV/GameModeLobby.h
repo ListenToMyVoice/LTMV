@@ -33,6 +33,9 @@ protected:
     UPROPERTY(Replicated)
     FString _MapNameGM;
 
+	UPROPERTY(Replicated)
+		FString _MapEndGameGM;
+
     UPROPERTY(Replicated)
     int32 _MaxPlayers;
 };

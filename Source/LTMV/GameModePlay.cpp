@@ -8,6 +8,8 @@
 #include "GameStatePlay.h"
 #include "NWGameInstance.h"
 #include "PlayerSpectator.h"
+#include "FPCharacter.h"
+#include "Inventory.h"
 
 
 AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
@@ -18,6 +20,7 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
 
     bUseSeamlessTravel = true;
 	_MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
+	_MapEndGameGM = USettings::Get()->EndLevel.GetLongPackageName();
 
 	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/BluePrints/Assets/walkie.walkie'"));
 	if (ItemBlueprint.Object) {
@@ -66,6 +69,72 @@ bool AGameModePlay::SERVER_RespawnPlayerAfterDeath_Validate(APlayerControllerPla
 
 void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControllerPlay* PlayerController,
 	FPlayerInfo info) {
+	//Cogemos el playercharacter actual
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
+	UNWGameInstance* GI = Cast<UNWGameInstance>(GetWorld()->GetGameInstance());
+	AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+
+	//para el VRCharacter
+	if (GI && GI->_IsVRMode) {
+
+
+	}
+	//para el fpcharacter
+	else {
+
+		//Cerrar inventario si está abierto
+		AFPCharacter* _Player = Cast<AFPCharacter>(PlayerController->GetPawn());
+		_Player->HideInventory();
+
+		//Drop y delete del mundo de los items almacenados en el inventario
+		UInventory* _inventory = _Player->GetInventory();
+		TArray<AActor*> _items = _inventory->GetItemsArray();
+
+		for (AActor* item : _items) {
+			//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("-- DROP DE ITEM: %s"), *item->GetName()));
+			PlayerCharacter->SERVER_Drop(item, 4);
+			GameState->DeleteAsset(item);
+		}
+	}
+	//Destruir el pawn actual
+	if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
+
+	//Crear un nuevo pawn
+	FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
+	APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
+	if (actor) {
+		PlayerController->Possess(actor);
+		if (!_HostController) _HostController = PlayerController;
+		else _GuestController = PlayerController;
+
+		//Afterpossesed del nuevo actor
+		PlayerController->AfterPossessed(true);
+		//Nuevo character con ese actor
+		PlayerCharacter = Cast<APlayerCharacter>(actor);
+		//para el VRCharacter
+		if (GI && GI->_IsVRMode) {
+		}
+		//para el FPCharacter
+		else {
+			// SPAWNEAMOS UN NUEVO WALKIE Y UNA NUEVA LINTERNA EN EL CHARACTER
+			FActorSpawnParameters SpawnParams;
+			FVector location = FVector(0.0f, 0.0f, 0.0f);
+			FRotator rotation = FRotator(0.0f, 0.0f, 0.0f);
+			AActor* Walkie = GetWorld()->SpawnActor<AActor>(WalkieBlueprint, location, rotation, SpawnParams);
+			if (Walkie) {
+				PlayerCharacter->TakeDropRight_Respawn(Walkie);
+				//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVO WALKIE")));
+			}
+			// LINTERNA
+			AActor* Linterna = GetWorld()->SpawnActor<AActor>(LinternaBlueprint, location, rotation, SpawnParams);
+			if (Linterna) {
+				PlayerCharacter->TakeDropRight_Respawn(Linterna);
+				//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVA LINTERNA")));
+			}
+		}
+	}
+
+	/*
 	if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
 
 	FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
@@ -106,6 +175,7 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 		if (!_HostController) _HostController = PlayerController;
 		else _GuestController = PlayerController;
 	}
+	*/
 }
 
 
@@ -120,19 +190,16 @@ void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
     APlayerControllerPlay* PlayerController = Cast<APlayerControllerPlay>(Controller);
     if (PlayerController) {
         if (_HostController == PlayerController) {
+			SERVER_RespawnPlayerAfterDeath(PlayerController, GameInstance->_PlayerInfoSaved);
 			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
 			GameState->ResetLevel();
-			SERVER_RespawnPlayerAfterDeath(PlayerController,GameInstance->_PlayerInfoSaved);
-        }
+		 }
         if (_GuestController == PlayerController) {
         }
     }
 }
 
 
-void AGameModePlay::PlayAgain() {
-	RestartGame();
-	//GetWorld()->ServerTravel(_MapNameGM, true);
-	//GetWorld()->ServerTravel(_MapNameGM, true);
-	//UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+void AGameModePlay::EndGame() {
+	GetWorld()->ServerTravel(_MapEndGameGM, true);
 }

@@ -38,6 +38,7 @@ class LTMV_API UNWGameInstance : public UGameInstance {
     GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintReadOnly, Category = "Player Info")
     bool _IsVRMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FMenuOptions _MenuOptions;
@@ -58,11 +59,14 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Start")
     void InitGame();
-
+	/*
 	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
 	virtual void BeginLoadingScreen(const FString& MapName);
 	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
 	virtual void EndLoadingScreen();
+	*/
+	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
+		void LaunchLoadingScreen();
 
 	/**************************************** SESSIONS ************************************************/
 

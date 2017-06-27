@@ -11,6 +11,8 @@ class LTMV_API USettings : public UDeveloperSettings {
     GENERATED_BODY()
 
 public:
+	UPROPERTY(config, EditAnywhere, Category = "Maps", meta = (AllowedClasses = "World"))
+		FStringAssetReference EndLevel;
     UPROPERTY(config, EditAnywhere, Category="Maps", meta=(AllowedClasses="World"))
     FStringAssetReference LevelToPlay;
     UPROPERTY(config, EditAnywhere, Category = "Maps", meta = (AllowedClasses = "World"))

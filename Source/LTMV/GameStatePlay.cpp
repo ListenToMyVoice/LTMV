@@ -54,6 +54,8 @@ AGameStatePlay::AGameStatePlay(const class FObjectInitializer& OI) : Super(OI){
 	if (ItemBlueprint.Object) {
 		TablillaBlueprint = (UClass*)ItemBlueprint.Object->GeneratedClass;
 	}
+	//Guardamos la tablilla actual
+	_tablillaLaberintoActual = nullptr;
 }
 
 void AGameStatePlay::updateDoors() {
@@ -116,6 +118,12 @@ void AGameStatePlay::getPointsAndEnemy() {
 	for (TActorIterator<ACharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
 		if (ActorItr->GetName() == "EnemyCharacterAnd") {
 			_enemy = *ActorItr;
+		}
+	}
+	//Coger la tablilla
+	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "tablilla_laberinto_Blueprint") {
+			_tablillaLaberintoActual = *ActorItr;
 		}
 	}
 }
@@ -330,7 +338,11 @@ void AGameStatePlay::UpdatePatrolPoints(FVector pp1,FVector pp2, FVector pp3) {
 	_patrolPoint2->SetActorLocation(pp2);
 	_patrolPoint3->SetActorLocation(pp3);
 }
-
+/*************************************** LEVEL RESETING *******************************************/
+void AGameStatePlay::DeleteAsset(AActor* item) {
+	item->Destroy();
+	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDO ITEM")));
+}
 void AGameStatePlay::ResetLevel() {
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("LEVEL RESET")));
@@ -354,28 +366,25 @@ void AGameStatePlay::ResetLevel() {
 
 	//Reconstruir la tablilla
 	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-		if (ActorItr->GetName() == "tablilla_laberinto_Blueprint") {
-			ActorItr->Destroy();
+		for (FName tag : ActorItr->Tags) {
+			if (tag == "TablillaLaberinto") {
+				_tablillaLaberintoActual = *ActorItr;
+			}
 		}
 	}
-	//Eliminamos assets antiguos
-	/*
-	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-		if (ActorItr->GetName() == "walkie_laberinto") {
-			ActorItr->Destroy();
-		}
+	if (_tablillaLaberintoActual) {
+		//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDA TABLILLA")));
+		_tablillaLaberintoActual->Destroy();
 	}
-	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-		if (ActorItr->GetName() == "Linterna_laberinto") {
-			ActorItr->Destroy();
-		}
-	}
-	*/
 	FActorSpawnParameters SpawnParams;
-	FVector location = FVector(5095.0f, 105.0f, 175.0f);
+	FVector location = FVector(5804.0f, 614.0f, 166.0f);
+	//FVector location = FVector(5095.0f, 105.0f, 175.0f);
 	FRotator rotation = FRotator(90.0f, 0.0f, 0.0f);
 	AActor* Tablilla = GetWorld()->SpawnActor<AActor>(TablillaBlueprint, location, rotation, SpawnParams);
-
+	if (Tablilla) {
+		//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("++++ SPAWN TABLILLA")));
+		_tablillaLaberintoActual = Tablilla;
+	}
 	//Permitir abrir la reja
 	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
 		if (ActorItr->GetName() == "reja_puerta_Blueprint") {

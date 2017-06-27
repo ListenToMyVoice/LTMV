@@ -164,22 +164,21 @@ void UTutorial::SetLanguage(FString Language) {
 	else if (Language == "FR")	_actualWidgets = _tutWidgets_FR;
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("El tutorial es en %s"), *Language));
 }
-void UTutorial::Next(APlayerController* PlayerController, int index, bool timer, bool last) {
 
-	bool _isMomentForLast = true;
-	//If its the last tutorial, make sure every other tutorial is in true to create it
-	if (last)
-	{
-		for (int i = 0; i < _tutExpected.Num()-2; i++) {
+void UTutorial::Next(APlayerController* PlayerController, int index, bool timer) {
+	bool continuar = true;
+
+	if (index > 0) {
+		for (int i = 0; i < index; i++) {
 			if (!_tutExpected[i]) {
-				_isMomentForLast = false;
+				continuar = false;
 			}
 		}
 	}
 
-	//Create Widget only if it was never created before
-	if (!_tutExpected[index]) {
-		if (!last || (last && _isMomentForLast)) {
+
+	//Create Widget only if it was never created before ( y el anterior tampoco)
+	if (!_tutExpected[index] && continuar) {
 
 
 			//Hide possible tutorials
@@ -198,7 +197,6 @@ void UTutorial::Next(APlayerController* PlayerController, int index, bool timer,
 					_isWidgetTimed = true;
 				}
 			}
-		}
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("El tutorial %d ya ha pasado!!!"), index));
@@ -207,6 +205,42 @@ void UTutorial::Next(APlayerController* PlayerController, int index, bool timer,
 }
 
 
+void UTutorial::Last(APlayerController* PlayerController, int index, bool timer, AFPCharacter* _player) {
+	bool _isMomentForLast = true;
+	//If its the last tutorial, make sure every other tutorial is in true to create it
+	for (int i = 0; i < _tutExpected.Num() - 2; i++) {
+		if (!_tutExpected[i]) {
+			_isMomentForLast = false;
+		}
+	}
+
+	//Create Widget only if it was never created before
+	if (!_tutExpected[index] && _isMomentForLast) {
+
+		//Set tutorial on off for player
+		_player->_isTutorialEnabled = false;
+
+		//Hide possible tutorials
+		Hide();//Hide any possible tutorial widgets active
+
+			   //Create widget from index
+		_TutorialWidget = CreateWidget<UUserWidget>(PlayerController, _actualWidgets[index]);
+
+		if (_TutorialWidget) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Tutorial Widget paso a %d"), index));
+			_TutorialWidget->AddToViewport(9999); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
+			_tutExpected[index] = true;//Update this widget state
+			_ActualWidget = _TutorialWidget;//Update actual widget
+			if (timer) {
+				_timer = 0.0f;
+				_isWidgetTimed = true;
+			}
+		}
+	}
+	else {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("El tutorial %d ya ha pasado!!!"), index));
+	}
+}
 // Called every frame
 void UTutorial::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {

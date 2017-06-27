@@ -42,10 +42,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 		int _mode;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Tablilla)
+		AActor* _tablillaLaberintoActual;
+
 	UFUNCTION(BlueprintCallable, Category = "EnemyCharacter", meta = (DisplayName = "Update AI zone"))
 		void UpdateActualZone(AActor* zone);
 
 	void ResetLevel();
+	void DeleteAsset(AActor* item);
 
 private:
 	void updateDoor(TActorIterator<AStaticMeshActor> _door, int value);

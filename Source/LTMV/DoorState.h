@@ -64,6 +64,7 @@ public:
 		bool _block;
 
 
+	TArray<UActorComponent*> _FMODComponents;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
 

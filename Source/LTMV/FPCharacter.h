@@ -11,9 +11,13 @@ class LTMV_API AFPCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+	UPROPERTY()
+		bool bToBlack = false;
     /* HUD */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HUD")
     TSubclassOf<class UUserWidget> _HUDClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HUD")
+		TSubclassOf<class UUserWidget> _HUDClass2;
 
     AFPCharacter(const FObjectInitializer& OI);
     void BeginPlay() override;
@@ -28,6 +32,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Player pool Items")
     UTexture2D* GetItemTextureAt(int itemIndex);
 
+	UFUNCTION(BlueprintCallable, Category = "FadeScreen")
+		void FadeDisplay();
 	/************* TUTORIAL ************/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
 	bool _isTutorialEnabled;
@@ -68,6 +74,9 @@ public:
 	UFUNCTION(BluePrintCallable)
 	AActor* GetItemFocused();
 
+	/*******HUD ************/
+	UUserWidget* HUD;
+	UUserWidget* HUD2;
 protected:
 
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -101,6 +110,8 @@ public:
 		virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
 	UFUNCTION(NetMulticast, Reliable)
 		virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
+
+	void HideInventory();
 protected:
 
     /********** INVENTORY ***********/

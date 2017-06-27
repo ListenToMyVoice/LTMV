@@ -6,7 +6,9 @@
 #include "PlayerControllerLobby.h"
 #include "Menu3D.h"
 #include "InputMenu.h"
-#include "MoviePlayer.h"
+#include "VRCharacter.h"
+#include "FPCharacter.h"
+//#include "MoviePlayer.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -97,10 +99,10 @@ void UNWGameInstance::InitGame() {
         }
     }
     ULibraryUtils::Log(FString::Printf(TEXT("_IsVRMode: %s"), _IsVRMode ? TEXT("true") : TEXT("false")));
-
+	/*
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UNWGameInstance::BeginLoadingScreen);
 	FCoreUObjectDelegates::PostLoadMap.AddUObject(this, &UNWGameInstance::EndLoadingScreen);
-
+	*/
     APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
                                                                 GetFirstLocalPlayerController());
     AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
@@ -117,7 +119,7 @@ void UNWGameInstance::InitGame() {
         PlayerControllerLobby->CLIENT_CreateMenu();
     }
 }
-
+/*
 void UNWGameInstance::BeginLoadingScreen(const FString& MapName) {
 	if (!IsRunningDedicatedServer()) {
 		FLoadingScreenAttributes LoadingScreen;
@@ -131,8 +133,11 @@ void UNWGameInstance::BeginLoadingScreen(const FString& MapName) {
 void UNWGameInstance::EndLoadingScreen() {
 
 }
-
+*/
 /**************************************** BLUEPRINTS *********************************************/
+void UNWGameInstance::LaunchLoadingScreen() {
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("TravelMap"));
+}
 void UNWGameInstance::LaunchLobby() {
     _PlayerInfoSaved.Name = "host";
     _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
@@ -528,6 +533,17 @@ void UNWGameInstance::OnButtonExitGame(UInputMenu* InputMenu) {
 }
 
 void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
+	/*
+	_PlayerInfoSaved.Name = "host";
+	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
+	_PlayerInfoSaved.IsHost = true;
+	DestroySession();
+
+	_ServerName = "ServerName";
+	ULocalPlayer* const Player = GetFirstGamePlayer();
+	HostSession(Player->GetPreferredUniqueNetId(), GameSessionName, true, true, _MaxPlayers);
+	*/
+	//LaunchLoadingScreen();
     LaunchLobby();
 }
 
@@ -547,7 +563,12 @@ void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
 }
 
 void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {
-    JoinOnlineGame();
+	/*_PlayerInfoSaved.Name = "guest";
+	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
+	_PlayerInfoSaved.IsHost = false;
+*/
+	//LaunchLoadingScreen();
+	JoinOnlineGame();
 }
 
 void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
