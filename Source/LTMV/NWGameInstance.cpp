@@ -68,7 +68,7 @@ UNWGameInstance::UNWGameInstance(const FObjectInitializer& OI) : Super(OI) {
         "/Game/BluePrints/Characters/VRCharacter_BP"));
     _VRDefaultCharacterClass = PlayerVRPawnClassFinder.Class;
 
-    _MenuOptions.bComfortMode = false;
+    _MenuOptions.bComfortMode = true;//Comfort a true por defecto
 }
 
 IOnlineSessionPtr UNWGameInstance::GetSessions() {
@@ -78,7 +78,7 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
         Sessions = OnlineSub->GetSessionInterface();
     }
     else {
-        GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("No OnlineSubsytem found!"));
+        ////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("No OnlineSubsytem found!"));
     }
     return Sessions;
 }
@@ -97,7 +97,7 @@ void UNWGameInstance::InitGame() {
             HMD->EnableStereo(_IsVRMode);
         }
     }
-    ULibraryUtils::Log(FString::Printf(TEXT("_IsVRMode: %s"), _IsVRMode ? TEXT("true") : TEXT("false")));
+   //UILibraryUtils::Log(FString::Printf(TEXT("_IsVRMode: %s"), _IsVRMode ? TEXT("true") : TEXT("false")));
 
     APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
                                                                 GetFirstLocalPlayerController());
@@ -124,9 +124,9 @@ void UNWGameInstance::LaunchLoadingScreen() {
 }
 
 void UNWGameInstance::LaunchLobby() {
-    //_PlayerInfoSaved.Name = "host";
-    //_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
-    //_PlayerInfoSaved.IsHost = true;
+    _PlayerInfoSaved.Name = "host";
+    _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
+    _PlayerInfoSaved.IsHost = true;
 
     DestroySession();
 
@@ -141,9 +141,9 @@ void UNWGameInstance::FindOnlineGames() {
 }
 
 void UNWGameInstance::JoinOnlineGame() {
-    //_PlayerInfoSaved.Name = "guest";
-    //_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
-    //_PlayerInfoSaved.IsHost = false;
+    _PlayerInfoSaved.Name = "guest";
+    _PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
+    _PlayerInfoSaved.IsHost = false;
 
     ULocalPlayer* const Player = GetFirstGamePlayer();
     FOnlineSessionSearchResult SearchResult;
@@ -518,11 +518,19 @@ void UNWGameInstance::OnButtonExitGame(UInputMenu* InputMenu) {
 }
 
 void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
+	
 	_PlayerInfoSaved.Name = "host";
 	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
 	_PlayerInfoSaved.IsHost = true;
+	DestroySession();
+
+	_ServerName = "ServerName";
+	ULocalPlayer* const Player = GetFirstGamePlayer();
+	HostSession(Player->GetPreferredUniqueNetId(), GameSessionName, true, true, _MaxPlayers);
+	
 
 	LaunchLoadingScreen();
+
     //LaunchLobby();
 }
 
@@ -557,7 +565,7 @@ void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
 }
 void UNWGameInstance::OnButtonSelectES(UInputMenu* InputMenu) {
 	_PlayerInfoSaved.Language = "ES";
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language ES"));
+	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language ES"));
 
 	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
 		GetFirstLocalPlayerController());
@@ -565,7 +573,7 @@ void UNWGameInstance::OnButtonSelectES(UInputMenu* InputMenu) {
 }
 void UNWGameInstance::OnButtonSelectEN(UInputMenu* InputMenu) {
 	_PlayerInfoSaved.Language = "EN";
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language EN"));
+	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language EN"));
 
 	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
 		GetFirstLocalPlayerController());
@@ -573,7 +581,7 @@ void UNWGameInstance::OnButtonSelectEN(UInputMenu* InputMenu) {
 }
 void UNWGameInstance::OnButtonSelectFR(UInputMenu* InputMenu) {
 	_PlayerInfoSaved.Language = "FR";
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language FR"));
+	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language FR"));
 
 	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
 		GetFirstLocalPlayerController());

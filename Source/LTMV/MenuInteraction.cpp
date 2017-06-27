@@ -29,6 +29,7 @@ UMenuInteraction::UMenuInteraction() {
 void UMenuInteraction::BeginPlay() {
     Super::BeginPlay();
 
+
     SetActive(false);
     SetComponentTickEnabled(false);
     SetHiddenInGame(true, true);
@@ -45,9 +46,9 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
     FVector StartRaycast = GetComponentLocation();
     FVector EndRaycast = GetForwardVector() * _RayParameter + StartRaycast;
 
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
-	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, FString::Printf(TEXT("Nombre luz: %s"), _Light != nullptr ? *_Light->GetFName().ToString() : TEXT("Puntero nulo.")));
+	////GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Blue, FString::Printf(TEXT("Nombre luz: %s"), _Light != nullptr ? *_Light->GetFName().ToString() : TEXT("Puntero nulo.")));
 	//UE_LOG(LogTemp, Error, TEXT("Nombre luz: %s"), _Light != nullptr ? *_Light->GetFName().ToString() : TEXT("Puntero nulo."));
 
     if (GetWorld()->LineTraceSingleByChannel(HitResult, StartRaycast, EndRaycast,
@@ -55,10 +56,10 @@ void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,
         HitResult.Actor.IsValid()) {
 	
         if (HitResult.Actor.Get()->IsA(AMenu3D::StaticClass())) {
-            _Light->SetIntensity(10000);
+			// (!_Light) _Light->SetIntensity(10000);
         }
         else {
-            _Light->SetIntensity(10);
+			// (!_Light) _Light->SetIntensity(10);
         }
 	
         if (_TargetInputMenu && HitResult.GetComponent() != _TargetInputMenu) {

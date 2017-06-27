@@ -48,6 +48,8 @@ void APlayerControllerPlay::BeginPlay() {
             SERVER_CallUpdate(_GameInstance->_PlayerInfoSaved);
         }
     }
+
+//f (!_MenuActor) CreateMenuActor();
 }
 
 bool APlayerControllerPlay::SERVER_CallUpdate_Validate(FPlayerInfo info) {
@@ -166,7 +168,7 @@ void APlayerControllerPlay::TickWalkie() {
 
 			UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
 			if (WalkieComp) {
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("WALKIE: TOGGLE OTHER LIGHT ")));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("WALKIE: TOGGLE OTHER LIGHT ")));
 				WalkieComp->ToggleOtherLight(true);
 				WalkieComp->SetMute(true);
 			}

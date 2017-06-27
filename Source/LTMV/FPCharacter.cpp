@@ -82,8 +82,12 @@ void AFPCharacter::BeginPlay() {
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
     if (PlayerController && PlayerController->IsLocalPlayerController()) {
         /* HUD */
-        UUserWidget* HUD = CreateWidget<UUserWidget>(PlayerController, _HUDClass);
+        HUD = CreateWidget<UUserWidget>(PlayerController, _HUDClass);
         if (HUD) HUD->AddToViewport();
+
+		HUD2 = CreateWidget<UUserWidget>(PlayerController, _HUDClass2);
+		if (HUD2) HUD2->AddToViewport();
+		HUD2->SetVisibility(ESlateVisibility::Hidden);
 		
     }
 
@@ -106,7 +110,7 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 	if (PlayerController->IsLocalPlayerController()) {
 		if (SetInventory) {
 
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
 			if (_isTutorialEnabled) {
 				_Tutorial->Next(PlayerController, 0, false);//Updating to next tutorial widget
 
@@ -126,7 +130,7 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 	}
 	if (!SetInventory) {
 		if (_isTutorialEnabled) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("TUTORIAL EN LA CUEVA: ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("TUTORIAL EN LA CUEVA: ")));
 			_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
 
 			if (PlayerController->IsLocalPlayerController()) {
@@ -149,7 +153,7 @@ void AFPCharacter::Tick(float DeltaSeconds) {
 	*/
 
 }
-
+	
 FHitResult AFPCharacter::Raycasting() {
     bool bHitRayCastFlag = false;
     FCollisionQueryParams CollisionInfo;
@@ -159,7 +163,7 @@ FHitResult AFPCharacter::Raycasting() {
 
     bHitRayCastFlag = GetWorld()->LineTraceSingleByChannel(_HitResult, StartRaycast, EndRaycast, ECC_Visibility, CollisionInfo);
 
-    DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
+    //DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(255, 0, 0), false, -1.0f, (uint8)'\000', 0.8f);
 
     if (bHitRayCastFlag && _HitResult.Actor.IsValid()) {
         UActorComponent* actorComponent = _HitResult.GetComponent();
@@ -177,6 +181,11 @@ FHitResult AFPCharacter::Raycasting() {
                 _LastMeshFocused->SetRenderCustomDepth(true);
                 _LastMeshFocused->SetCustomDepthStencilValue(252);
                 bInventoryItemHit = true;
+
+				if (HUD && HUD2) {
+					HUD->SetVisibility(ESlateVisibility::Hidden);
+					HUD2->SetVisibility(ESlateVisibility::Visible);
+				}
             }
             else if (component->GetClass() == UInventoryItem::StaticClass()) {
                 _LastMeshFocused = Cast<UStaticMeshComponent>(component->GetOwner()->GetComponentByClass(
@@ -196,6 +205,10 @@ FHitResult AFPCharacter::Raycasting() {
 						+ (_HitResult.Actor->GetActorUpVector().GetSafeNormal() * -30);
 					//_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 1);//Tutorial at bunker/lab
 				}
+				if (HUD && HUD2) {
+					HUD->SetVisibility(ESlateVisibility::Hidden);
+					HUD2->SetVisibility(ESlateVisibility::Visible);
+				}
 				
             }
             else if (component->GetClass() == UHandPickItem::StaticClass()) {
@@ -205,6 +218,11 @@ FHitResult AFPCharacter::Raycasting() {
                 _LastMeshFocused->SetRenderCustomDepth(true);
                 _LastMeshFocused->SetCustomDepthStencilValue(255);
                 bInventoryItemHit = true;
+
+				if (HUD && HUD2) {
+					HUD->SetVisibility(ESlateVisibility::Hidden);
+					HUD2->SetVisibility(ESlateVisibility::Visible);
+				}
             }
 
 			else if (component->GetClass() == UTokenHolder::StaticClass()) {
@@ -214,9 +232,23 @@ FHitResult AFPCharacter::Raycasting() {
 				_LastMeshFocused->SetRenderCustomDepth(true);
 				_LastMeshFocused->SetCustomDepthStencilValue(254);
 				bInventoryItemHit = true;
+				if (HUD && HUD2) {
+					HUD->SetVisibility(ESlateVisibility::Hidden);
+					HUD2->SetVisibility(ESlateVisibility::Visible);
+				}
+			}else{
+				if (HUD && HUD2) {
+					HUD2->SetVisibility(ESlateVisibility::Hidden);
+					HUD->SetVisibility(ESlateVisibility::Visible);
+				}
 			}
         }
-    }
+    }else{
+		if (HUD && HUD2) {
+			HUD2->SetVisibility(ESlateVisibility::Hidden);
+			HUD->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 
     //If Raycast is not hitting any actor, disable the outline
     if (bInventoryItemHit && _HitResult.Actor != _LastMeshFocused->GetOwner()) {
@@ -686,6 +718,7 @@ void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor, int
 }
 
 void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("PICK ITEM INVENTORY ")));
     if (ItemActor) {
         if (KeyStruct == EKeys::LeftMouseButton) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
@@ -702,7 +735,13 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
                 /* Drop item */
 				SERVER_Drop(_ItemLeft, 1);
             }
+
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("left click EN ITEM INVENTORY ")));
             SERVER_PickItemInventoryLeft(ItemActor);
+			if (_isTutorialEnabled) {
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				_Tutorial->Next(PlayerController, 4, false);//Next widget of tutorial
+			}
         }
         else if (KeyStruct == EKeys::RightMouseButton) {
             if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
@@ -718,7 +757,12 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
                 /* Drop item */
                 SERVER_Drop(_ItemRight, 2);
             }
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("RIGHT click EN ITEM INVENTORY ")));
             SERVER_PickItemInventoryRight(ItemActor);
+			if (_isTutorialEnabled) {
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				_Tutorial->Next(PlayerController, 4, false);//Next widget of tutorial
+			}
         }
     }
 }
@@ -736,6 +780,7 @@ void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor)
 			UInventoryItem::StaticClass()));
 
 		if (ItemMesh && InventoryItemComp) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ITEM TO HAND LEFT")));
 			ItemMesh->SetMobility(EComponentMobility::Movable);
 			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			ItemMesh->SetSimulatePhysics(false);
@@ -781,17 +826,13 @@ void AFPCharacter::SERVER_PickItemInventoryRight_Implementation(AActor* ItemActo
 void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor) {
 
 	if (ItemActor) {
-		/*
-		UStaticMeshComponent* ItemMesh = nullptr;
-		UInventoryItem* InventoryItemComp = nullptr
-		if (ItemActor) {
-		*/
 		UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
 			UStaticMeshComponent::StaticClass()));
 		UInventoryItem* InventoryItemComp = Cast<UInventoryItem>(ItemActor->GetComponentByClass(
 			UInventoryItem::StaticClass()));
 		//}
 		if (ItemMesh && InventoryItemComp) {
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ITEM ON HAND LEFT")));
 			ItemMesh->SetMobility(EComponentMobility::Movable);
 			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			ItemMesh->SetSimulatePhysics(false);
