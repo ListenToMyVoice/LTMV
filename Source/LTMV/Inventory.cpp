@@ -66,7 +66,7 @@ TArray<AActor*> UInventory::GetItemsArray() {
 
 void UInventory::ShowAllItems() {
     for (AActor* item:_items){
-        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *item->GetName()));
+        ////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *item->GetName()));
         UE_LOG(LogTemp, Warning, TEXT("ITEM: %s"), *item->GetName());
     }
 }

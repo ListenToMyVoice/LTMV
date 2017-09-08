@@ -38,7 +38,7 @@ void UWalkie::ToggleLight(bool on) {
 			FString _name;
 			for (UActorComponent* PointLight : PointLightArray) {
 				if (PointLight->GetName() == "White") {
-					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("HABLANDO POR EL WALKIEE3")));
+					////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("HABLANDO POR EL WALKIEE3")));
 					Cast<UPointLightComponent>(PointLight)->SetIntensity(50000);//POner la luz blanca encendida
 				}
 			}
@@ -48,7 +48,7 @@ void UWalkie::ToggleLight(bool on) {
 			FString _name;
 			for (UActorComponent* PointLight : PointLightArray) {
 				if (PointLight->GetName() == "White") {
-					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("no POR EL WALKIEE3")));
+					////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("no POR EL WALKIEE3")));
 					Cast<UPointLightComponent>(PointLight)->SetIntensity(0);//POner la luz blanca apagada
 				}
 			}
@@ -84,7 +84,7 @@ bool UWalkie::IsMuted() {
 }
 void UWalkie::SetMute(bool mute) {
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Player mute %d"),mute));
+	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Player mute %d"),mute));
 	_isMuted = mute;
 }
 /*********************************************** DELEGATES ***************************************/

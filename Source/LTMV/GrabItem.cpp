@@ -35,7 +35,7 @@ void UGrabItem::BeginGrab(USceneComponent* Target, FName SocketName) {
         _SourceMesh->SetSimulatePhysics(false);
 
         SetComponentTickEnabled(true);
-        ULibraryUtils::Log("BeginGrab");
+        //ULibraryUtils::Log("BeginGrab");
     }
 }
 
@@ -53,7 +53,7 @@ void UGrabItem::EndGrab(bool IsReleased) {
     _SourceMesh = nullptr;
     _TargetMesh = nullptr;
 
-    ULibraryUtils::Log("EndGrab");
+    //ULibraryUtils::Log("EndGrab");
 }
 
 void UGrabItem::TickComponent(float DeltaTime, ELevelTick TickType,

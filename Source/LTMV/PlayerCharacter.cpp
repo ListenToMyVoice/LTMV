@@ -11,6 +11,7 @@
 #include "Walkie.h"
 #include "Token.h"
 #include "TokenHolder.h"
+#include "GameStatePlay.h"
 #include "MenuInteraction.h"
 
 
@@ -55,6 +56,7 @@ void APlayerCharacter::Tick(float DeltaSeconds) {
 
 void APlayerCharacter::AfterPossessed(bool SetInventory, bool respawning) {
     ToggleMenuInteraction(false);
+
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -258,7 +260,7 @@ void APlayerCharacter::CLIENT_AddRadioDelegates_Implementation(AActor* Actor) {
             
             const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
             FString myRole = EnumPtr->GetEnumName((int32)Role);
-            ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
+            //ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
         }
     }
 }
@@ -274,7 +276,7 @@ void APlayerCharacter::CLIENT_ClearRadioDelegates_Implementation(AActor* Actor) 
 
             const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
             FString myRole = EnumPtr->GetEnumName((int32)Role);
-            ULibraryUtils::Log(FString::Printf(TEXT("ClearRadioDelegates : %s"), *myRole), 0, 60);
+            //ULibraryUtils::Log(FString::Printf(TEXT("ClearRadioDelegates : %s"), *myRole), 0, 60);
         }
     }
 }

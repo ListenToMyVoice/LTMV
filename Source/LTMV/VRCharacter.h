@@ -120,12 +120,12 @@ public:
     void DropLeft();
     UFUNCTION()
     void DropRight();
-protected:
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_Drop(AActor* ItemActor, int Hand) override;
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_Drop(AActor* ItemActor, int Hand) override;
 
+protected:
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
 	virtual void TurnLeftComfort();

@@ -8,6 +8,7 @@
 #include "GameStatePlay.h"
 #include "NWGameInstance.h"
 #include "FPCharacter.h"
+#include "VRCharacter.h"
 #include "Inventory.h"
 #include "PlayerSpectator.h"
 
@@ -38,6 +39,7 @@ void AGameModePlay::InitGame(const FString & MapName, const FString & Options,
     Super::InitGame(MapName, Options, ErrorMessage);
 
     if (GameSession) GameSession->bRequiresPushToTalk = true;
+
 }
 
 bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerControllerPlay* PlayerController,
@@ -78,6 +80,19 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 	if (GI && GI->_IsVRMode) {
 
 
+		//Dropear elementos de las manos y los elminiamos del mundo
+		AVRCharacter* _PlayerVR = Cast<AVRCharacter>(PlayerController->GetPawn());
+		AActor* item_left = _PlayerVR->GetActorFocusedLeft();
+		if (item_left) {
+			PlayerCharacter->SERVER_Drop(item_left, 4);
+			GameState->DeleteAsset(item_left);
+		}
+		AActor* item_right = _PlayerVR->GetActorFocusedRight();
+		if (item_right) {
+			PlayerCharacter->SERVER_Drop(item_right, 4);
+			GameState->DeleteAsset(item_right);
+		}
+
 	}
 	//para el fpcharacter
 	else {
@@ -91,7 +106,7 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 		TArray<AActor*> _items = _inventory->GetItemsArray();
 
 		for (AActor* item : _items) {
-			//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("-- DROP DE ITEM: %s"), *item->GetName()));
+			////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("-- DROP DE ITEM: %s"), *item->GetName()));
 			PlayerCharacter->SERVER_Drop(item, 4);
 			GameState->DeleteAsset(item);
 		}
@@ -113,26 +128,38 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 		PlayerController->AfterPossessed(true);
 		//Nuevo character con ese actor
 		PlayerCharacter = Cast<APlayerCharacter>(actor);
-		//para el VRCharacter
+		//Spawneamos objetos de nuevo
+		GameState->SpawnAssets();
+
 		if (GI && GI->_IsVRMode) {
+			// SPAWNEAMOS UN NUEVO WALKIE Y UNA NUEVA LINTERNA EN EL MUNDO
+			//GameState->SpawnAssets();
 		}
 		//para el FPCharacter
 		else {
+			//GameState->SpawnAssets();
+			/*
 			// SPAWNEAMOS UN NUEVO WALKIE Y UNA NUEVA LINTERNA EN EL CHARACTER
+			AActor* Walkie = GameState->SpawnAsset(1);
+			/*
 			FActorSpawnParameters SpawnParams;
 			FVector location = FVector(0.0f, 0.0f, 0.0f);
 			FRotator rotation = FRotator(0.0f, 0.0f, 0.0f);
 			AActor* Walkie = GetWorld()->SpawnActor<AActor>(WalkieBlueprint, location, rotation, SpawnParams);
+			
 			if (Walkie) {
 				PlayerCharacter->TakeDropRight_Respawn(Walkie);
-				//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVO WALKIE")));
+				////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVO WALKIE")));
 			}
 			// LINTERNA
-			AActor* Linterna = GetWorld()->SpawnActor<AActor>(LinternaBlueprint, location, rotation, SpawnParams);
+
+			AActor* Linterna = GameState->SpawnAsset(2);
+			//AActor* Linterna = GetWorld()->SpawnActor<AActor>(LinternaBlueprint, location, rotation, SpawnParams);
 			if (Linterna) {
 				PlayerCharacter->TakeDropRight_Respawn(Linterna);
-				//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVA LINTERNA")));
+				////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVA LINTERNA")));
 			}
+			*/
 		}
 	}
 }

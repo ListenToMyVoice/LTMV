@@ -78,7 +78,7 @@ IOnlineSessionPtr UNWGameInstance::GetSessions() {
         Sessions = OnlineSub->GetSessionInterface();
     }
     else {
-        ////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("No OnlineSubsytem found!"));
+        //////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("No OnlineSubsytem found!"));
     }
     return Sessions;
 }
@@ -234,8 +234,7 @@ void UNWGameInstance::FindSessions(TSharedPtr<const FUniqueNetId> UserId, bool b
 }
 
 void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful) {
-    ULibraryUtils::Log(FString::Printf(TEXT("Number of Sessions found: %d"),
-                                       _SessionSearch->SearchResults.Num()), 3, 15);
+    //ULibraryUtils::Log(FString::Printf(TEXT("Number of Sessions found: %d"),
     IOnlineSessionPtr Sessions = GetSessions();
     FString Result = "";
     bool Ok = false;
@@ -519,6 +518,7 @@ void UNWGameInstance::OnButtonExitGame(UInputMenu* InputMenu) {
 
 void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
 	
+	/*
 	_PlayerInfoSaved.Name = "host";
 	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRBoyClass : _BoyClass;
 	_PlayerInfoSaved.IsHost = true;
@@ -527,11 +527,11 @@ void UNWGameInstance::OnButtonHostGame(UInputMenu* InputMenu) {
 	_ServerName = "ServerName";
 	ULocalPlayer* const Player = GetFirstGamePlayer();
 	HostSession(Player->GetPreferredUniqueNetId(), GameSessionName, true, true, _MaxPlayers);
-	
+	*/
 
-	LaunchLoadingScreen();
+	//LaunchLoadingScreen();
 
-    //LaunchLobby();
+    LaunchLobby();
 }
 
 void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
@@ -550,12 +550,13 @@ void UNWGameInstance::OnButtonFindGame(UInputMenu* InputMenu) {
 }
 
 void UNWGameInstance::OnButtonJoinGame(UInputMenu* InputMenu) {
+	/*
 	_PlayerInfoSaved.Name = "guest";
 	_PlayerInfoSaved.CharacterClass = _IsVRMode ? _VRGirlClass : _GirlClass;
 	_PlayerInfoSaved.IsHost = false;
-
-	LaunchLoadingScreen();
-    //JoinOnlineGame();
+	//LaunchLoadingScreen();
+	*/
+    JoinOnlineGame();
 }
 
 void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
@@ -565,7 +566,7 @@ void UNWGameInstance::OnButtonSwitchComfortMode(UInputMenu* InputMenu) {
 }
 void UNWGameInstance::OnButtonSelectES(UInputMenu* InputMenu) {
 	_PlayerInfoSaved.Language = "ES";
-	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language ES"));
+	////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language ES"));
 
 	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
 		GetFirstLocalPlayerController());
@@ -573,7 +574,7 @@ void UNWGameInstance::OnButtonSelectES(UInputMenu* InputMenu) {
 }
 void UNWGameInstance::OnButtonSelectEN(UInputMenu* InputMenu) {
 	_PlayerInfoSaved.Language = "EN";
-	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language EN"));
+	////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language EN"));
 
 	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
 		GetFirstLocalPlayerController());
@@ -581,7 +582,7 @@ void UNWGameInstance::OnButtonSelectEN(UInputMenu* InputMenu) {
 }
 void UNWGameInstance::OnButtonSelectFR(UInputMenu* InputMenu) {
 	_PlayerInfoSaved.Language = "FR";
-	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language FR"));
+	////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Changed to language FR"));
 
 	APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
 		GetFirstLocalPlayerController());

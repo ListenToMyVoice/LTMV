@@ -163,7 +163,7 @@ void UTutorial::SetLanguage(FString Language) {
 	if (Language == "EN")	_actualWidgets = _tutWidgets_EN;
 	else if (Language == "ES")	_actualWidgets = _tutWidgets;
 	else if (Language == "FR")	_actualWidgets = _tutWidgets_FR;
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("El tutorial es en %s"), *Language));
+	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("El tutorial es en %s"), *Language));
 }
 void UTutorial::Next(APlayerController* PlayerController, int index, bool timer) {
 	bool continuar = true;
@@ -185,7 +185,7 @@ void UTutorial::Next(APlayerController* PlayerController, int index, bool timer)
 		_TutorialWidget = CreateWidget<UUserWidget>(PlayerController, _actualWidgets[index]);
 
 		if (_TutorialWidget) {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Tutorial Widget paso a %d"), index));
+			////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Tutorial Widget paso a %d"), index));
 			_TutorialWidget->AddToViewport(9999); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
 			_tutExpected[index] = true;//Update this widget state
 			_ActualWidget = _TutorialWidget;//Update actual widget
@@ -196,7 +196,7 @@ void UTutorial::Next(APlayerController* PlayerController, int index, bool timer)
 		}
 	}
 	else {
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("El tutorial %d ya ha pasado!!!"), index));
+		////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("El tutorial %d ya ha pasado!!!"), index));
 	}
 	
 }
@@ -223,7 +223,7 @@ void UTutorial::Last(APlayerController* PlayerController, int index, bool timer,
 		_TutorialWidget = CreateWidget<UUserWidget>(PlayerController, _actualWidgets[index]);
 
 		if (_TutorialWidget) {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Tutorial Widget paso a %d"), index));
+			////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("Tutorial Widget paso a %d"), index));
 			_TutorialWidget->AddToViewport(9999); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
 			_tutExpected[index] = true;//Update this widget state
 			_ActualWidget = _TutorialWidget;//Update actual widget
@@ -234,7 +234,7 @@ void UTutorial::Last(APlayerController* PlayerController, int index, bool timer,
 		}
 	}
 	else {
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("El tutorial %d ya ha pasado!!!"), index));
+		////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("El tutorial %d ya ha pasado!!!"), index));
 	}
 }
 

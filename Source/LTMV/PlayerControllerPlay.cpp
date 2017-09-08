@@ -49,7 +49,6 @@ void APlayerControllerPlay::BeginPlay() {
         }
     }
 
-//f (!_MenuActor) CreateMenuActor();
 }
 
 bool APlayerControllerPlay::SERVER_CallUpdate_Validate(FPlayerInfo info) {
@@ -120,7 +119,7 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                     _WalkieNoiseAudioComp->AttachToComponent(MeshComponent,
                                                              FAttachmentTransformRules::KeepRelativeTransform);
                     _WalkieNoiseAudioComp->bOverrideAttenuation = true;
-                    ULibraryUtils::Log("Setup Voice");
+                    //ULibraryUtils::Log("Setup Voice");
 
 
                     //_TestAudioComp->AttachToComponent(MeshComponent,
@@ -136,7 +135,7 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                 _VoiceAudioComp->SetVolumeMultiplier(2.0);
                 _WalkieNoiseAudioComp->SetVolume(2.0);
                 //_TestAudioComp->SetVolumeMultiplier(1.0);
-                ULibraryUtils::Log("VOLUME: 1.0");
+                //ULibraryUtils::Log("VOLUME: 1.0");
             }
         }
         else {
@@ -144,7 +143,7 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                 _VoiceAudioComp->SetVolumeMultiplier(0.5);
                 _WalkieNoiseAudioComp->SetVolume(0.5);
                 //_TestAudioComp->SetVolumeMultiplier(0.05);
-                ULibraryUtils::Log("VOLUME: 0.05");
+                //ULibraryUtils::Log("VOLUME: 0.05");
             }
         }
     }
@@ -168,7 +167,7 @@ void APlayerControllerPlay::TickWalkie() {
 
 			UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
 			if (WalkieComp) {
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("WALKIE: TOGGLE OTHER LIGHT ")));
+				////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("WALKIE: TOGGLE OTHER LIGHT ")));
 				WalkieComp->ToggleOtherLight(true);
 				WalkieComp->SetMute(true);
 			}
@@ -314,14 +313,12 @@ void APlayerControllerPlay::OnRadioPressed() {
 		WalkieComp->ToggleLight(true);
 	}
 
-    ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s"),
-                                       *PlayerState->UniqueId.ToDebugString()), 3, 60);
+    //ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s")
 
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
             ClientMutePlayer(OtherPlayerState->UniqueId);
-            ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
-                                               *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
+            //ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
         }
     }
 }
@@ -338,8 +335,7 @@ void APlayerControllerPlay::OnRadioReleased() {
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
             ClientUnmutePlayer(OtherPlayerState->UniqueId);
-            ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
-                                               *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
+            //ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
         }
     }
 }

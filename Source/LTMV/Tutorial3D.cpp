@@ -158,7 +158,7 @@ void ATutorial3D::ShowTutorial(FVector Location, FRotator Rotation, int index) {
 	//Enable visibility of actor
 	SetActorHiddenInGame(false);
 	SetActorTickEnabled(true);
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Changed location+rotation of tut actor %s"), *Location.ToString()));
+	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Changed location+rotation of tut actor %s"), *Location.ToString()));
 
 	//Change Rotation and Location of actor
 	SetActorLocationAndRotation(Location, Rotation, false, nullptr, ETeleportType::TeleportPhysics);
@@ -193,7 +193,7 @@ void ATutorial3D::SetLanguage(FString Language) {
 	if (Language == "EN")	_actualWidComp = _tutWidComps_EN;
 	else if (Language == "ES")	_actualWidComp = _tutWidComps;
 	else if (Language == "FR")	_actualWidComp = _tutWidComps_FR;
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("El tutorial es en %s"), *Language));
+	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("El tutorial es en %s"), *Language));
 }
 
 // Called when the game starts or when spawned

@@ -16,6 +16,8 @@ public:
 
     AGameStatePlay(const class FObjectInitializer& OI);
 
+	void PostInitializeComponents() override;
+
 	FVector _puerta1_0;
 	FVector _puerta1_1;
 	FVector _puerta2_0;
@@ -50,19 +52,34 @@ public:
 
 	void ResetLevel();
 	void DeleteAsset(AActor* item);
+	void SpawnAssets();
+	AActor* SpawnAsset(int nombre);
+	void getPointsAndEnemy();
 
 private:
 	void updateDoor(TActorIterator<AStaticMeshActor> _door, int value);
 	void UpdatePatrolPoints(FVector pp1,FVector pp2, FVector pp3);
-	void getPointsAndEnemy();
 	void ResetDoor(TActorIterator<AStaticMeshActor> actor);
 	TArray<bool> FindPath();
 
 	ATargetPoint *_patrolPoint1;
 	ATargetPoint *_patrolPoint2;
 	ATargetPoint *_patrolPoint3;
-	ACharacter *_enemy;
+	APawn *_enemy;
 	int _actualZone;
+	
+	FVector _SpawnLanternLocation;
+	FVector _SpawnWalkieLocation;
+	FRotator _SpawnLanternRotation;
+	FRotator _SpawnWalkieRotation;
+	FVector _SpawnTablillaLocation;
+	FRotator _SpawnTablillaRotation;
 
 	TSubclassOf<class AActor> TablillaBlueprint;
+	TSubclassOf<class AActor> WalkieBlueprint;
+	TSubclassOf<class AActor> LinternaBlueprint;
+
+
+	TSubclassOf<ACharacter> _DefaultEnemyClass;
+	FTransform _EnemyTransform;
 };

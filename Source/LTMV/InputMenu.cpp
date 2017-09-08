@@ -40,11 +40,11 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
 }
 
 //void UInputMenu::OnActivate(UActorComponent* Component, bool bReset) {
-//    ULibraryUtils::Log("OnActivate");
+//    //ULibraryUtils::Log("OnActivate");
 //}
 //
 //void UInputMenu::OnDeactivate(UActorComponent* Component) {
-//    ULibraryUtils::Log("OnDeactivate");
+//    //ULibraryUtils::Log("OnDeactivate");
 //}
 
 void UInputMenu::BeginPlay() {

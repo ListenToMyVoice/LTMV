@@ -110,7 +110,7 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 	if (PlayerController->IsLocalPlayerController()) {
 		if (SetInventory) {
 
-			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
+			////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
 			if (_isTutorialEnabled) {
 				_Tutorial->Next(PlayerController, 0, false);//Updating to next tutorial widget
 
@@ -130,7 +130,7 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 	}
 	if (!SetInventory) {
 		if (_isTutorialEnabled) {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("TUTORIAL EN LA CUEVA: ")));
+			////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("TUTORIAL EN LA CUEVA: ")));
 			_Tutorial->StartTutorial(PlayerController);//Starting tutorial at lobby
 
 			if (PlayerController->IsLocalPlayerController()) {
@@ -718,7 +718,7 @@ void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor, int
 }
 
 void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("PICK ITEM INVENTORY ")));
+	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("PICK ITEM INVENTORY ")));
     if (ItemActor) {
         if (KeyStruct == EKeys::LeftMouseButton) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
@@ -736,7 +736,7 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
 				SERVER_Drop(_ItemLeft, 1);
             }
 
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("left click EN ITEM INVENTORY ")));
+			////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("left click EN ITEM INVENTORY ")));
             SERVER_PickItemInventoryLeft(ItemActor);
 			if (_isTutorialEnabled) {
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
@@ -757,7 +757,7 @@ void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
                 /* Drop item */
                 SERVER_Drop(_ItemRight, 2);
             }
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("RIGHT click EN ITEM INVENTORY ")));
+			////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("RIGHT click EN ITEM INVENTORY ")));
             SERVER_PickItemInventoryRight(ItemActor);
 			if (_isTutorialEnabled) {
 				APlayerController* PlayerController = Cast<APlayerController>(GetController());
@@ -780,7 +780,7 @@ void AFPCharacter::MULTI_PickItemInventoryLeft_Implementation(AActor* ItemActor)
 			UInventoryItem::StaticClass()));
 
 		if (ItemMesh && InventoryItemComp) {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ITEM TO HAND LEFT")));
+			////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ITEM TO HAND LEFT")));
 			ItemMesh->SetMobility(EComponentMobility::Movable);
 			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			ItemMesh->SetSimulatePhysics(false);
@@ -832,7 +832,7 @@ void AFPCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor
 			UInventoryItem::StaticClass()));
 		//}
 		if (ItemMesh && InventoryItemComp) {
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ITEM ON HAND LEFT")));
+			////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("ITEM ON HAND LEFT")));
 			ItemMesh->SetMobility(EComponentMobility::Movable);
 			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			ItemMesh->SetSimulatePhysics(false);

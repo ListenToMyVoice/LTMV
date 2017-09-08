@@ -47,7 +47,7 @@ void AEnemyCharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector Norma
 
 float AEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 				 class AController* EventInstigator, class AActor* DamageCauser) {
-	ULibraryUtils::Log(FString::Printf(TEXT("Me han dado")), 0, 60);
+	////ULibraryUtils::Log(FString::Printf(TEXT("Me han dado")), 0, 60);
 	damaged = true;
 	/*The enemy doesn't receive damage*/
 	return 0.0f;

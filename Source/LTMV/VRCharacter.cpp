@@ -276,7 +276,7 @@ void AVRCharacter::MULTI_ToggleInventoryVR_Implementation() {
 			MeshRight->SetVisibility(true);
 		}
 
-		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, TEXT("Activo el Inventario."));
+		////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, TEXT("Activo el Inventario."));
 		bInventoryActive = true;
 	}
 	else {
@@ -299,7 +299,7 @@ void AVRCharacter::MULTI_ToggleInventoryVR_Implementation() {
 			MeshRight->SetVisibility(false);
 		}
 
-		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, TEXT("Desactivo el Inventario."));
+		////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, TEXT("Desactivo el Inventario."));
 		bInventoryActive = false;
 	}
 }

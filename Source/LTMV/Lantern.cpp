@@ -72,7 +72,7 @@ void ULantern::UseItemPressed_Implementation() {
 void ULantern::UseItemReleased_Implementation() {}
 
 void ULantern::PowerOff() {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("LANTERN: POWER OFF ")));
+	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("LANTERN: POWER OFF ")));
     TArray<UActorComponent*> SpotLightArray;
     SpotLightArray = GetOwner()->GetComponentsByClass(USpotLightComponent::StaticClass());
 
@@ -82,7 +82,7 @@ void ULantern::PowerOff() {
 }
 
 void ULantern::PowerOn() {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("LANTERN: POWER ON ")));
+	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("LANTERN: POWER ON ")));
     TArray<UActorComponent*> SpotLightArray;
     SpotLightArray = GetOwner()->GetComponentsByClass(USpotLightComponent::StaticClass());
 

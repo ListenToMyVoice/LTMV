@@ -101,7 +101,7 @@ void AEnemyController::PerceptionUpdated(TArray<AActor*> Actors) {
 }
 
 //void AEnemyController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus) {
-//    //GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "OnTargetPerceptionUpdated");
+//    ////GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "OnTargetPerceptionUpdated");
 //
-//    //GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Actor->GetName());
+//    ////GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, Actor->GetName());
 //}

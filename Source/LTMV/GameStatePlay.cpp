@@ -42,26 +42,42 @@ AGameStatePlay::AGameStatePlay(const class FObjectInitializer& OI) : Super(OI){
 	_beforePath.Add(false);
 	_actualPath = _beforePath;
 
-	//Patrol points empiezan en la puerta 1 y en la puerta 2
-	_PatrolPoints = {};
-	_PatrolPoints.Add(true);
-	_PatrolPoints.Add(true);
-	_PatrolPoints.Add(false);
-	_PatrolPoints.Add(false);
-
-
-	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint(TEXT("Class'/Game/BluePrints/Assets/tablilla_laberinto_Blueprint.tablilla_laberinto_Blueprint_C'"));
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint(TEXT("Class'/Game/BluePrints/Assets/walkie.walkie_C'"));
 	if (ItemBlueprint.Object) {
-		TablillaBlueprint = (UClass*)ItemBlueprint.Object;
+		WalkieBlueprint = (UClass*)ItemBlueprint.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint2(TEXT("Class'/Game/BluePrints/Assets/LinternaFINAL.LinternaFINAL_C'"));
+	if (ItemBlueprint2.Object) {
+		LinternaBlueprint = (UClass*)ItemBlueprint2.Object;
+	}
+
+
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint3(TEXT("Class'/Game/BluePrints/Assets/tablilla_laberinto_Blueprint.tablilla_laberinto_Blueprint_C'"));
+	if (ItemBlueprint3.Object) {
+		TablillaBlueprint = (UClass*)ItemBlueprint3.Object;
 	}
 	//Guardamos la tablilla actual
 	_tablillaLaberintoActual = nullptr;
+
+	//Enemy
+	static ConstructorHelpers::FClassFinder<APawn> EnemyPawnClassFinder(TEXT(
+		"/Game/BluePrints/Andrea/enemycharacterand"));//Blueprint'/Game/BluePrints/Andrea/enemycharacterand.EnemyCharacterAnd'
+	_DefaultEnemyClass = EnemyPawnClassFinder.Class;
 }
 
+void AGameStatePlay::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	//GameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+	//GameState->
+	getPointsAndEnemy();
+
+
+}
 void AGameStatePlay::updateDoors() {
 	//first time here
 	if (!_patrolPoint1) {
-		getPointsAndEnemy();
+		//getPointsAndEnemy();
 	}
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: UpdateDoors! ")));
@@ -100,7 +116,9 @@ void AGameStatePlay::updateDoors() {
 	_actualPath = FindPath();
 }
 
+
 void AGameStatePlay::getPointsAndEnemy() {
+
 	//Coger los PatrolPoint del mapa
 	for (TActorIterator<ATargetPoint> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
 		if (ActorItr->GetName() == "PatrolPoint1") {
@@ -114,17 +132,39 @@ void AGameStatePlay::getPointsAndEnemy() {
 		}
 	}
 
-	//Coger al enemigo
-	for (TActorIterator<ACharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-		if (ActorItr->GetName() == "EnemyCharacterAnd") {
-			_enemy = *ActorItr;
+	//Recoger posicion y rotacion de los assets walkie ylinterna
+	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "Linterna_laberinto") {
+			_SpawnLanternLocation = ActorItr->GetActorLocation();
+			_SpawnLanternRotation = ActorItr->GetActorRotation();
 		}
 	}
+	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "walkie_laberinto") {
+			_SpawnWalkieLocation = ActorItr->GetActorLocation();
+			_SpawnWalkieRotation = ActorItr->GetActorRotation();
+		}
+	}
+	//Valores para el respawn de linterna y walkie
+	_SpawnLanternLocation = FVector(4987.0f,-325.0f,70.0f);
+	_SpawnLanternRotation = FRotator(-11.0f,-28.0f,-67.0f);
+	_SpawnLanternLocation = FVector(4960.0f,-270.0f,61.0f);
+	_SpawnLanternRotation = FRotator(0.0f,0.0f,0.0f);
+	_SpawnTablillaLocation = FVector(5804.0f, 614.0f, 166.0f);
+	_SpawnTablillaRotation = FRotator(90.0f, 0.0f, 0.0f);
 
 	//Coger la tablilla
 	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
 		if (ActorItr->GetName() == "tablilla_laberinto_Blueprint") {
 			_tablillaLaberintoActual = *ActorItr;
+		}
+	}
+	//Coger enemigo
+	for (TActorIterator<APawn> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "EnemyCharacterAnd") {
+			_enemy = *ActorItr;
+			_EnemyTransform = _enemy->GetActorTransform();
+
 		}
 	}
 }
@@ -311,7 +351,7 @@ TArray<bool> AGameStatePlay::FindPath() {
 }
 
 void AGameStatePlay::UpdateActualZone(AActor* zone) {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: UpdateActualZone! ")));
+	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("GameState: UpdateActualZone! ")));
 	TArray<FName> _tags = zone->Tags;
 
 	for (int ind = 0; ind < _tags.Num(); ++ind) {
@@ -335,6 +375,8 @@ void AGameStatePlay::UpdateActualZone(AActor* zone) {
 }
 
 void AGameStatePlay::UpdatePatrolPoints(FVector pp1,FVector pp2, FVector pp3) {
+
+	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("-----patrol points: pp1(%s) pp2(%s) pp3(%s)"),*pp1.ToString(),*pp2.ToString(),*pp3.ToString()));
 	_patrolPoint1->SetActorLocation(pp1);
 	_patrolPoint2->SetActorLocation(pp2);
 	_patrolPoint3->SetActorLocation(pp3);
@@ -342,12 +384,43 @@ void AGameStatePlay::UpdatePatrolPoints(FVector pp1,FVector pp2, FVector pp3) {
 
 
 /*************************************** LEVEL RESETING *******************************************/
+void AGameStatePlay::SpawnAssets() {
+	FActorSpawnParameters SpawnParams;
+	
+	//Walkie
+	AActor* Walkie = GetWorld()->SpawnActor<AActor>(WalkieBlueprint, _SpawnWalkieLocation, _SpawnWalkieRotation, SpawnParams);
+
+	//Linterna
+	AActor* Linterna = GetWorld()->SpawnActor<AActor>(LinternaBlueprint, _SpawnLanternLocation, _SpawnLanternRotation, SpawnParams);
+	
+}
+
+AActor* AGameStatePlay::SpawnAsset(int nombre) {
+	FActorSpawnParameters SpawnParams;
+	AActor* asset = nullptr;
+	switch (nombre) {
+	case 1:
+		asset = GetWorld()->SpawnActor<AActor>(WalkieBlueprint, _SpawnWalkieLocation, _SpawnWalkieRotation, SpawnParams);
+		break;
+	case 2:
+
+		asset = GetWorld()->SpawnActor<AActor>(LinternaBlueprint, _SpawnLanternLocation, _SpawnLanternRotation, SpawnParams);
+		break;
+
+	case 3:
+
+		asset = GetWorld()->SpawnActor<AActor>(TablillaBlueprint, _SpawnTablillaLocation, _SpawnTablillaRotation, SpawnParams);
+		break;
+	}
+	return asset;
+}
+
 void AGameStatePlay::DeleteAsset(AActor* item) {
 	item->Destroy();
-	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDO ITEM")));
+	////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDO ITEM")));
 }
-void AGameStatePlay::ResetLevel() {
 
+void AGameStatePlay::ResetLevel() {
 
 	//Reseting 4 doors
 	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
@@ -359,32 +432,39 @@ void AGameStatePlay::ResetLevel() {
 	}
 
 	//Positioning the enemy in the first zone
-	for (TActorIterator<ACharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-		if (ActorItr->GetFName() == "EnemyCharacterAnd") {
+
+	for (TActorIterator<APawn> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
+		if (ActorItr->GetName() == "EnemyCharacterAnd") {
 			_enemy = *ActorItr;
-			_enemy->SetActorLocation(_point1_2);
-			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT("->->-> MOVIDO EL ENEMIGO")));
+			_EnemyTransform = _enemy->GetActorTransform();
 		}
+	}
+	if (_enemy) {
+
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT("->->-> MOVER EL ENEMIGO")));
+		_EnemyTransform = _enemy->GetActorTransform();
+		AController* enemycontroller = _enemy->GetController();
+		//enemycontroller->GetPawn()->SetActorLocation(_point1_2);
+		enemycontroller->GetPawn()->TeleportTo(_point1_2, FRotator(0.0f, 0.0f, 0.0f), false, false);
+			/*
+		if (enemycontroller->GetPawn()) enemycontroller->GetPawn()->Destroy();
+		APawn* new_enemy = Cast<APawn>(GetWorld()->SpawnActor(_DefaultEnemyClass, &_EnemyTransform));
+		if (new_enemy) {
+			enemycontroller->Possess(new_enemy);
+			_enemy = Cast<ACharacter>(new_enemy);
+		}
+		*/
 	}
 
 	//Reconstruir la tablilla
-	for (TActorIterator<AStaticMeshActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-		for (FName tag : ActorItr->Tags) {
-			if (tag == "TablillaLaberinto") {
-				_tablillaLaberintoActual = *ActorItr;
-			}
-		}
-	}
 	if (_tablillaLaberintoActual) {
-		//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDA TABLILLA")));
+		////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("----- DESTRUIDA TABLILLA")));
 		_tablillaLaberintoActual->Destroy();
 	}
 	FActorSpawnParameters SpawnParams;
-	FVector location = FVector(5804.0f, 614.0f, 166.0f);
-	FRotator rotation = FRotator(90.0f, 0.0f, 0.0f);
-	AActor* Tablilla = GetWorld()->SpawnActor<AActor>(TablillaBlueprint, location, rotation, SpawnParams);
+	AActor* Tablilla = SpawnAsset(2);
 	if (Tablilla) {
-		//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("++++ SPAWN TABLILLA")));
+		////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("++++ SPAWN TABLILLA")));
 		_tablillaLaberintoActual = Tablilla;
 	}
 
@@ -403,7 +483,7 @@ void AGameStatePlay::ResetLevel() {
 			Door = Cast<UDoorState>(ActorItr->GetComponentByClass(UDoorState::StaticClass()));
 			if (Door) {
 				Door->_block = false;
-				//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT(".... REJA PUERTA DESBLOQUEADA para volver a entrar")));
+				////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT(".... REJA PUERTA DESBLOQUEADA para volver a entrar")));
 			}
 		}
 	}
