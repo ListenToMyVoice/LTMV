@@ -139,5 +139,5 @@ private:
     bool bInventoryItemHit = false;
 
 public:
-    FORCEINLINE UInventory* AFPCharacter::GetInventory() const { return _Inventory; }
+    FORCEINLINE UInventory* GetInventory() const { return _Inventory; }
 };

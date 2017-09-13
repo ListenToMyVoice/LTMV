@@ -26,6 +26,6 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    FORCEINLINE UCameraComponent* APlayerSpectator::GetPlayerCamera() const { return _PlayerCamera; }
-    FORCEINLINE UMenuInteraction* APlayerSpectator::GetMenuInteractionComp() const { return _MenuInteractionComp; }
+    FORCEINLINE UCameraComponent* GetPlayerCamera() const { return _PlayerCamera; }
+    FORCEINLINE UMenuInteraction* GetMenuInteractionComp() const { return _MenuInteractionComp; }
 };
