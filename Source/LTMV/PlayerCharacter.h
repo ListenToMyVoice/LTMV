@@ -145,8 +145,8 @@ private:
 public:
 	void CheckFloorMaterial();
 	
-    FORCEINLINE UCameraComponent* APlayerCharacter::GetPlayerCamera() const { return _PlayerCamera; }
-    FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }
-	FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetBreathAudioComp() const { return _BreathAudioComp; }
-    FORCEINLINE UMenuInteraction* APlayerCharacter::GetMenuInteractionComp() const { return _MenuInteractionComp; }
+    FORCEINLINE UCameraComponent* GetPlayerCamera() const { return _PlayerCamera; }
+    FORCEINLINE UFMODAudioComponent* GetStepsAudioComp() const { return _StepsAudioComp; }
+	FORCEINLINE UFMODAudioComponent* GetBreathAudioComp() const { return _BreathAudioComp; }
+    FORCEINLINE UMenuInteraction* GetMenuInteractionComp() const { return _MenuInteractionComp; }
 };
