@@ -16,12 +16,15 @@ struct FPlayerInfo {
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FString Name;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     TSubclassOf<ACharacter> CharacterClass;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     bool IsHost;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
-		FString Language;
+	FString Language;
 };
 
 USTRUCT(BlueprintType, Category = "Menu Options")
@@ -40,12 +43,16 @@ class LTMV_API UNWGameInstance : public UGameInstance {
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Player Info")
     bool _IsVRMode;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FMenuOptions _MenuOptions;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Info")
     FPlayerInfo _PlayerInfoSaved;
+
     UPROPERTY(Replicated)
     FName _ServerName;
+
     UPROPERTY(Replicated)
     int _MaxPlayers;
 
@@ -138,6 +145,7 @@ public:
     AMenu3D* CreateMenuMain();
     AMenu3D* CreateMenuLobby();
     AMenu3D* CreateMenuPlay();
+
     /* BINDINGS */
     void OnButtonNewGame(UInputMenu* InputMenu);
     void OnButtonOptions(UInputMenu* InputMenu);

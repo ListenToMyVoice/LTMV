@@ -102,6 +102,7 @@ void UNWGameInstance::InitGame() {
     APlayerControllerLobby* const PlayerControllerLobby = Cast<APlayerControllerLobby>(
                                                                 GetFirstLocalPlayerController());
     AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
+
     if (PlayerControllerLobby && GameMode) {
         TSubclassOf<ACharacter> CharacterClass = _IsVRMode ? _VRDefaultCharacterClass :
                                                              _DefaultCharacterClass;
@@ -114,8 +115,6 @@ void UNWGameInstance::InitGame() {
 
         PlayerControllerLobby->CLIENT_CreateMenu();
     }
-
-
 }
 
 /**************************************** BLUEPRINTS *********************************************/
