@@ -74,6 +74,7 @@ public:
 	/*******HUD ************/
 	UUserWidget* HUD;
 	UUserWidget* HUD2;
+
 protected:
 
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -95,9 +96,6 @@ protected:
     void UseReleased();
 
 public:
-
-    void CheckForInventory();
-
     /********** TAKE ITEM ***********/
     void TakeDropRight();
     void TakeDropLeft();
