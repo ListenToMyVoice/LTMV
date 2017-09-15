@@ -20,6 +20,9 @@ class LTMV_API AVRCharacter : public APlayerCharacter {
     GENERATED_BODY()
 
 public:
+	UPROPERTY()
+	bool bToBlack = false;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rumble")
     UForceFeedbackEffect * _RumbleOverLapLeft;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rumble")
@@ -32,13 +35,14 @@ public:
 
     AVRCharacter(const FObjectInitializer& OI);
     virtual void BeginPlay() override;
+	virtual void AfterPossessed(bool SetInventory, bool respawning) override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInput) override;
     virtual void Tick(float deltaTime) override;
 
     void ResetHMDOrigin();
 
-    /* Toggle between Seated and Standing VR Tracking */
-    void ToggleTrackingSpace();
+	UFUNCTION(BlueprintCallable, Category = "FadeScreen")
+	void FadeDisplay();
 
     /******** USE ITEM LEFT *********/
     void UseLeftPressed(bool IsMenuHidden) override;
@@ -48,7 +52,19 @@ public:
     void UseRightPressed(bool IsMenuHidden) override;
     void UseRightReleased(bool IsMenuHidden) override;
 
-    UMotionControllerComponent* GetControllerByHand(EControllerHand Hand);
+	UFUNCTION(BlueprintCallable)
+	AActor* GetActorFocusedLeft();
+	UFUNCTION(BlueprintCallable)
+	AActor* GetActorFocusedRight();
+
+	UFUNCTION(BlueprintCallable, Category = "VR Inventory")
+	void ToggleInventoryVR();
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SERVER_ToggleInventoryVR();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULTI_ToggleInventoryVR();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Inventory")
+	bool bInventoryActive;
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
@@ -99,6 +115,7 @@ protected:
     void MULTI_GrabRelease(int Hand);
 
     /********** DROP ITEM ***********/
+public:
     UFUNCTION()
     void DropLeft();
     UFUNCTION()
@@ -108,12 +125,13 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_Drop(AActor* ItemActor, int Hand) override;
 
+protected:
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
-    void TurnVRCharacter();
+	virtual void TurnLeftComfort();
+	virtual void TurnRightComfort();
 
     /************* IK **************/
-    FVector HeadCameraOffset;
     UFUNCTION()
     void UpdateIK();
 
@@ -130,6 +148,8 @@ protected:
     void MULTI_UpdateComponentPosition(USceneComponent* Component, FVector Location, FRotator Rotation);
 
 private:
+	UNWGameInstance* GInstance;
+
     IHeadMountedDisplay* HMD;
 
     AActor* _ActorPouchLeft;
@@ -140,6 +160,8 @@ private:
     AActor* _ActorFocusedRight;
     UActorComponent* _ComponentFocusedRight;
     AActor* _ActorGrabbing;
+
+	AActor* _LastActorFocused = nullptr;
 
     UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
     UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
@@ -168,24 +190,26 @@ public:
     float MaxHeadTurnValue;
 
 private:
-    FVector BodyCameraOffset;
-
     bool bHeadTurn;
     bool bHeadTurning;
-
-    UFUNCTION()
-    void UpdateMeshPostitionWithCamera();
-    UFUNCTION()
-    void UpdateMeshRotationWithCamera();
-
-    void CheckHeadTurn();
-    void TurnBody();
-    /**/
+	FVector _LastMeshPosition;
 
 protected:
+    void UpdateMeshPostitionWithCamera();
+    void UpdateMeshRotationWithCamera();
+	void CheckHeadTurn();
+	void TurnBody();
+
+	/* SERVER UPDATE MESH POSITION AND ROTATION */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SERVER_UpdateMeshWithCamera();
+	UFUNCTION(NetMulticast, Reliable)
+	void MULTI_UpdateMeshWithCamera();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float _MeshSpeed;
+
     /*** IK PROPERTIES ***/
-    UPROPERTY(BlueprintReadOnly, Category = "IK")
-    FVector _HMDWorldPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _HMDWorldOrientation;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
@@ -196,10 +220,4 @@ protected:
     FVector _RightControllerPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _RightControllerOrientation;
-
-    /*** CALIBRATION PROPERTIES ***/
-    UFUNCTION()
-    void CalculateMeshArmExtension();
-    UPROPERTY(BlueprintReadOnly, Category = "VR Calibration")
-    float MaxMeshArmExtension;
 };

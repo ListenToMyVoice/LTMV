@@ -3,6 +3,7 @@
 #include "LTMV.h"
 #include "Menu3D.h"
 
+#include "NWGameInstance.h"
 #include "MenuPanel.h"
 #include "InputMenu.h"
 
@@ -27,12 +28,25 @@ AMenu3D::AMenu3D(const class FObjectInitializer& OI) : Super(OI) {
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Finder3(
         TEXT("StaticMesh'/Game/Art/Common/Menu/Meshes/menu2_parte_intermedia.menu2_parte_intermedia'"));
     _MiddleDecorator->SetStaticMesh(Finder3.Object);
-    
-    _BackSubmenu = CreateDefaultSubobject<UInputMenu>(TEXT("BACK"));
-    _BackSubmenu->_InputMenuReleasedDelegate.BindUObject(this, &AMenu3D::OnButtonBack);
-    _BackSubmenu->AddOnInputMenuDelegate();
 
-    _BackSubmenu->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	_BackSubmenu = CreateDefaultSubobject<UInputMenu>(TEXT("BACK"));
+	/*
+	UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
+	if (gameInstance->_PlayerInfoSaved.Language == "ES") {
+		_BackSubmenu = CreateDefaultSubobject<UInputMenu>(TEXT("VOLVER"));
+	}
+	else if (gameInstance->_PlayerInfoSaved.Language == "EN") {
+		_BackSubmenu = CreateDefaultSubobject<UInputMenu>(TEXT("BACK"));
+	}
+	else if (gameInstance->_PlayerInfoSaved.Language == "FR") {
+		_BackSubmenu = CreateDefaultSubobject<UInputMenu>(TEXT("RETOUR"));
+	}
+	*/
+	_BackSubmenu->_InputMenuReleasedDelegate.BindUObject(this, &AMenu3D::OnButtonBack);
+	_BackSubmenu->AddOnInputMenuDelegate();
+
+	_BackSubmenu->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
     _TopDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
     _BottomDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
     _MiddleDecorator->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);

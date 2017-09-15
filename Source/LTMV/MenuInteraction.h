@@ -32,5 +32,5 @@ private:
     class UInputMenu* _TargetInputMenu;
 
 public:
-    FORCEINLINE USpotLightComponent* UMenuInteraction::GetLight() const { return _Light; }
+    FORCEINLINE USpotLightComponent* GetLight() const { return _Light; }
 };

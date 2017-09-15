@@ -1,5 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include"ItfSwitcheable.h"
@@ -61,17 +60,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
 		float _max_displacement;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Rotation & Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation & Movement")
 		bool _block;
 
 
+	TArray<UActorComponent*> _FMODComponents;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
+
 
     UDoorState();
     virtual void BeginPlay() override;
 
-    /* Interfaces */
+	int GetState();
+
+    // Interfaces 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Door")
     int SwitchState();
     virtual int SwitchState_Implementation() override;

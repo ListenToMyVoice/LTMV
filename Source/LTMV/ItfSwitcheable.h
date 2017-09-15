@@ -55,7 +55,7 @@ public:
         TArray<UActorComponent*> components = {};
         for (FSwitcheable s : SwitcheableArr) {
             if (s._actor) s._actor->GetComponents(components);
-            else ULibraryUtils::Log(TEXT("No switcheable actor"), 2);
+			else ULibraryUtils::Log(TEXT("No switcheable actor"), 2);
             for (UActorComponent* comp : components) {
                 if (s._components.IndexOfByKey(comp->GetFName()) != INDEX_NONE) {
                     SwitcheableComps.AddUnique(comp);
@@ -65,7 +65,7 @@ public:
     }
 
     void ActivateSwitcher() {
-        for (UActorComponent* component : SwitcheableComps) {
+		for (UActorComponent* component : SwitcheableComps) {
             if (component->GetClass()->ImplementsInterface(UItfSwitcheable::StaticClass())) {
                 IItfSwitcheable* itfObject = Cast<IItfSwitcheable>(component);
                 if (itfObject) itfObject->Execute_SwitchState(component);

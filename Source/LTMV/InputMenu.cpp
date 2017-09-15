@@ -3,6 +3,7 @@
 #include "LTMV.h"
 #include "InputMenu.h"
 
+#include "FMODStudioModule.h"
 #include "FMODAudioComponent.h"
 
 
@@ -17,15 +18,17 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
     _HoverColor = FColor::FromHex("ECCF00FF");
 
     _TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("_TextRender"));
-    _TextRender->SetWorldSize(12);
+
+    _TextRender->SetWorldSize(10);
     _TextRender->SetTextRenderColor(_Color);
     _TextRender->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
     _TextRender->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
 
+	IFMODStudioModule::Get();
     _AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("_AudioComp"));
-    //static ConstructorHelpers::FObjectFinder<UObject> Finder2(
-    //    TEXT("/Game/FMOD/Desktop/Events/UI/Tic.Tic"));
-    //_AudioComp->SetEvent((UFMODEvent*)(Finder2.Object));
+    static ConstructorHelpers::FObjectFinder<UObject> Finder2(
+        TEXT("/Game/FMOD/Events/UI/Tic.Tic"));
+    _AudioComp->SetEvent((UFMODEvent*)(Finder2.Object));
     _AudioComp->bAutoActivate = false;
 
     _NextPoint = FVector();
@@ -37,11 +40,11 @@ UInputMenu::UInputMenu(const FObjectInitializer& OI) : Super(OI) {
 }
 
 //void UInputMenu::OnActivate(UActorComponent* Component, bool bReset) {
-//    ULibraryUtils::Log("OnActivate");
+//    //ULibraryUtils::Log("OnActivate");
 //}
 //
 //void UInputMenu::OnDeactivate(UActorComponent* Component) {
-//    ULibraryUtils::Log("OnDeactivate");
+//    //ULibraryUtils::Log("OnDeactivate");
 //}
 
 void UInputMenu::BeginPlay() {
@@ -50,8 +53,8 @@ void UInputMenu::BeginPlay() {
     _TextRender->SetText(FText::FromString(GetFName().ToString()));
     _TextRender->RegisterComponent();
 
-    //_AudioComp->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-    //_AudioComp->RegisterComponent();
+    _AudioComp->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+    _AudioComp->RegisterComponent();
 
     SetCollisionProfileName("IgnoreOnlyPawn");
 }
@@ -95,7 +98,7 @@ void UInputMenu::PressEvents() {
 void UInputMenu::ReleaseEvents() {
     if (!_IsLoading) {
         HoverInteraction();
-        //_AudioComp->Play();
+        _AudioComp->Play();
         _InputMenuReleasedEvent.Broadcast(this);
     }
 }

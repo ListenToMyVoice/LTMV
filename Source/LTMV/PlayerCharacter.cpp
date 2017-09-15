@@ -3,13 +3,15 @@
 #include "LTMV.h"
 #include "PlayerCharacter.h"
 
-#include "TutorialWidgetComponent.h"
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
 #include "GrabItem.h"
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
 #include "Walkie.h"
+#include "Token.h"
+#include "TokenHolder.h"
+#include "GameStatePlay.h"
 #include "MenuInteraction.h"
 
 
@@ -38,7 +40,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
 	
 	
 	OnActorHit.AddDynamic(this, &APlayerCharacter::OnHit);
-    _Health = 1;
+    _Health = 200;
 	_Damaged = false;
 }
 
@@ -52,7 +54,7 @@ void APlayerCharacter::Tick(float DeltaSeconds) {
 	}
 }
 
-void APlayerCharacter::AfterPossessed(bool SetInventory) {
+void APlayerCharacter::AfterPossessed(bool SetInventory, bool respawning) {
     ToggleMenuInteraction(false);
 }
 
@@ -143,6 +145,10 @@ void APlayerCharacter::UseRightPressed(bool IsMenuHidden) {}
 
 void APlayerCharacter::UseRightReleased(bool IsMenuHidden) {}
 
+/********** TAKE ITEM ***********/
+void APlayerCharacter::TakeDropRight_Respawn(AActor* actor) {
+
+}
 /********** TAKE RIGHT HAND ***********/
 bool APlayerCharacter::SERVER_TakeRight_Validate(AActor* Actor) { return true; }
 void APlayerCharacter::SERVER_TakeRight_Implementation(AActor* Actor) {
@@ -204,7 +210,8 @@ void APlayerCharacter::SERVER_Drop_Implementation(AActor* ItemActor, int Hand) {
 void APlayerCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
     UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
                                                             UStaticMeshComponent::StaticClass()));
-    if (ItemMesh) {
+
+	if (ItemMesh) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         ItemMesh->SetSimulatePhysics(true);
@@ -252,7 +259,7 @@ void APlayerCharacter::CLIENT_AddRadioDelegates_Implementation(AActor* Actor) {
             
             const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
             FString myRole = EnumPtr->GetEnumName((int32)Role);
-            ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
+            //ULibraryUtils::Log(FString::Printf(TEXT("AddRadioDelegates : %s"), *myRole), 0, 60);
         }
     }
 }
@@ -268,7 +275,7 @@ void APlayerCharacter::CLIENT_ClearRadioDelegates_Implementation(AActor* Actor) 
 
             const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ENetRole"), true);
             FString myRole = EnumPtr->GetEnumName((int32)Role);
-            ULibraryUtils::Log(FString::Printf(TEXT("ClearRadioDelegates : %s"), *myRole), 0, 60);
+            //ULibraryUtils::Log(FString::Printf(TEXT("ClearRadioDelegates : %s"), *myRole), 0, 60);
         }
     }
 }
@@ -299,7 +306,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const
 		AGameModePlay* GameMode = Cast<AGameModePlay>(GetWorld()->GetAuthGameMode());
         if (GameMode) {
 			GameMode->SERVER_PlayerDead(GetController());
-            MULTI_CharacterDead();
+            //MULTI_CharacterDead();
         }
     }
     return _Health;	

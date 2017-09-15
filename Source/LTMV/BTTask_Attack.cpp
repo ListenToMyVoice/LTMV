@@ -10,18 +10,18 @@
 
 
 UBTTask_Attack::UBTTask_Attack() {
-    BlackboardKey.SelectedKeyName = FName("TargetPawn");
+    BlackboardKey.SelectedKeyName = FName("PlayerActor");
     BlackboardKey.SelectedKeyType = UBlackboardKeyType_Object::StaticClass();
 }
 
 EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
     APawn* Target = Cast<APawn>(OwnerComp.GetBlackboardComponent()->
                                           GetValueAsObject(BlackboardKey.SelectedKeyName));
-    AEnemyCharacter* Self = Cast<AEnemyCharacter>(OwnerComp.GetBlackboardComponent()->
+    ACharacter* Self = Cast<ACharacter>(OwnerComp.GetBlackboardComponent()->
                                                             GetValueAsObject(FName("SelfActor")));
     if (Target && Self) {
         FDamageEvent DamageEvent;
-        if (Target->TakeDamage(Self->_Damage, DamageEvent, Self->GetController(), Self) <= 0) {
+        if (Target->TakeDamage(50, DamageEvent, Self->GetController(), Self) <= 0) {
             OwnerComp.GetBlackboardComponent()->SetValueAsObject(BlackboardKey.SelectedKeyName,
                                                                  nullptr);
         }

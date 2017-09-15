@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-
 UCLASS()
 class LTMV_API APlayerCharacter : public ACharacter {
     GENERATED_BODY()
@@ -27,9 +26,12 @@ public:
     FRadioDelegate _OnRadioPressedDelegate;
     FRadioDelegate _OnRadioReleasedDelegate;
 
+	/************* TUTORIAL ************/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial")
+		bool _isTutorialEnabled;
 
     APlayerCharacter(const FObjectInitializer& OI);
-    virtual void AfterPossessed(bool SetInventory);
+    virtual void AfterPossessed(bool SetInventory , bool respawning);
 
     /******** USE ITEM LEFT *********/
     virtual void UseLeftPressed(bool IsMenuHidden);
@@ -41,7 +43,10 @@ public:
 
     virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
                              class AController* EventInstigator, class AActor* DamageCauser) override;
-    
+
+	/********** TAKE ITEM ***********/
+	virtual void TakeDropRight_Respawn(AActor* actor);
+
     /*********** MOVEMENT ***********/
     virtual void TurnAtRate(float Rate);
     virtual void LookUpAtRate(float Rate);
@@ -51,6 +56,18 @@ public:
     class UFMODEvent* GetWalkieEvent();
 
     virtual void ToggleMenuInteraction(bool Activate);
+
+	UFUNCTION(BlueprintCallable, Category = "Hands")
+	FORCEINLINE AActor* GetItemLeft() { return _ItemLeft; }
+	UFUNCTION(BlueprintCallable, Category = "Hands")
+	FORCEINLINE AActor* GetItemRight() { return _ItemRight; }
+
+	/********** DROP ITEM ***********/
+	UFUNCTION(Server, Reliable, WithValidation)
+		virtual void SERVER_Drop(AActor* ItemActor, int Hand);
+	UFUNCTION(NetMulticast, Reliable)
+		virtual void MULTI_Drop(AActor* ItemActor, int Hand);
+
 
 protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -96,11 +113,6 @@ protected:
     virtual void MULTI_TakeLeft(AActor* Actor);
 
     
-    /********** DROP ITEM ***********/
-    UFUNCTION(Server, Reliable, WithValidation)
-    virtual void SERVER_Drop(AActor* ItemActor, int Hand);
-    UFUNCTION(NetMulticast, Reliable)
-    virtual void MULTI_Drop(AActor* ItemActor, int Hand);
     /*
     Hand = 0 => void
     Hand = 1 => _ItemLeft
@@ -129,12 +141,12 @@ private:
 
 	/*Physic Materials*/
 	const USkeletalMeshSocket* _FootSocket;
-	void CheckFloorMaterial();
 	FHitResult _FootHitResult;
-
 public:
-    FORCEINLINE UCameraComponent* APlayerCharacter::GetPlayerCamera() const { return _PlayerCamera; }
-    FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetStepsAudioComp() const { return _StepsAudioComp; }
-	FORCEINLINE UFMODAudioComponent* APlayerCharacter::GetBreathAudioComp() const { return _BreathAudioComp; }
-    FORCEINLINE UMenuInteraction* APlayerCharacter::GetMenuInteractionComp() const { return _MenuInteractionComp; }
+	void CheckFloorMaterial();
+	
+    FORCEINLINE UCameraComponent* GetPlayerCamera() const { return _PlayerCamera; }
+    FORCEINLINE UFMODAudioComponent* GetStepsAudioComp() const { return _StepsAudioComp; }
+	FORCEINLINE UFMODAudioComponent* GetBreathAudioComp() const { return _BreathAudioComp; }
+    FORCEINLINE UMenuInteraction* GetMenuInteractionComp() const { return _MenuInteractionComp; }
 };

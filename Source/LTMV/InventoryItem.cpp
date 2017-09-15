@@ -26,7 +26,8 @@ bool UInventoryItem::IsEquipped() {
 }
 
 UTexture2D* UInventoryItem::GetItemImage() {
-    return _itemImage;
+    if (_itemImage) return _itemImage;
+	else return nullptr;
 }
 
 

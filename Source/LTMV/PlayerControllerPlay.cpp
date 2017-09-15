@@ -8,6 +8,7 @@
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
 #include "PlayerSpectator.h"
+#include "Walkie.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
@@ -47,6 +48,7 @@ void APlayerControllerPlay::BeginPlay() {
             SERVER_CallUpdate(_GameInstance->_PlayerInfoSaved);
         }
     }
+
 }
 
 bool APlayerControllerPlay::SERVER_CallUpdate_Validate(FPlayerInfo info) {
@@ -57,7 +59,7 @@ void APlayerControllerPlay::SERVER_CallUpdate_Implementation(FPlayerInfo info) {
     if (gameMode) gameMode->SERVER_RespawnPlayer(this, info);
 }
 
-void APlayerControllerPlay::AfterPossessed() {
+void APlayerControllerPlay::AfterPossessed(bool _afterdeath) {
     /* CLIENT-SERVER EXCEPTION */
     if (!_ClientPossesed) {
         APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
@@ -66,16 +68,29 @@ void APlayerControllerPlay::AfterPossessed() {
         if (PlayerCharacter->IsA(_GameInstance->_PlayerInfoSaved.CharacterClass)) {
             PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
             PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
-            PlayerCharacter->AfterPossessed(true);
+            if (_afterdeath)	PlayerCharacter->AfterPossessed(true,true);
+			else				PlayerCharacter->AfterPossessed(true, false);
             _ClientPossesed = true;
         }
     }
+	if (_afterdeath) {
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+		if (!_GameInstance || !PlayerCharacter) return;
+
+		if (PlayerCharacter->IsA(_GameInstance->_PlayerInfoSaved.CharacterClass)) {
+			PlayerCharacter->_OnRadioPressedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioPressed);
+			PlayerCharacter->_OnRadioReleasedDelegate.BindUObject(this, &APlayerControllerPlay::OnRadioReleased);
+			PlayerCharacter->AfterPossessed(true, true);
+			_ClientPossesed = true;
+		}
+
+	}
 }
 
 void APlayerControllerPlay::OnRep_Pawn() {
     Super::OnRep_Pawn();
     /* CLIENT-SERVER EXCEPTION  */
-    AfterPossessed();
+    AfterPossessed(false);
 }
 
 /*********************************************** VOICE *******************************************/
@@ -104,7 +119,8 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
                     _WalkieNoiseAudioComp->AttachToComponent(MeshComponent,
                                                              FAttachmentTransformRules::KeepRelativeTransform);
                     _WalkieNoiseAudioComp->bOverrideAttenuation = true;
-                    ULibraryUtils::Log("Setup Voice");
+                    //ULibraryUtils::Log("Setup Voice");
+
 
                     //_TestAudioComp->AttachToComponent(MeshComponent,
                     //                                  FAttachmentTransformRules::KeepRelativeTransform);
@@ -116,18 +132,18 @@ void APlayerControllerPlay::ModifyVoiceAudioComponent(const FUniqueNetId& Remote
 
         if (FullVolume) {
             if (_VoiceAudioComp) {
-                _VoiceAudioComp->SetVolumeMultiplier(1.0);
-                _WalkieNoiseAudioComp->SetVolume(1.0);
+                _VoiceAudioComp->SetVolumeMultiplier(2.0);
+                _WalkieNoiseAudioComp->SetVolume(2.0);
                 //_TestAudioComp->SetVolumeMultiplier(1.0);
-                ULibraryUtils::Log("VOLUME: 1.0");
+                //ULibraryUtils::Log("VOLUME: 1.0");
             }
         }
         else {
             if (_VoiceAudioComp) {
-                _VoiceAudioComp->SetVolumeMultiplier(0.05);
-                _WalkieNoiseAudioComp->SetVolume(0.05);
+                _VoiceAudioComp->SetVolumeMultiplier(0.5);
+                _WalkieNoiseAudioComp->SetVolume(0.5);
                 //_TestAudioComp->SetVolumeMultiplier(0.05);
-                ULibraryUtils::Log("VOLUME: 0.05");
+                //ULibraryUtils::Log("VOLUME: 0.05");
             }
         }
     }
@@ -141,13 +157,30 @@ void APlayerControllerPlay::TickActor(float DeltaTime, enum ELevelTick TickType,
 
 void APlayerControllerPlay::TickWalkie() {
     if (_VoiceAudioComp && _WalkieNoiseAudioComp) {
+
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+		AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
+
         if (_VoiceAudioComp->IsPlaying() && !_WalkieNoiseAudioComp->IsPlaying()) {
             _WalkieNoiseAudioComp->Play();
             _IsListen = true;
+
+			UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+			if (WalkieComp) {
+				////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("WALKIE: TOGGLE OTHER LIGHT ")));
+				WalkieComp->ToggleOtherLight(true);
+				WalkieComp->SetMute(true);
+			}
         }
         else if (!_VoiceAudioComp->IsPlaying() && _WalkieNoiseAudioComp->IsPlaying()) {
             _WalkieNoiseAudioComp->Stop();
             _IsListen = false;
+
+			UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+			if (WalkieComp) {
+				WalkieComp->ToggleOtherLight(false);
+				WalkieComp->SetMute(false);
+			}
         }
     }
 }
@@ -272,14 +305,20 @@ void APlayerControllerPlay::CLIENT_HideMenu_Implementation() {
 void APlayerControllerPlay::OnRadioPressed() {
     StartTalking();
 
-    ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s"),
-                                       *PlayerState->UniqueId.ToDebugString()), 3, 60);
+
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+	AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
+	UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+	if (WalkieComp) {
+		WalkieComp->ToggleLight(true);
+	}
+
+    //ULibraryUtils::Log(FString::Printf(TEXT("I AM: %s")
 
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
             ClientMutePlayer(OtherPlayerState->UniqueId);
-            ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
-                                               *OtherPlayerState->UniqueId.ToDebugString()), 2, 60);
+            //ULibraryUtils::Log(FString::Printf(TEXT("MUTE: %s"),
         }
     }
 }
@@ -287,11 +326,16 @@ void APlayerControllerPlay::OnRadioPressed() {
 void APlayerControllerPlay::OnRadioReleased() {
     StopTalking();
 
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+	AActor* WalkieActor = PlayerCharacter->GetWalkieActor();
+	UWalkie* WalkieComp = Cast<UWalkie>(WalkieActor->GetComponentByClass(UWalkie::StaticClass()));
+	if (WalkieComp) {
+		WalkieComp->ToggleLight(false);
+	}
     for (APlayerState* OtherPlayerState : GetWorld()->GetGameState()->PlayerArray) {
         if (PlayerState->UniqueId != OtherPlayerState->UniqueId) {
             ClientUnmutePlayer(OtherPlayerState->UniqueId);
-            ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
-                                               *OtherPlayerState->UniqueId.ToDebugString()), 0, 60);
+            //ULibraryUtils::Log(FString::Printf(TEXT("UNMUTE: %s"),
         }
     }
 }

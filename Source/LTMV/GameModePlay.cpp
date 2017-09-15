@@ -4,7 +4,12 @@
 #include "GameModePlay.h"
 
 #include "PlayerControllerPlay.h"
+#include "PlayerCharacter.h"
 #include "GameStatePlay.h"
+#include "NWGameInstance.h"
+#include "FPCharacter.h"
+#include "VRCharacter.h"
+#include "Inventory.h"
 #include "PlayerSpectator.h"
 
 
@@ -15,6 +20,18 @@ AGameModePlay::AGameModePlay(const class FObjectInitializer& OI) : Super(OI) {
     GameStateClass = AGameStatePlay::StaticClass();
 
     bUseSeamlessTravel = true;
+	_MapNameGM = USettings::Get()->LevelToPlay.GetLongPackageName();
+	_MapEndGameGM = USettings::Get()->EndLevel.GetLongPackageName();
+
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint(TEXT("Class'/Game/BluePrints/Assets/walkie.walkie_C'"));
+	if (ItemBlueprint.Object) {
+		WalkieBlueprint = (UClass*)ItemBlueprint.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint2(TEXT("Class'/Game/BluePrints/Assets/LinternaFINAL.LinternaFINAL_C'"));
+	if (ItemBlueprint2.Object) {
+		LinternaBlueprint = (UClass*)ItemBlueprint2.Object;
+	}
 }
 
 void AGameModePlay::InitGame(const FString & MapName, const FString & Options,
@@ -22,6 +39,7 @@ void AGameModePlay::InitGame(const FString & MapName, const FString & Options,
     Super::InitGame(MapName, Options, ErrorMessage);
 
     if (GameSession) GameSession->bRequiresPushToTalk = true;
+
 }
 
 bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerControllerPlay* PlayerController,
@@ -31,35 +49,140 @@ bool AGameModePlay::SERVER_RespawnPlayer_Validate(APlayerControllerPlay* PlayerC
 
 void AGameModePlay::SERVER_RespawnPlayer_Implementation(APlayerControllerPlay* PlayerController,
                                                         FPlayerInfo info) {
-    if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
+	if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
 
-    FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
-    APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
-    if (actor) {
-        PlayerController->Possess(actor);
-        PlayerController->AfterPossessed();
+	FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
+	APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
+	if (actor) {
+		PlayerController->Possess(actor);
+		PlayerController->AfterPossessed(false);
 
-        if (!_HostController) _HostController = PlayerController;
-        else _GuestController = PlayerController;
-    }
+		if (!_HostController) _HostController = PlayerController;
+		else _GuestController = PlayerController;
+	}
 }
 
+
+/* ****** RESPAWN AFTER DEATH ********/
+bool AGameModePlay::SERVER_RespawnPlayerAfterDeath_Validate(APlayerControllerPlay* PlayerController,
+	FPlayerInfo info) {
+	return true;
+}
+
+void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControllerPlay* PlayerController,
+	FPlayerInfo info) {
+	//Cogemos el playercharacter actual
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
+	UNWGameInstance* GI = Cast<UNWGameInstance>(GetWorld()->GetGameInstance());
+	AGameStatePlay* PlayerGameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+
+	//para el VRCharacter
+	if (GI && GI->_IsVRMode) {
+
+
+		//Dropear elementos de las manos y los elminiamos del mundo
+		AVRCharacter* _PlayerVR = Cast<AVRCharacter>(PlayerController->GetPawn());
+		AActor* item_left = _PlayerVR->GetActorFocusedLeft();
+		if (item_left) {
+			PlayerCharacter->SERVER_Drop(item_left, 4);
+            PlayerGameState->DeleteAsset(item_left);
+		}
+		AActor* item_right = _PlayerVR->GetActorFocusedRight();
+		if (item_right) {
+			PlayerCharacter->SERVER_Drop(item_right, 4);
+            PlayerGameState->DeleteAsset(item_right);
+		}
+
+	}
+	//para el fpcharacter
+	else {
+
+		//Cerrar inventario si está abierto
+		AFPCharacter* _Player = Cast<AFPCharacter>(PlayerController->GetPawn());
+		_Player->HideInventory();
+
+		//Drop y delete del mundo de los items almacenados en el inventario
+		UInventory* _inventory = _Player->GetInventory();
+		TArray<AActor*> _items = _inventory->GetItemsArray();
+
+		for (AActor* item : _items) {
+			////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("-- DROP DE ITEM: %s"), *item->GetName()));
+			PlayerCharacter->SERVER_Drop(item, 4);
+            PlayerGameState->DeleteAsset(item);
+		}
+	}
+
+
+	//Destruir el pawn actual
+	if (PlayerController->GetPawn()) PlayerController->GetPawn()->Destroy();
+	
+	//Crear un nuevo pawn
+	FTransform transform = FindPlayerStart(PlayerController, info.Name)->GetActorTransform();
+	APawn* actor = Cast<APawn>(GetWorld()->SpawnActor(info.CharacterClass, &transform));
+	if (actor) {
+		PlayerController->Possess(actor);
+		if (!_HostController) _HostController = PlayerController;
+		else _GuestController = PlayerController;
+
+		//Afterpossesed del nuevo actor
+		PlayerController->AfterPossessed(true);
+		//Nuevo character con ese actor
+		PlayerCharacter = Cast<APlayerCharacter>(actor);
+		//Spawneamos objetos de nuevo
+        PlayerGameState->SpawnAssets();
+
+		if (GI && GI->_IsVRMode) {
+			// SPAWNEAMOS UN NUEVO WALKIE Y UNA NUEVA LINTERNA EN EL MUNDO
+			//GameState->SpawnAssets();
+		}
+		//para el FPCharacter
+		else {
+			//GameState->SpawnAssets();
+			/*
+			// SPAWNEAMOS UN NUEVO WALKIE Y UNA NUEVA LINTERNA EN EL CHARACTER
+			AActor* Walkie = GameState->SpawnAsset(1);
+			/*
+			FActorSpawnParameters SpawnParams;
+			FVector location = FVector(0.0f, 0.0f, 0.0f);
+			FRotator rotation = FRotator(0.0f, 0.0f, 0.0f);
+			AActor* Walkie = GetWorld()->SpawnActor<AActor>(WalkieBlueprint, location, rotation, SpawnParams);
+			
+			if (Walkie) {
+				PlayerCharacter->TakeDropRight_Respawn(Walkie);
+				////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVO WALKIE")));
+			}
+			// LINTERNA
+
+			AActor* Linterna = GameState->SpawnAsset(2);
+			//AActor* Linterna = GetWorld()->SpawnActor<AActor>(LinternaBlueprint, location, rotation, SpawnParams);
+			if (Linterna) {
+				PlayerCharacter->TakeDropRight_Respawn(Linterna);
+				////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString::Printf(TEXT("**** NUEVA LINTERNA")));
+			}
+			*/
+		}
+	}
+}
+
+
+
+/*********death**************/
 bool AGameModePlay::SERVER_PlayerDead_Validate(AController* PlayerController) {
-    return true;
+	return true;
 }
-
 void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
+
+	UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
     APlayerControllerPlay* PlayerController = Cast<APlayerControllerPlay>(Controller);
     if (PlayerController) {
-        PlayerController->ChangeState(NAME_Spectating);
-
         if (_HostController == PlayerController) {
-            _HostController->CLIENT_Dead();
-            if(_GuestController) _GuestController->CLIENT_ShowMenu();
-        }
-        if (_GuestController == PlayerController) {
-            _GuestController->CLIENT_GotoState(NAME_Spectating);
-            _HostController->CLIENT_ShowMenu();
+			SERVER_RespawnPlayerAfterDeath(PlayerController, GameInstance->_PlayerInfoSaved);
+			AGameStatePlay* PlayerGameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			PlayerGameState->ResetLevel();
         }
     }
+}
+
+void AGameModePlay::EndGame() {
+	GetWorld()->ServerTravel(_MapEndGameGM, true);
 }

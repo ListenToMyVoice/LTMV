@@ -9,6 +9,7 @@ UInventory::UInventory() : Super() {
     _items = {};
     bReplicates = true;
     SetIsReplicated(true);
+	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void UInventory::BeginPlay() {
@@ -47,12 +48,14 @@ void UInventory::RemoveItem(AActor* itemToRemove) {
 }
 
 UTexture2D* UInventory::GetItemTextureAt(int itemIndex) {
-    UInventoryItem* comp;
+    UInventoryItem* comp = nullptr;
 
     if (itemIndex < _items.Num()) {
+		// Estas lineas hacen que crashee el juego.
        comp = Cast<UInventoryItem>(_items[itemIndex]->GetComponentByClass(
             UInventoryItem::StaticClass()));
-       return comp->GetItemImage();
+	   if (comp) return comp->GetItemImage();
+	   else return nullptr;
     }
     else return nullptr;
 }
@@ -63,7 +66,7 @@ TArray<AActor*> UInventory::GetItemsArray() {
 
 void UInventory::ShowAllItems() {
     for (AActor* item:_items){
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *item->GetName()));
+        ////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ITEM: %s"), *item->GetName()));
         UE_LOG(LogTemp, Warning, TEXT("ITEM: %s"), *item->GetName());
     }
 }
@@ -80,7 +83,6 @@ AActor* UInventory::PickItem(AActor* ItemActor) {
             return ReturnItem;
         }
     }
-
     return ReturnItem;
 }
 

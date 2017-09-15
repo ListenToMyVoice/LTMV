@@ -1,5 +1,8 @@
+
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "LTMV.h"
+#include "GameStatePlay.h"
+#include "FMODAudioComponent.h"
 #include "DoorState.h"
 
 
@@ -10,6 +13,17 @@ UDoorState::UDoorState() {
 void UDoorState::BeginPlay() {
     Super::BeginPlay();
 
+
+	//Get sounds
+	_FMODComponents = GetOwner()->GetComponentsByClass(UFMODAudioComponent::StaticClass());
+
+
+}
+
+int UDoorState::GetState() {
+	if (StateDoor == EStateDoor::CLOSE || StateDoor == EStateDoor::CLOSING) { return 0; }
+	else if (StateDoor == EStateDoor::OPEN || StateDoor == EStateDoor::OPENING) { return 1; }
+	else { return 2; }
 }
 
 void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -23,7 +37,7 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 	//If opening
     float displacement = _velocity * DeltaTime;
 	if (StateDoor == EStateDoor::OPENING) {
-		if (_current_displacement < _max_displacement) {
+		if (FMath::Abs(_current_displacement) < FMath::Abs(_max_displacement)) {
 			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
 				if (ActOn == EOnAxis::X_AXIS) {
@@ -80,13 +94,16 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else {
 			StateDoor = EStateDoor::OPEN;
+
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			if (GameState) GameState->updateDoors();
 		}
 
 	}
 	
 	else if (StateDoor == EStateDoor::CLOSING) {
 
-		if (_current_displacement >0) {
+		if (FMath::Abs(_current_displacement - _max_displacement) < FMath::Abs(_max_displacement)) {
 
 			if (DoorType == EDoorType::ROTABLE_DOOR) {
 
@@ -143,6 +160,9 @@ void UDoorState::TickComponent(float DeltaTime, ELevelTick TickType,
 		}
 		else {
 			StateDoor = EStateDoor::CLOSE;
+
+			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			if (GameState) GameState->updateDoors();
 		}
 	}
 
@@ -162,6 +182,21 @@ int UDoorState::SwitchState_Implementation() {
 			StateDoor = EStateDoor::CLOSING;
             _current_displacement = _max_displacement;
 		}
+		if (Cast<UFMODAudioComponent>(_FMODComponents[0])->GetName() == "open_close") {
+			Cast<UFMODAudioComponent>(_FMODComponents[0])->Play();
+		}
+		else {
+			Cast<UFMODAudioComponent>(_FMODComponents[1])->Play();
+		}
+	}
+	else {
+		if (Cast<UFMODAudioComponent>(_FMODComponents[0])->GetName() == "block") {
+			Cast<UFMODAudioComponent>(_FMODComponents[0])->Play();
+		}
+		else {
+			Cast<UFMODAudioComponent>(_FMODComponents[1])->Play();
+		}
+
 	}
     return 0;
 }

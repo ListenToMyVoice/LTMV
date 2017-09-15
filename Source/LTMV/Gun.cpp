@@ -21,7 +21,7 @@ void UGun::UseItemPressed_Implementation() {
 		AddAmmo(-1);
 		OnFire();
 	}
-	ULibraryUtils::Log(FString::Printf(TEXT("Ammo : %i"), GetAmmo()), 0, 60);
+	//ULibraryUtils::Log(FString::Printf(TEXT("Ammo : %i"), GetAmmo()), 0, 60);
 }
 
 void UGun::UseItemReleased_Implementation() {
