@@ -58,6 +58,22 @@ void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 
     PlayerInput->BindAction("ToggleInventory", IE_Pressed, this, &AFPCharacter::ToggleInventory);
 	PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AFPCharacter::FadeDisplay);
+
+    PlayerInput->BindAction("CheckForInventory", IE_Pressed, this, &AFPCharacter::CheckForInventory);
+}
+
+void AFPCharacter::CheckForInventory() {
+    UInventory* inventory = GetInventory();
+    if (inventory) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString("El inventario existe en memoria."));
+        TArray<AActor*> ItemArray = inventory->GetItemsArray();
+        for (AActor* SingleItem : ItemArray) {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Contiene %s."), *SingleItem->GetFName().ToString()));
+        }
+    }
+    else {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString("El inventario NO existe en memoria."));
+    }
 }
 
 void AFPCharacter::FadeDisplay() {// T
@@ -118,6 +134,7 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 					(_PlayerCamera->GetForwardVector().GetSafeNormal() * 200);
 				//_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 0);//Tutorial at bunker/lab
 			}
+
 			if (!_InventoryWidget) {
 				_InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
 				if (_InventoryWidget) {
@@ -232,6 +249,7 @@ FHitResult AFPCharacter::Raycasting() {
 				_LastMeshFocused->SetRenderCustomDepth(true);
 				_LastMeshFocused->SetCustomDepthStencilValue(254);
 				bInventoryItemHit = true;
+
 				if (HUD && HUD2) {
 					HUD->SetVisibility(ESlateVisibility::Hidden);
 					HUD2->SetVisibility(ESlateVisibility::Visible);
@@ -258,7 +276,6 @@ FHitResult AFPCharacter::Raycasting() {
 
         bInventoryItemHit = false;
     }
-
 
     return _HitResult;
 }
@@ -485,7 +502,7 @@ void AFPCharacter::TakeDropRight() {
             }
             else if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
                 /* Save hand inventory item */
-                SERVER_SaveItemInventory(_ItemRight, 2);
+                SERVER_SaveItemInventory(_ItemRight, 2); // AQUI CREO QUE HAY UN BUG, DEBERIA PULSAR DOS VECES PARA RECOGER UN OBJETO CON ESAS CARACTERISTICAS
             }
             else if (!_ItemRight) {
                 /* Take item */
@@ -646,7 +663,7 @@ void AFPCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 }
 
 /**************** TRIGGER INVENTORY *************/
-/******CLOSE INVENTORY*****/
+/******HIDE INVENTORY FROM GAME MODE*****/
 void AFPCharacter::HideInventory() {
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController && _InventoryWidget) {
@@ -718,7 +735,7 @@ void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor, int
 }
 
 void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
-	////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("PICK ITEM INVENTORY ")));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("PICK ITEM INVENTORY ")));
     if (ItemActor) {
         if (KeyStruct == EKeys::LeftMouseButton) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {

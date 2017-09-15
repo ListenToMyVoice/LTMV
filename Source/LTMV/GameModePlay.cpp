@@ -74,7 +74,7 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 	//Cogemos el playercharacter actual
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
 	UNWGameInstance* GI = Cast<UNWGameInstance>(GetWorld()->GetGameInstance());
-	AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+	AGameStatePlay* PlayerGameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
 
 	//para el VRCharacter
 	if (GI && GI->_IsVRMode) {
@@ -85,12 +85,12 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 		AActor* item_left = _PlayerVR->GetActorFocusedLeft();
 		if (item_left) {
 			PlayerCharacter->SERVER_Drop(item_left, 4);
-			GameState->DeleteAsset(item_left);
+            PlayerGameState->DeleteAsset(item_left);
 		}
 		AActor* item_right = _PlayerVR->GetActorFocusedRight();
 		if (item_right) {
 			PlayerCharacter->SERVER_Drop(item_right, 4);
-			GameState->DeleteAsset(item_right);
+            PlayerGameState->DeleteAsset(item_right);
 		}
 
 	}
@@ -108,7 +108,7 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 		for (AActor* item : _items) {
 			////GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("-- DROP DE ITEM: %s"), *item->GetName()));
 			PlayerCharacter->SERVER_Drop(item, 4);
-			GameState->DeleteAsset(item);
+            PlayerGameState->DeleteAsset(item);
 		}
 	}
 
@@ -129,7 +129,7 @@ void AGameModePlay::SERVER_RespawnPlayerAfterDeath_Implementation(APlayerControl
 		//Nuevo character con ese actor
 		PlayerCharacter = Cast<APlayerCharacter>(actor);
 		//Spawneamos objetos de nuevo
-		GameState->SpawnAssets();
+        PlayerGameState->SpawnAssets();
 
 		if (GI && GI->_IsVRMode) {
 			// SPAWNEAMOS UN NUEVO WALKIE Y UNA NUEVA LINTERNA EN EL MUNDO
@@ -177,8 +177,8 @@ void AGameModePlay::SERVER_PlayerDead_Implementation(AController* Controller) {
     if (PlayerController) {
         if (_HostController == PlayerController) {
 			SERVER_RespawnPlayerAfterDeath(PlayerController, GameInstance->_PlayerInfoSaved);
-			AGameStatePlay* GameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
-			GameState->ResetLevel();
+			AGameStatePlay* PlayerGameState = Cast<AGameStatePlay>(GetWorld()->GetGameState());
+			PlayerGameState->ResetLevel();
         }
     }
 }

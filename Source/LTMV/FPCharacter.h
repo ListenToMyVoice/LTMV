@@ -95,6 +95,9 @@ protected:
     void UseReleased();
 
 public:
+
+    void CheckForInventory();
+
     /********** TAKE ITEM ***********/
     void TakeDropRight();
     void TakeDropLeft();
