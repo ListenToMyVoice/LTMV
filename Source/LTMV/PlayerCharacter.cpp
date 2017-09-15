@@ -56,7 +56,6 @@ void APlayerCharacter::Tick(float DeltaSeconds) {
 
 void APlayerCharacter::AfterPossessed(bool SetInventory, bool respawning) {
     ToggleMenuInteraction(false);
-
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {

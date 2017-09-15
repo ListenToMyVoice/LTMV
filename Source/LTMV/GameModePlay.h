@@ -17,7 +17,7 @@ public:
     void SERVER_RespawnPlayer(class APlayerControllerPlay* PlayerController, FPlayerInfo info);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-		void SERVER_RespawnPlayerAfterDeath(class APlayerControllerPlay* PlayerController, FPlayerInfo info);
+	void SERVER_RespawnPlayerAfterDeath(class APlayerControllerPlay* PlayerController, FPlayerInfo info);
 
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_PlayerDead(AController* PlayerController);
@@ -30,7 +30,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Maps")
 	void EndGame();
-
 
 protected:
     class APlayerControllerPlay* _HostController;

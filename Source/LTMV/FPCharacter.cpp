@@ -58,22 +58,6 @@ void AFPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
 
     PlayerInput->BindAction("ToggleInventory", IE_Pressed, this, &AFPCharacter::ToggleInventory);
 	PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AFPCharacter::FadeDisplay);
-
-    PlayerInput->BindAction("CheckForInventory", IE_Pressed, this, &AFPCharacter::CheckForInventory);
-}
-
-void AFPCharacter::CheckForInventory() {
-    UInventory* inventory = GetInventory();
-    if (inventory) {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString("El inventario existe en memoria."));
-        TArray<AActor*> ItemArray = inventory->GetItemsArray();
-        for (AActor* SingleItem : ItemArray) {
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Contiene %s."), *SingleItem->GetFName().ToString()));
-        }
-    }
-    else {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString("El inventario NO existe en memoria."));
-    }
 }
 
 void AFPCharacter::FadeDisplay() {// T
@@ -97,19 +81,25 @@ void AFPCharacter::BeginPlay() {
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
     if (PlayerController && PlayerController->IsLocalPlayerController()) {
-        /* HUD */
+        // HUD
         HUD = CreateWidget<UUserWidget>(PlayerController, _HUDClass);
         if (HUD) HUD->AddToViewport();
 
 		HUD2 = CreateWidget<UUserWidget>(PlayerController, _HUDClass2);
 		if (HUD2) HUD2->AddToViewport();
 		HUD2->SetVisibility(ESlateVisibility::Hidden);
-		
-    }
 
+        // Client inventory widget overlap (this is a guess).
+        _InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
+        if (_InventoryWidget) _InventoryWidget->AddToViewport();
+        _InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+        _IsInventoryHidden = true;
+    }
 }
 
 void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
+
+    Super::AfterPossessed(SetInventory, respawning);
 
 	UNWGameInstance* gameInstance = Cast<UNWGameInstance>(GetGameInstance());
 	_Tutorial->SetLanguage(gameInstance->_PlayerInfoSaved.Language);//Set language
@@ -119,14 +109,10 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 		_Tutorial->Hide();
 	}
 
-	Super::AfterPossessed(SetInventory,respawning);
-
-
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController->IsLocalPlayerController()) {
 		if (SetInventory) {
-
-			////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
+            ////GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("possesed with inventory"));
 			if (_isTutorialEnabled) {
 				_Tutorial->Next(PlayerController, 0, false);//Updating to next tutorial widget
 
@@ -135,14 +121,14 @@ void AFPCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 				//_TutorialVR->Next(Location, _PlayerCamera->GetComponentRotation(), 0);//Tutorial at bunker/lab
 			}
 
-			if (!_InventoryWidget) {
-				_InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
-				if (_InventoryWidget) {
-					_InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
-					_InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
-					_IsInventoryHidden = true;
-				}
-			}
+            if (!_InventoryWidget) {
+                _InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, _InventoryUIClass);
+                if (_InventoryWidget) {
+                    _InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
+                    _InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+                    _IsInventoryHidden = true;
+                }
+            }
 		}
 	}
 	if (!SetInventory) {
@@ -168,7 +154,6 @@ void AFPCharacter::Tick(float DeltaSeconds) {
 
 	DrawDebugLine(GetWorld(), StartRaycast, EndRaycast, FColor(0, 255, 0), false, -1.f, (uint8)'\000', 0.8f);
 	*/
-
 }
 	
 FHitResult AFPCharacter::Raycasting() {
