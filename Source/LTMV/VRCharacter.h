@@ -57,6 +57,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AActor* GetActorFocusedRight();
 
+    UFUNCTION(BlueprintCallable, Category = "VR Inventory")
+    void ToggleInventoryInteraction(bool bActivate);
+
 	UFUNCTION(BlueprintCallable, Category = "VR Inventory")
 	void ToggleInventoryVR();
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -165,9 +168,6 @@ private:
 
     UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
     UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
-
-    void BuildLeft();
-    void BuildRight();
     
     /*** OVERLAPPING ***/
     UFUNCTION()

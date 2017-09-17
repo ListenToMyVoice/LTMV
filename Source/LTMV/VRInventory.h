@@ -14,6 +14,22 @@ public:
 	// Sets default values for this actor's properties
 	AVRInventory();
 
+    bool bIsVRInventoryHidden;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
+    TSubclassOf<UUserWidget> CanvasWidget;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
+    TSubclassOf<UUserWidget> SlotWidget1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
+    TSubclassOf<UUserWidget> SlotWidget2;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
+    TSubclassOf<UUserWidget> SlotWidget3;
+
+    void ToggleVRInventory(FVector Location, FRotator Rotation);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -22,6 +38,4 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
-	
 };

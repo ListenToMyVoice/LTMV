@@ -26,3 +26,11 @@ void AVRInventory::Tick(float DeltaTime)
 
 }
 
+void AVRInventory::ToggleVRInventory(FVector Location, FRotator Rotation) {
+    if (bIsVRInventoryHidden) {
+        SetActorHiddenInGame(false);
+    }
+    else {
+        SetActorHiddenInGame(true);
+    }
+}

@@ -5,6 +5,7 @@
 
 #include "PlayerControllerLobby.h"
 #include "Menu3D.h"
+#include "VRInventory.h"
 #include "InputMenu.h"
 #include "VRCharacter.h"
 #include "FPCharacter.h"
@@ -498,6 +499,16 @@ void UNWGameInstance::CreateLanguagePanel() {
 	MenuLanguages->AddMenuInput(Slot_EN);
 	MenuLanguages->AddMenuInput(Slot_FR);
 }
+
+AVRInventory* UNWGameInstance::CreateVRInventory() {
+    if (ULibraryUtils::IsValid(_VRInventory)) {
+        _VRInventory->Destroy();
+    }
+    _VRInventory = GetWorld()->SpawnActor<AVRInventory>();
+
+    return _VRInventory;
+}
+
 /*********************************** BINDINGS ****************************************************/
 void UNWGameInstance::OnButtonNewGame(UInputMenu* InputMenu) {
     _MenuActor->SetSubmenuByIndex(2);

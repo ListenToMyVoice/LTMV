@@ -9,6 +9,7 @@
 #include "Token.h"
 #include "TokenHolder.h"
 #include "NWGameInstance.h"
+#include "MenuInteraction.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
@@ -124,17 +125,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
 
     _RightSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
     _RightSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
-    /* RIGHT HAND BUILD START */
-
-    BuildLeft();
-    BuildRight();
-}
-
-void AVRCharacter::BuildLeft() {
-
-}
-
-void AVRCharacter::BuildRight() {
+    /* RIGHT HAND BUILD END */
 
 }
 
@@ -257,6 +248,11 @@ void AVRCharacter::FadeDisplay() {// T
 			bToBlack = false;
 		}
 	}
+}
+
+void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
+    // Raycast de las manos del personaje, desde la izquierda y la derecha.
+    // Incluso con overlap izquierda-derecha.
 }
 
 void AVRCharacter::ToggleInventoryVR() {
