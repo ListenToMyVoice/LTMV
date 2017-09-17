@@ -74,8 +74,8 @@ protected:
     UCameraComponent* _PlayerCamera;
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UFMODAudioComponent* _StepsAudioComp;
-	UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UFMODAudioComponent* _BreathAudioComp;
+	//UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	//class UFMODAudioComponent* _BreathAudioComp;
     UPROPERTY(Category = Audio, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UMenuInteraction* _MenuInteractionComp;
 
@@ -147,6 +147,6 @@ public:
 	
     FORCEINLINE UCameraComponent* GetPlayerCamera() const { return _PlayerCamera; }
     FORCEINLINE UFMODAudioComponent* GetStepsAudioComp() const { return _StepsAudioComp; }
-	FORCEINLINE UFMODAudioComponent* GetBreathAudioComp() const { return _BreathAudioComp; }
+	//FORCEINLINE UFMODAudioComponent* GetBreathAudioComp() const { return _BreathAudioComp; }
     FORCEINLINE UMenuInteraction* GetMenuInteractionComp() const { return _MenuInteractionComp; }
 };

@@ -49,6 +49,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_PlayerCamera->bLockToHmd = true;
     _PlayerCamera->PostProcessBlendWeight = 1;
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
+    _ChaperoneComp->Activate();
 
     _PouchLeft = CreateDefaultSubobject<USphereComponent>(TEXT("PouchLeft"));
     _PouchLeft->SetSphereRadius(5.0f);
@@ -66,22 +67,13 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _ActorPouchLeft = nullptr;
     _ActorPouchRight = nullptr;
 
-    BuildLeft();
-    BuildRight();
-
-    _RightSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
-    _RightSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
-    _LeftSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
-    _LeftSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
-}
-
-void AVRCharacter::BuildLeft() {
+    /* LEFT HAND BUILD START */
     _LeftHandComp = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("_LeftHandComp"));
     _LeftHandComp->Hand = EControllerHand::Left;
     _LeftHandComp->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _LeftHandComp->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-	_LeftHandComp->SetOnlyOwnerSee(true);
-	_LeftHandComp->SetOwnerNoSee(false);
+    _LeftHandComp->SetOnlyOwnerSee(true);
+    _LeftHandComp->SetOwnerNoSee(false);
 
     /* MESH */
     _SM_LeftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_LeftHand"));
@@ -89,43 +81,61 @@ void AVRCharacter::BuildLeft() {
     _SM_LeftHand->SetWorldScale3D(FVector(1.0f, 1.0f, -1.0f));
     _SM_LeftHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_LeftHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
-	_SM_LeftHand->SetOnlyOwnerSee(true);
-	_SM_LeftHand->SetOwnerNoSee(false);
+    _SM_LeftHand->SetOnlyOwnerSee(true);
+    _SM_LeftHand->SetOwnerNoSee(false);
 
     /* ADDITIONAL */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
     _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
     _LeftSphere->SetSphereRadius(14.f);
-	_LeftSphere->SetOnlyOwnerSee(true);
-	_LeftSphere->SetOwnerNoSee(false);
-	_LeftSphere->SetHiddenInGame(true);
-}
+    _LeftSphere->SetOnlyOwnerSee(true);
+    _LeftSphere->SetOwnerNoSee(false);
+    _LeftSphere->SetHiddenInGame(true);
 
-void AVRCharacter::BuildRight() {
+    _LeftSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
+    _LeftSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
+    /* LEFT HAND BUILD END */
+
+    /* RIGHT HAND BUILD START */
     _RightHandComp = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("_RightHandComp"));
     _RightHandComp->Hand = EControllerHand::Right;
     _RightHandComp->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
     _RightHandComp->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
-	_RightHandComp->SetOnlyOwnerSee(true);
-	_RightHandComp->SetOwnerNoSee(false);
+    _RightHandComp->SetOnlyOwnerSee(true);
+    _RightHandComp->SetOwnerNoSee(false);
 
     /* MESH */
     _SM_RightHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("_SM_RightHand"));
     _SM_RightHand->AttachToComponent(_RightHandComp, FAttachmentTransformRules::KeepRelativeTransform);
     _SM_RightHand->SetRelativeRotation(FRotator(0.f, 0.0f, 90.f));
     _SM_RightHand->SetRelativeLocation(FVector(-10.f, 0.f, 0.f));
-	_SM_RightHand->SetOnlyOwnerSee(true);
-	_SM_RightHand->SetOwnerNoSee(false);
+    _SM_RightHand->SetOnlyOwnerSee(true);
+    _SM_RightHand->SetOwnerNoSee(false);
 
     /* ADDITIONAL */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
     _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
     _RightSphere->SetSphereRadius(14.f);
-	_RightSphere->SetOnlyOwnerSee(true);
-	_RightSphere->SetOwnerNoSee(false);
-	_RightSphere->SetHiddenInGame(true);
+    _RightSphere->SetOnlyOwnerSee(true);
+    _RightSphere->SetOwnerNoSee(false);
+    _RightSphere->SetHiddenInGame(true);
+
+    _RightSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
+    _RightSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
+    /* RIGHT HAND BUILD START */
+
+    BuildLeft();
+    BuildRight();
+}
+
+void AVRCharacter::BuildLeft() {
+
+}
+
+void AVRCharacter::BuildRight() {
+
 }
 
 void AVRCharacter::BeginPlay() {

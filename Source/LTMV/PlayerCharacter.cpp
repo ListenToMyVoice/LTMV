@@ -33,7 +33,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
     _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
 
     _StepsAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
-	_BreathAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio_Breathing"));
+	//_BreathAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio_Breathing"));
 	_PlayerCamera->PostProcessBlendWeight = 0;
 	_DamageDisappearVelocity = 0.3;
 
