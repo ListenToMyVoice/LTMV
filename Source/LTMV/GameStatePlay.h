@@ -48,7 +48,7 @@ public:
 	AActor* _tablillaLaberintoActual;
 
 	UFUNCTION(BlueprintCallable, Category = "EnemyCharacter", meta = (DisplayName = "Update AI zone"))
-		void UpdateActualZone(AActor* zone);
+	void UpdateActualZone(AActor* zone);
 
 	void ResetLevel();
 	void DeleteAsset(AActor* item);
