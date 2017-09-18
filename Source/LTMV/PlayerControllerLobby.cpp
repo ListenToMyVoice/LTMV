@@ -70,37 +70,6 @@ void APlayerControllerLobby::CLIENT_CreateMenu_Implementation() {
     }
 }
 
-void APlayerControllerLobby::CLIENT_CreateVRInventory_Implementation() {
-    UNWGameInstance* GI = Cast<UNWGameInstance>(GetGameInstance());
-    if (GI && GI->_IsVRMode) {
-        if (_MapMainMenu.Contains(GetWorld()->GetMapName())) {
-            CreateDestroyVRInventoryActor(true);
-        }
-        else {
-            if (!_VRInventoryActor) CreateDestroyVRInventoryActor(false);
-
-            if (GetPawnOrSpectator()) {
-                UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
-                    FindComponentByClass<UCameraComponent>());
-                if (CameraComp) {
-                    FVector Location = CameraComp->GetComponentLocation();
-                    Location.X += 300;
-                    Location.Z += 100;
-                    Location.X += 50;
-
-                    _VRInventoryActor->ToggleVRInventory(Location,
-                        CameraComp->GetComponentRotation());
-
-                    AVRCharacter* VRPlayer = Cast<AVRCharacter>(GetPawn());
-                    if (VRPlayer) {
-                        VRPlayer->ToggleInventoryInteraction(!_VRInventoryActor->bIsVRInventoryHidden);
-                    }
-                }                                                            
-            }
-        }
-    }   
-}
-
 void APlayerControllerLobby::AfterPossessed() {
     /* CLIENT-SERVER EXCEPTION  */
     if (!_ClientPossesed) {
@@ -188,6 +157,37 @@ void APlayerControllerLobby::CreateMenuActor(bool IsMainMenu) {
         }
         else {
             _MenuActor = GameInstance->CreateMenuLobby();
+        }
+    }
+}
+
+void APlayerControllerLobby::CLIENT_CreateVRInventory_Implementation() {
+    UNWGameInstance* GI = Cast<UNWGameInstance>(GetGameInstance());
+    if (GI && GI->_IsVRMode) {
+        if (_MapMainMenu.Contains(GetWorld()->GetMapName())) {
+            CreateDestroyVRInventoryActor(true);
+        }
+        else {
+            if (!_VRInventoryActor) CreateDestroyVRInventoryActor(false);
+
+            if (GetPawnOrSpectator()) {
+                UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
+                    FindComponentByClass<UCameraComponent>());
+                if (CameraComp) {
+                    FVector Location = CameraComp->GetComponentLocation();
+                    Location.X += 300;
+                    Location.Z += 100;
+                    Location.X += 50;
+
+                    _VRInventoryActor->ToggleVRInventory(Location,
+                        CameraComp->GetComponentRotation());
+
+                    AVRCharacter* VRPlayer = Cast<AVRCharacter>(GetPawn());
+                    if (VRPlayer) {
+                        VRPlayer->ToggleInventoryInteraction(!_VRInventoryActor->bIsVRInventoryHidden);
+                    }
+                }
+            }
         }
     }
 }

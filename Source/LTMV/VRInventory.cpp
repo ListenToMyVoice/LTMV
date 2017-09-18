@@ -9,6 +9,7 @@ AVRInventory::AVRInventory()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+    bIsVRInventoryHidden = true;
 
 }
 
@@ -16,7 +17,8 @@ AVRInventory::AVRInventory()
 void AVRInventory::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+    SetActorHiddenInGame(bIsVRInventoryHidden);
 }
 
 // Called every frame
@@ -27,10 +29,12 @@ void AVRInventory::Tick(float DeltaTime)
 }
 
 void AVRInventory::ToggleVRInventory(FVector Location, FRotator Rotation) {
-    if (bIsVRInventoryHidden) {
-        SetActorHiddenInGame(false);
+    if (!bIsVRInventoryHidden) {
+        SetActorHiddenInGame(!bIsVRInventoryHidden);
     }
     else {
-        SetActorHiddenInGame(true);
+        SetActorHiddenInGame(bIsVRInventoryHidden);
+        SetActorLocationAndRotation(Location, Rotation);
     }
+    bIsVRInventoryHidden = !bIsVRInventoryHidden;
 }
