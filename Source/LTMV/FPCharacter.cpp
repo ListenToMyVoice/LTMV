@@ -720,7 +720,7 @@ void AFPCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor, int
 }
 
 void AFPCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("PICK ITEM INVENTORY ")));
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("PICK ITEM INVENTORY ")));
     if (ItemActor) {
         if (KeyStruct == EKeys::LeftMouseButton) {
             if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {

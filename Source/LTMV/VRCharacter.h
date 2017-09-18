@@ -60,15 +60,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "VR Inventory")
     void ToggleInventoryInteraction(bool bActivate);
 
-	UFUNCTION(BlueprintCallable, Category = "VR Inventory")
-	void ToggleInventoryVR();
-	UFUNCTION(Server, Reliable, WithValidation)
-	void SERVER_ToggleInventoryVR();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULTI_ToggleInventoryVR();
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Inventory")
-	bool bInventoryActive;
-
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
     bool bPositionalHeadTracking;
@@ -95,12 +86,6 @@ protected:
     USkeletalMeshComponent* _SM_RightHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _RightSphere;
-
-    /*********************************** PSEUDOINVENTORY **************************************/
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    USphereComponent* _PouchLeft;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    USphereComponent* _PouchRight;
 
     /*************** USE TRIGGER *************/
     void UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand);
@@ -129,6 +114,31 @@ public:
     void MULTI_Drop(AActor* ItemActor, int Hand) override;
 
 protected:
+    /********* INVENTORY ********/
+    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    class UInventory* _Inventory;
+
+    void ToggleVRInventory();
+
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveItemInventory(AActor* ItemActor, int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_SaveItemInventory(AActor* ItemActor, int Hand);
+
+public:
+    /************** PICK ITEM *************/
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    void PickItemInventory(AActor* ItemActor, FKey KeyStruct);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_PickItemInventoryLeft(AActor* ItemActor);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_PickItemInventoryLeft(AActor* ItemActor);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_PickItemInventoryRight(AActor* ItemActor);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_PickItemInventoryRight(AActor* ItemActor);
+
+protected:
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
 	virtual void TurnLeftComfort();
@@ -151,23 +161,14 @@ protected:
     void MULTI_UpdateComponentPosition(USceneComponent* Component, FVector Location, FRotator Rotation);
 
 private:
-	UNWGameInstance* GInstance;
-
     IHeadMountedDisplay* HMD;
 
-    AActor* _ActorPouchLeft;
-    AActor* _ActorPouchRight;
-
     AActor* _ActorFocusedLeft;
-    UActorComponent* _ComponentFocusedLeft;
     AActor* _ActorFocusedRight;
-    UActorComponent* _ComponentFocusedRight;
+
     AActor* _ActorGrabbing;
 
 	AActor* _LastActorFocused = nullptr;
-
-    UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
-    UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
     
     /*** OVERLAPPING ***/
     UFUNCTION()
@@ -220,4 +221,7 @@ protected:
     FVector _RightControllerPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _RightControllerOrientation;
+
+public:
+    FORCEINLINE UInventory* GetInventory() const { return _Inventory; }
 };

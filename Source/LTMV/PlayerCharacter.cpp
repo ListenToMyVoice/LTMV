@@ -5,9 +5,11 @@
 
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
+#include "HandPickItem.h"
 #include "GrabItem.h"
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
+#include "Projectile.h"
 #include "Walkie.h"
 #include "Token.h"
 #include "TokenHolder.h"

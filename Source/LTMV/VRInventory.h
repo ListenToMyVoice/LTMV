@@ -16,17 +16,20 @@ public:
 
     bool bIsVRInventoryHidden;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
-    TSubclassOf<UUserWidget> CanvasWidget;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    class UWidgetComponent* CanvasWidget;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
-    TSubclassOf<UUserWidget> SlotWidget1;
+    TSubclassOf<UUserWidget> CanvasWidgetSubclass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
-    TSubclassOf<UUserWidget> SlotWidget2;
+    TSubclassOf<UUserWidget> SlotWidgetSubclass1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
-    TSubclassOf<UUserWidget> SlotWidget3;
+    TSubclassOf<UUserWidget> SlotWidgetSubclass2;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
+    TSubclassOf<UUserWidget> SlotWidgetSubclass3;
 
     void ToggleVRInventory(FVector Location, FRotator Rotation);
 
@@ -38,4 +41,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+    UWidgetComponent* InitWidgetComp(UWidgetComponent* WidgetComponent);
 };
