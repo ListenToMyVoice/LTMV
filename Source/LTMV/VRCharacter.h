@@ -129,6 +129,9 @@ protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UInventory* _Inventory;
 
+    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
+    UTexture2D* GetItemTextureAt(int itemIndex);
+
 public:
     /************ SAVE ITEM ***************/
     UFUNCTION(Server, Reliable, WithValidation)

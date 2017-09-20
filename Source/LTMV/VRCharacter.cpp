@@ -1027,6 +1027,10 @@ void AVRCharacter::MULTI_PickItemInventoryRight_Implementation(AActor* ItemActor
     }
 }
 
+UTexture2D* AVRCharacter::GetItemTextureAt(int itemIndex) {
+    return _Inventory->GetItemTextureAt(itemIndex);
+}
+
 /************ VR CHARACTER IK FEATURES *************/
 void AVRCharacter::UpdateIK() {
     _HMDWorldOrientation = _PlayerCamera->GetComponentRotation();
