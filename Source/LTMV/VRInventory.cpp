@@ -12,9 +12,21 @@ AVRInventory::AVRInventory()
 	PrimaryActorTick.bCanEverTick = true;
     bIsVRInventoryHidden = true;
 
+    SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("Root Component")));
+
+    static ConstructorHelpers::FObjectFinder<UMaterial> CanvasMaterial(TEXT("/Game/LoadScreen/Widget3DPassThrough_Emissive.Widget3DPassThrough_Emissive"));
+    if (CanvasMaterial.Succeeded()) MaterialWidget = CanvasMaterial.Object;
+
     CanvasWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InventoryInterface"));
-    CanvasWidget->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);  
-    CanvasWidget->SetWidgetClass(CanvasWidgetSubclass);
+    CanvasWidget->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+    static ConstructorHelpers::FClassFinder<UUserWidget> CanvasInventory(TEXT("/Game/BluePrints/HUD/InventoryHUD_VR.InventoryHUD_VR"));
+    if (CanvasInventory.Succeeded()) CanvasWidget->SetWidgetClass(CanvasInventory.Class);
+    CanvasWidget->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
+    CanvasWidget->SetWorldScale3D(FVector(1.f, 1.f, 1.f));
+    CanvasWidget->SetDrawSize(FVector2D(1000.f, 1000.f));
+    CanvasWidget->SetBlendMode(EWidgetBlendMode::Masked);
+    CanvasWidget->SetMaterial(0, MaterialWidget);
+    CanvasWidget->SetTwoSided(true);
 }
 
 // Called when the game starts or when spawned
@@ -22,6 +34,7 @@ void AVRInventory::BeginPlay()
 {
 	Super::BeginPlay();
 
+    CanvasWidget->InitWidget();
     SetActorHiddenInGame(bIsVRInventoryHidden);
 }
 
@@ -32,26 +45,12 @@ void AVRInventory::Tick(float DeltaTime)
 
 }
 
-UWidgetComponent* AVRInventory::InitWidgetComp(UWidgetComponent* WidgetComponent) {
-    FVector _Scale = FVector(-8.f, 0.f, 29.f);
-    WidgetComponent->SetRelativeLocation(_Scale);
-    _Scale = FVector(0.2f, 0.2f, 0.2f);
-    WidgetComponent->SetRelativeScale3D(_Scale);
-    FRotator _Rotation;
-    _Rotation.Yaw = 180.0f;
-    _Rotation.Pitch = 0.0f;
-    _Rotation.Roll = 0.0f;
-    WidgetComponent->AddWorldRotation(_Rotation);
-
-    return WidgetComponent;
-}
-
 void AVRInventory::ToggleVRInventory(FVector Location, FRotator Rotation) {
     if (!bIsVRInventoryHidden) {
-        SetActorHiddenInGame(!bIsVRInventoryHidden);
+        SetActorHiddenInGame(bIsVRInventoryHidden);
     }
     else {
-        SetActorHiddenInGame(bIsVRInventoryHidden);
+        SetActorHiddenInGame(!bIsVRInventoryHidden);
         SetActorLocationAndRotation(Location, Rotation);
     }
     bIsVRInventoryHidden = !bIsVRInventoryHidden;

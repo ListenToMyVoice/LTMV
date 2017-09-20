@@ -5,6 +5,7 @@
 
 #include "Inventory.h"
 #include "InventoryItem.h"
+#include "VRInventory.h"
 
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
@@ -14,13 +15,16 @@
 #include "TokenHolder.h"
 #include "NWGameInstance.h"
 #include "MenuInteraction.h"
+#include "WidgetComponent.h"
+#include "VRInventory.h"
+
+#include "PlayerControllerPlay.h"
 
 /* VR Includes */
 #include "HeadMountedDisplay.h"
 #include "IMotionController.h"
 #include "MotionControllerComponent.h"
 #include "SteamVRChaperoneComponent.h"
-
 
 AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     PrimaryActorTick.bCanEverTick = true;
@@ -83,7 +87,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _SM_LeftHand->SetOnlyOwnerSee(true);
     _SM_LeftHand->SetOwnerNoSee(false);
 
-    /* ADDITIONAL */
+    /* FOR OVERLAP INTERACTION */
     _LeftSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_LeftSphere"));
     _LeftSphere->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
     _LeftSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
@@ -91,6 +95,22 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _LeftSphere->SetOnlyOwnerSee(true);
     _LeftSphere->SetOwnerNoSee(false);
     _LeftSphere->SetHiddenInGame(true);
+
+    /* FOR WIDGET INTERACTION */
+    _LeftInteractor = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("LeftInteractor"));
+    _LeftInteractor->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftInteractor->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+    _LeftInteractor->SetComponentTickEnabled(false);
+    _LeftInteractor->InteractionDistance = 1000.f;
+    _LeftInteractor->SetIsReplicated(false);
+    _LeftInteractor->SetHiddenInGame(true);
+    _LeftInteractor->SetVisibility(true);
+    _LeftInteractor->SetActive(false);
+
+    /* LEFT SPLINE */
+    _LeftSpline = CreateDefaultSubobject<USplineMeshComponent>(TEXT("Left Spline"));
+    _LeftSpline->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftSpline->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
 
     _LeftSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
     _LeftSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
@@ -112,7 +132,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _SM_RightHand->SetOnlyOwnerSee(true);
     _SM_RightHand->SetOwnerNoSee(false);
 
-    /* ADDITIONAL */
+    /* FOR OVERLAP INTERACTION */
     _RightSphere = CreateDefaultSubobject<USphereComponent>(TEXT("_RightSphere"));
     _RightSphere->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
     _RightSphere->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
@@ -120,6 +140,22 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _RightSphere->SetOnlyOwnerSee(true);
     _RightSphere->SetOwnerNoSee(false);
     _RightSphere->SetHiddenInGame(true);
+
+    /* FOR WIDGET INTERACTION */
+    _RightInteractor = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("RightInteractor"));
+    _RightInteractor->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightInteractor->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+    _RightInteractor->SetComponentTickEnabled(false);
+    _RightInteractor->InteractionDistance = 1000.f;
+    _RightInteractor->SetIsReplicated(false);
+    _RightInteractor->SetHiddenInGame(true);
+    _RightInteractor->SetVisibility(true);
+    _RightInteractor->SetActive(false);
+
+    /* RIGHT SPLINE */
+    _RightSpline = CreateDefaultSubobject<USplineMeshComponent>(TEXT("Right Spline"));
+    _RightSpline->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightSpline->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
 
     _RightSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
     _RightSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
@@ -184,6 +220,9 @@ void AVRCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 			}
 		}
 	}
+
+    APlayerControllerPlay* PCP = Cast<APlayerControllerPlay>(GetController());
+    if (PCP) bInventoryActive = !PCP->GetVRInventory()->bIsVRInventoryHidden;
 }
 
 void AVRCharacter::Tick(float deltaTime) {
@@ -199,6 +238,8 @@ void AVRCharacter::Tick(float deltaTime) {
     SERVER_UpdateComponentPosition(_RightHandComp, _RightHandComp->RelativeLocation,
                                                    _RightHandComp->RelativeRotation);
 
+    UpdateWidgetLeftBeam();
+    UpdateWidgetRightBeam();
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -214,9 +255,6 @@ void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput)
     /* MOVEMENT */
 	PlayerInput->BindAction("TurnLeftComfort", IE_Pressed, this, &AVRCharacter::TurnLeftComfort);
 	PlayerInput->BindAction("TurnRightComfort", IE_Pressed, this, &AVRCharacter::TurnRightComfort);
-
-    /* VR INVENTORY */
-    PlayerInput->BindAction("TurnVRInventory", IE_Pressed, this, &AVRCharacter::ToggleVRInventory);
 
 	/* FADE CAMERA */
 	PlayerInput->BindAction("FadeDisplay", IE_Pressed, this, &AVRCharacter::FadeDisplay);
@@ -436,7 +474,7 @@ void AVRCharacter::MULTI_UpdateMeshWithCamera_Implementation() {
 /****************************************** ACTION MAPPINGS **************************************/
 /******** USE ITEM LEFT *********/
 void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
-    if (IsMenuHidden) {
+    if (IsMenuHidden && !bInventoryActive) {
         if (_ItemLeft) {
             TArray<UActorComponent*> Components;
             _ItemLeft->GetComponents(Components);
@@ -450,14 +488,15 @@ void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
         }
         else if (_ActorFocusedLeft) UseTriggerPressed(_ActorFocusedLeft, _SM_LeftHand, 1);
     }
-    else _MenuInteractionComp->PressPointer();
+    else if (!IsMenuHidden) _MenuInteractionComp->PressPointer();
+    else if (bInventoryActive) _LeftInteractor->PressPointerKey(EKeys::LeftMouseButton);
 
     /* ANIMATION */
     if (!_ItemLeft && !_ActorGrabbing) SERVER_UpdateAnimation(EGripEnum::Grab, 1);
 }
 
 void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
-    if (IsMenuHidden) {
+    if (IsMenuHidden && !bInventoryActive) {
         if (_ItemLeft) {
             TArray<UActorComponent*> Components;
             _ItemLeft->GetComponents(Components);
@@ -471,7 +510,8 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
         }
         else if (_ActorFocusedLeft || _ActorGrabbing) UseTriggerReleased(_ActorFocusedLeft, _SM_LeftHand, 1);
     }
-    else _MenuInteractionComp->ReleasePointer();
+    else if (!IsMenuHidden) _MenuInteractionComp->PressPointer();
+    else if (bInventoryActive) _LeftInteractor->ReleasePointerKey(EKeys::LeftMouseButton);
 
     /* ANIMATION */
     if (!_ItemLeft && !_ActorGrabbing) SERVER_UpdateAnimation(EGripEnum::Open, 1);
@@ -479,7 +519,7 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
 
 /******* USE ITEM RIGHT *** ******/
 void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
-    if (IsMenuHidden) {
+    if (IsMenuHidden && !bInventoryActive) {
         if (_ItemRight) {
             TArray<UActorComponent*> Components;
             _ItemRight->GetComponents(Components);
@@ -493,14 +533,15 @@ void AVRCharacter::UseRightPressed(bool IsMenuHidden) {
         }
         else if (_ActorFocusedRight) UseTriggerPressed(_ActorFocusedRight, _SM_RightHand, 2);
     }
-    else _MenuInteractionComp->PressPointer();
+    else if (!IsMenuHidden) _MenuInteractionComp->PressPointer();
+    else if (bInventoryActive) _RightInteractor->PressPointerKey(EKeys::RightMouseButton);
 
     /* ANIMATION */
     if (!_ItemRight && !_ActorGrabbing) SERVER_UpdateAnimation(EGripEnum::Grab, 2);
 }
 
 void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
-    if (IsMenuHidden) {
+    if (IsMenuHidden && !bInventoryActive) {
         if (_ItemRight) {
             TArray<UActorComponent*> Components;
             _ItemRight->GetComponents(Components);
@@ -514,7 +555,8 @@ void AVRCharacter::UseRightReleased(bool IsMenuHidden) {
         }
         else if (_ActorFocusedRight || _ActorGrabbing) UseTriggerReleased(_ActorFocusedRight, _SM_RightHand, 2);
     }
-    else _MenuInteractionComp->ReleasePointer();
+    else if (!IsMenuHidden) _MenuInteractionComp->ReleasePointer();
+    else if (bInventoryActive) _RightInteractor->ReleasePointerKey(EKeys::RightMouseButton);
 
     /* ANIMATION */
     if (!_ItemRight && !_ActorGrabbing) SERVER_UpdateAnimation(EGripEnum::Open, 2);
@@ -726,10 +768,10 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
     UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
         UStaticMeshComponent::StaticClass()));
 
-    // TODO: Aqui vendra la logica para dropearlo al mundo o al inventario
+    // TODO: Aqui vendra la logica para dropearlo al mundo o al inventario una vez cogido.
 
     // DROP TO ALTAR
-	if (ItemMesh && _ActorFocusedLeft &&
+	if (ItemMesh && _ActorFocusedLeft && !bInventoryActive &&
 		_ActorFocusedLeft->GetComponentByClass(UTokenHolder::StaticClass()) &&
 		ItemActor->GetComponentByClass(UToken::StaticClass())) {
 
@@ -744,7 +786,7 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 		Holder->_Tablilla = ItemActor;
 	}
 
-	else if (ItemMesh && _ActorFocusedRight &&
+	else if (ItemMesh && _ActorFocusedRight && !bInventoryActive &&
 		_ActorFocusedRight->GetComponentByClass(UTokenHolder::StaticClass()) &&
         ItemActor->GetComponentByClass(UToken::StaticClass())) {
 	
@@ -760,8 +802,7 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 	}
 
     // DROP TO WORLD
-    else if (ItemMesh) {
-
+    else if (ItemMesh && !bInventoryActive) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
         ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         ItemMesh->SetSimulatePhysics(true);
@@ -769,20 +810,78 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
         ItemActor->SetActorEnableCollision(true);
     }
 
+    // DROP TO INVENTORY
+    else if (ItemMesh && bInventoryActive) SERVER_SaveItemInventory(ItemActor, Hand);
+
     if (Hand == 1) _ItemLeft = nullptr;
     else if (Hand == 2) _ItemRight = nullptr;
 }
 
 /**************** TRIGGER INVENTORY *************/
 void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
-    // TODO:
-    // Raycast de las manos del personaje, desde la izquierda y la derecha.
-    // Incluso con overlap izquierda-derecha.
+    bInventoryActive = bActivate;
+
+    _LeftInteractor->SetActive(bActivate);
+    _LeftInteractor->SetComponentTickEnabled(bActivate);
+    _LeftInteractor->SetHiddenInGame(!bActivate);
+    _LeftInteractor->SetIsReplicated(bActivate);
+
+    _RightInteractor->SetActive(bActivate);
+    _RightInteractor->SetComponentTickEnabled(bActivate);
+    _RightInteractor->SetHiddenInGame(!bActivate);
+    _RightInteractor->SetIsReplicated(bActivate);
 }
 
-/*** TOGGLE INVENTORY ***/
-void AVRCharacter::ToggleVRInventory() {
-    // TODO: Unhide Inventory Actor
+void AVRCharacter::UpdateWidgetLeftBeam() {
+    if (_LeftInteractor->IsActive() && _LeftInteractor->IsOverHitTestVisibleWidget()) {
+        UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_LeftInteractor->GetHoveredWidgetComponent());
+        if (VRInventoryWidgetComponent) {
+            AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
+            if (VRInventoryActor) {
+                FVector StartPoint = _LeftHandComp->GetComponentLocation();
+                FVector EndPoint = StartPoint + _LeftHandComp->GetForwardVector()*_LeftInteractor->InteractionDistance;
+                FHitResult WidgetHit;
+
+                if (GetWorld()->LineTraceSingleByChannel(WidgetHit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility)) {
+                    _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, WidgetHit.Location, WidgetHit.Location, false);
+                }
+                else {
+                    _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
+                }
+            }
+        }
+    }
+    else {
+        FVector StartPoint = _LeftHandComp->GetComponentLocation();
+        FVector EndPoint = StartPoint + _LeftHandComp->GetForwardVector()*_LeftInteractor->InteractionDistance;
+        _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
+    }
+}
+
+void AVRCharacter::UpdateWidgetRightBeam() {
+    if (_RightInteractor->IsActive() && _RightInteractor->IsOverHitTestVisibleWidget()) {
+        UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_RightInteractor->GetHoveredWidgetComponent());
+        if (VRInventoryWidgetComponent) {
+            AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
+            if (VRInventoryActor) {
+                FVector StartPoint = _RightHandComp->GetComponentLocation();
+                FVector EndPoint = StartPoint + _RightHandComp->GetForwardVector()*_RightInteractor->InteractionDistance;
+                FHitResult WidgetHit;
+
+                if (GetWorld()->LineTraceSingleByChannel(WidgetHit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility)) {
+                    _RightSpline->SetStartAndEnd(StartPoint, StartPoint, WidgetHit.Location, WidgetHit.Location, false);
+                }
+                else {
+                    _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
+                }
+            }
+        }
+    }
+    else {
+        FVector StartPoint = _RightHandComp->GetComponentLocation();
+        FVector EndPoint = StartPoint + _RightHandComp->GetForwardVector()*_RightInteractor->InteractionDistance;
+        _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
+    }
 }
 
 /**************************************** INVENTORY **********************************************/
@@ -808,6 +907,36 @@ void AVRCharacter::MULTI_SaveItemInventory_Implementation(AActor* ItemActor, int
 
 void AVRCharacter::PickItemInventory(AActor* ItemActor, FKey KeyStruct) {
     // Logic with which while interacting with the Inventory Actor being able to pick up something from it.
+    if (ItemActor) {
+        // Transformado previamente un click de trigger a uno de mouse.
+        if (KeyStruct == EKeys::LeftMouseButton) {
+            if (_ItemLeft && _ItemLeft->GetComponentByClass(UInventoryItem::StaticClass())) {
+
+                /* Save hand inventory item */
+                SERVER_SaveItemInventory(_ItemLeft, 1);
+            }
+            else if (_ItemLeft && _ItemLeft->GetComponentByClass(UHandPickItem::StaticClass())) {
+                /* Drop item */
+                SERVER_Drop(_ItemLeft, 1);
+            }
+            ////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("left click EN ITEM INVENTORY ")));
+            SERVER_PickItemInventoryLeft(ItemActor);
+        }
+        // Transformado previamente un click de trigger a uno de mouse.
+        else if (KeyStruct == EKeys::RightMouseButton) {
+            if (_ItemRight && _ItemRight->GetComponentByClass(UInventoryItem::StaticClass())) {
+
+                /* Save hand inventory item */
+                SERVER_SaveItemInventory(_ItemRight, 1);
+            }
+            else if (_ItemRight && _ItemRight->GetComponentByClass(UHandPickItem::StaticClass())) {
+                /* Drop item */
+                SERVER_Drop(_ItemRight, 1);
+            }
+            ////GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("left click EN ITEM INVENTORY ")));
+            SERVER_PickItemInventoryRight(ItemActor);
+        }
+    }
 }
 
 bool AVRCharacter::SERVER_PickItemInventoryLeft_Validate(AActor* ItemActor) { return true; }

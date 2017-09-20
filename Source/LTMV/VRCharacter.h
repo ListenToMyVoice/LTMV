@@ -3,7 +3,9 @@
 #pragma once
 
 #include "PlayerCharacter.h"
+#include "Components/SplineMeshComponent.h"
 #include "MotionControllerComponent.h"
+#include "WidgetInteractionComponent.h"
 #include "VRCharacter.generated.h"
 
 class UGrabItem;
@@ -57,6 +59,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AActor* GetActorFocusedRight();
 
+    bool bInventoryActive;
     UFUNCTION(BlueprintCallable, Category = "VR Inventory")
     void ToggleInventoryInteraction(bool bActivate);
 
@@ -79,6 +82,10 @@ protected:
     USkeletalMeshComponent* _SM_LeftHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _LeftSphere;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UWidgetInteractionComponent* _LeftInteractor;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USplineMeshComponent* _LeftSpline;
     /*********** RIGHT ***********/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* _RightHandComp;
@@ -86,6 +93,10 @@ protected:
     USkeletalMeshComponent* _SM_RightHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _RightSphere;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UWidgetInteractionComponent* _RightInteractor;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USplineMeshComponent* _RightSpline;
 
     /*************** USE TRIGGER *************/
     void UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand);
@@ -118,14 +129,13 @@ protected:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UInventory* _Inventory;
 
-    void ToggleVRInventory();
-
+public:
+    /************ SAVE ITEM ***************/
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_SaveItemInventory(AActor* ItemActor, int Hand);
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_SaveItemInventory(AActor* ItemActor, int Hand);
 
-public:
     /************** PICK ITEM *************/
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     void PickItemInventory(AActor* ItemActor, FKey KeyStruct);
@@ -159,6 +169,9 @@ protected:
     void SERVER_UpdateComponentPosition(USceneComponent* Component, FVector Location, FRotator Rotation);
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_UpdateComponentPosition(USceneComponent* Component, FVector Location, FRotator Rotation);
+
+    void UpdateWidgetLeftBeam();
+    void UpdateWidgetRightBeam();
 
 private:
     IHeadMountedDisplay* HMD;

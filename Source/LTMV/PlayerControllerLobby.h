@@ -28,9 +28,6 @@ public:
     UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Menu")
     void CLIENT_CreateMenu();
 
-    UFUNCTION(Client, Reliable, BlueprintCallable, Category = "VR Inventory")
-    void CLIENT_CreateVRInventory();
-
 protected:
     virtual void SetupInputComponent() override;
 
@@ -52,8 +49,4 @@ private:
     /* MENU INTERFACE */
     class AMenu3D* _MenuActor;
     void CreateMenuActor(bool IsMainMenu);
-
-    /* VR INVENTORY INTERFACE*/
-    class AVRInventory* _VRInventoryActor;
-    void CreateDestroyVRInventoryActor(bool IsMainMenu);
 };

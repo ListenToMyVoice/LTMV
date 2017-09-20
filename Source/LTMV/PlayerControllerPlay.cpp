@@ -8,10 +8,20 @@
 #include "FMODAudioComponent.h"
 #include "PlayerCharacter.h"
 #include "PlayerSpectator.h"
+#include "VRInventory.h"
+#include "VRCharacter.h"
+#include "Menu3D.h"
 #include "Walkie.h"
 
 
 APlayerControllerPlay::APlayerControllerPlay(const FObjectInitializer& OI) : Super(OI) {
+    GConfig->GetString(
+        TEXT("/Script/EngineSettings.GameMapsSettings"),
+        TEXT("GameDefaultMap"),
+        _MapMainMenu,
+        GEngineIni
+    );
+
     /* VOICE */
     _WalkieNoiseAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
     //static ConstructorHelpers::FObjectFinder<UObject> Finder(
@@ -32,6 +42,8 @@ void APlayerControllerPlay::SetupInputComponent() {
     Super::SetupInputComponent();
     InputComponent->BindAction("Menu", IE_Released, this, &APlayerControllerPlay::ToogleMenu);
 
+    InputComponent->BindAction("ToggleVRInventory", IE_Released, this, &APlayerControllerPlay::CLIENT_ToggleVRInventory);
+
     /* USE ITEM */
     InputComponent->BindAction("ClickLeft", IE_Pressed, this, &APlayerControllerPlay::UseLeftPressed);
     InputComponent->BindAction("ClickLeft", IE_Released, this, &APlayerControllerPlay::UseLeftReleased);
@@ -47,8 +59,8 @@ void APlayerControllerPlay::BeginPlay() {
         if (_GameInstance) {
             SERVER_CallUpdate(_GameInstance->_PlayerInfoSaved);
         }
+        if (_GameInstance->_IsVRMode) CLIENT_CreateVRInventory();
     }
-
 }
 
 bool APlayerControllerPlay::SERVER_CallUpdate_Validate(FPlayerInfo info) {
@@ -297,6 +309,69 @@ void APlayerControllerPlay::CLIENT_HideMenu_Implementation() {
                                        CameraComp->GetComponentRotation());
                 PlayerCharacter->ToggleMenuInteraction(false);
             }
+        }
+    }
+}
+
+/******************************** TRIGGER VR INVENTORY *******************************************/
+void APlayerControllerPlay::CLIENT_CreateVRInventory_Implementation() {
+    UNWGameInstance* GI = Cast<UNWGameInstance>(GetGameInstance());
+    if (GI && GI->_IsVRMode) {
+        if (_MapMainMenu.Contains(GetWorld()->GetMapName())) CreateDestroyVRInventoryActor(true);
+        else CreateDestroyVRInventoryActor(false);
+    }
+}
+
+void APlayerControllerPlay::CLIENT_ToggleVRInventory_Implementation() {
+    if (!_MapMainMenu.Contains(GetWorld()->GetMapName())) {
+        /* INVENTORY INTERFACE */
+        if (!_VRInventoryActor) CLIENT_CreateVRInventory();
+
+        // Show inventory
+        if (GetPawnOrSpectator() && _VRInventoryActor->bIsVRInventoryHidden) {
+            UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
+                FindComponentByClass<UCameraComponent>());
+            if (CameraComp) {
+                FVector Location = CameraComp->GetComponentLocation() +
+                    (CameraComp->GetForwardVector().GetSafeNormal() * 200);
+
+                _VRInventoryActor->ToggleVRInventory(Location,
+                    CameraComp->GetComponentRotation());
+
+                AVRCharacter* VRPlayer = Cast<AVRCharacter>(GetPawn());
+                if (VRPlayer) {
+                    VRPlayer->ToggleInventoryInteraction(!_VRInventoryActor->bIsVRInventoryHidden);
+                }
+            }
+        }
+        // Hide inventory
+        else if (GetPawnOrSpectator() && !_VRInventoryActor->bIsVRInventoryHidden) {
+            UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
+                FindComponentByClass<UCameraComponent>());
+            if (CameraComp) {
+                FVector Location = CameraComp->GetComponentLocation() +
+                    (CameraComp->GetForwardVector().GetSafeNormal() * 200);
+
+                _VRInventoryActor->ToggleVRInventory(Location,
+                    CameraComp->GetComponentRotation());
+
+                AVRCharacter* VRPlayer = Cast<AVRCharacter>(GetPawn());
+                if (VRPlayer) {
+                    VRPlayer->ToggleInventoryInteraction(!_VRInventoryActor->bIsVRInventoryHidden);
+                }
+            }
+        }
+    }
+}
+
+void APlayerControllerPlay::CreateDestroyVRInventoryActor(bool IsMainMenu) {
+    UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
+    if (GameInstance) {
+        if (!IsMainMenu) {
+            _VRInventoryActor = GameInstance->CreateVRInventory();
+        }
+        else {
+            _VRInventoryActor->Destroy();
         }
     }
 }

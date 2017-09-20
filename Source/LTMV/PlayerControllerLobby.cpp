@@ -7,7 +7,6 @@
 #include "PlayerCharacter.h"
 #include "VRCharacter.h"
 #include "Menu3D.h"
-#include "VRInventory.h"
 
 
 APlayerControllerLobby::APlayerControllerLobby(const FObjectInitializer& OI) : Super(OI) {
@@ -157,49 +156,6 @@ void APlayerControllerLobby::CreateMenuActor(bool IsMainMenu) {
         }
         else {
             _MenuActor = GameInstance->CreateMenuLobby();
-        }
-    }
-}
-
-void APlayerControllerLobby::CLIENT_CreateVRInventory_Implementation() {
-    UNWGameInstance* GI = Cast<UNWGameInstance>(GetGameInstance());
-    if (GI && GI->_IsVRMode) {
-        if (_MapMainMenu.Contains(GetWorld()->GetMapName())) {
-            CreateDestroyVRInventoryActor(true);
-        }
-        else {
-            if (!_VRInventoryActor) CreateDestroyVRInventoryActor(false);
-
-            if (GetPawnOrSpectator()) {
-                UCameraComponent* CameraComp = Cast<UCameraComponent>(GetPawnOrSpectator()->
-                    FindComponentByClass<UCameraComponent>());
-                if (CameraComp) {
-                    FVector Location = CameraComp->GetComponentLocation();
-                    Location.X += 300;
-                    Location.Z += 100;
-                    Location.X += 50;
-
-                    _VRInventoryActor->ToggleVRInventory(Location,
-                        CameraComp->GetComponentRotation());
-
-                    AVRCharacter* VRPlayer = Cast<AVRCharacter>(GetPawn());
-                    if (VRPlayer) {
-                        VRPlayer->ToggleInventoryInteraction(!_VRInventoryActor->bIsVRInventoryHidden);
-                    }
-                }
-            }
-        }
-    }
-}
-
-void APlayerControllerLobby::CreateDestroyVRInventoryActor(bool IsMainMenu) {
-    UNWGameInstance* GameInstance = Cast<UNWGameInstance>(GetGameInstance());
-    if (GameInstance) {
-        if (!IsMainMenu) {
-            _VRInventoryActor = GameInstance->CreateVRInventory();
-        }
-        else {
-            _VRInventoryActor->Destroy();
         }
     }
 }

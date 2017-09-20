@@ -3,6 +3,7 @@
 #include "LTMV.h"
 #include "NWGameInstance.h"
 
+#include "PlayerControllerPlay.h"
 #include "PlayerControllerLobby.h"
 #include "Menu3D.h"
 #include "VRInventory.h"
@@ -500,6 +501,16 @@ void UNWGameInstance::CreateLanguagePanel() {
 	MenuLanguages->AddMenuInput(Slot_FR);
 }
 
+AVRInventory* UNWGameInstance::CreateVRInventory() {
+    if (ULibraryUtils::IsValid(_VRInventory)) {
+        _VRInventory->Destroy();
+    }
+
+    _VRInventory = GetWorld()->SpawnActor<AVRInventory>();
+
+    return _VRInventory;
+}
+
 /*********************************** BINDINGS ****************************************************/
 void UNWGameInstance::OnButtonNewGame(UInputMenu* InputMenu) {
     _MenuActor->SetSubmenuByIndex(2);
@@ -591,17 +602,7 @@ void UNWGameInstance::OnButtonSelectFR(UInputMenu* InputMenu) {
 
 }
 void UNWGameInstance::OnButtonBackToMenu(UInputMenu* InputMenu) {
+    APlayerControllerPlay* const PCP = Cast<APlayerControllerPlay>(GetFirstLocalPlayerController());
+    if (PCP) PCP->CreateDestroyVRInventoryActor(false);
     DestroySession();
-}
-
-
-
-AVRInventory* UNWGameInstance::CreateVRInventory() {
-    if (ULibraryUtils::IsValid(_VRInventory)) {
-        _VRInventory->Destroy();
-    }
-
-    _VRInventory = GetWorld()->SpawnActor<AVRInventory>();
-
-    return _VRInventory;
 }
