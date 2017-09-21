@@ -19,7 +19,7 @@ AVRInventory::AVRInventory()
 
     CanvasWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InventoryInterface"));
     CanvasWidget->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    static ConstructorHelpers::FClassFinder<UUserWidget> CanvasInventory(TEXT("/Game/BluePrints/HUD/InventoryHUD_VR.InventoryHUD_VR"));
+    static ConstructorHelpers::FClassFinder<UUserWidget> CanvasInventory(TEXT("/Game/Blueprints/HUD/InventoryHUD_VR.InventoryHUD_VR"));
     if (CanvasInventory.Succeeded()) CanvasWidget->SetWidgetClass(CanvasInventory.Class);
     CanvasWidget->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
     CanvasWidget->SetWorldScale3D(FVector(1.f, 1.f, 1.f));

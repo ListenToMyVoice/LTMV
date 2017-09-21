@@ -95,7 +95,6 @@ void APlayerControllerPlay::AfterPossessed(bool _afterdeath) {
 			PlayerCharacter->AfterPossessed(true, true);
 			_ClientPossesed = true;
 		}
-
 	}
 }
 

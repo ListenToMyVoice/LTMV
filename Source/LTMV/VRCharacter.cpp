@@ -768,8 +768,6 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
     UStaticMeshComponent* ItemMesh = Cast<UStaticMeshComponent>(ItemActor->GetComponentByClass(
         UStaticMeshComponent::StaticClass()));
 
-    // TODO: Aqui vendra la logica para dropearlo al mundo o al inventario una vez cogido.
-
     // DROP TO ALTAR
 	if (ItemMesh && _ActorFocusedLeft && !bInventoryActive &&
 		_ActorFocusedLeft->GetComponentByClass(UTokenHolder::StaticClass()) &&
@@ -853,7 +851,7 @@ void AVRCharacter::UpdateWidgetLeftBeam() {
     }
     else {
         FVector StartPoint = _LeftHandComp->GetComponentLocation();
-        FVector EndPoint = StartPoint + _LeftHandComp->GetForwardVector()*_LeftInteractor->InteractionDistance;
+        FVector EndPoint = StartPoint;
         _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
     }
 }
@@ -879,7 +877,7 @@ void AVRCharacter::UpdateWidgetRightBeam() {
     }
     else {
         FVector StartPoint = _RightHandComp->GetComponentLocation();
-        FVector EndPoint = StartPoint + _RightHandComp->GetForwardVector()*_RightInteractor->InteractionDistance;
+        FVector EndPoint = StartPoint;
         _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
     }
 }

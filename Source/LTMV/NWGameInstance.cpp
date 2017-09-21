@@ -603,6 +603,6 @@ void UNWGameInstance::OnButtonSelectFR(UInputMenu* InputMenu) {
 }
 void UNWGameInstance::OnButtonBackToMenu(UInputMenu* InputMenu) {
     APlayerControllerPlay* const PCP = Cast<APlayerControllerPlay>(GetFirstLocalPlayerController());
-    if (PCP) PCP->CreateDestroyVRInventoryActor(false);
+    if (PCP) PCP->CreateDestroyVRInventoryActor(true);
     DestroySession();
 }
