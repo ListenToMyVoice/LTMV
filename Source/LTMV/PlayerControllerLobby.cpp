@@ -5,6 +5,7 @@
 
 #include "GameModeLobby.h"
 #include "PlayerCharacter.h"
+#include "VRCharacter.h"
 #include "Menu3D.h"
 
 

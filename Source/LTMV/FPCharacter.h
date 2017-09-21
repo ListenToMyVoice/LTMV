@@ -104,9 +104,9 @@ public:
 
 	/********* DROP ITEM REIMPLEMENTATION ************/
 	UFUNCTION(Server, Reliable, WithValidation)
-		virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
+	virtual void SERVER_Drop(AActor* ItemActor, int Hand) override;
 	UFUNCTION(NetMulticast, Reliable)
-		virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
+	virtual void MULTI_Drop(AActor* ItemActor, int Hand) override;
 
 	void HideInventory();
 
@@ -114,7 +114,6 @@ protected:
 
     /********** INVENTORY ***********/
     void ToggleInventory();
-
 
     UFUNCTION(Server, Reliable, WithValidation)
     void SERVER_SaveItemInventory(AActor* ItemActor, int Hand);
@@ -135,7 +134,6 @@ private:
     FHitResult _HitResult;
 	FHitResult _LastPressed;
 
-    
     UStaticMeshComponent* _LastMeshFocused = nullptr;
     bool bInventoryItemHit = false;
 

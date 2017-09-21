@@ -3,7 +3,9 @@
 #pragma once
 
 #include "PlayerCharacter.h"
+#include "Components/SplineMeshComponent.h"
 #include "MotionControllerComponent.h"
+#include "WidgetInteractionComponent.h"
 #include "VRCharacter.generated.h"
 
 class UGrabItem;
@@ -57,14 +59,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AActor* GetActorFocusedRight();
 
-	UFUNCTION(BlueprintCallable, Category = "VR Inventory")
-	void ToggleInventoryVR();
-	UFUNCTION(Server, Reliable, WithValidation)
-	void SERVER_ToggleInventoryVR();
-	UFUNCTION(NetMulticast, Reliable)
-	void MULTI_ToggleInventoryVR();
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR Inventory")
-	bool bInventoryActive;
+    bool bInventoryActive;
+    UFUNCTION(BlueprintCallable, Category = "VR Inventory")
+    void ToggleInventoryInteraction(bool bActivate);
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "VR")
@@ -85,6 +82,10 @@ protected:
     USkeletalMeshComponent* _SM_LeftHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _LeftSphere;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UWidgetInteractionComponent* _LeftInteractor;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USplineMeshComponent* _LeftSpline;
     /*********** RIGHT ***********/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     class UMotionControllerComponent* _RightHandComp;
@@ -92,12 +93,10 @@ protected:
     USkeletalMeshComponent* _SM_RightHand;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* _RightSphere;
-
-    /*********************************** PSEUDOINVENTORY **************************************/
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    USphereComponent* _PouchLeft;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    USphereComponent* _PouchRight;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UWidgetInteractionComponent* _RightInteractor;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USplineMeshComponent* _RightSpline;
 
     /*************** USE TRIGGER *************/
     void UseTriggerPressed(AActor* ActorFocused, USceneComponent* InParent, int Hand);
@@ -126,6 +125,33 @@ public:
     void MULTI_Drop(AActor* ItemActor, int Hand) override;
 
 protected:
+    /********* INVENTORY ********/
+    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    class UInventory* _Inventory;
+
+    UFUNCTION(BlueprintCallable, Category = "Player pool Items")
+    UTexture2D* GetItemTextureAt(int itemIndex);
+
+public:
+    /************ SAVE ITEM ***************/
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_SaveItemInventory(AActor* ItemActor, int Hand);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_SaveItemInventory(AActor* ItemActor, int Hand);
+
+    /************** PICK ITEM *************/
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    void PickItemInventory(AActor* ItemActor, FKey KeyStruct);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_PickItemInventoryLeft(AActor* ItemActor);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_PickItemInventoryLeft(AActor* ItemActor);
+    UFUNCTION(Server, Reliable, WithValidation)
+    void SERVER_PickItemInventoryRight(AActor* ItemActor);
+    UFUNCTION(NetMulticast, Reliable)
+    void MULTI_PickItemInventoryRight(AActor* ItemActor);
+
+protected:
     /*********** MOVEMENT ***********/
     void MoveForward(float Value) override;
 	virtual void TurnLeftComfort();
@@ -147,27 +173,18 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
     void MULTI_UpdateComponentPosition(USceneComponent* Component, FVector Location, FRotator Rotation);
 
-private:
-	UNWGameInstance* GInstance;
+    void UpdateWidgetLeftBeam();
+    void UpdateWidgetRightBeam();
 
+private:
     IHeadMountedDisplay* HMD;
 
-    AActor* _ActorPouchLeft;
-    AActor* _ActorPouchRight;
-
     AActor* _ActorFocusedLeft;
-    UActorComponent* _ComponentFocusedLeft;
     AActor* _ActorFocusedRight;
-    UActorComponent* _ComponentFocusedRight;
+
     AActor* _ActorGrabbing;
 
 	AActor* _LastActorFocused = nullptr;
-
-    UStaticMeshComponent* _LastMeshFocusedLeft = nullptr;
-    UStaticMeshComponent* _LastMeshFocusedRight = nullptr;
-
-    void BuildLeft();
-    void BuildRight();
     
     /*** OVERLAPPING ***/
     UFUNCTION()
@@ -220,4 +237,7 @@ protected:
     FVector _RightControllerPosition;
     UPROPERTY(BlueprintReadOnly, Category = "IK")
     FRotator _RightControllerOrientation;
+
+public:
+    FORCEINLINE UInventory* GetInventory() const { return _Inventory; }
 };

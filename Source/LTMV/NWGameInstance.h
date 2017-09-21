@@ -9,6 +9,8 @@
 class AMenu3D;
 class UInputMenu;
 
+class AVRInventory;
+
 USTRUCT(BlueprintType, Category = "Player Info")
 struct FPlayerInfo {
     GENERATED_USTRUCT_BODY()
@@ -146,6 +148,9 @@ public:
     AMenu3D* CreateMenuLobby();
     AMenu3D* CreateMenuPlay();
 
+    /* VR INVENTORY INTERFACE */
+    AVRInventory* CreateVRInventory();
+
     /* BINDINGS */
     void OnButtonNewGame(UInputMenu* InputMenu);
     void OnButtonOptions(UInputMenu* InputMenu);
@@ -184,4 +189,8 @@ private:
 
     void CreateOptionsPanel();
 	void CreateLanguagePanel();
+
+private:
+    /* VR INVENTORY INTERFACE */
+    AVRInventory* _VRInventory;
 };

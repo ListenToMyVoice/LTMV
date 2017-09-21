@@ -49,6 +49,13 @@ public:
     UFUNCTION(Client, Reliable)
     void CLIENT_HideMenu();
 
+    /********* TRIGGER INVENTORY VR ***********/
+    void CreateDestroyVRInventoryActor(bool IsMainMenu);
+    UFUNCTION(Client, Reliable)
+    void CLIENT_ToggleVRInventory();
+    UFUNCTION(Client, Reliable)
+    void CLIENT_CreateVRInventory();
+
 protected:
     class UNWGameInstance* _GameInstance;
 
@@ -69,10 +76,17 @@ private:
     //UAudioComponent* _TestAudioComp;
     bool _IsListen;
     bool _ClientPossesed;
+    FString _MapMainMenu;
 
     /* MENU INTERFACE */
     class AMenu3D* _MenuActor;
     void CreateMenuActor();
 
+    /* VR INVENTORY INTERFACE*/
+    class AVRInventory* _VRInventoryActor;
+
     void TickWalkie();
+
+public:
+    FORCEINLINE AVRInventory* GetVRInventory() { return _VRInventoryActor; }
 };

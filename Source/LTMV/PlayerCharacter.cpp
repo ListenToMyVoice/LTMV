@@ -5,9 +5,11 @@
 
 #include "ItfUsable.h"
 #include "ItfUsableItem.h"
+#include "HandPickItem.h"
 #include "GrabItem.h"
 #include "FMODAudioComponent.h"
 #include "GameModePlay.h"
+#include "Projectile.h"
 #include "Walkie.h"
 #include "Token.h"
 #include "TokenHolder.h"
@@ -26,8 +28,8 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& OI) :Super(OI) {
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
-
     _PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
+
     _MenuInteractionComp = CreateDefaultSubobject<UMenuInteraction>(TEXT("Menu Interaction"));
     _MenuInteractionComp->_RayParameter = 100000;
     _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
