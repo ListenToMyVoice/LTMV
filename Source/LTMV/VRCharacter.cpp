@@ -58,13 +58,6 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
 	_PlayerCamera->bLockToHmd = true;
     _PlayerCamera->PostProcessBlendWeight = 1;
 
-    if (_PlayerCamera) {
-        UE_LOG(LogTemp, Warning, TEXT("Camara CONSTRUIDA en VR Char."));
-    }
-    else {
-        UE_LOG(LogTemp, Warning, TEXT("Camara NO CONSTRUIDA en VR Char."));
-    }
-
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
     _ChaperoneComp->Activate();
 
@@ -170,7 +163,6 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _RightSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
     _RightSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
     /* RIGHT HAND BUILD END */
-
 }
 
 void AVRCharacter::BeginPlay() {
@@ -186,9 +178,6 @@ void AVRCharacter::BeginPlay() {
 
     // Estamos perdiendo referencia a player camera.
     _PlayerCamera = Cast<UCameraComponent>(this->GetComponentByClass(UCameraComponent::StaticClass()));
-    _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
-
-    //_MenuInteractionComp->_Light = Cast<USpotLightComponent>(this->GetComponentByClass(USpotLightComponent::StaticClass()));
 
     bHeadTurn = false;
     bHeadTurning = false;
@@ -237,8 +226,8 @@ void AVRCharacter::AfterPossessed(bool SetInventory, bool respawning) {
 		}
 	}
 
-    APlayerControllerPlay* PCP = Cast<APlayerControllerPlay>(GetController());
-    if (PCP) bInventoryActive = !PCP->GetVRInventory()->bIsVRInventoryHidden;
+    // Imaginamos que es false al principio (debería)
+    bInventoryActive = false;
 }
 
 void AVRCharacter::Tick(float deltaTime) {
@@ -335,8 +324,6 @@ void AVRCharacter::TurnRightComfort() {
 		AddControllerYawInput(+15.f);
 	}
 }
-
-
 
 /************** OVERLAPPING *************/
 void AVRCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -506,9 +493,7 @@ void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
         }
         else if (_ActorFocusedLeft) UseTriggerPressed(_ActorFocusedLeft, _SM_LeftHand, 1);
     }
-    else if (!IsMenuHidden) { 
-        //GEngine->AddOnScreenDebugMessage(0, 60.f, FColor::Green, FString::Printf(TEXT("Entro en puntero.")));
-        _MenuInteractionComp->PressPointer(); }
+    else if (!IsMenuHidden) _MenuInteractionComp->PressPointer();
     else if (bInventoryActive) _LeftInteractor->PressPointerKey(EKeys::LeftMouseButton);
 
     /* ANIMATION */
@@ -530,7 +515,7 @@ void AVRCharacter::UseLeftReleased(bool IsMenuHidden) {
         }
         else if (_ActorFocusedLeft || _ActorGrabbing) UseTriggerReleased(_ActorFocusedLeft, _SM_LeftHand, 1);
     }
-    else if (!IsMenuHidden) _MenuInteractionComp->PressPointer();
+    else if (!IsMenuHidden) _MenuInteractionComp->ReleasePointer();
     else if (bInventoryActive) _LeftInteractor->ReleasePointerKey(EKeys::LeftMouseButton);
 
     /* ANIMATION */

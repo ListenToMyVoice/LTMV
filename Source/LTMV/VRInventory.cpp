@@ -47,11 +47,13 @@ void AVRInventory::Tick(float DeltaTime)
 
 void AVRInventory::ToggleVRInventory(FVector Location, FRotator Rotation) {
     if (!bIsVRInventoryHidden) {
-        SetActorHiddenInGame(bIsVRInventoryHidden);
+        SetActorHiddenInGame(!bIsVRInventoryHidden);
+        SetActorTickEnabled(bIsVRInventoryHidden);
     }
     else {
         SetActorHiddenInGame(!bIsVRInventoryHidden);
-        SetActorLocationAndRotation(Location, Rotation);
+        SetActorTickEnabled(bIsVRInventoryHidden);
+        SetActorLocationAndRotation(Location, Rotation, false, nullptr, ETeleportType::TeleportPhysics);
     }
     bIsVRInventoryHidden = !bIsVRInventoryHidden;
 }
