@@ -53,10 +53,18 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetOnlyOwnerSee(false);
-
+    
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
 	_PlayerCamera->bLockToHmd = true;
     _PlayerCamera->PostProcessBlendWeight = 1;
+
+    if (_PlayerCamera) {
+        UE_LOG(LogTemp, Warning, TEXT("Camara CONSTRUIDA en VR Char."));
+    }
+    else {
+        UE_LOG(LogTemp, Warning, TEXT("Camara NO CONSTRUIDA en VR Char."));
+    }
+
     _ChaperoneComp = CreateDefaultSubobject<USteamVRChaperoneComponent>(TEXT("_ChaperoneComp"));
     _ChaperoneComp->Activate();
 
@@ -110,6 +118,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     /* LEFT SPLINE */
     _LeftSpline = CreateDefaultSubobject<USplineMeshComponent>(TEXT("Left Spline"));
     _LeftSpline->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftSpline->SetMobility(EComponentMobility::Movable);
     _LeftSpline->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
 
     _LeftSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
@@ -155,6 +164,7 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     /* RIGHT SPLINE */
     _RightSpline = CreateDefaultSubobject<USplineMeshComponent>(TEXT("Right Spline"));
     _RightSpline->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightSpline->SetMobility(EComponentMobility::Movable);
     _RightSpline->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
 
     _RightSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
@@ -173,6 +183,12 @@ void AVRCharacter::BeginPlay() {
         APlayerController* const PC = Cast<APlayerController>(GetController());
         PC->InputYawScale = 1.0f;
     }
+
+    // Estamos perdiendo referencia a player camera.
+    _PlayerCamera = Cast<UCameraComponent>(this->GetComponentByClass(UCameraComponent::StaticClass()));
+    _MenuInteractionComp->AttachToComponent(_PlayerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+
+    //_MenuInteractionComp->_Light = Cast<USpotLightComponent>(this->GetComponentByClass(USpotLightComponent::StaticClass()));
 
     bHeadTurn = false;
     bHeadTurning = false;
@@ -238,8 +254,8 @@ void AVRCharacter::Tick(float deltaTime) {
     SERVER_UpdateComponentPosition(_RightHandComp, _RightHandComp->RelativeLocation,
                                                    _RightHandComp->RelativeRotation);
 
-    UpdateWidgetLeftBeam();
-    UpdateWidgetRightBeam();
+    //UpdateWidgetLeftBeam();
+    //UpdateWidgetRightBeam();
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -281,21 +297,21 @@ void AVRCharacter::FadeDisplay() {// T
 }
 
 void AVRCharacter::MoveForward(float Value) {
-	float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw - 90.f;
+    float CameraYaw = _PlayerCamera->GetComponentRotation().Yaw - 90.f;
 
-	if (Value > 0) {
-		GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
-											 CameraYaw,
-											 GetMesh()->GetComponentRotation().Roll));
-	}
-	else if (Value < 0) {
-		GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
-											 CameraYaw,
-											 GetMesh()->GetComponentRotation().Roll));
-	}
+    if (Value > 0) {
+        GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
+            CameraYaw,
+            GetMesh()->GetComponentRotation().Roll));
+    }
+    else if (Value < 0) {
+        GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,
+            CameraYaw,
+            GetMesh()->GetComponentRotation().Roll));
+    }
 
-	AddMovementInput(FVector(_PlayerCamera->GetForwardVector().X, _PlayerCamera->GetForwardVector().Y, 0.f), Value);
-	CheckFloorMaterial();
+    AddMovementInput(FVector(_PlayerCamera->GetForwardVector().X, _PlayerCamera->GetForwardVector().Y, 0.f), Value);
+    CheckFloorMaterial();
 }
 
 // Funciones input que probablemente haya que replicar también.
@@ -474,6 +490,8 @@ void AVRCharacter::MULTI_UpdateMeshWithCamera_Implementation() {
 /****************************************** ACTION MAPPINGS **************************************/
 /******** USE ITEM LEFT *********/
 void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
+    //GEngine->AddOnScreenDebugMessage(0, 60.f, FColor::Green, FString::Printf(TEXT("El inventario esta activo? %s"), bInventoryActive ? TEXT("Si") : TEXT("No")));
+    //GEngine->AddOnScreenDebugMessage(0, 60.f, FColor::Green, FString::Printf(TEXT("El menu esta oculto? %s"), IsMenuHidden ? TEXT("Si") : TEXT("No")));
     if (IsMenuHidden && !bInventoryActive) {
         if (_ItemLeft) {
             TArray<UActorComponent*> Components;
@@ -488,7 +506,9 @@ void AVRCharacter::UseLeftPressed(bool IsMenuHidden) {
         }
         else if (_ActorFocusedLeft) UseTriggerPressed(_ActorFocusedLeft, _SM_LeftHand, 1);
     }
-    else if (!IsMenuHidden) _MenuInteractionComp->PressPointer();
+    else if (!IsMenuHidden) { 
+        //GEngine->AddOnScreenDebugMessage(0, 60.f, FColor::Green, FString::Printf(TEXT("Entro en puntero.")));
+        _MenuInteractionComp->PressPointer(); }
     else if (bInventoryActive) _LeftInteractor->PressPointerKey(EKeys::LeftMouseButton);
 
     /* ANIMATION */
@@ -828,6 +848,54 @@ void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
     _RightInteractor->SetComponentTickEnabled(bActivate);
     _RightInteractor->SetHiddenInGame(!bActivate);
     _RightInteractor->SetIsReplicated(bActivate);
+
+    if (_LeftInteractor->IsActive() && _LeftInteractor->IsOverHitTestVisibleWidget()) {
+        UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_LeftInteractor->GetHoveredWidgetComponent());
+        if (VRInventoryWidgetComponent) {
+            AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
+            if (VRInventoryActor) {
+                FVector StartPoint = _LeftHandComp->GetComponentLocation();
+                FVector EndPoint = StartPoint + _LeftHandComp->GetForwardVector()*_LeftInteractor->InteractionDistance;
+                FHitResult WidgetHit;
+
+                if (GetWorld()->LineTraceSingleByChannel(WidgetHit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility)) {
+                    _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, WidgetHit.Location, WidgetHit.Location, true);
+                }
+                else {
+                    _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
+                }
+            }
+        }
+    }
+    else {
+        FVector StartPoint = _LeftHandComp->GetComponentLocation();
+        FVector EndPoint = StartPoint;
+        _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
+    }
+
+    if (_RightInteractor->IsActive() && _RightInteractor->IsOverHitTestVisibleWidget()) {
+        UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_RightInteractor->GetHoveredWidgetComponent());
+        if (VRInventoryWidgetComponent) {
+            AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
+            if (VRInventoryActor) {
+                FVector StartPoint = _RightHandComp->GetComponentLocation();
+                FVector EndPoint = StartPoint + _RightHandComp->GetForwardVector()*_RightInteractor->InteractionDistance;
+                FHitResult WidgetHit;
+
+                if (GetWorld()->LineTraceSingleByChannel(WidgetHit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility)) {
+                    _RightSpline->SetStartAndEnd(StartPoint, StartPoint, WidgetHit.Location, WidgetHit.Location, true);
+                }
+                else {
+                    _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
+                }
+            }
+        }
+    }
+    else {
+        FVector StartPoint = _RightHandComp->GetComponentLocation();
+        FVector EndPoint = StartPoint;
+        _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
+    }
 }
 
 void AVRCharacter::UpdateWidgetLeftBeam() {
