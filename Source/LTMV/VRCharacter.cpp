@@ -266,8 +266,8 @@ void AVRCharacter::Tick(float deltaTime) {
     SERVER_UpdateComponentPosition(_RightHandComp, _RightHandComp->RelativeLocation,
                                                    _RightHandComp->RelativeRotation);
 
-    //UpdateWidgetLeftBeam();
-    //UpdateWidgetRightBeam();
+    UpdateWidgetLeftBeam();
+    UpdateWidgetRightBeam();
 }
 
 void AVRCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput) {
@@ -856,8 +856,10 @@ void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
     _RightInteractor->SetComponentTickEnabled(bActivate);
     _RightInteractor->SetHiddenInGame(!bActivate);
     _RightInteractor->SetIsReplicated(bActivate);
+}
 
-    /*if (_LeftInteractor->IsActive() && _LeftInteractor->IsOverHitTestVisibleWidget()) {
+void AVRCharacter::UpdateWidgetLeftBeam() {
+    if (_LeftInteractor->IsActive() && _LeftInteractor->IsOverHitTestVisibleWidget()) {
         UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_LeftInteractor->GetHoveredWidgetComponent());
         if (VRInventoryWidgetComponent) {
             AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
@@ -880,7 +882,9 @@ void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
         FVector EndPoint = StartPoint;
         _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
     }
+}
 
+void AVRCharacter::UpdateWidgetRightBeam() {
     if (_RightInteractor->IsActive() && _RightInteractor->IsOverHitTestVisibleWidget()) {
         UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_RightInteractor->GetHoveredWidgetComponent());
         if (VRInventoryWidgetComponent) {
@@ -903,58 +907,6 @@ void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
         FVector StartPoint = _RightHandComp->GetComponentLocation();
         FVector EndPoint = StartPoint;
         _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
-    }*/
-}
-
-void AVRCharacter::UpdateWidgetLeftBeam() {
-    if (_LeftInteractor->IsActive() && _LeftInteractor->IsOverHitTestVisibleWidget()) {
-        UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_LeftInteractor->GetHoveredWidgetComponent());
-        if (VRInventoryWidgetComponent) {
-            AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
-            if (VRInventoryActor) {
-                FVector StartPoint = _LeftHandComp->GetComponentLocation();
-                FVector EndPoint = StartPoint + _LeftHandComp->GetForwardVector()*_LeftInteractor->InteractionDistance;
-                FHitResult WidgetHit;
-
-                if (GetWorld()->LineTraceSingleByChannel(WidgetHit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility)) {
-                    _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, WidgetHit.Location, WidgetHit.Location, false);
-                }
-                else {
-                    _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
-                }
-            }
-        }
-    }
-    else {
-        FVector StartPoint = _LeftHandComp->GetComponentLocation();
-        FVector EndPoint = StartPoint;
-        _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
-    }
-}
-
-void AVRCharacter::UpdateWidgetRightBeam() {
-    if (_RightInteractor->IsActive() && _RightInteractor->IsOverHitTestVisibleWidget()) {
-        UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_RightInteractor->GetHoveredWidgetComponent());
-        if (VRInventoryWidgetComponent) {
-            AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
-            if (VRInventoryActor) {
-                FVector StartPoint = _RightHandComp->GetComponentLocation();
-                FVector EndPoint = StartPoint + _RightHandComp->GetForwardVector()*_RightInteractor->InteractionDistance;
-                FHitResult WidgetHit;
-
-                if (GetWorld()->LineTraceSingleByChannel(WidgetHit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility)) {
-                    _RightSpline->SetStartAndEnd(StartPoint, StartPoint, WidgetHit.Location, WidgetHit.Location, false);
-                }
-                else {
-                    _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
-                }
-            }
-        }
-    }
-    else {
-        FVector StartPoint = _RightHandComp->GetComponentLocation();
-        FVector EndPoint = StartPoint;
-        _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, false);
     }
 }
 
