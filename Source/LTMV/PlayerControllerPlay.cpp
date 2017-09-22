@@ -335,7 +335,8 @@ void APlayerControllerPlay::CLIENT_ToggleVRInventory_Implementation() {
                     (CameraComp->GetForwardVector().GetSafeNormal() * 200);
 
                 _VRInventoryActor->ToggleVRInventory(Location,
-                                                     CameraComp->GetComponentRotation().GetInverse());
+                                                     FRotator(-CameraComp->GetComponentRotation().Pitch, 
+                                                              CameraComp->GetComponentRotation().Yaw + 180.f, 0.f));
 
                 AVRCharacter* VRPlayer = Cast<AVRCharacter>(GetPawn());
                 if (VRPlayer) {
@@ -352,7 +353,8 @@ void APlayerControllerPlay::CLIENT_ToggleVRInventory_Implementation() {
                     (CameraComp->GetForwardVector().GetSafeNormal() * 200);
 
                 _VRInventoryActor->ToggleVRInventory(Location,
-                                                     CameraComp->GetComponentRotation().GetInverse());
+                                                     FRotator(-CameraComp->GetComponentRotation().Pitch, 
+                                                              CameraComp->GetComponentRotation().Yaw + 180.f, 0.f));
 
                 AVRCharacter* VRPlayer = Cast<AVRCharacter>(GetPawn());
                 if (VRPlayer) {
