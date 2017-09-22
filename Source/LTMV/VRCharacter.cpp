@@ -176,8 +176,31 @@ void AVRCharacter::BeginPlay() {
         PC->InputYawScale = 1.0f;
     }
 
-    // Estamos perdiendo referencia a player camera.
+    // Estamos perdiendo referencia a player camera y a esfera derecha.
     _PlayerCamera = Cast<UCameraComponent>(this->GetComponentByClass(UCameraComponent::StaticClass()));
+    TArray<UActorComponent*> SphereComponents = this->GetComponentsByClass(USphereComponent::StaticClass());
+    for (UActorComponent* Component : SphereComponents) {
+        if (Component->GetName() == FString(TEXT("_RightSphere"))) {
+            _RightSphere = Cast<USphereComponent>(Component);
+        }
+    }
+
+    // Reference Checklist
+    if (_VROriginComp) UE_LOG(LogTemp, Warning, TEXT("A. VR Origin."));
+    if (_ChaperoneComp) UE_LOG(LogTemp, Warning, TEXT("B. Hay chaperone."));
+    if (_Inventory) UE_LOG(LogTemp, Warning, TEXT("C. Hay inventario."));
+
+    if (_LeftHandComp) UE_LOG(LogTemp, Warning, TEXT("1i. Hay controller de izquierdo."));
+    if (_SM_LeftHand) UE_LOG(LogTemp, Warning, TEXT("2i. Hay mano izquierda."));
+    if (_LeftSphere) UE_LOG(LogTemp, Warning, TEXT("3i. Hay esfera izquierda."));
+    if (_LeftInteractor) UE_LOG(LogTemp, Warning, TEXT("4i. Hay interactor izquierdo."));
+    if (_LeftSpline) UE_LOG(LogTemp, Warning, TEXT("5i. Hay spline izquierdo."));
+
+    if (_RightHandComp) UE_LOG(LogTemp, Warning, TEXT("1d. Hay controller de derecha."));
+    if (_SM_RightHand) UE_LOG(LogTemp, Warning, TEXT("2d. Hay mano derecha."));
+    if (_RightSphere) UE_LOG(LogTemp, Warning, TEXT("3d. Hay esfera derecha."));
+    if (_RightInteractor) UE_LOG(LogTemp, Warning, TEXT("4d. Hay interactor derecho."));
+    if (_RightSpline) UE_LOG(LogTemp, Warning, TEXT("5d. Hay spline derecho."));
 
     bHeadTurn = false;
     bHeadTurning = false;
@@ -834,7 +857,7 @@ void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
     _RightInteractor->SetHiddenInGame(!bActivate);
     _RightInteractor->SetIsReplicated(bActivate);
 
-    if (_LeftInteractor->IsActive() && _LeftInteractor->IsOverHitTestVisibleWidget()) {
+    /*if (_LeftInteractor->IsActive() && _LeftInteractor->IsOverHitTestVisibleWidget()) {
         UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_LeftInteractor->GetHoveredWidgetComponent());
         if (VRInventoryWidgetComponent) {
             AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
@@ -880,7 +903,7 @@ void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
         FVector StartPoint = _RightHandComp->GetComponentLocation();
         FVector EndPoint = StartPoint;
         _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
-    }
+    }*/
 }
 
 void AVRCharacter::UpdateWidgetLeftBeam() {
