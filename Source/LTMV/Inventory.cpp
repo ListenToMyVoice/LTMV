@@ -40,11 +40,7 @@ void UInventory::AddItem(AActor* item) {
 }
 
 void UInventory::RemoveItem(AActor* itemToRemove) {
-
-    for (AActor* item : _items) {
-        if (itemToRemove == item) itemToRemove = item;
-    }
-    _items.Remove(itemToRemove);
+    _items.RemoveSingle(itemToRemove);
 }
 
 UTexture2D* UInventory::GetItemTextureAt(int itemIndex) {

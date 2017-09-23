@@ -3,6 +3,7 @@
 #pragma once
 
 #include "PlayerCharacter.h"
+#include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
 #include "MotionControllerComponent.h"
 #include "WidgetInteractionComponent.h"
@@ -85,6 +86,8 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UWidgetInteractionComponent* _LeftInteractor;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USplineComponent* _LeftBeam;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     USplineMeshComponent* _LeftSpline;
     /*********** RIGHT ***********/
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -95,6 +98,8 @@ protected:
     USphereComponent* _RightSphere;
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UWidgetInteractionComponent* _RightInteractor;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    USplineComponent* _RightBeam;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     USplineMeshComponent* _RightSpline;
 

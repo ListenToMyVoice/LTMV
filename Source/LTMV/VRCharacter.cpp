@@ -53,6 +53,8 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetOnlyOwnerSee(false);
+
+    _StepsAudioComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("Foot"));
     
     _PlayerCamera->AttachToComponent(_VROriginComp, FAttachmentTransformRules::KeepRelativeTransform);
 	_PlayerCamera->bLockToHmd = true;
@@ -108,11 +110,24 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _LeftInteractor->SetVisibility(true);
     _LeftInteractor->SetActive(false);
 
+    /* LEFT BEAM */
+    _LeftBeam = CreateDefaultSubobject<USplineComponent>(TEXT("Left Beam"));
+    _LeftBeam->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftBeam->SetRelativeLocation(FVector(25.f, 0.f, 0.f));
+    _LeftBeam->SetMobility(EComponentMobility::Movable);
+    _LeftBeam->SetDrawDebug(false);
+    _LeftBeam->Activate(true);
+
     /* LEFT SPLINE */
     _LeftSpline = CreateDefaultSubobject<USplineMeshComponent>(TEXT("Left Spline"));
-    _LeftSpline->AttachToComponent(_SM_LeftHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftSpline->AttachToComponent(_LeftBeam, FAttachmentTransformRules::KeepRelativeTransform);
+    _LeftSpline->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+    _LeftSpline->SetRelativeRotation(FRotator(0.f, 0.f, -90.f));
+    _LeftSpline->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    _LeftSpline->bGenerateOverlapEvents = false;
     _LeftSpline->SetMobility(EComponentMobility::Movable);
-    _LeftSpline->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+    _LeftSpline->bAllowSplineEditingPerInstance = true;
+    _LeftSpline->Activate(true);
 
     _LeftSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
     _LeftSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
@@ -154,11 +169,24 @@ AVRCharacter::AVRCharacter(const FObjectInitializer& OI) : Super(OI) {
     _RightInteractor->SetVisibility(true);
     _RightInteractor->SetActive(false);
 
+    /* RIGHT BEAM */
+    _RightBeam = CreateDefaultSubobject<USplineComponent>(TEXT("Right Beam"));
+    _RightBeam->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightBeam->SetRelativeLocation(FVector(25.f, 0.f, 0.f));
+    _RightBeam->SetMobility(EComponentMobility::Movable);
+    _RightBeam->SetDrawDebug(false);
+    _RightBeam->Activate(true);
+
     /* RIGHT SPLINE */
     _RightSpline = CreateDefaultSubobject<USplineMeshComponent>(TEXT("Right Spline"));
-    _RightSpline->AttachToComponent(_SM_RightHand, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightSpline->AttachToComponent(_RightBeam, FAttachmentTransformRules::KeepRelativeTransform);
+    _RightSpline->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+    _RightSpline->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
+    _RightSpline->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    _RightSpline->bGenerateOverlapEvents = false;
     _RightSpline->SetMobility(EComponentMobility::Movable);
-    _RightSpline->SetRelativeLocation(FVector(10.f, 0.f, 0.f));
+    _RightSpline->bAllowSplineEditingPerInstance = true;
+    _RightSpline->Activate(true);
 
     _RightSphere->OnComponentBeginOverlap.AddDynamic(this, &AVRCharacter::OnOverlap);
     _RightSphere->OnComponentEndOverlap.AddDynamic(this, &AVRCharacter::OnEndOverlap);
@@ -176,12 +204,18 @@ void AVRCharacter::BeginPlay() {
         PC->InputYawScale = 1.0f;
     }
 
-    // Estamos perdiendo referencia a player camera y a esfera derecha.
+    // Estamos perdiendo varias referencias, cada vez mas.
     _PlayerCamera = Cast<UCameraComponent>(this->GetComponentByClass(UCameraComponent::StaticClass()));
     TArray<UActorComponent*> SphereComponents = this->GetComponentsByClass(USphereComponent::StaticClass());
     for (UActorComponent* Component : SphereComponents) {
         if (Component->GetName() == FString(TEXT("_RightSphere"))) {
             _RightSphere = Cast<USphereComponent>(Component);
+        }
+    }
+    TArray<UActorComponent*> MComponents = this->GetComponentsByClass(UMotionControllerComponent::StaticClass());
+    for (UActorComponent* Component : MComponents) {
+        if (Component->GetName() == FString(TEXT("_RightHandComp"))) {
+            _RightHandComp = Cast<UMotionControllerComponent>(Component);
         }
     }
 
@@ -194,13 +228,15 @@ void AVRCharacter::BeginPlay() {
     if (_SM_LeftHand) UE_LOG(LogTemp, Warning, TEXT("2i. Hay mano izquierda."));
     if (_LeftSphere) UE_LOG(LogTemp, Warning, TEXT("3i. Hay esfera izquierda."));
     if (_LeftInteractor) UE_LOG(LogTemp, Warning, TEXT("4i. Hay interactor izquierdo."));
-    if (_LeftSpline) UE_LOG(LogTemp, Warning, TEXT("5i. Hay spline izquierdo."));
+    if (_LeftBeam) UE_LOG(LogTemp, Warning, TEXT("5i. Hay beam izquierdo."));
+    if (_LeftSpline) UE_LOG(LogTemp, Warning, TEXT("6i. Hay spline izquierdo."));
 
     if (_RightHandComp) UE_LOG(LogTemp, Warning, TEXT("1d. Hay controller de derecha."));
     if (_SM_RightHand) UE_LOG(LogTemp, Warning, TEXT("2d. Hay mano derecha."));
     if (_RightSphere) UE_LOG(LogTemp, Warning, TEXT("3d. Hay esfera derecha."));
     if (_RightInteractor) UE_LOG(LogTemp, Warning, TEXT("4d. Hay interactor derecho."));
-    if (_RightSpline) UE_LOG(LogTemp, Warning, TEXT("5d. Hay spline derecho."));
+    if (_RightBeam) UE_LOG(LogTemp, Warning, TEXT("5d. Hay beam derecho."));
+    if (_RightSpline) UE_LOG(LogTemp, Warning, TEXT("6d. Hay spline derecho."));
 
     bHeadTurn = false;
     bHeadTurning = false;
@@ -797,43 +833,41 @@ void AVRCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
         UStaticMeshComponent::StaticClass()));
 
     // DROP TO ALTAR
-	if (ItemMesh && _ActorFocusedLeft && !bInventoryActive &&
+	if (ItemMesh && _ActorFocusedLeft && !bInventoryActive && Hand == 1 &&
 		_ActorFocusedLeft->GetComponentByClass(UTokenHolder::StaticClass()) &&
 		ItemActor->GetComponentByClass(UToken::StaticClass())) {
 
 		UTokenHolder* Holder = Cast<UTokenHolder>(_ActorFocusedLeft->GetComponentByClass(UTokenHolder::StaticClass()));
 
 		ItemMesh->SetMobility(EComponentMobility::Movable);
-		ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-		
-		ItemMesh->AttachToComponent(Cast<UStaticMeshComponent>(_ActorFocusedLeft),
-									FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("TablillaSocket"));
+        ItemActor->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+		ItemActor->AttachToActor(_ActorFocusedLeft, FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocketVR_L"));
 
+        _Inventory->RemoveItem(ItemActor);
 		Holder->_Tablilla = ItemActor;
 	}
 
-	else if (ItemMesh && _ActorFocusedRight && !bInventoryActive &&
+	else if (ItemMesh && _ActorFocusedRight && !bInventoryActive && Hand == 2 &&
 		_ActorFocusedRight->GetComponentByClass(UTokenHolder::StaticClass()) &&
         ItemActor->GetComponentByClass(UToken::StaticClass())) {
 	
 		UTokenHolder* Holder = Cast<UTokenHolder>(_ActorFocusedRight->GetComponentByClass(UTokenHolder::StaticClass()));
 
 		ItemMesh->SetMobility(EComponentMobility::Movable);
-		ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+        ItemActor->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+        ItemActor->AttachToActor(_ActorFocusedRight, FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocketVR_R"));
 
-		ItemMesh->AttachToComponent(Cast<UStaticMeshComponent>(_ActorFocusedRight),
-									FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocket"));
-
+        _Inventory->RemoveItem(ItemActor);
 		Holder->_Tablilla = ItemActor;		
 	}
 
     // DROP TO WORLD
     else if (ItemMesh && !bInventoryActive) {
         ItemMesh->SetMobility(EComponentMobility::Movable);
-        ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+        ItemMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
         ItemMesh->SetSimulatePhysics(true);
-
         ItemActor->SetActorEnableCollision(true);
+        if (ItemActor->GetComponentByClass(UInventoryItem::StaticClass())) _Inventory->RemoveItem(ItemActor);
     }
 
     // DROP TO INVENTORY
@@ -859,55 +893,64 @@ void AVRCharacter::ToggleInventoryInteraction(bool bActivate) {
 }
 
 void AVRCharacter::UpdateWidgetLeftBeam() {
+    FVector StartPoint = _LeftBeam->GetComponentLocation();
+    FVector EndPoint = StartPoint + _LeftBeam->GetForwardVector() * _LeftInteractor->InteractionDistance;
+    _LeftBeam->SetLocationAtSplinePoint(0, StartPoint, ESplineCoordinateSpace::World, true);
+
     if (_LeftInteractor->IsActive() && _LeftInteractor->IsOverHitTestVisibleWidget()) {
         UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_LeftInteractor->GetHoveredWidgetComponent());
         if (VRInventoryWidgetComponent) {
             AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
             if (VRInventoryActor) {
-                FVector StartPoint = _LeftHandComp->GetComponentLocation();
-                FVector EndPoint = StartPoint + _LeftHandComp->GetForwardVector()*_LeftInteractor->InteractionDistance;
                 FHitResult WidgetHit;
-
                 if (GetWorld()->LineTraceSingleByChannel(WidgetHit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility)) {
-                    _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, WidgetHit.Location, WidgetHit.Location, true);
+                    _LeftBeam->SetLocationAtSplinePoint(1, WidgetHit.Location, ESplineCoordinateSpace::World, true);
                 }
                 else {
-                    _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
+                    _LeftBeam->SetLocationAtSplinePoint(1, StartPoint, ESplineCoordinateSpace::World, true);
                 }
             }
         }
     }
     else {
-        FVector StartPoint = _LeftHandComp->GetComponentLocation();
-        FVector EndPoint = StartPoint;
-        _LeftSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
+        _LeftBeam->SetLocationAtSplinePoint(1, StartPoint, ESplineCoordinateSpace::World, true);
     }
+
+    _LeftSpline->SetStartAndEnd(_LeftBeam->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::Local),
+                                _LeftBeam->GetTangentAtSplinePoint(0, ESplineCoordinateSpace::Local),
+                                _LeftBeam->GetLocationAtSplinePoint(1, ESplineCoordinateSpace::Local),
+                                _LeftBeam->GetTangentAtSplinePoint(1, ESplineCoordinateSpace::Local), true);
+
 }
 
 void AVRCharacter::UpdateWidgetRightBeam() {
+    FVector StartPoint = _RightBeam->GetComponentLocation();
+    FVector EndPoint = StartPoint + _RightBeam->GetForwardVector() * _RightInteractor->InteractionDistance;
+    _RightBeam->SetLocationAtSplinePoint(0, StartPoint, ESplineCoordinateSpace::World, true);
+
     if (_RightInteractor->IsActive() && _RightInteractor->IsOverHitTestVisibleWidget()) {
         UWidgetComponent* VRInventoryWidgetComponent = Cast<UWidgetComponent>(_RightInteractor->GetHoveredWidgetComponent());
         if (VRInventoryWidgetComponent) {
             AVRInventory* VRInventoryActor = Cast<AVRInventory>(VRInventoryWidgetComponent->GetOwner());
             if (VRInventoryActor) {
-                FVector StartPoint = _RightHandComp->GetComponentLocation();
-                FVector EndPoint = StartPoint + _RightHandComp->GetForwardVector()*_RightInteractor->InteractionDistance;
                 FHitResult WidgetHit;
-
                 if (GetWorld()->LineTraceSingleByChannel(WidgetHit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility)) {
-                    _RightSpline->SetStartAndEnd(StartPoint, StartPoint, WidgetHit.Location, WidgetHit.Location, true);
+                    _RightBeam->SetLocationAtSplinePoint(1, WidgetHit.Location, ESplineCoordinateSpace::World, true);
                 }
                 else {
-                    _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
+                    _RightBeam->SetLocationAtSplinePoint(1, StartPoint, ESplineCoordinateSpace::World, true);
                 }
             }
         }
     }
     else {
-        FVector StartPoint = _RightHandComp->GetComponentLocation();
-        FVector EndPoint = StartPoint;
-        _RightSpline->SetStartAndEnd(StartPoint, StartPoint, EndPoint, EndPoint, true);
+        _RightBeam->SetLocationAtSplinePoint(1, StartPoint, ESplineCoordinateSpace::World, true);
     }
+
+    _RightSpline->SetStartAndEnd(_RightBeam->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::Local),
+                                 _RightBeam->GetTangentAtSplinePoint(0, ESplineCoordinateSpace::Local),
+                                 _RightBeam->GetLocationAtSplinePoint(1, ESplineCoordinateSpace::Local),
+                                 _RightBeam->GetTangentAtSplinePoint(1, ESplineCoordinateSpace::Local), true);
 }
 
 /**************************************** INVENTORY **********************************************/

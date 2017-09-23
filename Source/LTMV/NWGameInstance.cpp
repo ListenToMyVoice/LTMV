@@ -91,7 +91,6 @@ void UNWGameInstance::InitGame() {
 
     /* SWITCH PLAYER MODE */
     if (FParse::Param(FCommandLine::Get(), TEXT("vr"))) _IsVRMode = true;
-    _IsVRMode = true;
 
     if(GEngine) {
         IHeadMountedDisplay* HMD = (IHeadMountedDisplay*)(GEngine->HMDDevice.Get());

@@ -11,6 +11,9 @@
 
 UToken::UToken()
 {
+    _TokenPlacement = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Sound Placement"));
+    _TokenPlacement->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+
 	this->bVisible = true;
 	this->bHiddenInGame = true;
 
@@ -44,19 +47,20 @@ void UToken::UseItemPressed_Implementation() {
 		if (_Player && _Player->GetItemFocused() && 
 			_Player->GetItemFocused()->GetComponentByClass(UTokenHolder::StaticClass())) {
 			
-			if (_Player->GetItemLeft()->GetComponentByClass(UToken::StaticClass())) {
-				
+			if (_Player->GetItemLeft() && _Player->GetItemLeft()->GetComponentByClass(UToken::StaticClass())) {
 				_Player->TakeDropLeft();
 			}
 		
-			else if (_Player->GetItemRight()->GetComponentByClass(UToken::StaticClass())) {
-		
+			else if (_Player->GetItemRight() && _Player->GetItemRight()->GetComponentByClass(UToken::StaticClass())) {
 				_Player->TakeDropRight();
 			}
 		}
 	}
 
-	if (_TokenPlacement) _TokenPlacement->Play();
+    if (_PlaceEvent) {
+        _TokenPlacement->SetEvent(_PlaceEvent);
+        if (_TokenPlacement) _TokenPlacement->Play();
+    }
 }
 
 void UToken::UseItemReleased_Implementation() {}

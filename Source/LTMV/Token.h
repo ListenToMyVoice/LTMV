@@ -16,8 +16,9 @@ public:
 	// Sets default values for this component's properties
 	UToken();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FMOD Audio")
 	UFMODAudioComponent* _TokenPlacement;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FMOD Audio")
+    UFMODEvent* _PlaceEvent;
 
 	/*Inerfaces*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Use Item")
