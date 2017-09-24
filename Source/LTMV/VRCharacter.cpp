@@ -472,9 +472,6 @@ void AVRCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 /************************** UPDATE MESH POSITION AND ROTATIONS WITH HMD **************************/
 void AVRCharacter::UpdateMeshPostitionWithCamera() {
 
-    if (_PlayerCamera) { UE_LOG(LogTemp, Warning, TEXT("HAY CAMARA VR.")); }
-    else { UE_LOG(LogTemp, Warning, TEXT("NO HAY CAMARA VR.")); }
-
 	GetMesh()->SetWorldLocation(FVector(_PlayerCamera->GetComponentLocation().X,
 		_PlayerCamera->GetComponentLocation().Y,
 		GetMesh()->GetComponentLocation().Z));
