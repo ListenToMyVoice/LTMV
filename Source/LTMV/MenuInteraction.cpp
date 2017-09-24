@@ -34,7 +34,7 @@ void UMenuInteraction::BeginPlay() {
     SetHiddenInGame(true, true);
     SetVisibility(false, true);
 
-    _Light = Cast<USpotLightComponent>(GetOwner()->GetComponentByClass(USpotLightComponent::StaticClass()));
+    if (GetOwner()) _Light = Cast<USpotLightComponent>(GetOwner()->GetComponentByClass(USpotLightComponent::StaticClass()));
 }
 
 void UMenuInteraction::TickComponent(float DeltaTime, ELevelTick TickType,

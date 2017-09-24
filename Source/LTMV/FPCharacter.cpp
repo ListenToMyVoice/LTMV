@@ -620,7 +620,10 @@ void AFPCharacter::MULTI_Drop_Implementation(AActor* ItemActor, int Hand) {
 
 			ItemMesh->SetMobility(EComponentMobility::Movable);
 			ItemActor->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-			ItemActor->AttachToActor(ActorFocused, FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocket"));
+            if (Hand == 1)
+			    ItemActor->AttachToActor(ActorFocused, FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocket_L"));
+            else if (Hand == 2)
+                ItemActor->AttachToActor(ActorFocused, FAttachmentTransformRules::KeepRelativeTransform, TEXT("TablillaSocket_R"));
 
 			_Inventory->RemoveItem(ItemActor);
 			Holder->_Tablilla = ItemActor;

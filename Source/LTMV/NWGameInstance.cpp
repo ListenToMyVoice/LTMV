@@ -8,6 +8,7 @@
 #include "Menu3D.h"
 #include "VRInventory.h"
 #include "InputMenu.h"
+#include "MenuPanel.h"
 #include "VRCharacter.h"
 #include "FPCharacter.h"
 
@@ -603,6 +604,6 @@ void UNWGameInstance::OnButtonSelectFR(UInputMenu* InputMenu) {
 }
 void UNWGameInstance::OnButtonBackToMenu(UInputMenu* InputMenu) {
     APlayerControllerPlay* const PCP = Cast<APlayerControllerPlay>(GetFirstLocalPlayerController());
-    if (PCP) PCP->CreateDestroyVRInventoryActor(true);
+    if (PCP && _IsVRMode) PCP->CreateDestroyVRInventoryActor(true);
     DestroySession();
 }
